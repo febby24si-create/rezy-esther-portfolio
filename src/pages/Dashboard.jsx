@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { MdTrendingUp, MdTrendingDown, MdBuild, MdCheckCircle, MdSchedule, MdAttachMoney, MdAdd, MdPeople, MdDirectionsCar, MdInventory, MdBarChart, MdReceipt, MdChevronRight } from 'react-icons/md'
+import { MdTrendingUp, MdTrendingDown, MdBuild, MdCheckCircle, MdSchedule, MdAttachMoney, MdAdd, MdPeople, MdDirectionsCar, MdInventory, MdBarChart, MdReceipt, MdChevronRight, MdCalendarToday, MdNotifications } from 'react-icons/md'
 import PageHeader from '../components/PageHeader'
 import { revenueData, ordersData, scheduleData } from '../data/dummy'
+import carHero from '../assets/logo.png'
 
 const fmt = (n) => 'Rp ' + n.toLocaleString('id-ID')
 
@@ -50,22 +51,81 @@ export default function Dashboard() {
 
   return (
     <div className="page-animate space-y-6">
-      {/* Hero Banner */}
-      <div className="relative rounded-2xl overflow-hidden" style={{background:'linear-gradient(135deg, #0B3B2E 0%, #06281F 60%, #041C15 100%)', border:'1px solid rgba(34,197,94,0.15)', minHeight:'140px'}}>
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-20" style={{background:'radial-gradient(ellipse at right, #22C55E, transparent)'}}></div>
-          <div className="absolute inset-0" style={{backgroundImage:'repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(34,197,94,0.02) 40px, rgba(34,197,94,0.02) 41px)'}}></div>
-        </div>
-        <div className="relative z-10 p-6 flex items-center justify-between">
-          <div>
+      {/* ═══ HERO BANNER — persis referensi ═══ */}
+      <div className="relative rounded-2xl overflow-hidden flex" style={{minHeight:'200px', border:'1px solid rgba(34,197,94,0.15)'}}>
+
+        {/* ── KIRI: Teks welcome ── */}
+        <div className="relative z-10 flex flex-col justify-center px-8 py-6 flex-shrink-0" style={{background:'linear-gradient(135deg, #0B3B2E 0%, #083526 100%)', width:'42%'}}>
+          {/* Subtle grid pattern */}
+          <div className="absolute inset-0 opacity-5" style={{backgroundImage:'linear-gradient(rgba(34,197,94,1) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,1) 1px, transparent 1px)', backgroundSize:'30px 30px'}}/>
+          <div className="relative z-10">
             <p className="text-gray-400 text-sm mb-1">Selamat datang kembali,</p>
-            <h2 className="text-3xl font-display font-bold text-white mb-2">Esther Admin 👋</h2>
-            <p className="text-gray-400 text-sm">Pantau semua aktivitas bengkel esthergarage dari sini.</p>
+            <h2 className="font-display font-bold text-white mb-2 leading-tight" style={{fontSize:'28px'}}>
+              Esther Admin 👋
+            </h2>
+            <p className="text-gray-500 text-sm leading-relaxed">Pantau semua aktivitas bengkel esthergarage dari sini.</p>
           </div>
-          <div className="hidden md:flex items-center gap-3">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{background:'rgba(34,197,94,0.15)', border:'1px solid rgba(34,197,94,0.25)'}}>
-              <MdBuild size={32} className="text-green-400" />
+          {/* Right fade ke panel kanan */}
+          <div className="absolute inset-y-0 right-0 w-12" style={{background:'linear-gradient(90deg, transparent, rgba(4,28,21,0.3))'}}/>
+        </div>
+
+        {/* ── KANAN: Mobil + Logo + Tanggal ── */}
+        <div className="relative flex-1 overflow-hidden" style={{background:'linear-gradient(135deg, #051a0e 0%, #071f12 40%, #040f08 100%)'}}>
+
+          {/* Cahaya lampu sorot dari atas (suasana garasi) */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-full" style={{background:'radial-gradient(ellipse at 50% -10%, rgba(34,197,94,0.2) 0%, transparent 65%)'}}/>
+          <div className="absolute top-0 right-8 w-40 h-3/4" style={{background:'radial-gradient(ellipse at 70% 0%, rgba(255,255,255,0.04) 0%, transparent 60%)'}}/>
+          {/* Lampu neon ceiling strip */}
+          <div className="absolute top-0 left-1/4 right-1/4 h-0.5 rounded-full" style={{background:'rgba(34,197,94,0.6)', boxShadow:'0 0 12px 3px rgba(34,197,94,0.35)'}}/>
+
+          {/* Dinding garasi kiri (shadow) */}
+          <div className="absolute inset-y-0 left-0 w-16" style={{background:'linear-gradient(90deg, rgba(0,0,0,0.5), transparent)'}}/>
+
+          {/* Logo esthergarage — tengah kiri panel kanan */}
+          <div className="absolute top-5 left-6 z-20 flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{background:'rgba(11,59,46,0.7)', backdropFilter:'blur(4px)', border:'1px solid rgba(34,197,94,0.3)'}}>
+              <MdBuild className="text-green-400" size={18}/>
             </div>
+            <div>
+              <p className="font-display font-bold text-white text-base leading-none tracking-wider">esther<span className="text-green-400">garage</span></p>
+              <p className="text-gray-500 text-xs tracking-widest uppercase" style={{fontSize:'9px'}}>bengkel terpercaya</p>
+            </div>
+          </div>
+
+          {/* Tanggal + Notif — kanan atas */}
+          <div className="absolute top-5 right-5 z-20 flex items-center gap-2.5">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl" style={{background:'rgba(11,59,46,0.65)', backdropFilter:'blur(8px)', border:'1px solid rgba(34,197,94,0.18)'}}>
+              <MdCalendarToday size={12} className="text-green-400"/>
+              <span className="text-white text-xs font-medium whitespace-nowrap">
+                {new Date().toLocaleDateString('id-ID',{weekday:'short', day:'numeric', month:'long', year:'numeric'})}
+              </span>
+            </div>
+            <div className="relative">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{background:'rgba(11,59,46,0.65)', backdropFilter:'blur(8px)', border:'1px solid rgba(34,197,94,0.18)'}}>
+                <MdNotifications size={16} className="text-gray-300"/>
+              </div>
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center font-bold text-white" style={{background:'#16A34A', fontSize:'9px'}}>3</span>
+            </div>
+          </div>
+
+          {/* Mobil sport — center bottom panel kanan */}
+          <div className="absolute inset-0 flex items-end justify-center">
+            {/* Ground shadow */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-8 w-3/4 rounded-full" style={{background:'radial-gradient(ellipse, rgba(34,197,94,0.2) 0%, transparent 70%)', filter:'blur(6px)'}}/>
+            <img
+              src={carHero}
+              alt="Sport Car"
+              className="relative z-10 select-none"
+              style={{
+                height:'170px',
+                width:'auto',
+                maxWidth:'85%',
+                objectFit:'contain',
+                filter:'drop-shadow(0 0 25px rgba(34,197,94,0.45)) drop-shadow(0 15px 35px rgba(0,0,0,0.9)) brightness(1.05) saturate(1.1)',
+                marginBottom:'-1px',
+              }}
+              draggable={false}
+            />
           </div>
         </div>
       </div>
