@@ -237,4 +237,9 @@
     background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.2), transparent);
     margin: 24px 0;
   }
+  /* Agar option pada select di modal terlihat */
+select option {
+  background-color: #06281F !important;
+  color: white !important;
+}
 }

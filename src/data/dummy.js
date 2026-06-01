@@ -98,3 +98,24 @@ export const vehiclesData = [
   { id: 'V-005', plate: 'D 2233 MNO', brand: 'Honda', model: 'Jazz', year: 2019, owner: 'Budi Santoso', type: 'Mobil', lastService: '2024-05-23' },
   { id: 'V-006', plate: 'F 4455 PQR', brand: 'Suzuki', model: 'Ertiga', year: 2021, owner: 'Rina Marlina', type: 'Mobil', lastService: '2024-05-23' },
 ];
+
+export const inventoryData = [
+  { id: 'INV-001', code: 'OL-001', name: 'Oli Mesin Shell Helix 10W-40', category: 'Oli', stock: 48, unit: 'liter', minStock: 10, buyPrice: 45000, sellPrice: 65000 },
+  { id: 'INV-002', code: 'OL-002', name: 'Oli Mesin Castrol GTX 20W-50', category: 'Oli', stock: 3, unit: 'liter', minStock: 10, buyPrice: 40000, sellPrice: 58000 },
+  { id: 'INV-003', code: 'OL-003', name: 'Oli Gardan AHM 90', category: 'Oli', stock: 0, unit: 'liter', minStock: 5, buyPrice: 22000, sellPrice: 35000 },
+  { id: 'INV-004', code: 'BN-001', name: 'Ban Luar Michelin 185/65 R15', category: 'Ban', stock: 12, unit: 'pcs', minStock: 4, buyPrice: 650000, sellPrice: 850000 },
+  { id: 'INV-005', code: 'BN-002', name: 'Ban Dalam IRC 80/90-14', category: 'Ban', stock: 2, unit: 'pcs', minStock: 5, buyPrice: 55000, sellPrice: 80000 },
+  { id: 'INV-006', code: 'AK-001', name: 'Aki GS Astra NS60', category: 'Aki', stock: 7, unit: 'pcs', minStock: 3, buyPrice: 420000, sellPrice: 550000 },
+  { id: 'INV-007', code: 'AK-002', name: 'Aki Yuasa YB5L-B', category: 'Aki', stock: 0, unit: 'pcs', minStock: 2, buyPrice: 180000, sellPrice: 250000 },
+  { id: 'INV-008', code: 'FL-001', name: 'Filter Oli Toyota Genuine', category: 'Filter', stock: 22, unit: 'pcs', minStock: 5, buyPrice: 35000, sellPrice: 55000 },
+  { id: 'INV-009', code: 'FL-002', name: 'Filter Udara Honda Jazz', category: 'Filter', stock: 4, unit: 'pcs', minStock: 5, buyPrice: 60000, sellPrice: 90000 },
+  { id: 'INV-010', code: 'FL-003', name: 'Filter Bahan Bakar Universal', category: 'Filter', stock: 15, unit: 'pcs', minStock: 5, buyPrice: 45000, sellPrice: 70000 },
+  { id: 'INV-011', code: 'RM-001', name: 'Kampas Rem Depan Avanza', category: 'Rem', stock: 8, unit: 'set', minStock: 3, buyPrice: 95000, sellPrice: 140000 },
+  { id: 'INV-012', code: 'RM-002', name: 'Kampas Rem Belakang Beat', category: 'Rem', stock: 1, unit: 'set', minStock: 3, buyPrice: 45000, sellPrice: 70000 },
+  { id: 'INV-013', code: 'RM-003', name: 'Minyak Rem Prestone DOT 3', category: 'Rem', stock: 18, unit: 'pcs', minStock: 5, buyPrice: 28000, sellPrice: 42000 },
+  { id: 'INV-014', code: 'LN-001', name: 'Busi NGK G-Power', category: 'Lainnya', stock: 30, unit: 'pcs', minStock: 10, buyPrice: 22000, sellPrice: 38000 },
+  { id: 'INV-015', code: 'LN-002', name: 'Radiator Coolant Prestone 1L', category: 'Lainnya', stock: 2, unit: 'pcs', minStock: 5, buyPrice: 55000, sellPrice: 80000 },
+  { id: 'INV-016', code: 'LN-003', name: 'Lem Gasket Permatex', category: 'Lainnya', stock: 9, unit: 'pcs', minStock: 3, buyPrice: 35000, sellPrice: 55000 },
+  { id: 'INV-017', code: 'LN-004', name: 'Kabel Aki Universal 50cm', category: 'Lainnya', stock: 14, unit: 'pcs', minStock: 4, buyPrice: 18000, sellPrice: 30000 },
+  { id: 'INV-018', code: 'OL-004', name: 'Oli Transmisi ATF Dexron III', category: 'Oli', stock: 11, unit: 'liter', minStock: 5, buyPrice: 52000, sellPrice: 75000 },
+];
