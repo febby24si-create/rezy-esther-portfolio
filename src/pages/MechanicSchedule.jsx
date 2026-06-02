@@ -1,19 +1,28 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   MdChevronLeft, MdChevronRight, MdAdd, MdClose, MdEdit,
   MdDelete, MdPerson, MdAccessTime, MdEventBusy, MdCheck,
   MdCalendarMonth, MdViewWeek, MdFilterList, MdCircle,
   MdNotes, MdWarning
 } from 'react-icons/md'
+import Pagination from '../components/Pagination'
+import mechanicsDataRaw from '../data/mechanicsData.json'
 
-// ─── Data ─────────────────────────────────────────────────────────────
-const mechanicsData = [
-  { id: 'M-001', name: 'Ahmad Supriyadi', specialty: 'Mesin & Transmisi', color: '#22C55E' },
-  { id: 'M-002', name: 'Budi Santoso',    specialty: 'Kelistrikan & AC',   color: '#60A5FA' },
-  { id: 'M-003', name: 'Cindy Permata',   specialty: 'Body & Cat',          color: '#F472B6' },
-  { id: 'M-004', name: 'Dedi Kurniawan',  specialty: 'Ban & Spooring',      color: '#FBBF24' },
-  { id: 'M-005', name: 'Eka Fitriani',    specialty: 'Servis Rutin',        color: '#A78BFA' },
-]
+// ─── Helper: generate warna unik berdasarkan nama ─────────────────────
+function stringToColor(str) {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  const hue = Math.abs(hash % 360)
+  return `hsl(${hue}, 70%, 55%)`
+}
+
+// ─── Siapkan data mekanik dengan properti color ──────────────────────
+const mechanicsData = mechanicsDataRaw.map(m => ({
+  ...m,
+  color: stringToColor(m.name)
+}))
 
 const SHIFT_TYPES = [
   { id: 'pagi',   label: 'Pagi',   time: '07:00 – 14:00', color: '#22C55E', bg: 'rgba(34,197,94,0.12)'  },
@@ -24,23 +33,16 @@ const SHIFT_TYPES = [
   { id: 'lembur', label: 'Lembur', time: '07:00 – 21:00', color: '#FB923C', bg: 'rgba(251,146,60,0.12)' },
 ]
 
-// Seed jadwal default untuk minggu ini
-function buildDefaultSchedule(weekDates) {
+// ─── Build jadwal default (semua null) ───────────────────────────────
+function buildDefaultSchedule(weekDates, mechanics) {
   const entries = []
-  const patterns = [
-    ['pagi','pagi','pagi','pagi','pagi','libur','libur'],
-    ['siang','siang','siang','siang','siang','pagi','libur'],
-    ['pagi','siang','pagi','siang','pagi','libur','cuti'],
-    ['pagi','pagi','siang','pagi','pagi','pagi','libur'],
-    ['sore','sore','sore','sore','sore','libur','libur'],
-  ]
-  mechanicsData.forEach((m, mi) => {
-    weekDates.forEach((date, di) => {
+  mechanics.forEach(m => {
+    weekDates.forEach(date => {
       entries.push({
         id: `${m.id}-${date}`,
         mechanicId: m.id,
         date,
-        shiftId: patterns[mi][di],
+        shiftId: null,
         note: '',
       })
     })
@@ -73,7 +75,6 @@ function isToday(dateStr) {
   return dateStr === new Date().toISOString().slice(0, 10)
 }
 
-// Avatar inisial
 function Avatar({ name, color, size = 32 }) {
   const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
   return (
@@ -120,9 +121,7 @@ function ShiftModal({ entry, mechanic, date, onClose, onSave, onDelete }) {
         style={{ background: 'linear-gradient(160deg,#061a14,#0a2e1e)', border: '1px solid rgba(34,197,94,0.2)', boxShadow: '0 25px 60px rgba(0,0,0,0.5)' }}
         onClick={e => e.stopPropagation()}>
 
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4"
-          style={{ borderBottom: '1px solid rgba(34,197,94,0.1)' }}>
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(34,197,94,0.1)' }}>
           <div>
             <p className="text-xs text-gray-500 mb-0.5">Atur Jadwal</p>
             <div className="flex items-center gap-2">
@@ -132,13 +131,10 @@ function ShiftModal({ entry, mechanic, date, onClose, onSave, onDelete }) {
               <span className="text-xs text-gray-400">{d.day}, {d.date} {d.month}</span>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5">
-            <MdClose size={18} />
-          </button>
+          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5"><MdClose size={18} /></button>
         </div>
 
         <div className="px-5 py-4 space-y-4">
-          {/* Pilih shift */}
           <div>
             <label className="block text-xs text-gray-500 mb-2">Tipe Shift</label>
             <div className="grid grid-cols-3 gap-2">
@@ -155,8 +151,6 @@ function ShiftModal({ entry, mechanic, date, onClose, onSave, onDelete }) {
               ))}
             </div>
           </div>
-
-          {/* Catatan */}
           <div>
             <label className="block text-xs text-gray-500 mb-1.5">Catatan (opsional)</label>
             <textarea value={note} onChange={e => setNote(e.target.value)}
@@ -167,20 +161,14 @@ function ShiftModal({ entry, mechanic, date, onClose, onSave, onDelete }) {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex items-center gap-2 px-5 py-4" style={{ borderTop: '1px solid rgba(34,197,94,0.1)' }}>
           {entry?.shiftId && (
-            <button onClick={() => onDelete(entry)}
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-red-400 hover:bg-red-500/15 transition-all flex-shrink-0">
+            <button onClick={() => onDelete(entry)} className="w-9 h-9 rounded-xl flex items-center justify-center text-red-400 hover:bg-red-500/15 transition-all flex-shrink-0">
               <MdDelete size={16} />
             </button>
           )}
-          <button onClick={onClose}
-            className="flex-1 py-2 rounded-xl text-sm text-gray-400 transition-all hover:bg-white/5"
-            style={{ border: '1px solid rgba(34,197,94,0.12)' }}>Batal</button>
-          <button onClick={() => onSave({ shiftId, note })}
-            className="flex-1 py-2 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90"
-            style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }}>
+          <button onClick={onClose} className="flex-1 py-2 rounded-xl text-sm text-gray-400 transition-all hover:bg-white/5" style={{ border: '1px solid rgba(34,197,94,0.12)' }}>Batal</button>
+          <button onClick={() => onSave({ shiftId, note })} className="flex-1 py-2 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90" style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }}>
             <MdCheck size={14} className="inline mr-1" />Simpan
           </button>
         </div>
@@ -206,8 +194,8 @@ function Legend() {
 }
 
 // ─── Ringkasan mingguan per mekanik ──────────────────────────────────
-function WeeklySummary({ mechanicId, entries }) {
-  const myEntries = entries.filter(e => e.mechanicId === mechanicId)
+function WeeklySummary({ mechanicId, entries, weekDates }) {
+  const myEntries = entries.filter(e => e.mechanicId === mechanicId && weekDates.includes(e.date))
   const counts = SHIFT_TYPES.reduce((acc, s) => {
     acc[s.id] = myEntries.filter(e => e.shiftId === s.id).length
     return acc
@@ -228,49 +216,40 @@ export default function MechanicSchedule() {
   const today = new Date().toISOString().slice(0, 10)
   const [currentWeekBase, setCurrentWeekBase] = useState(today)
   const [filterMechanic, setFilterMechanic] = useState('Semua')
-  const [editTarget, setEditTarget] = useState(null) // { entry, mechanic, date }
-  const [view, setView] = useState('week') // 'week' | 'list'
+  const [editTarget, setEditTarget] = useState(null)
+  const [view, setView] = useState('week')
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10 // Batasi mekanik per halaman di list/week view
 
   const weekDates = useMemo(() => getWeekDates(currentWeekBase), [currentWeekBase])
 
-  const [schedules, setSchedules] = useState(() => buildDefaultSchedule(weekDates))
+  const [schedules, setSchedules] = useState(() => buildDefaultSchedule(weekDates, mechanicsData))
 
-  // Navigasi minggu
+  // Update jadwal jika minggu berubah (tambah entry baru)
+  useEffect(() => {
+    setSchedules(prev => {
+      const existingIds = new Set(prev.map(e => e.id))
+      const newEntries = []
+      mechanicsData.forEach(m => {
+        weekDates.forEach(date => {
+          const id = `${m.id}-${date}`
+          if (!existingIds.has(id)) {
+            newEntries.push({ id, mechanicId: m.id, date, shiftId: null, note: '' })
+          }
+        })
+      })
+      return [...prev, ...newEntries]
+    })
+  }, [weekDates])
+
   const prevWeek = () => {
     const d = new Date(weekDates[0]); d.setDate(d.getDate() - 7)
-    const newDates = getWeekDates(d.toISOString().slice(0, 10))
-    setCurrentWeekBase(newDates[0])
-    // Seed jadwal untuk minggu baru jika belum ada
-    setSchedules(prev => {
-      const existing = new Set(prev.map(e => e.id))
-      const newEntries = []
-      mechanicsData.forEach(m => {
-        newDates.forEach(date => {
-          const id = `${m.id}-${date}`
-          if (!existing.has(id)) newEntries.push({ id, mechanicId: m.id, date, shiftId: null, note: '' })
-        })
-      })
-      return [...prev, ...newEntries]
-    })
+    setCurrentWeekBase(d.toISOString().slice(0, 10))
   }
-
   const nextWeek = () => {
     const d = new Date(weekDates[0]); d.setDate(d.getDate() + 7)
-    const newDates = getWeekDates(d.toISOString().slice(0, 10))
-    setCurrentWeekBase(newDates[0])
-    setSchedules(prev => {
-      const existing = new Set(prev.map(e => e.id))
-      const newEntries = []
-      mechanicsData.forEach(m => {
-        newDates.forEach(date => {
-          const id = `${m.id}-${date}`
-          if (!existing.has(id)) newEntries.push({ id, mechanicId: m.id, date, shiftId: null, note: '' })
-        })
-      })
-      return [...prev, ...newEntries]
-    })
+    setCurrentWeekBase(d.toISOString().slice(0, 10))
   }
-
   const goToday = () => setCurrentWeekBase(today)
 
   const getEntry = (mechanicId, date) =>
@@ -295,18 +274,25 @@ export default function MechanicSchedule() {
     setEditTarget(null)
   }
 
-  const visibleMechanics = filterMechanic === 'Semua'
+  // Filter mekanik
+  const filteredMechanics = filterMechanic === 'Semua'
     ? mechanicsData
     : mechanicsData.filter(m => m.id === filterMechanic)
 
-  // Range label
+  // Pagination mekanik (agar tidak terlalu banyak di satu halaman)
+  const totalPages = Math.ceil(filteredMechanics.length / itemsPerPage)
+  const paginatedMechanics = filteredMechanics.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
+  // Reset page saat filter berubah
+  useEffect(() => setCurrentPage(1), [filterMechanic])
+
   const startFmt = fmt(weekDates[0])
   const endFmt = fmt(weekDates[6])
   const rangeLabel = startFmt.month === endFmt.month
     ? `${startFmt.date} – ${endFmt.date} ${endFmt.month}`
     : `${startFmt.date} ${startFmt.month} – ${endFmt.date} ${endFmt.month}`
 
-  // Hitung stats minggu ini
+  // Statistik
   const weekEntries = schedules.filter(e => weekDates.includes(e.date))
   const totalWorkSlots = weekEntries.filter(e => e.shiftId && e.shiftId !== 'libur' && e.shiftId !== 'cuti').length
   const totalLibur = weekEntries.filter(e => e.shiftId === 'libur').length
@@ -318,14 +304,12 @@ export default function MechanicSchedule() {
 
   return (
     <div className="page-animate">
-      {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-black text-white tracking-tight">Jadwal Mekanik</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Atur ketersediaan & shift mingguan</p>
+          <p className="text-sm text-gray-500 mt-0.5">Atur ketersediaan & shift mingguan ({mechanicsData.length} mekanik)</p>
         </div>
         <div className="flex items-center gap-2">
-          {/* View toggle */}
           <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(34,197,94,0.15)' }}>
             {[
               { id: 'week', icon: <MdViewWeek size={16}/> },
@@ -343,7 +327,6 @@ export default function MechanicSchedule() {
         </div>
       </div>
 
-      {/* ── Stat cards ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {[
           { label: 'Tersedia Hari Ini', value: availToday, color: '#22C55E', bg: 'rgba(34,197,94,0.08)' },
@@ -359,69 +342,43 @@ export default function MechanicSchedule() {
         ))}
       </div>
 
-      {/* ── Kalender ── */}
       <div className="rounded-2xl overflow-hidden"
         style={{ background: 'rgba(6,28,20,0.8)', border: '1px solid rgba(34,197,94,0.12)', backdropFilter: 'blur(6px)' }}>
 
-        {/* Toolbar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-5 py-4"
           style={{ borderBottom: '1px solid rgba(34,197,94,0.1)' }}>
           <div className="flex items-center gap-2">
-            <button onClick={prevWeek}
-              className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/8 transition-all"
-              style={{ border: '1px solid rgba(34,197,94,0.1)' }}>
-              <MdChevronLeft size={18} />
-            </button>
-            <div className="text-center px-2">
-              <p className="text-white font-bold text-sm">{rangeLabel}</p>
-            </div>
-            <button onClick={nextWeek}
-              className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/8 transition-all"
-              style={{ border: '1px solid rgba(34,197,94,0.1)' }}>
-              <MdChevronRight size={18} />
-            </button>
-            <button onClick={goToday}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-80"
-              style={{ background: 'rgba(34,197,94,0.15)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.2)' }}>
-              Hari Ini
-            </button>
+            <button onClick={prevWeek} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/8 transition-all" style={{ border: '1px solid rgba(34,197,94,0.1)' }}><MdChevronLeft size={18} /></button>
+            <div className="text-center px-2"><p className="text-white font-bold text-sm">{rangeLabel}</p></div>
+            <button onClick={nextWeek} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/8 transition-all" style={{ border: '1px solid rgba(34,197,94,0.1)' }}><MdChevronRight size={18} /></button>
+            <button onClick={goToday} className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-80" style={{ background: 'rgba(34,197,94,0.15)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.2)' }}>Hari Ini</button>
           </div>
-
-          {/* Filter mekanik */}
           <div className="flex items-center gap-2">
             <MdFilterList size={14} className="text-gray-600" />
             <select value={filterMechanic} onChange={e => setFilterMechanic(e.target.value)}
               className="text-xs text-gray-300 px-3 py-1.5 rounded-xl outline-none"
               style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.12)' }}>
-              <option value="Semua">Semua Mekanik</option>
+              <option value="Semua">Semua Mekanik ({mechanicsData.length})</option>
               {mechanicsData.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
           </div>
         </div>
 
-        {/* ── View: Tabel Mingguan ── */}
         {view === 'week' && (
           <div className="overflow-x-auto">
             <table className="w-full" style={{ minWidth: 700 }}>
               <thead>
                 <tr>
-                  {/* kolom mekanik */}
-                  <th className="text-left px-4 py-3 w-48" style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
-                    <span className="text-xs text-gray-600">Mekanik</span>
-                  </th>
+                  <th className="text-left px-4 py-3 w-48" style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}><span className="text-xs text-gray-600">Mekanik</span></th>
                   {weekDates.map(date => {
                     const d = fmt(date)
                     const today_ = isToday(date)
                     return (
                       <th key={date} className="px-2 py-3 text-center" style={{ borderBottom: '1px solid rgba(34,197,94,0.08)', minWidth: 100 }}>
-                        <div className={`flex flex-col items-center gap-1`}>
+                        <div className="flex flex-col items-center gap-1">
                           <span className="text-xs font-medium" style={{ color: today_ ? '#22C55E' : '#6B7280' }}>{d.day}</span>
                           <span className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-black transition-all`}
-                            style={today_
-                              ? { background: '#22C55E', color: '#000' }
-                              : { color: '#D1D5DB' }}>
-                            {d.date}
-                          </span>
+                            style={today_ ? { background: '#22C55E', color: '#000' } : { color: '#D1D5DB' }}>{d.date}</span>
                         </div>
                       </th>
                     )
@@ -429,11 +386,8 @@ export default function MechanicSchedule() {
                 </tr>
               </thead>
               <tbody>
-                {visibleMechanics.map((mech, mi) => (
-                  <tr key={mech.id}
-                    className="transition-colors hover:bg-white/[0.02]"
-                    style={{ borderBottom: mi < visibleMechanics.length - 1 ? '1px solid rgba(34,197,94,0.05)' : 'none' }}>
-                    {/* Info mekanik */}
+                {paginatedMechanics.map((mech, mi) => (
+                  <tr key={mech.id} className="transition-colors hover:bg-white/[0.02]" style={{ borderBottom: mi < paginatedMechanics.length - 1 ? '1px solid rgba(34,197,94,0.05)' : 'none' }}>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <Avatar name={mech.name} color={mech.color} size={36} />
@@ -443,16 +397,11 @@ export default function MechanicSchedule() {
                         </div>
                       </div>
                     </td>
-                    {/* Sel shift per hari */}
                     {weekDates.map(date => {
                       const entry = getEntry(mech.id, date)
                       return (
                         <td key={date} className="px-1.5 py-2">
-                          <ShiftCell
-                            entry={entry.shiftId ? entry : null}
-                            mechanic={mech}
-                            onEdit={() => handleEdit(entry, mech, date)}
-                          />
+                          <ShiftCell entry={entry.shiftId ? entry : null} mechanic={mech} onEdit={() => handleEdit(entry, mech, date)} />
                         </td>
                       )
                     })}
@@ -460,13 +409,17 @@ export default function MechanicSchedule() {
                 ))}
               </tbody>
             </table>
+            {totalPages > 1 && (
+              <div className="px-5 py-4 border-t border-green-500/10">
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+              </div>
+            )}
           </div>
         )}
 
-        {/* ── View: List per Mekanik ── */}
         {view === 'list' && (
           <div className="divide-y" style={{ borderColor: 'rgba(34,197,94,0.06)' }}>
-            {visibleMechanics.map(mech => (
+            {paginatedMechanics.map(mech => (
               <div key={mech.id} className="px-5 py-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
@@ -476,9 +429,8 @@ export default function MechanicSchedule() {
                       <p className="text-xs text-gray-600">{mech.specialty}</p>
                     </div>
                   </div>
-                  <WeeklySummary mechanicId={mech.id} entries={schedules.filter(e => weekDates.includes(e.date))} />
+                  <WeeklySummary mechanicId={mech.id} entries={schedules} weekDates={weekDates} />
                 </div>
-                {/* Baris hari */}
                 <div className="grid grid-cols-7 gap-1.5">
                   {weekDates.map(date => {
                     const entry = getEntry(mech.id, date)
@@ -486,8 +438,7 @@ export default function MechanicSchedule() {
                     const shift = SHIFT_TYPES.find(s => s.id === entry?.shiftId)
                     const today_ = isToday(date)
                     return (
-                      <div key={date}
-                        onClick={() => handleEdit(entry, mech, date)}
+                      <div key={date} onClick={() => handleEdit(entry, mech, date)}
                         className="rounded-xl p-2 text-center cursor-pointer transition-all hover:scale-[1.04]"
                         style={{
                           background: shift ? shift.bg : 'rgba(11,59,46,0.2)',
@@ -495,26 +446,27 @@ export default function MechanicSchedule() {
                         }}>
                         <p className="text-xs mb-1" style={{ color: today_ ? '#22C55E' : '#6B7280' }}>{d.day}</p>
                         <p className="text-sm font-bold" style={{ color: shift ? shift.color : '#374151' }}>{d.date}</p>
-                        <p className="text-xs mt-1 font-medium" style={{ color: shift ? shift.color + 'cc' : '#374151', fontSize: 10 }}>
-                          {shift ? shift.label : '—'}
-                        </p>
+                        <p className="text-xs mt-1 font-medium" style={{ color: shift ? shift.color + 'cc' : '#374151', fontSize: 10 }}>{shift ? shift.label : '—'}</p>
                       </div>
                     )
                   })}
                 </div>
               </div>
             ))}
+            {totalPages > 1 && (
+              <div className="px-5 py-4 border-t border-green-500/10">
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+              </div>
+            )}
           </div>
         )}
 
-        {/* Legenda */}
         <div className="px-5 py-4" style={{ borderTop: '1px solid rgba(34,197,94,0.08)' }}>
           <p className="text-xs text-gray-600 mb-2">Keterangan shift:</p>
           <Legend />
         </div>
       </div>
 
-      {/* ── Modal Edit Shift ── */}
       {editTarget && (
         <ShiftModal
           entry={editTarget.entry}
