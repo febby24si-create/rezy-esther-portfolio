@@ -4,10 +4,11 @@ import {
   MdUnfoldMore, MdExpandLess, MdExpandMore, MdDownload,
   MdCheckCircle, MdReceipt, MdPrint, MdRefresh,
   MdSchedule, MdPending, MdCalendarToday, MdArrowBack,
-  MdDirectionsCar, MdPerson, MdBuild, MdAttachMoney,
-  MdMoreVert, MdGridView, MdTableRows, MdTrendingUp,
-  MdInfo, MdContentCopy, MdCheck
+  MdDirectionsCar, MdPerson, MdBuild,
+  MdGridView, MdTableRows, MdContentCopy, MdCheck
 } from 'react-icons/md'
+import Pagination from '../components/Pagination'
+import ordersData from '../data/ordersData.json'
 
 // ─── Utils ────────────────────────────────────────────────────────────
 const formatCurrency = (amount) => {
@@ -34,19 +35,9 @@ const STATUS = {
   Menunggu:          { color: '#94A3B8', bg: 'rgba(148,163,184,0.1)',  border: 'rgba(148,163,184,0.2)',  dot: '#94A3B8', icon: MdPending    },
 }
 
-const ordersData = [
-  { id: '#ORD-A1B2C3D4', customer: 'Andi Wijaya',     vehicle: 'Toyota Avanza - B 1234 ABC', service: 'Servis Berkala',      status: 'Selesai',           total: 450000,  date: '2024-12-10', mechanic: 'Ahmad Supriyadi' },
-  { id: '#ORD-E5F6G7H8', customer: 'Sari Dewi',       vehicle: 'Honda Beat - D 5678 XYZ',    service: 'Ganti Oli',           status: 'Sedang Dikerjakan', total: 120000,  date: '2024-12-12', mechanic: 'Eka Fitriani'    },
-  { id: '#ORD-I9J0K1L2', customer: 'Budi Hartono',    vehicle: 'Suzuki Ertiga - F 9012 PQR', service: 'Tune Up',             status: 'Menunggu',          total: 350000,  date: '2024-12-13', mechanic: 'Budi Santoso'    },
-  { id: '#ORD-M3N4O5P6', customer: 'Dewi Lestari',    vehicle: 'Yamaha NMAX - G 3456 STU',   service: 'Servis Rem',          status: 'Selesai',           total: 180000,  date: '2024-12-11', mechanic: 'Dedi Kurniawan'  },
-  { id: '#ORD-Q7R8S9T0', customer: 'Rahmat Hidayat',  vehicle: 'Honda Jazz - H 7890 VWX',    service: 'Spooring & Balancing',status: 'Sedang Dikerjakan', total: 250000,  date: '2024-12-13', mechanic: 'Ahmad Supriyadi' },
-  { id: '#ORD-U1V2W3X4', customer: 'Fitri Handayani', vehicle: 'Mitsubishi Xpander - I 1234 YZA', service: 'Ganti Ban',    status: 'Menunggu',          total: 800000,  date: '2024-12-14', mechanic: 'Cindy Permata'   },
-]
-
 // ─── StatusBadge ──────────────────────────────────────────────────────
 function StatusBadge({ status, size = 'md' }) {
   const cfg = STATUS[status] || STATUS.Menunggu
-  const Icon = cfg.icon
   const pad = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs'
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full font-semibold ${pad}`}
@@ -99,10 +90,8 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
         }}
         onClick={e => e.stopPropagation()}>
 
-        {/* Strip status */}
         <div className="h-1 flex-shrink-0" style={{ background: `linear-gradient(90deg,${cfg.color},${cfg.color}88)` }} />
 
-        {/* Nav */}
         <div className="flex items-center justify-between px-5 py-4 flex-shrink-0">
           <button onClick={onClose}
             className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:scale-110 transition-all"
@@ -123,7 +112,6 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
           </div>
         </div>
 
-        {/* Header order */}
         <div className="px-5 pb-5 flex-shrink-0">
           <div className="flex items-start gap-4 mb-4">
             <Avatar name={order.customer} size={52} />
@@ -133,8 +121,6 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
               <p className="text-gray-600 text-xs mt-0.5 font-mono">{order.vehicle.split(' - ')[1] || ''}</p>
             </div>
           </div>
-
-          {/* ID + copy */}
           <div className="flex items-center gap-2 mb-3">
             <span className="text-sm font-mono font-bold text-green-400">{order.id}</span>
             <button onClick={copyId}
@@ -143,18 +129,15 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
               {copied ? <MdCheck size={13} /> : <MdContentCopy size={13} />}
             </button>
           </div>
-
           <StatusBadge status={order.status} />
         </div>
 
-        {/* Total besar */}
         <div className="mx-5 mb-5 rounded-2xl p-4 flex-shrink-0"
           style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)' }}>
           <p className="text-xs text-gray-500 mb-1">Total Pembayaran</p>
           <p className="text-3xl font-black text-white">{formatCurrency(order.total)}</p>
         </div>
 
-        {/* Detail rows */}
         <div className="mx-5 mb-5 rounded-2xl overflow-hidden flex-shrink-0"
           style={{ border: '1px solid rgba(34,197,94,0.1)', background: 'rgba(11,59,46,0.2)' }}>
           {[
@@ -174,7 +157,6 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
           ))}
         </div>
 
-        {/* Progress status */}
         <div className="mx-5 mb-5 flex-shrink-0">
           <p className="text-xs text-gray-600 uppercase tracking-wider mb-3">Progress</p>
           <div className="space-y-2.5">
@@ -206,7 +188,6 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
           </div>
         </div>
 
-        {/* CTA Invoice */}
         <div className="px-5 pb-8 mt-auto flex-shrink-0">
           <button onClick={() => { onClose(); onInvoice(order) }}
             className="w-full py-3 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90 flex items-center justify-center gap-2"
@@ -219,7 +200,7 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
   )
 }
 
-// ─── Order Card (grid view) ───────────────────────────────────────────
+// ─── Order Card ────────────────────────────────────────────────────────
 function OrderCard({ order, onDetail, onEdit, onDelete, onInvoice }) {
   const cfg = STATUS[order.status] || STATUS.Menunggu
   return (
@@ -231,11 +212,8 @@ function OrderCard({ order, onDetail, onEdit, onDelete, onInvoice }) {
         border: '1px solid rgba(34,197,94,0.15)',
         boxShadow: '0 4px 24px rgba(0,0,0,0.2)'
       }}>
-      {/* Strip */}
       <div className="h-0.5" style={{ background: cfg.color }} />
-
       <div className="p-4">
-        {/* Action buttons */}
         <div className="absolute top-4 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
           onClick={e => e.stopPropagation()}>
           <button onClick={() => onInvoice(order)}
@@ -254,8 +232,6 @@ function OrderCard({ order, onDetail, onEdit, onDelete, onInvoice }) {
             <MdDelete size={13} />
           </button>
         </div>
-
-        {/* Header */}
         <div className="flex items-center gap-3 mb-3 pr-20">
           <Avatar name={order.customer} size={40} />
           <div className="min-w-0">
@@ -263,22 +239,16 @@ function OrderCard({ order, onDetail, onEdit, onDelete, onInvoice }) {
             <p className="text-gray-500 text-xs font-mono">{order.id}</p>
           </div>
         </div>
-
-        {/* Layanan */}
         <div className="flex items-center gap-2 mb-3">
           <span className="text-xs px-2.5 py-1 rounded-full font-medium"
             style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.15)' }}>
             {order.service}
           </span>
         </div>
-
-        {/* Kendaraan */}
         <p className="text-xs text-gray-500 mb-3 flex items-center gap-1.5">
           <MdDirectionsCar size={13} className="text-gray-700" />
           {order.vehicle.split(' - ')[0]}
         </p>
-
-        {/* Footer */}
         <div className="flex items-center justify-between pt-3"
           style={{ borderTop: '1px solid rgba(34,197,94,0.08)' }}>
           <StatusBadge status={order.status} size="sm" />
@@ -330,53 +300,27 @@ function InvoiceModal({ order, onClose }) {
       <div className="w-full max-w-sm rounded-2xl overflow-hidden"
         style={{ background: 'linear-gradient(160deg,#061a14,#0a2e1e)', border: '1px solid rgba(34,197,94,0.2)', boxShadow: '0 25px 60px rgba(0,0,0,0.5)' }}
         onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4"
-          style={{ borderBottom: '1px solid rgba(34,197,94,0.1)' }}>
-          <div className="flex items-center gap-2">
-            <MdReceipt size={18} className="text-green-400" />
-            <h3 className="text-white font-bold">Invoice</h3>
-          </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5">
-            <MdClose size={18} />
-          </button>
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(34,197,94,0.1)' }}>
+          <div className="flex items-center gap-2"><MdReceipt size={18} className="text-green-400" /><h3 className="text-white font-bold">Invoice</h3></div>
+          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5"><MdClose size={18} /></button>
         </div>
         <div className="p-5">
           <div className="rounded-2xl p-4 mb-4" style={{ background: 'rgba(11,59,46,0.4)', border: '1px solid rgba(34,197,94,0.1)' }}>
             <div className="flex justify-between mb-3">
-              <div>
-                <p className="text-green-400 font-black text-lg">EstherGarage</p>
-                <p className="text-gray-600 text-xs">Bengkel Terpercaya</p>
-              </div>
-              <div className="text-right">
-                <p className="text-white font-bold text-sm">INVOICE</p>
-                <p className="text-green-400 text-xs font-mono">{order.id}</p>
-                <p className="text-gray-600 text-xs">{order.date}</p>
-              </div>
+              <div><p className="text-green-400 font-black text-lg">EstherGarage</p><p className="text-gray-600 text-xs">Bengkel Terpercaya</p></div>
+              <div className="text-right"><p className="text-white font-bold text-sm">INVOICE</p><p className="text-green-400 text-xs font-mono">{order.id}</p><p className="text-gray-600 text-xs">{order.date}</p></div>
             </div>
             <div className="py-3 mb-3" style={{ borderTop: '1px solid rgba(34,197,94,0.1)', borderBottom: '1px solid rgba(34,197,94,0.1)' }}>
-              <p className="text-gray-600 text-xs mb-1">Kepada:</p>
-              <p className="text-white font-semibold">{order.customer}</p>
-              <p className="text-gray-500 text-xs">{order.vehicle}</p>
+              <p className="text-gray-600 text-xs mb-1">Kepada:</p><p className="text-white font-semibold">{order.customer}</p><p className="text-gray-500 text-xs">{order.vehicle}</p>
             </div>
-            <div className="flex justify-between py-2 text-sm">
-              <span className="text-gray-400">{order.service}</span>
-              <span className="text-white">{formatCurrency(order.total)}</span>
-            </div>
-            <div className="flex justify-between py-2 mt-1 text-sm font-bold"
-              style={{ borderTop: '1px solid rgba(34,197,94,0.1)' }}>
-              <span className="text-gray-300">TOTAL</span>
-              <span className="text-green-400">{formatCurrency(order.total)}</span>
+            <div className="flex justify-between py-2 text-sm"><span className="text-gray-400">{order.service}</span><span className="text-white">{formatCurrency(order.total)}</span></div>
+            <div className="flex justify-between py-2 mt-1 text-sm font-bold" style={{ borderTop: '1px solid rgba(34,197,94,0.1)' }}>
+              <span className="text-gray-300">TOTAL</span><span className="text-green-400">{formatCurrency(order.total)}</span>
             </div>
           </div>
           <div className="flex gap-3">
-            <button onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 transition-all hover:bg-white/5"
-              style={{ border: '1px solid rgba(34,197,94,0.12)' }}>Tutup</button>
-            <button onClick={printInvoice}
-              className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90 flex items-center justify-center gap-2"
-              style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }}>
-              <MdPrint size={15} /> Cetak
-            </button>
+            <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 transition-all hover:bg-white/5" style={{ border: '1px solid rgba(34,197,94,0.12)' }}>Tutup</button>
+            <button onClick={printInvoice} className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90 flex items-center justify-center gap-2" style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }}><MdPrint size={15} /> Cetak</button>
           </div>
         </div>
       </div>
@@ -384,12 +328,12 @@ function InvoiceModal({ order, onClose }) {
   )
 }
 
-// ─── Form Modal ───────────────────────────────────────────────────────
+// ─── Form Modal (dengan autocomplete pelanggan & mekanik) ─────────────
 const SERVICE_OPTIONS = ['Servis Berkala','Ganti Oli','Tune Up','Servis Rem','Ganti Ban','Servis AC','Ganti Kampas Rem','Spooring & Balancing','Cuci Mobil','Detailing']
 const inputCls = 'w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all focus:ring-2 focus:ring-green-500/20'
 const inputStyle = { background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }
 
-function FormModal({ isOpen, onClose, onSubmit, initialData, editId }) {
+function FormModal({ isOpen, onClose, onSubmit, initialData, editId, customers, mechanics }) {
   const [form, setForm] = useState(initialData)
   useEffect(() => { setForm(initialData) }, [initialData])
   if (!isOpen) return null
@@ -402,83 +346,59 @@ function FormModal({ isOpen, onClose, onSubmit, initialData, editId }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}
-      onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl overflow-hidden"
-        style={{ background: 'linear-gradient(160deg,#061a14,#0a2e1e)', border: '1px solid rgba(34,197,94,0.2)', boxShadow: '0 25px 60px rgba(0,0,0,0.5)' }}
-        onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4"
-          style={{ borderBottom: '1px solid rgba(34,197,94,0.1)' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }} onClick={onClose}>
+      <div className="w-full max-w-md rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(160deg,#061a14,#0a2e1e)', border: '1px solid rgba(34,197,94,0.2)', boxShadow: '0 25px 60px rgba(0,0,0,0.5)' }} onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(34,197,94,0.1)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-              style={{ background: 'rgba(34,197,94,0.15)' }}>
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(34,197,94,0.15)' }}>
               {editId ? <MdEdit size={15} className="text-green-400" /> : <MdAdd size={15} className="text-green-400" />}
             </div>
             <h3 className="text-white font-bold">{editId ? 'Edit Order' : 'Tambah Order Baru'}</h3>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5">
-            <MdClose size={18} />
-          </button>
+          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5"><MdClose size={18} /></button>
         </div>
-
-        <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
+        <form id="order-form" onSubmit={handleSubmit} className="px-5 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
           <div>
             <label className="block text-xs text-gray-400 mb-1.5">Pelanggan <span className="text-red-500">*</span></label>
-            <input required value={form.customer || ''} onChange={e => setForm(f => ({...f, customer: e.target.value}))}
-              placeholder="Nama pelanggan" className={inputCls} style={inputStyle} />
+            <input
+              list="customer-list"
+              required
+              value={form.customer || ''}
+              onChange={e => setForm(f => ({...f, customer: e.target.value}))}
+              placeholder="Pilih atau ketik nama pelanggan..."
+              className={inputCls}
+              style={inputStyle}
+              autoComplete="off"
+            />
+            <datalist id="customer-list">
+              {customers.map(c => <option key={c.id} value={c.name} />)}
+            </datalist>
           </div>
-          <div>
-            <label className="block text-xs text-gray-400 mb-1.5">Kendaraan <span className="text-red-500">*</span></label>
-            <input required value={form.vehicle || ''} onChange={e => setForm(f => ({...f, vehicle: e.target.value}))}
-              placeholder="Toyota Avanza - B 1234 ABC" className={inputCls} style={inputStyle} />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-400 mb-1.5">Layanan <span className="text-red-500">*</span></label>
-            <select required value={form.service || ''} onChange={e => setForm(f => ({...f, service: e.target.value}))}
-              className={inputCls} style={inputStyle}>
-              <option value="">Pilih Layanan</option>
-              {SERVICE_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-gray-400 mb-1.5">Total (Rp) <span className="text-red-500">*</span></label>
-              <input type="number" required min="0" step="1000" value={form.total || ''} onChange={e => setForm(f => ({...f, total: e.target.value}))}
-                placeholder="350000" className={inputCls} style={inputStyle} />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-400 mb-1.5">Tanggal <span className="text-red-500">*</span></label>
-              <input type="date" required value={form.date || ''} onChange={e => setForm(f => ({...f, date: e.target.value}))}
-                className={inputCls} style={inputStyle} />
-            </div>
-          </div>
+          <div><label className="block text-xs text-gray-400 mb-1.5">Kendaraan <span className="text-red-500">*</span></label><input required value={form.vehicle || ''} onChange={e => setForm(f => ({...f, vehicle: e.target.value}))} placeholder="Toyota Avanza - B 1234 ABC" className={inputCls} style={inputStyle} /></div>
+          <div><label className="block text-xs text-gray-400 mb-1.5">Layanan <span className="text-red-500">*</span></label><select required value={form.service || ''} onChange={e => setForm(f => ({...f, service: e.target.value}))} className={inputCls} style={inputStyle}><option value="">Pilih Layanan</option>{SERVICE_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
+          <div className="grid grid-cols-2 gap-3"><div><label className="block text-xs text-gray-400 mb-1.5">Total (Rp) <span className="text-red-500">*</span></label><input type="number" required min="0" step="1000" value={form.total || ''} onChange={e => setForm(f => ({...f, total: e.target.value}))} placeholder="350000" className={inputCls} style={inputStyle} /></div>
+          <div><label className="block text-xs text-gray-400 mb-1.5">Tanggal <span className="text-red-500">*</span></label><input type="date" required value={form.date || ''} onChange={e => setForm(f => ({...f, date: e.target.value}))} className={inputCls} style={inputStyle} /></div></div>
           <div>
             <label className="block text-xs text-gray-400 mb-1.5">Mekanik</label>
-            <input value={form.mechanic || ''} onChange={e => setForm(f => ({...f, mechanic: e.target.value}))}
-              placeholder="Nama mekanik" className={inputCls} style={inputStyle} />
+            <input
+              list="mechanic-list"
+              value={form.mechanic || ''}
+              onChange={e => setForm(f => ({...f, mechanic: e.target.value}))}
+              placeholder="Pilih atau ketik nama mekanik..."
+              className={inputCls}
+              style={inputStyle}
+              autoComplete="off"
+            />
+            <datalist id="mechanic-list">
+              {mechanics.map(m => <option key={m.id} value={m.name} />)}
+            </datalist>
           </div>
-          <div>
-            <label className="block text-xs text-gray-400 mb-1.5">Status</label>
-            <select value={form.status || 'Menunggu'} onChange={e => setForm(f => ({...f, status: e.target.value}))}
-              className={inputCls} style={inputStyle}>
-              {Object.keys(STATUS).map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-          </div>
+          <div><label className="block text-xs text-gray-400 mb-1.5">Status</label><select value={form.status || 'Menunggu'} onChange={e => setForm(f => ({...f, status: e.target.value}))} className={inputCls} style={inputStyle}>{Object.keys(STATUS).map(s => <option key={s} value={s}>{s}</option>)}</select></div>
         </form>
-
         <div className="flex gap-3 px-5 py-4" style={{ borderTop: '1px solid rgba(34,197,94,0.1)' }}>
-          <button onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all"
-            style={{ border: '1px solid rgba(34,197,94,0.12)' }}>Batal</button>
-          <button type="submit" form={undefined} onClick={() => document.querySelector('#form-order')?.requestSubmit()}
-            className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90 flex items-center justify-center gap-2"
-            style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }}>
-            <MdCheck size={15} /> {editId ? 'Simpan' : 'Buat Order'}
-          </button>
+          <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all" style={{ border: '1px solid rgba(34,197,94,0.12)' }}>Batal</button>
+          <button type="submit" form="order-form" className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90 flex items-center justify-center gap-2" style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }}><MdCheck size={15} /> {editId ? 'Simpan' : 'Buat Order'}</button>
         </div>
-        {/* hidden submit trigger */}
-        <form id="form-order" onSubmit={handleSubmit} className="hidden" />
       </div>
     </div>
   )
@@ -487,28 +407,12 @@ function FormModal({ isOpen, onClose, onSubmit, initialData, editId }) {
 // ─── Delete confirm ───────────────────────────────────────────────────
 function DeleteConfirm({ target, onConfirm, onCancel }) {
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}
-      onClick={onCancel}>
-      <div className="w-full max-w-xs rounded-2xl p-6 text-center"
-        style={{ background: '#06281F', border: '1px solid rgba(239,68,68,0.3)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}
-        onClick={e => e.stopPropagation()}>
-        <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-          style={{ background: 'rgba(239,68,68,0.1)', border: '2px solid rgba(239,68,68,0.2)' }}>
-          <MdDelete size={26} className="text-red-500" />
-        </div>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }} onClick={onCancel}>
+      <div className="w-full max-w-xs rounded-2xl p-6 text-center" style={{ background: '#06281F', border: '1px solid rgba(239,68,68,0.3)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }} onClick={e => e.stopPropagation()}>
+        <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(239,68,68,0.1)', border: '2px solid rgba(239,68,68,0.2)' }}><MdDelete size={26} className="text-red-500" /></div>
         <h3 className="text-white font-bold text-lg mb-2">Hapus Order?</h3>
-        <p className="text-gray-400 text-sm mb-6">
-          Order <span className="text-green-400 font-mono font-bold">{target?.id}</span> akan dihapus permanen.
-        </p>
-        <div className="flex gap-3">
-          <button onClick={onCancel}
-            className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:bg-white/5 transition-all"
-            style={{ border: '1px solid rgba(255,255,255,0.08)' }}>Batal</button>
-          <button onClick={onConfirm}
-            className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
-            style={{ background: 'linear-gradient(90deg,#ef4444,#dc2626)' }}>Hapus</button>
-        </div>
+        <p className="text-gray-400 text-sm mb-6">Order <span className="text-green-400 font-mono font-bold">{target?.id}</span> akan dihapus permanen.</p>
+        <div className="flex gap-3"><button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:bg-white/5 transition-all" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>Batal</button><button onClick={onConfirm} className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90" style={{ background: 'linear-gradient(90deg,#ef4444,#dc2626)' }}>Hapus</button></div>
       </div>
     </div>
   )
@@ -529,6 +433,33 @@ export default function Orders() {
     try { localStorage.setItem('garage_orders', JSON.stringify(orders)) } catch {}
   }, [orders])
 
+  // State untuk daftar pelanggan (untuk autocomplete)
+  const [customersList, setCustomersList] = useState([])
+  // State untuk daftar mekanik (untuk autocomplete)
+  const [mechanicsList, setMechanicsList] = useState([])
+
+  useEffect(() => {
+    // Ambil data pelanggan dari localStorage
+    const storedCustomers = localStorage.getItem('garage_customers')
+    if (storedCustomers) {
+      setCustomersList(JSON.parse(storedCustomers))
+    } else {
+      // Jika belum ada, coba import dari file JSON (fallback)
+      import('../data/customersData.json').then(module => setCustomersList(module.default)).catch(() => {})
+    }
+  }, [])
+
+  useEffect(() => {
+    // Ambil data mekanik dari localStorage
+    const storedMechanics = localStorage.getItem('garage_mechanics')
+    if (storedMechanics) {
+      setMechanicsList(JSON.parse(storedMechanics))
+    } else {
+      // Jika belum ada, coba import dari file JSON (fallback)
+      import('../data/mechanicsData.json').then(module => setMechanicsList(module.default)).catch(() => {})
+    }
+  }, [])
+
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
   const [filterFrom, setFilterFrom] = useState('')
@@ -536,8 +467,10 @@ export default function Orders() {
   const [sortColumn, setSortColumn] = useState('date')
   const [sortDir, setSortDir] = useState('desc')
   const [showFilter, setShowFilter] = useState(false)
-  const [viewMode, setViewMode] = useState('table') // 'table' | 'grid'
+  const [viewMode, setViewMode] = useState('table')
   const [showForm, setShowForm] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
   const [editId, setEditId] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [invoiceTarget, setInvoiceTarget] = useState(null)
@@ -569,6 +502,14 @@ export default function Orders() {
     return r
   }, [orders, search, filterStatus, filterFrom, filterTo, sortColumn, sortDir])
 
+  const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1
+  useEffect(() => { setCurrentPage(1) }, [search, filterStatus, filterFrom, filterTo])
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage
+    return filtered.slice(start, start + itemsPerPage)
+  }, [filtered, currentPage, itemsPerPage])
+
   const activeFilters = [filterStatus, filterFrom, filterTo].filter(Boolean).length
   const resetFilters = () => { setFilterStatus(''); setFilterFrom(''); setFilterTo(''); setSearch('') }
 
@@ -590,258 +531,102 @@ export default function Orders() {
     a.download = `orders_${new Date().toISOString().slice(0,10)}.csv`; a.click()
   }, [filtered])
 
-  // Stats
   const totalPendapatan = orders.filter(o => o.status === 'Selesai').reduce((s, o) => s + Number(o.total), 0)
   const counts = { selesai: orders.filter(o => o.status === 'Selesai').length, proses: orders.filter(o => o.status === 'Sedang Dikerjakan').length, menunggu: orders.filter(o => o.status === 'Menunggu').length }
-
   const thCls = "text-left py-3 px-3 text-xs text-gray-600 font-semibold uppercase tracking-wider whitespace-nowrap cursor-pointer select-none hover:text-gray-400 transition-colors"
 
   return (
     <div className="page-animate">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Order Servis</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{orders.length} order terdaftar</p>
-        </div>
+        <div><h1 className="text-2xl font-black text-white tracking-tight">Order Servis</h1><p className="text-sm text-gray-500 mt-0.5">{orders.length} order terdaftar</p></div>
         <div className="flex gap-2">
-          <button onClick={exportCSV}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-green-400 transition-all hover:bg-green-500/10"
-            style={{ border: '1px solid rgba(34,197,94,0.2)' }}>
-            <MdDownload size={16} /> Export
-          </button>
-          <button onClick={handleAdd}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-black transition-all hover:opacity-90 hover:scale-105"
-            style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)', boxShadow: '0 4px 18px rgba(34,197,94,0.35)' }}>
-            <MdAdd size={18} /> Tambah Order
-          </button>
+          <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-green-400 transition-all hover:bg-green-500/10" style={{ border: '1px solid rgba(34,197,94,0.2)' }}><MdDownload size={16} /> Export</button>
+          <button onClick={handleAdd} className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-black transition-all hover:opacity-90 hover:scale-105" style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)', boxShadow: '0 4px 18px rgba(34,197,94,0.35)' }}><MdAdd size={18} /> Tambah Order</button>
         </div>
       </div>
 
-      {/* Stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {[
-          { label: 'Total Order',        value: orders.length,       color: '#94A3B8', bg: 'rgba(148,163,184,0.08)' },
-          { label: 'Selesai',            value: counts.selesai,      color: '#22C55E', bg: 'rgba(34,197,94,0.08)'   },
-          { label: 'Sedang Dikerjakan',  value: counts.proses,       color: '#FBBF24', bg: 'rgba(251,191,36,0.08)'  },
-          { label: 'Pendapatan Masuk',   value: `Rp ${(totalPendapatan/1000000).toFixed(1)}jt`, color: '#60A5FA', bg: 'rgba(96,165,250,0.08)' },
+          { label: 'Total Order', value: orders.length, color: '#94A3B8', bg: 'rgba(148,163,184,0.08)' },
+          { label: 'Selesai', value: counts.selesai, color: '#22C55E', bg: 'rgba(34,197,94,0.08)' },
+          { label: 'Sedang Dikerjakan', value: counts.proses, color: '#FBBF24', bg: 'rgba(251,191,36,0.08)' },
+          { label: 'Pendapatan Masuk', value: `Rp ${(totalPendapatan/1000000).toFixed(1)}jt`, color: '#60A5FA', bg: 'rgba(96,165,250,0.08)' },
         ].map(s => (
-          <div key={s.label} className="rounded-xl px-4 py-3 transition-all hover:scale-[1.02]"
-            style={{ background: s.bg, border: `1px solid ${s.color}20` }}>
+          <div key={s.label} className="rounded-xl px-4 py-3 transition-all hover:scale-[1.02]" style={{ background: s.bg, border: `1px solid ${s.color}20` }}>
             <p className="text-xs text-gray-500 mb-1">{s.label}</p>
             <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
           </div>
         ))}
       </div>
 
-      {/* Toolbar */}
-      <div className="rounded-2xl overflow-hidden"
-        style={{ background: 'rgba(6,28,20,0.8)', border: '1px solid rgba(34,197,94,0.1)', backdropFilter: 'blur(6px)' }}>
-
-        <div className="flex flex-col sm:flex-row gap-3 p-4"
-          style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
-          {/* Search */}
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(6,28,20,0.8)', border: '1px solid rgba(34,197,94,0.1)', backdropFilter: 'blur(6px)' }}>
+        <div className="flex flex-col sm:flex-row gap-3 p-4" style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
           <div className="relative flex-1">
             <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" size={16} />
-            <input value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Cari order, pelanggan, layanan..."
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all focus:ring-2 focus:ring-green-500/20"
-              style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.12)' }} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari order, pelanggan, layanan..." className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all focus:ring-2 focus:ring-green-500/20" style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.12)' }} />
           </div>
-
           <div className="flex gap-2">
-            {/* Filter */}
             <div className="relative" ref={filterRef}>
-              <button onClick={() => setShowFilter(p => !p)}
-                className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm transition-all"
-                style={activeFilters > 0
-                  ? { background: 'rgba(34,197,94,0.15)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.3)' }
-                  : { background: 'rgba(11,59,46,0.4)', color: '#6B7280', border: '1px solid rgba(34,197,94,0.1)' }}>
-                <MdFilterList size={16} />
-                {activeFilters > 0 && <span className="w-4 h-4 rounded-full text-xs font-bold text-black flex items-center justify-center" style={{ background: '#22C55E' }}>{activeFilters}</span>}
-              </button>
-
+              <button onClick={() => setShowFilter(p => !p)} className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm transition-all" style={activeFilters > 0 ? { background: 'rgba(34,197,94,0.15)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.3)' } : { background: 'rgba(11,59,46,0.4)', color: '#6B7280', border: '1px solid rgba(34,197,94,0.1)' }}><MdFilterList size={16} />{activeFilters > 0 && <span className="w-4 h-4 rounded-full text-xs font-bold text-black flex items-center justify-center" style={{ background: '#22C55E' }}>{activeFilters}</span>}</button>
               {showFilter && (
-                <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl p-4 z-30"
-                  style={{ background: '#051A0E', border: '1px solid rgba(34,197,94,0.2)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+                <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl p-4 z-30" style={{ background: '#051A0E', border: '1px solid rgba(34,197,94,0.2)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
                   <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-3">Filter</p>
                   <div className="space-y-3">
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1.5">Status</label>
-                      <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none"
-                        style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }}>
-                        <option value="">Semua Status</option>
-                        {Object.keys(STATUS).map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1.5">Dari</label>
-                        <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none"
-                          style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }} />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-gray-500 mb-1.5">Sampai</label>
-                        <input type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none"
-                          style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }} />
-                      </div>
-                    </div>
-                    <button onClick={resetFilters}
-                      className="w-full py-2 rounded-xl text-xs text-red-400 transition-all hover:bg-red-500/10"
-                      style={{ border: '1px solid rgba(239,68,68,0.2)' }}>Reset Semua</button>
+                    <div><label className="block text-xs text-gray-500 mb-1.5">Status</label><select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none" style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }}><option value="">Semua Status</option>{Object.keys(STATUS).map(s => <option key={s} value={s}>{s}</option>)}</select></div>
+                    <div className="grid grid-cols-2 gap-2"><div><label className="block text-xs text-gray-500 mb-1.5">Dari</label><input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none" style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }} /></div><div><label className="block text-xs text-gray-500 mb-1.5">Sampai</label><input type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none" style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }} /></div></div>
+                    <button onClick={resetFilters} className="w-full py-2 rounded-xl text-xs text-red-400 transition-all hover:bg-red-500/10" style={{ border: '1px solid rgba(239,68,68,0.2)' }}>Reset Semua</button>
                   </div>
                 </div>
               )}
             </div>
-
-            {/* View toggle */}
             <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(34,197,94,0.12)' }}>
               {[{ id: 'table', icon: <MdTableRows size={16}/> }, { id: 'grid', icon: <MdGridView size={16}/> }].map(v => (
-                <button key={v.id} onClick={() => setViewMode(v.id)}
-                  className="w-9 h-9 flex items-center justify-center transition-all"
-                  style={viewMode === v.id
-                    ? { background: 'rgba(34,197,94,0.2)', color: '#22C55E' }
-                    : { background: 'rgba(11,59,46,0.4)', color: '#4B5563' }}>
-                  {v.icon}
-                </button>
+                <button key={v.id} onClick={() => setViewMode(v.id)} className="w-9 h-9 flex items-center justify-center transition-all" style={viewMode === v.id ? { background: 'rgba(34,197,94,0.2)', color: '#22C55E' } : { background: 'rgba(11,59,46,0.4)', color: '#4B5563' }}>{v.icon}</button>
               ))}
             </div>
           </div>
         </div>
 
-        {/* ── Table View ── */}
         {viewMode === 'table' && (
           <div className="overflow-x-auto">
             <table className="w-full" style={{ minWidth: 700 }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
-                  {[
-                    { key: 'id',       label: 'No. Order' },
-                    { key: 'customer', label: 'Pelanggan' },
-                    { key: 'vehicle',  label: 'Kendaraan', noSort: true },
-                    { key: 'service',  label: 'Layanan' },
-                    { key: 'status',   label: 'Status' },
-                    { key: 'total',    label: 'Total' },
-                    { key: 'date',     label: 'Tanggal' },
-                    { key: 'aksi',     label: 'Aksi', noSort: true },
-                  ].map(col => (
-                    <th key={col.key} className={thCls} onClick={() => !col.noSort && handleSort(col.key)}>
-                      <span className="flex items-center gap-1">
-                        {col.label}
-                        {!col.noSort && <SortIcon column={col.key} sortColumn={sortColumn} sortDirection={sortDir} />}
-                      </span>
-                    </th>
-                  ))}
+              <thead><tr style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>{[
+                { key: 'id', label: 'No. Order' }, { key: 'customer', label: 'Pelanggan' }, { key: 'vehicle', label: 'Kendaraan', noSort: true },
+                { key: 'service', label: 'Layanan' }, { key: 'status', label: 'Status' }, { key: 'total', label: 'Total' },
+                { key: 'date', label: 'Tanggal' }, { key: 'aksi', label: 'Aksi', noSort: true }
+              ].map(col => (<th key={col.key} className={thCls} onClick={() => !col.noSort && handleSort(col.key)}><span className="flex items-center gap-1">{col.label}{!col.noSort && <SortIcon column={col.key} sortColumn={sortColumn} sortDirection={sortDir} />}</span></th>))}</tr></thead>
+              <tbody>{paginatedData.map(order => (
+                <tr key={order.id} onClick={() => setDetailTarget(order)} className="cursor-pointer transition-colors hover:bg-green-500/[0.04]" style={{ borderBottom: '1px solid rgba(34,197,94,0.05)' }}>
+                  <td className="py-3 px-3 text-xs text-green-400 font-mono font-semibold whitespace-nowrap">{order.id}</td>
+                  <td className="py-3 px-3 whitespace-nowrap"><div className="flex items-center gap-2.5"><Avatar name={order.customer} size={32} /><span className="text-sm text-white font-medium">{order.customer}</span></div></td>
+                  <td className="py-3 px-3 text-sm text-gray-400 whitespace-nowrap max-w-[160px] truncate">{order.vehicle.split(' - ')[0]}</td>
+                  <td className="py-3 px-3"><span className="text-xs px-2 py-1 rounded-full" style={{ background: 'rgba(34,197,94,0.08)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.12)' }}>{order.service}</span></td>
+                  <td className="py-3 px-3 whitespace-nowrap"><StatusBadge status={order.status} size="sm" /></td>
+                  <td className="py-3 px-3 text-sm text-white font-bold whitespace-nowrap">{formatCurrency(order.total)}</td>
+                  <td className="py-3 px-3 text-xs text-gray-500 whitespace-nowrap">{order.date}</td>
+                  <td className="py-3 px-3 whitespace-nowrap"><div className="flex items-center gap-1" onClick={e => e.stopPropagation()}><button onClick={() => setInvoiceTarget(order)} className="w-8 h-8 rounded-lg flex items-center justify-center text-blue-400 hover:bg-blue-500/15 transition-all"><MdReceipt size={15} /></button><button onClick={() => handleEdit(order)} className="w-8 h-8 rounded-lg flex items-center justify-center text-yellow-400 hover:bg-yellow-500/15 transition-all"><MdEdit size={15} /></button><button onClick={() => setDeleteTarget(order)} className="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-500/15 transition-all"><MdDelete size={15} /></button></div></td>
                 </tr>
-              </thead>
-              <tbody>
-                {filtered.map(order => (
-                  <tr key={order.id}
-                    onClick={() => setDetailTarget(order)}
-                    className="cursor-pointer transition-colors hover:bg-green-500/[0.04]"
-                    style={{ borderBottom: '1px solid rgba(34,197,94,0.05)' }}>
-                    <td className="py-3 px-3 text-xs text-green-400 font-mono font-semibold whitespace-nowrap">{order.id}</td>
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <div className="flex items-center gap-2.5">
-                        <Avatar name={order.customer} size={32} />
-                        <span className="text-sm text-white font-medium">{order.customer}</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-3 text-sm text-gray-400 whitespace-nowrap max-w-[160px] truncate">{order.vehicle.split(' - ')[0]}</td>
-                    <td className="py-3 px-3">
-                      <span className="text-xs px-2 py-1 rounded-full" style={{ background: 'rgba(34,197,94,0.08)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.12)' }}>
-                        {order.service}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 whitespace-nowrap"><StatusBadge status={order.status} size="sm" /></td>
-                    <td className="py-3 px-3 text-sm text-white font-bold whitespace-nowrap">{formatCurrency(order.total)}</td>
-                    <td className="py-3 px-3 text-xs text-gray-500 whitespace-nowrap">{order.date}</td>
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                        <button onClick={() => setInvoiceTarget(order)}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-blue-400 hover:bg-blue-500/15 transition-all" title="Invoice">
-                          <MdReceipt size={15} />
-                        </button>
-                        <button onClick={() => handleEdit(order)}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-yellow-400 hover:bg-yellow-500/15 transition-all" title="Edit">
-                          <MdEdit size={15} />
-                        </button>
-                        <button onClick={() => setDeleteTarget(order)}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-500/15 transition-all" title="Hapus">
-                          <MdDelete size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+              ))}</tbody>
             </table>
-
-            {filtered.length === 0 && (
-              <div className="text-center py-16 flex flex-col items-center gap-3">
-                <MdReceipt size={48} className="text-gray-700" />
-                <p className="text-gray-600 text-sm">Tidak ada order ditemukan</p>
-                <button onClick={resetFilters} className="text-green-500 text-xs hover:underline flex items-center gap-1">
-                  <MdRefresh size={13} /> Reset filter
-                </button>
-              </div>
-            )}
+            {filtered.length === 0 && (<div className="text-center py-16 flex flex-col items-center gap-3"><MdReceipt size={48} className="text-gray-700" /><p className="text-gray-600 text-sm">Tidak ada order ditemukan</p><button onClick={resetFilters} className="text-green-500 text-xs hover:underline flex items-center gap-1"><MdRefresh size={13} /> Reset filter</button></div>)}
           </div>
         )}
 
-        {/* ── Grid View ── */}
         {viewMode === 'grid' && (
           <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filtered.map(order => (
-              <OrderCard key={order.id} order={order}
-                onDetail={setDetailTarget}
-                onEdit={handleEdit}
-                onDelete={setDeleteTarget}
-                onInvoice={setInvoiceTarget}
-              />
-            ))}
-            {filtered.length === 0 && (
-              <div className="col-span-3 text-center py-16 flex flex-col items-center gap-3">
-                <MdReceipt size={48} className="text-gray-700" />
-                <p className="text-gray-600 text-sm">Tidak ada order ditemukan</p>
-              </div>
-            )}
+            {paginatedData.map(order => (<OrderCard key={order.id} order={order} onDetail={setDetailTarget} onEdit={handleEdit} onDelete={setDeleteTarget} onInvoice={setInvoiceTarget} />))}
+            {filtered.length === 0 && (<div className="col-span-3 text-center py-16 flex flex-col items-center gap-3"><MdReceipt size={48} className="text-gray-700" /><p className="text-gray-600 text-sm">Tidak ada order ditemukan</p></div>)}
           </div>
         )}
 
-        <div className="px-5 py-3 flex items-center justify-between"
-          style={{ borderTop: '1px solid rgba(34,197,94,0.06)' }}>
-          <p className="text-xs text-gray-600">Menampilkan {filtered.length} dari {orders.length} order</p>
-          {activeFilters > 0 && (
-            <button onClick={resetFilters} className="text-xs text-green-600 hover:text-green-400 transition-colors flex items-center gap-1">
-              <MdRefresh size={13} /> Reset filter
-            </button>
-          )}
+        <div className="px-5 py-4 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(34,197,94,0.06)' }}>
+          <p className="text-xs text-gray-600">Menampilkan <span className="text-gray-300 font-semibold">{filtered.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> - <span className="text-gray-300 font-semibold">{Math.min(currentPage * itemsPerPage, filtered.length)}</span> dari <span className="text-green-500 font-semibold">{filtered.length}</span> order {activeFilters > 0 && "(disaring)"}</p>
+          {filtered.length > 0 && totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />}
         </div>
       </div>
 
-      {/* Modals & Drawer */}
-      {detailTarget && (
-        <DetailDrawer
-          order={detailTarget}
-          onClose={() => setDetailTarget(null)}
-          onEdit={(o) => { setDetailTarget(null); handleEdit(o) }}
-          onDelete={(o) => { setDetailTarget(null); setDeleteTarget(o) }}
-          onInvoice={(o) => { setDetailTarget(null); setInvoiceTarget(o) }}
-        />
-      )}
-
-      <FormModal
-        isOpen={showForm}
-        onClose={() => { setShowForm(false); setEditId(null) }}
-        onSubmit={handleSubmit}
-        initialData={editId ? orders.find(o => o.id === editId) || {} : { customer: '', vehicle: '', service: '', status: 'Menunggu', total: '', date: new Date().toISOString().slice(0,10), mechanic: '' }}
-        editId={editId}
-      />
-
+      {detailTarget && <DetailDrawer order={detailTarget} onClose={() => setDetailTarget(null)} onEdit={(o) => { setDetailTarget(null); handleEdit(o) }} onDelete={(o) => { setDetailTarget(null); setDeleteTarget(o) }} onInvoice={(o) => { setDetailTarget(null); setInvoiceTarget(o) }} />}
+      <FormModal isOpen={showForm} onClose={() => { setShowForm(false); setEditId(null) }} onSubmit={handleSubmit} initialData={editId ? orders.find(o => o.id === editId) || {} : { customer: '', vehicle: '', service: '', status: 'Menunggu', total: '', date: new Date().toISOString().slice(0,10), mechanic: '' }} editId={editId} customers={customersList} mechanics={mechanicsList} />
       {invoiceTarget && <InvoiceModal order={invoiceTarget} onClose={() => setInvoiceTarget(null)} />}
       {deleteTarget && <DeleteConfirm target={deleteTarget} onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} />}
     </div>

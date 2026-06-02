@@ -1,0 +1,502 @@
+[
+    {
+        "id": "#ORD-A1B2C3D4",
+        "customer": "Budi Santoso",
+        "vehicle": "Toyota Avanza - B 1234 ABC",
+        "service": "Servis Berkala",
+        "status": "Selesai",
+        "total": 450000,
+        "date": "2024-10-05",
+        "mechanic": "Ahmad Supriyadi"
+    },
+    {
+        "id": "#ORD-E5F6G7H8",
+        "customer": "Siti Rahayu",
+        "vehicle": "Honda Beat - D 5678 XYZ",
+        "service": "Ganti Oli",
+        "status": "Selesai",
+        "total": 120000,
+        "date": "2024-10-08",
+        "mechanic": "Eka Fitriani"
+    },
+    {
+        "id": "#ORD-I9J0K1L2",
+        "customer": "Agus Purnomo",
+        "vehicle": "Suzuki Ertiga - F 9012 PQR",
+        "service": "Tune Up",
+        "status": "Selesai",
+        "total": 350000,
+        "date": "2024-10-11",
+        "mechanic": "Budi Santoso"
+    },
+    {
+        "id": "#ORD-M3N4O5P6",
+        "customer": "Dewi Anggraini",
+        "vehicle": "Yamaha NMAX - G 3456 STU",
+        "service": "Servis Rem",
+        "status": "Selesai",
+        "total": 180000,
+        "date": "2024-10-14",
+        "mechanic": "Dedi Kurniawan"
+    },
+    {
+        "id": "#ORD-Q7R8S9T0",
+        "customer": "Hendra Kusuma",
+        "vehicle": "Honda Jazz - H 7890 VWX",
+        "service": "Spooring & Balancing",
+        "status": "Selesai",
+        "total": 250000,
+        "date": "2024-10-17",
+        "mechanic": "Ahmad Supriyadi"
+    },
+    {
+        "id": "#ORD-U1V2W3X4",
+        "customer": "Rina Marlina",
+        "vehicle": "Mitsubishi Xpander - I 1234 YZA",
+        "service": "Ganti Ban",
+        "status": "Selesai",
+        "total": 800000,
+        "date": "2024-10-20",
+        "mechanic": "Cindy Permata"
+    },
+    {
+        "id": "#ORD-B2C3D4E5",
+        "customer": "Doni Prasetyo",
+        "vehicle": "Daihatsu Xenia - J 5678 BCD",
+        "service": "Servis AC",
+        "status": "Selesai",
+        "total": 320000,
+        "date": "2024-10-23",
+        "mechanic": "Eka Fitriani"
+    },
+    {
+        "id": "#ORD-F6G7H8I9",
+        "customer": "Lestari Wulandari",
+        "vehicle": "Honda Vario - K 9012 EFG",
+        "service": "Ganti Kampas Rem",
+        "status": "Selesai",
+        "total": 95000,
+        "date": "2024-10-26",
+        "mechanic": "Budi Santoso"
+    },
+    {
+        "id": "#ORD-J0K1L2M3",
+        "customer": "Fajar Nugroho",
+        "vehicle": "Toyota Innova - L 3456 HIJ",
+        "service": "Servis Berkala",
+        "status": "Selesai",
+        "total": 550000,
+        "date": "2024-10-29",
+        "mechanic": "Dedi Kurniawan"
+    },
+    {
+        "id": "#ORD-N4O5P6Q7",
+        "customer": "Yuliana Putri",
+        "vehicle": "Mazda CX-5 - M 7890 KLM",
+        "service": "Cuci Mobil",
+        "status": "Selesai",
+        "total": 75000,
+        "date": "2024-11-01",
+        "mechanic": "Cindy Permata"
+    },
+    {
+        "id": "#ORD-R8S9T0U1",
+        "customer": "Wahyu Hidayat",
+        "vehicle": "Honda CRV - N 1234 NOP",
+        "service": "Ganti Oli",
+        "status": "Selesai",
+        "total": 130000,
+        "date": "2024-11-04",
+        "mechanic": "Ahmad Supriyadi"
+    },
+    {
+        "id": "#ORD-V2W3X4Y5",
+        "customer": "Mega Sari",
+        "vehicle": "Nissan Livina - O 5678 QRS",
+        "service": "Tune Up",
+        "status": "Selesai",
+        "total": 375000,
+        "date": "2024-11-07",
+        "mechanic": "Eka Fitriani"
+    },
+    {
+        "id": "#ORD-Z6A7B8C9",
+        "customer": "Rizky Firmansyah",
+        "vehicle": "Suzuki Swift - P 9012 TUV",
+        "service": "Detailing",
+        "status": "Selesai",
+        "total": 650000,
+        "date": "2024-11-10",
+        "mechanic": "Budi Santoso"
+    },
+    {
+        "id": "#ORD-D0E1F2G3",
+        "customer": "Nurul Aini",
+        "vehicle": "Yamaha Aerox - Q 3456 WXY",
+        "service": "Servis Rem",
+        "status": "Selesai",
+        "total": 160000,
+        "date": "2024-11-13",
+        "mechanic": "Dedi Kurniawan"
+    },
+    {
+        "id": "#ORD-H4I5J6K7",
+        "customer": "Eko Saputra",
+        "vehicle": "Toyota Rush - R 7890 ZAB",
+        "service": "Ganti Ban",
+        "status": "Selesai",
+        "total": 960000,
+        "date": "2024-11-16",
+        "mechanic": "Cindy Permata"
+    },
+    {
+        "id": "#ORD-L8M9N0O1",
+        "customer": "Fitri Handayani",
+        "vehicle": "Honda Freed - S 1234 CDE",
+        "service": "Spooring & Balancing",
+        "status": "Selesai",
+        "total": 270000,
+        "date": "2024-11-19",
+        "mechanic": "Ahmad Supriyadi"
+    },
+    {
+        "id": "#ORD-P2Q3R4S5",
+        "customer": "Bambang Suryadi",
+        "vehicle": "Mitsubishi Pajero - T 5678 FGH",
+        "service": "Servis AC",
+        "status": "Selesai",
+        "total": 480000,
+        "date": "2024-11-22",
+        "mechanic": "Eka Fitriani"
+    },
+    {
+        "id": "#ORD-T6U7V8W9",
+        "customer": "Indah Permata",
+        "vehicle": "Kia Sportage - U 9012 IJK",
+        "service": "Servis Berkala",
+        "status": "Selesai",
+        "total": 420000,
+        "date": "2024-11-25",
+        "mechanic": "Budi Santoso"
+    },
+    {
+        "id": "#ORD-X0Y1Z2A3",
+        "customer": "Gunawan Setiawan",
+        "vehicle": "Honda Scoopy - V 3456 LMN",
+        "service": "Ganti Oli",
+        "status": "Selesai",
+        "total": 85000,
+        "date": "2024-11-28",
+        "mechanic": "Dedi Kurniawan"
+    },
+    {
+        "id": "#ORD-B4C5D6E7",
+        "customer": "Riska Amelia",
+        "vehicle": "Toyota Yaris - W 7890 OPQ",
+        "service": "Tune Up",
+        "status": "Selesai",
+        "total": 340000,
+        "date": "2024-12-01",
+        "mechanic": "Cindy Permata"
+    },
+    {
+        "id": "#ORD-F8G9H0I1",
+        "customer": "Taufik Hidayatullah",
+        "vehicle": "Daihatsu Terios - X 1234 RST",
+        "service": "Ganti Kampas Rem",
+        "status": "Selesai",
+        "total": 110000,
+        "date": "2024-12-03",
+        "mechanic": "Ahmad Supriyadi"
+    },
+    {
+        "id": "#ORD-J2K3L4M5",
+        "customer": "Anisa Ramadhani",
+        "vehicle": "BMW X1 - Y 5678 UVW",
+        "service": "Detailing",
+        "status": "Selesai",
+        "total": 850000,
+        "date": "2024-12-05",
+        "mechanic": "Eka Fitriani"
+    },
+    {
+        "id": "#ORD-N6O7P8Q9",
+        "customer": "Surya Atmaja",
+        "vehicle": "Suzuki Ignis - Z 9012 XYZ",
+        "service": "Cuci Mobil",
+        "status": "Selesai",
+        "total": 65000,
+        "date": "2024-12-06",
+        "mechanic": "Budi Santoso"
+    },
+    {
+        "id": "#ORD-R0S1T2U3",
+        "customer": "Marlena Susanti",
+        "vehicle": "Honda HRV - A 3456 ABC",
+        "service": "Servis Rem",
+        "status": "Selesai",
+        "total": 195000,
+        "date": "2024-12-07",
+        "mechanic": "Dedi Kurniawan"
+    },
+    {
+        "id": "#ORD-V4W5X6Y7",
+        "customer": "Prabowo Hartono",
+        "vehicle": "Toyota Fortuner - B 7890 DEF",
+        "service": "Servis Berkala",
+        "status": "Selesai",
+        "total": 620000,
+        "date": "2024-12-08",
+        "mechanic": "Cindy Permata"
+    },
+    {
+        "id": "#ORD-Z8A9B0C1",
+        "customer": "Kartika Dewi",
+        "vehicle": "Yamaha Mio - C 1234 GHI",
+        "service": "Ganti Oli",
+        "status": "Selesai",
+        "total": 70000,
+        "date": "2024-12-09",
+        "mechanic": "Ahmad Supriyadi"
+    },
+    {
+        "id": "#ORD-D2E3F4G5",
+        "customer": "Andri Wijaksono",
+        "vehicle": "Mitsubishi Outlander - D 5678 JKL",
+        "service": "Spooring & Balancing",
+        "status": "Selesai",
+        "total": 290000,
+        "date": "2024-12-10",
+        "mechanic": "Eka Fitriani"
+    },
+    {
+        "id": "#ORD-H6I7J8K9",
+        "customer": "Sri Wahyuni",
+        "vehicle": "Honda Mobilio - E 9012 MNO",
+        "service": "Servis AC",
+        "status": "Selesai",
+        "total": 360000,
+        "date": "2024-12-10",
+        "mechanic": "Budi Santoso"
+    },
+    {
+        "id": "#ORD-L0M1N2O3",
+        "customer": "Hendro Wibowo",
+        "vehicle": "Toyota Calya - F 3456 PQR",
+        "service": "Ganti Ban",
+        "status": "Selesai",
+        "total": 720000,
+        "date": "2024-12-11",
+        "mechanic": "Dedi Kurniawan"
+    },
+    {
+        "id": "#ORD-P4Q5R6S7",
+        "customer": "Putri Nuraini",
+        "vehicle": "Honda Genio - G 7890 STU",
+        "service": "Tune Up",
+        "status": "Selesai",
+        "total": 145000,
+        "date": "2024-12-11",
+        "mechanic": "Cindy Permata"
+    },
+    {
+        "id": "#ORD-T8U9V0W1",
+        "customer": "Irfan Maulana",
+        "vehicle": "Mazda 3 - H 1234 VWX",
+        "service": "Detailing",
+        "status": "Selesai",
+        "total": 750000,
+        "date": "2024-12-12",
+        "mechanic": "Ahmad Supriyadi"
+    },
+    {
+        "id": "#ORD-X2Y3Z4A5",
+        "customer": "Dian Safitri",
+        "vehicle": "Toyota Sienta - I 5678 YZA",
+        "service": "Servis Berkala",
+        "status": "Selesai",
+        "total": 410000,
+        "date": "2024-12-12",
+        "mechanic": "Eka Fitriani"
+    },
+    {
+        "id": "#ORD-B6C7D8E9",
+        "customer": "Supardi Husein",
+        "vehicle": "Isuzu Panther - J 9012 BCD",
+        "service": "Ganti Kampas Rem",
+        "status": "Selesai",
+        "total": 135000,
+        "date": "2024-12-13",
+        "mechanic": "Budi Santoso"
+    },
+    {
+        "id": "#ORD-F0G1H2I3",
+        "customer": "Ayu Lestari",
+        "vehicle": "Honda Brio - K 3456 EFG",
+        "service": "Cuci Mobil",
+        "status": "Selesai",
+        "total": 75000,
+        "date": "2024-12-13",
+        "mechanic": "Dedi Kurniawan"
+    },
+    {
+        "id": "#ORD-J4K5L6M7",
+        "customer": "Muhamad Rafli",
+        "vehicle": "Toyota Veloz - L 7890 HIJ",
+        "service": "Spooring & Balancing",
+        "status": "Selesai",
+        "total": 260000,
+        "date": "2024-12-13",
+        "mechanic": "Cindy Permata"
+    },
+    {
+        "id": "#ORD-N8O9P0Q1",
+        "customer": "Novita Sari",
+        "vehicle": "Suzuki Baleno - M 1234 KLM",
+        "service": "Ganti Oli",
+        "status": "Sedang Dikerjakan",
+        "total": 115000,
+        "date": "2024-12-14",
+        "mechanic": "Ahmad Supriyadi"
+    },
+    {
+        "id": "#ORD-R2S3T4U5",
+        "customer": "Aris Budiman",
+        "vehicle": "Daihatsu Ayla - N 5678 NOP",
+        "service": "Servis Rem",
+        "status": "Sedang Dikerjakan",
+        "total": 170000,
+        "date": "2024-12-14",
+        "mechanic": "Eka Fitriani"
+    },
+    {
+        "id": "#ORD-V6W7X8Y9",
+        "customer": "Yeni Kurniawati",
+        "vehicle": "Honda CRV - O 9012 QRS",
+        "service": "Servis AC",
+        "status": "Sedang Dikerjakan",
+        "total": 395000,
+        "date": "2024-12-14",
+        "mechanic": "Budi Santoso"
+    },
+    {
+        "id": "#ORD-Z0A1B2C3",
+        "customer": "Didik Prasetyo",
+        "vehicle": "Hyundai Tucson - P 3456 TUV",
+        "service": "Tune Up",
+        "status": "Sedang Dikerjakan",
+        "total": 385000,
+        "date": "2024-12-14",
+        "mechanic": "Dedi Kurniawan"
+    },
+    {
+        "id": "#ORD-D4E5F6G7",
+        "customer": "Laila Fitriani",
+        "vehicle": "Yamaha NMAX - Q 7890 WXY",
+        "service": "Ganti Ban",
+        "status": "Sedang Dikerjakan",
+        "total": 580000,
+        "date": "2024-12-15",
+        "mechanic": "Cindy Permata"
+    },
+    {
+        "id": "#ORD-H8I9J0K1",
+        "customer": "Rudi Hartawan",
+        "vehicle": "Toyota Kijang - R 1234 ZAB",
+        "service": "Servis Berkala",
+        "status": "Sedang Dikerjakan",
+        "total": 490000,
+        "date": "2024-12-15",
+        "mechanic": "Ahmad Supriyadi"
+    },
+    {
+        "id": "#ORD-L2M3N4O5",
+        "customer": "Suci Ramadhanti",
+        "vehicle": "Honda Jazz - S 5678 CDE",
+        "service": "Detailing",
+        "status": "Sedang Dikerjakan",
+        "total": 700000,
+        "date": "2024-12-15",
+        "mechanic": "Eka Fitriani"
+    },
+    {
+        "id": "#ORD-P6Q7R8S9",
+        "customer": "Agung Prayogo",
+        "vehicle": "Mitsubishi Pajero - T 9012 FGH",
+        "service": "Ganti Kampas Rem",
+        "status": "Sedang Dikerjakan",
+        "total": 125000,
+        "date": "2024-12-15",
+        "mechanic": "Budi Santoso"
+    },
+    {
+        "id": "#ORD-T0U1V2W3",
+        "customer": "Wilda Saraswati",
+        "vehicle": "Nissan Juke - U 3456 IJK",
+        "service": "Cuci Mobil",
+        "status": "Menunggu",
+        "total": 65000,
+        "date": "2024-12-16",
+        "mechanic": "Dedi Kurniawan"
+    },
+    {
+        "id": "#ORD-X4Y5Z6A7",
+        "customer": "Fathur Rahman",
+        "vehicle": "Toyota Rush - V 7890 LMN",
+        "service": "Spooring & Balancing",
+        "status": "Menunggu",
+        "total": 255000,
+        "date": "2024-12-16",
+        "mechanic": "Cindy Permata"
+    },
+    {
+        "id": "#ORD-B8C9D0E1",
+        "customer": "Ratna Komala",
+        "vehicle": "Honda Brio - W 1234 OPQ",
+        "service": "Ganti Oli",
+        "status": "Menunggu",
+        "total": 100000,
+        "date": "2024-12-16",
+        "mechanic": "Ahmad Supriyadi"
+    },
+    {
+        "id": "#ORD-F2G3H4I5",
+        "customer": "Syahrul Gunawan",
+        "vehicle": "Suzuki Ertiga - X 5678 RST",
+        "service": "Servis AC",
+        "status": "Menunggu",
+        "total": 340000,
+        "date": "2024-12-16",
+        "mechanic": "Eka Fitriani"
+    },
+    {
+        "id": "#ORD-J6K7L8M9",
+        "customer": "Elsa Noviyanti",
+        "vehicle": "Yamaha Aerox - Y 9012 UVW",
+        "service": "Servis Rem",
+        "status": "Menunggu",
+        "total": 155000,
+        "date": "2024-12-17",
+        "mechanic": "Budi Santoso"
+    },
+    {
+        "id": "#ORD-N0O1P2Q3",
+        "customer": "Teguh Santoso",
+        "vehicle": "Toyota Fortuner - Z 3456 XYZ",
+        "service": "Tune Up",
+        "status": "Menunggu",
+        "total": 420000,
+        "date": "2024-12-17",
+        "mechanic": "Dedi Kurniawan"
+    },
+    {
+        "id": "#ORD-R4S5T6U7",
+        "customer": "Mira Handani",
+        "vehicle": "Honda HRV - A 7890 ABC",
+        "service": "Servis Berkala",
+        "status": "Menunggu",
+        "total": 465000,
+        "date": "2024-12-17",
+        "mechanic": "Cindy Permata"
+    }
+]

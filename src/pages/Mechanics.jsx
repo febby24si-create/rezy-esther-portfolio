@@ -5,14 +5,7 @@ import {
   MdCloudUpload, MdBuild, MdVerified, MdInfo,
   MdCheckCircle, MdPending
 } from 'react-icons/md'
-
-const mechanicsData = [
-  { id: 'M-001', name: 'Ahmad Supriyadi', specialty: 'Mesin & Transmisi', experience: '8 tahun', status: 'Tersedia', rating: 4.9, phone: '0812-1111-2222', photo: null, jobsDone: 142 },
-  { id: 'M-002', name: 'Budi Santoso',    specialty: 'Kelistrikan & AC',   experience: '5 tahun', status: 'Sibuk',    rating: 4.7, phone: '0813-2222-3333', photo: null, jobsDone: 98  },
-  { id: 'M-003', name: 'Cindy Permata',   specialty: 'Body & Cat',          experience: '6 tahun', status: 'Tersedia', rating: 4.8, phone: '0814-3333-4444', photo: null, jobsDone: 115 },
-  { id: 'M-004', name: 'Dedi Kurniawan',  specialty: 'Ban & Spooring',      experience: '4 tahun', status: 'Tersedia', rating: 4.6, phone: '0815-4444-5555', photo: null, jobsDone: 76  },
-  { id: 'M-005', name: 'Eka Fitriani',    specialty: 'Servis Rutin',        experience: '3 tahun', status: 'Sibuk',    rating: 4.5, phone: '0816-5555-6666', photo: null, jobsDone: 63  },
-]
+import mechanicsData from '../data/mechanicsData.json'
 
 const initialForm = { name: '', specialty: '', experience: '', status: 'Tersedia', rating: '5.0', phone: '', photo: null, jobsDone: 0 }
 

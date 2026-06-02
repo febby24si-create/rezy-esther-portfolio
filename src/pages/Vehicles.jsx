@@ -6,6 +6,8 @@ import {
   MdArrowBack, MdMoreVert, MdCamera, MdInfo,
 } from 'react-icons/md'
 import Pagination from '../components/Pagination'
+import vehiclesData from '../data/vehiclesData.json'
+
 
 const defaultMechanics = [
   { id: 'M1', name: 'Ahmad Supriyadi', specialization: 'Mesin & Transmisi' },
@@ -13,12 +15,6 @@ const defaultMechanics = [
   { id: 'M3', name: 'Cindy Permata', specialization: 'Body & Cat' },
   { id: 'M4', name: 'Dedi Kurniawan', specialization: 'Ban & Spooring' },
   { id: 'M5', name: 'Eka Fitriani', specialization: 'Servis Rutin' }
-]
-
-const vehiclesData = [
-  { id: 'V-001', plate: 'B 1234 ABC', brand: 'Toyota', model: 'Avanza', year: '2022', owner: 'Andi Wijaya', type: 'Mobil', mechanicId: 'M1', lastService: '2024-11-15', mileage: '32,400', status: 'Selesai', photo: null },
-  { id: 'V-002', plate: 'D 5678 XYZ', brand: 'Honda', model: 'Beat', year: '2021', owner: 'Sari Dewi', type: 'Motor', mechanicId: 'M5', lastService: '2024-12-01', mileage: '8,200', status: 'Servis', photo: null },
-  { id: 'V-003', plate: 'F 9012 PQR', brand: 'Suzuki', model: 'Ertiga', year: '2023', owner: 'Budi Hartono', type: 'Mobil', mechanicId: 'M2', lastService: '2024-10-20', mileage: '15,600', status: 'Menunggu', photo: null },
 ]
 
 const statusConfig = {
@@ -436,7 +432,7 @@ export default function Vehicles() {
 
   // State pagination
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 6
+  const itemsPerPage = 50
 
   // Simpan ke localStorage setiap vehicles berubah
   useEffect(() => {
