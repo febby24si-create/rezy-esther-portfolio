@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import Header from '../components/Header'
-import { MdMenu } from 'react-icons/md'
 
 export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -25,19 +24,10 @@ export default function MainLayout() {
         <Sidebar onClose={() => setSidebarOpen(false)} />
       </div>
 
-<div className="flex flex-col flex-1 overflow-visible min-w-0">        {/* Mobile topbar with hamburger */}
-        <div className="flex items-center gap-3 px-4 py-3 md:hidden" style={{ background: '#041C15', borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-400 hover:text-green-400 transition-colors"
-            style={{ background: 'rgba(11,59,46,0.4)', border: '1px solid rgba(34,197,94,0.12)' }}
-          >
-            <MdMenu size={20} />
-          </button>
-          <span className="font-display font-bold text-white text-base">Esther<span className="text-green-400">Garage</span></span>
-        </div>
+      <div className="flex flex-col flex-1 overflow-visible min-w-0">
+        {/* Header — handles hamburger, search, notif, logout */}
+        <Header onToggleSidebar={() => setSidebarOpen(true)} />
 
-        <Header />
         <main className="flex-1 overflow-y-auto p-4 md:p-6" style={{ background: 'linear-gradient(135deg, #041C15 0%, #06281F 50%, #041C15 100%)' }}>
           <Outlet />
         </main>
