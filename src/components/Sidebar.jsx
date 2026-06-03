@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { NavLink, Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo2.png'
 import {
@@ -29,8 +30,45 @@ const SectionLabel = ({ label }) => (
   </div>
 )
 
+function getInitials(name) {
+  return name
+    .split(' ')
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+}
+
 export default function Sidebar({ onClose }) {
   const navigate = useNavigate()
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('user_profile')
+    if (saved) {
+      return JSON.parse(saved)
+    }
+    return {
+      name: 'Admin Workshop',
+      role: 'Manajer',
+      email: 'admin@bengkel.id',
+      phone: '',
+      avatar: null,
+    }
+  })
+
+  // Simpan ke localStorage jika ada perubahan (opsional, untuk konsistensi)
+  useEffect(() => {
+    localStorage.setItem('user_profile', JSON.stringify(user))
+  }, [user])
+
+  // Dengarkan event dari Settings (update real-time)
+  useEffect(() => {
+    const handleUserUpdate = (event) => {
+      const updatedUser = event.detail
+      if (updatedUser) setUser(updatedUser)
+    }
+    window.addEventListener('userProfileUpdated', handleUserUpdate)
+    return () => window.removeEventListener('userProfileUpdated', handleUserUpdate)
+  }, [])
 
   const handleLogout = () => {
     localStorage.removeItem('eg_token')
@@ -68,7 +106,6 @@ export default function Sidebar({ onClose }) {
             </p>
           </div>
         </Link>
-        {/* Close button — only visible on mobile */}
         {onClose && (
           <button
             onClick={onClose}
@@ -109,18 +146,22 @@ export default function Sidebar({ onClose }) {
         </NavLink>
       </nav>
 
-      {/* User profile + Logout */}
+      {/* User profile + Logout - Sekarang dinamis */}
       <div className="p-4 border-t space-y-2" style={{ borderColor: 'rgba(34,197,94,0.1)' }}>
         <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(11,59,46,0.5)' }}>
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold text-white"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold text-white overflow-hidden"
             style={{ background: 'linear-gradient(135deg, #16A34A, #22C55E)' }}
           >
-            F
+            {user.avatar ? (
+              <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+            ) : (
+              getInitials(user.name)
+            )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-sm font-semibold truncate">Febby Fahrezy</p>
-            <p className="text-gray-500 text-xs">Administrator</p>
+            <p className="text-white text-sm font-semibold truncate">{user.name}</p>
+            <p className="text-gray-500 text-xs">{user.role}</p>
           </div>
         </div>
         <button
