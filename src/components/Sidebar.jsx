@@ -4,18 +4,22 @@ import logo from '../assets/logo2.png'
 import {
   MdDashboard, MdBuild, MdPeople, MdDirectionsCar, MdEngineering,
   MdBarChart, MdSettings, MdError, MdWarning, MdBlock, MdWidgets,
-  MdInventory2, MdClose, MdLogout, MdCalendarMonth
+  MdInventory2, MdClose, MdLogout, MdCalendarMonth, MdAutoAwesome
 } from 'react-icons/md'
 
 const navItems = [
-  { path: '/',           icon: MdDashboard,    label: 'Dashboard'    },
-  { path: '/orders',     icon: MdBuild,        label: 'Order Servis' },
-  { path: '/customers',  icon: MdPeople,       label: 'Pelanggan'    },
-  { path: '/vehicles',   icon: MdDirectionsCar,label: 'Kendaraan'    },
-  { path: '/mechanics',  icon: MdEngineering,  label: 'Mekanik'      },
-  { path: '/schedule',   icon: MdCalendarMonth, label: 'Jadwal Mekanik' },
-  { path: '/reports',    icon: MdBarChart,     label: 'Laporan'      },
-  { path: '/inventory',  icon: MdInventory2,   label: 'Stok Barang'  },
+  { path: '/',          icon: MdDashboard,    label: 'Dashboard'       },
+  { path: '/orders',    icon: MdBuild,        label: 'Order Servis'    },
+  { path: '/customers', icon: MdPeople,       label: 'Pelanggan'       },
+  { path: '/vehicles',  icon: MdDirectionsCar,label: 'Kendaraan'       },
+  { path: '/mechanics', icon: MdEngineering,  label: 'Mekanik'         },
+  { path: '/schedule',  icon: MdCalendarMonth,label: 'Jadwal Mekanik'  },
+  { path: '/reports',   icon: MdBarChart,     label: 'Laporan'         },
+  { path: '/inventory', icon: MdInventory2,   label: 'Stok Barang'     },
+]
+
+const crmItems = [
+  { path: '/crm', icon: MdAutoAwesome, label: 'CRM Automation', badge: 'NEW' },
 ]
 
 const errorItems = [
@@ -31,36 +35,21 @@ const SectionLabel = ({ label }) => (
 )
 
 function getInitials(name) {
-  return name
-    .split(' ')
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
+  return name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
 }
 
 export default function Sidebar({ onClose }) {
   const navigate = useNavigate()
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('user_profile')
-    if (saved) {
-      return JSON.parse(saved)
-    }
-    return {
-      name: 'Admin Workshop',
-      role: 'Manajer',
-      email: 'admin@bengkel.id',
-      phone: '',
-      avatar: null,
-    }
+    if (saved) return JSON.parse(saved)
+    return { name: 'Admin Workshop', role: 'Manajer', email: 'admin@bengkel.id', phone: '', avatar: null }
   })
 
-  // Simpan ke localStorage jika ada perubahan (opsional, untuk konsistensi)
   useEffect(() => {
     localStorage.setItem('user_profile', JSON.stringify(user))
   }, [user])
 
-  // Dengarkan event dari Settings (update real-time)
   useEffect(() => {
     const handleUserUpdate = (event) => {
       const updatedUser = event.detail
@@ -118,6 +107,7 @@ export default function Sidebar({ onClose }) {
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        {/* Main nav */}
         {navItems.map(({ path, icon: Icon, label }) => (
           <NavLink key={path} to={path} end={path === '/'} className={linkClass} onClick={onClose}>
             <Icon size={18} />
@@ -125,12 +115,29 @@ export default function Sidebar({ onClose }) {
           </NavLink>
         ))}
 
+        {/* CRM Section */}
+        <SectionLabel label="CRM" />
+        {crmItems.map(({ path, icon: Icon, label, badge }) => (
+          <NavLink key={path} to={path} className={linkClass} onClick={onClose}>
+            <Icon size={18} />
+            <span className="flex-1">{label}</span>
+            {badge && (
+              <span className="text-xs px-1.5 py-0.5 rounded-full font-bold"
+                style={{ background: 'rgba(34,197,94,0.2)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.3)', fontSize: '9px' }}>
+                {badge}
+              </span>
+            )}
+          </NavLink>
+        ))}
+
+        {/* Developer */}
         <SectionLabel label="Developer" />
         <NavLink to="/components" className={linkClass} onClick={onClose}>
           <MdWidgets size={18} />
           <span>Components</span>
         </NavLink>
 
+        {/* Error Pages */}
         <SectionLabel label="Error Pages" />
         {errorItems.map(({ path, icon: Icon, label }) => (
           <NavLink key={path} to={path} className={linkClass} onClick={onClose}>
@@ -139,6 +146,7 @@ export default function Sidebar({ onClose }) {
           </NavLink>
         ))}
 
+        {/* System */}
         <SectionLabel label="System" />
         <NavLink to="/settings" className={linkClass} onClick={onClose}>
           <MdSettings size={18} />
@@ -146,7 +154,7 @@ export default function Sidebar({ onClose }) {
         </NavLink>
       </nav>
 
-      {/* User profile + Logout - Sekarang dinamis */}
+      {/* User profile + Logout */}
       <div className="p-4 border-t space-y-2" style={{ borderColor: 'rgba(34,197,94,0.1)' }}>
         <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(11,59,46,0.5)' }}>
           <div

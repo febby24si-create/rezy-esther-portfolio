@@ -38,7 +38,7 @@ import {
   Activity,
   ArrowUpRight,
 } from "lucide-react";
-import carHero from "../assets/mobil.png";
+import carHero from "/mobil.png";
 
 const fmt = (n) => "Rp " + Number(n).toLocaleString("id-ID");
 const fmtShort = (n) =>
