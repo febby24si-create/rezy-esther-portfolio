@@ -1,4 +1,5 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
 import GuestNavbar from '../components/guest/GuestNavbar'
 import GuestFooter from '../components/guest/GuestFooter'
 import { ToastContainer, useToast } from '../components/guest/Toast'
@@ -9,13 +10,16 @@ export const useGuestToast = () => useContext(ToastCtx)
 
 export default function GuestLayout() {
   const { toasts, addToast, removeToast } = useToast()
+  const location = useLocation()
 
   return (
     <ToastCtx.Provider value={addToast}>
       <div className="min-h-screen flex flex-col" style={{ background: '#020f09' }}>
         <GuestNavbar />
         <main className="flex-1">
-          <Outlet />
+          <AnimatePresence mode="wait" initial={false}>
+            <Outlet key={location.pathname} />
+          </AnimatePresence>
         </main>
         <GuestFooter />
         <ToastContainer toasts={toasts} removeToast={removeToast} />
