@@ -11,9 +11,29 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80",
       "deskripsi": "Pantai ikonik Bali dengan ombak surfing kelas dunia dan sunset menakjubkan.",
-      "lokasi": { "kota": "Badung", "koordinat": { "lat": -8.7183, "lng": 115.1691 }, "jarak_bandara_km": 5 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Kuta Beach Resort", "Hard Rock Hotel"], "atm": true },
-      "tiket": { "harga_dewasa": 0, "harga_anak": 0, "mata_uang": "IDR", "gratis": true },
+      "lokasi": {
+        "kota": "Badung",
+        "koordinat": {
+          "lat": -8.7183,
+          "lng": 115.1691
+        },
+        "jarak_bandara_km": 5
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Kuta Beach Resort",
+          "Hard Rock Hotel"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 0,
+        "harga_anak": 0,
+        "mata_uang": "IDR",
+        "gratis": true
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 3500000
     },
@@ -26,9 +46,29 @@
       "rating": 4.9,
       "gambar": "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?w=400&q=80",
       "deskripsi": "Candi Buddha terbesar di dunia, Warisan Budaya UNESCO sejak 1991.",
-      "lokasi": { "kota": "Magelang", "koordinat": { "lat": -7.6079, "lng": 110.2038 }, "jarak_bandara_km": 42 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Manohara Resort", "Plataran Borobudur"], "atm": true },
-      "tiket": { "harga_dewasa": 50000, "harga_anak": 25000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Magelang",
+        "koordinat": {
+          "lat": -7.6079,
+          "lng": 110.2038
+        },
+        "jarak_bandara_km": 42
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Manohara Resort",
+          "Plataran Borobudur"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 50000,
+        "harga_anak": 25000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 17:00",
       "pengunjung_per_tahun": 3000000
     },
@@ -41,9 +81,29 @@
       "rating": 4.9,
       "gambar": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&q=80",
       "deskripsi": "Surga bawah laut dengan biodiversitas tertinggi di dunia, destinasi diving impian.",
-      "lokasi": { "kota": "Sorong", "koordinat": { "lat": -0.55, "lng": 130.4 }, "jarak_bandara_km": 90 },
-      "fasilitas": { "parkir": false, "toilet": true, "penginapan_terdekat": ["Papua Paradise Eco Resort", "Kri Eco Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 1000000, "harga_anak": 500000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Sorong",
+        "koordinat": {
+          "lat": -0.55,
+          "lng": 130.4
+        },
+        "jarak_bandara_km": 90
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Papua Paradise Eco Resort",
+          "Kri Eco Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 1000000,
+        "harga_anak": 500000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 120000
     },
@@ -56,9 +116,29 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?w=400&q=80",
       "deskripsi": "Danau vulkanik terbesar di dunia dengan Pulau Samosir di tengahnya.",
-      "lokasi": { "kota": "Toba Samosir", "koordinat": { "lat": 2.6833, "lng": 98.8667 }, "jarak_bandara_km": 180 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Tabo Cottages", "Niagara Hotel"], "atm": true },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Toba Samosir",
+        "koordinat": {
+          "lat": 2.6833,
+          "lng": 98.8667
+        },
+        "jarak_bandara_km": 180
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Tabo Cottages",
+          "Niagara Hotel"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "08:00 - 18:00",
       "pengunjung_per_tahun": 400000
     },
@@ -71,9 +151,29 @@
       "rating": 4.8,
       "gambar": "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=400&q=80",
       "deskripsi": "Habitat asli Komodo, kadal terbesar di dunia. Taman Nasional UNESCO.",
-      "lokasi": { "kota": "Labuan Bajo", "koordinat": { "lat": -8.55, "lng": 119.5 }, "jarak_bandara_km": 50 },
-      "fasilitas": { "parkir": false, "toilet": true, "penginapan_terdekat": ["Ayana Komodo Resort", "Bayview Gardens"], "atm": false },
-      "tiket": { "harga_dewasa": 150000, "harga_anak": 75000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Labuan Bajo",
+        "koordinat": {
+          "lat": -8.55,
+          "lng": 119.5
+        },
+        "jarak_bandara_km": 50
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Ayana Komodo Resort",
+          "Bayview Gardens"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 150000,
+        "harga_anak": 75000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 16:00",
       "pengunjung_per_tahun": 200000
     },
@@ -86,9 +186,29 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1574226516831-e1dff420e562?w=400&q=80",
       "deskripsi": "Gunung berapi aktif 3.726 mdpl dengan Danau Segara Anak yang memukau.",
-      "lokasi": { "kota": "Lombok Timur", "koordinat": { "lat": -8.4118, "lng": 116.465 }, "jarak_bandara_km": 110 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Rinjani Lodge", "Sembalun Lodge"], "atm": false },
-      "tiket": { "harga_dewasa": 150000, "harga_anak": 75000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Lombok Timur",
+        "koordinat": {
+          "lat": -8.4118,
+          "lng": 116.465
+        },
+        "jarak_bandara_km": 110
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Rinjani Lodge",
+          "Sembalun Lodge"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 150000,
+        "harga_anak": 75000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "05:00 - 17:00",
       "pengunjung_per_tahun": 80000
     },
@@ -96,14 +216,33 @@
       "id": 7,
       "nama": "Taman Mini Indonesia Indah",
       "kategori": "Taman & Rekreasi",
-      "provinsi": "DKI Jakarta",
+      "provinsi": "Sumatera Barat",
       "status": "Buka",
       "rating": 4.3,
       "gambar": "https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=400&q=80",
       "deskripsi": "Miniatur Indonesia dengan replika rumah adat dari 34 provinsi.",
-      "lokasi": { "kota": "Jakarta Timur", "koordinat": { "lat": -6.3022, "lng": 106.8951 }, "jarak_bandara_km": 35 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Grand Cempaka Hotel"], "atm": true },
-      "tiket": { "harga_dewasa": 25000, "harga_anak": 15000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Bukittinggi",
+        "koordinat": {
+          "lat": -6.3022,
+          "lng": 106.8951
+        },
+        "jarak_bandara_km": 35
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Grand Cempaka Hotel"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 25000,
+        "harga_anak": 15000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "08:00 - 20:00",
       "pengunjung_per_tahun": 5000000
     },
@@ -116,9 +255,29 @@
       "rating": 4.8,
       "gambar": "https://images.unsplash.com/photo-1589308454676-22a8e049c4e7?w=400&q=80",
       "deskripsi": "Lautan pasir dengan kawah Bromo menyempurnakan pemandangan golden sunrise.",
-      "lokasi": { "kota": "Probolinggo", "koordinat": { "lat": -7.9425, "lng": 112.9531 }, "jarak_bandara_km": 90 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Lava View Lodge", "Jiwa Jawa Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 29000, "harga_anak": 17500, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Probolinggo",
+        "koordinat": {
+          "lat": -7.9425,
+          "lng": 112.9531
+        },
+        "jarak_bandara_km": 90
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Lava View Lodge",
+          "Jiwa Jawa Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 29000,
+        "harga_anak": 17500,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 500000
     },
@@ -131,9 +290,28 @@
       "rating": 4.8,
       "gambar": "https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=400&q=80",
       "deskripsi": "Taman laut dengan wall diving spektakuler dan terumbu karang yang masih asri.",
-      "lokasi": { "kota": "Manado", "koordinat": { "lat": 1.6167, "lng": 124.75 }, "jarak_bandara_km": 15 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Bunaken Cha Cha Nature Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 150000, "harga_anak": 75000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Manado",
+        "koordinat": {
+          "lat": 1.6167,
+          "lng": 124.75
+        },
+        "jarak_bandara_km": 15
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Bunaken Cha Cha Nature Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 150000,
+        "harga_anak": 75000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 150000
     },
@@ -146,9 +324,29 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1602392741573-2e547ea9b89b?w=400&q=80",
       "deskripsi": "Kawah asam terbesar di dunia dengan blue fire unik yang hanya ada dua di dunia.",
-      "lokasi": { "kota": "Banyuwangi", "koordinat": { "lat": -8.058, "lng": 114.2422 }, "jarak_bandara_km": 50 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Catimor Homestay", "Ijen Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 100000, "harga_anak": 50000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Banyuwangi",
+        "koordinat": {
+          "lat": -8.058,
+          "lng": 114.2422
+        },
+        "jarak_bandara_km": 50
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Catimor Homestay",
+          "Ijen Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 100000,
+        "harga_anak": 50000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "01:00 - 15:00",
       "pengunjung_per_tahun": 200000
     },
@@ -161,9 +359,29 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?w=400&q=80",
       "deskripsi": "Kompleks candi Hindu terbesar di Indonesia dan Asia Tenggara, Warisan UNESCO.",
-      "lokasi": { "kota": "Sleman", "koordinat": { "lat": -7.752, "lng": 110.4915 }, "jarak_bandara_km": 17 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Hotel Tentrem", "Phoenix Hotel"], "atm": true },
-      "tiket": { "harga_dewasa": 50000, "harga_anak": 25000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Sleman",
+        "koordinat": {
+          "lat": -7.752,
+          "lng": 110.4915
+        },
+        "jarak_bandara_km": 17
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Hotel Tentrem",
+          "Phoenix Hotel"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 50000,
+        "harga_anak": 25000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 17:00",
       "pengunjung_per_tahun": 2500000
     },
@@ -176,9 +394,28 @@
       "rating": 4.9,
       "gambar": "https://images.unsplash.com/photo-1498855926480-d98e83099315?w=400&q=80",
       "deskripsi": "Taman nasional laut dengan 942 spesies ikan dan 750 spesies terumbu karang.",
-      "lokasi": { "kota": "Wakatobi", "koordinat": { "lat": -5.4667, "lng": 123.5833 }, "jarak_bandara_km": 12 },
-      "fasilitas": { "parkir": false, "toilet": true, "penginapan_terdekat": ["Wakatobi Dive Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 150000, "harga_anak": 75000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Wakatobi",
+        "koordinat": {
+          "lat": -5.4667,
+          "lng": 123.5833
+        },
+        "jarak_bandara_km": 12
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Wakatobi Dive Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 150000,
+        "harga_anak": 75000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 30000
     },
@@ -191,9 +428,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80",
       "deskripsi": "Pura di atas batu karang di tepi laut dengan sunset paling ikonik di Bali.",
-      "lokasi": { "kota": "Tabanan", "koordinat": { "lat": -8.621, "lng": 115.0868 }, "jarak_bandara_km": 20 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Pan Pacific Nirwana Bali"], "atm": true },
-      "tiket": { "harga_dewasa": 20000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Tabanan",
+        "koordinat": {
+          "lat": -8.621,
+          "lng": 115.0868
+        },
+        "jarak_bandara_km": 20
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Pan Pacific Nirwana Bali"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 20000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 19:00",
       "pengunjung_per_tahun": 3000000
     },
@@ -206,9 +462,29 @@
       "rating": 4.8,
       "gambar": "https://images.unsplash.com/photo-1555993539-1732b0258235?w=400&q=80",
       "deskripsi": "Budaya unik pemakaman di tebing batu dengan tau-tau dan tongkonan tradisional.",
-      "lokasi": { "kota": "Tana Toraja", "koordinat": { "lat": -3.0833, "lng": 119.8333 }, "jarak_bandara_km": 8 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Toraja Heritage Hotel", "Misiontoraja"], "atm": true },
-      "tiket": { "harga_dewasa": 20000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Tana Toraja",
+        "koordinat": {
+          "lat": -3.0833,
+          "lng": 119.8333
+        },
+        "jarak_bandara_km": 8
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Toraja Heritage Hotel",
+          "Misiontoraja"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 20000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "08:00 - 17:00",
       "pengunjung_per_tahun": 200000
     },
@@ -221,9 +497,29 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&q=80",
       "deskripsi": "Surga penyu hijau dan snorkeling di laguna biru kristal yang memukau.",
-      "lokasi": { "kota": "Berau", "koordinat": { "lat": 2.2667, "lng": 118.25 }, "jarak_bandara_km": 120 },
-      "fasilitas": { "parkir": false, "toilet": true, "penginapan_terdekat": ["Derawan Dive Lodge", "Nabucco Island Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 50000, "harga_anak": 25000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Berau",
+        "koordinat": {
+          "lat": 2.2667,
+          "lng": 118.25
+        },
+        "jarak_bandara_km": 120
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Derawan Dive Lodge",
+          "Nabucco Island Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 50000,
+        "harga_anak": 25000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 50000
     },
@@ -236,9 +532,28 @@
       "rating": 4.9,
       "gambar": "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=400&q=80",
       "deskripsi": "Salah satu dari 7 pantai berpasir merah muda di dunia, berada di Pulau Komodo.",
-      "lokasi": { "kota": "Labuan Bajo", "koordinat": { "lat": -8.65, "lng": 119.6 }, "jarak_bandara_km": 60 },
-      "fasilitas": { "parkir": false, "toilet": false, "penginapan_terdekat": ["Ayana Komodo Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 150000, "harga_anak": 75000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Labuan Bajo",
+        "koordinat": {
+          "lat": -8.65,
+          "lng": 119.6
+        },
+        "jarak_bandara_km": 60
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": false,
+        "penginapan_terdekat": [
+          "Ayana Komodo Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 150000,
+        "harga_anak": 75000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 16:00",
       "pengunjung_per_tahun": 80000
     },
@@ -251,9 +566,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80",
       "deskripsi": "Ekosistem terakhir di Bumi tempat gajah, harimau, badak, dan orangutan hidup bersama.",
-      "lokasi": { "kota": "Kutacane", "koordinat": { "lat": 3.4833, "lng": 97.75 }, "jarak_bandara_km": 260 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Ketambe Research Station"], "atm": false },
-      "tiket": { "harga_dewasa": 200000, "harga_anak": 100000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Kutacane",
+        "koordinat": {
+          "lat": 3.4833,
+          "lng": 97.75
+        },
+        "jarak_bandara_km": 260
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Ketambe Research Station"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 200000,
+        "harga_anak": 100000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 15:00",
       "pengunjung_per_tahun": 10000
     },
@@ -266,9 +600,28 @@
       "rating": 4.8,
       "gambar": "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80",
       "deskripsi": "Danau dua lapisan air tawar dan asin dengan kejernihan air bak cermin.",
-      "lokasi": { "kota": "Berau", "koordinat": { "lat": 2.0, "lng": 118.1 }, "jarak_bandara_km": 140 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Labuan Cermin Homestay"], "atm": false },
-      "tiket": { "harga_dewasa": 15000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Berau",
+        "koordinat": {
+          "lat": 2.0,
+          "lng": 118.1
+        },
+        "jarak_bandara_km": 140
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Labuan Cermin Homestay"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 15000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "08:00 - 16:00",
       "pengunjung_per_tahun": 30000
     },
@@ -281,9 +634,29 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=400&q=80",
       "deskripsi": "Lembah terpencil Papua tempat suku Dani menjaga tradisi leluhur berabad-abad.",
-      "lokasi": { "kota": "Wamena", "koordinat": { "lat": -3.95, "lng": 138.95 }, "jarak_bandara_km": 5 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Baliem Valley Resort", "Pilamo Hotel"], "atm": true },
-      "tiket": { "harga_dewasa": 250000, "harga_anak": 125000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Wamena",
+        "koordinat": {
+          "lat": -3.95,
+          "lng": 138.95
+        },
+        "jarak_bandara_km": 5
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Baliem Valley Resort",
+          "Pilamo Hotel"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 250000,
+        "harga_anak": 125000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 17:00",
       "pengunjung_per_tahun": 5000
     },
@@ -296,9 +669,29 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=400&q=80",
       "deskripsi": "Tiga pulau kecil dengan pantai putih, snorkeling, dan suasana bebas kendaraan bermotor.",
-      "lokasi": { "kota": "Lombok Utara", "koordinat": { "lat": -8.35, "lng": 116.05 }, "jarak_bandara_km": 35 },
-      "fasilitas": { "parkir": false, "toilet": true, "penginapan_terdekat": ["Karma Reef", "Gili Lankanfushi"], "atm": true },
-      "tiket": { "harga_dewasa": 0, "harga_anak": 0, "mata_uang": "IDR", "gratis": true },
+      "lokasi": {
+        "kota": "Lombok Utara",
+        "koordinat": {
+          "lat": -8.35,
+          "lng": 116.05
+        },
+        "jarak_bandara_km": 35
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Karma Reef",
+          "Gili Lankanfushi"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 0,
+        "harga_anak": 0,
+        "mata_uang": "IDR",
+        "gratis": true
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 700000
     },
@@ -311,9 +704,29 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=400&q=80",
       "deskripsi": "Pantai dengan pasir hitam vulkanik dan pemandangan Gunung Agung Bali di kejauhan.",
-      "lokasi": { "kota": "Lombok Barat", "koordinat": { "lat": -8.4867, "lng": 116.0489 }, "jarak_bandara_km": 12 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Sheraton Senggigi", "Holiday Inn Resort"], "atm": true },
-      "tiket": { "harga_dewasa": 0, "harga_anak": 0, "mata_uang": "IDR", "gratis": true },
+      "lokasi": {
+        "kota": "Lombok Barat",
+        "koordinat": {
+          "lat": -8.4867,
+          "lng": 116.0489
+        },
+        "jarak_bandara_km": 12
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Sheraton Senggigi",
+          "Holiday Inn Resort"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 0,
+        "harga_anak": 0,
+        "mata_uang": "IDR",
+        "gratis": true
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 600000
     },
@@ -326,9 +739,29 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=400&q=80",
       "deskripsi": "Gunung berapi paling aktif di Indonesia dengan pemandangan sunrise spektakuler.",
-      "lokasi": { "kota": "Sleman", "koordinat": { "lat": -7.5407, "lng": 110.4457 }, "jarak_bandara_km": 28 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Vogels Hostel", "Merapi Merbabu"], "atm": false },
-      "tiket": { "harga_dewasa": 27500, "harga_anak": 12500, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Sleman",
+        "koordinat": {
+          "lat": -7.5407,
+          "lng": 110.4457
+        },
+        "jarak_bandara_km": 28
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Vogels Hostel",
+          "Merapi Merbabu"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 27500,
+        "harga_anak": 12500,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 300000
     },
@@ -341,9 +774,29 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1555993539-1732b0258235?w=400&q=80",
       "deskripsi": "Pusat kebudayaan Jawa, istana Sultan yang masih aktif berdiri sejak abad ke-18.",
-      "lokasi": { "kota": "Yogyakarta", "koordinat": { "lat": -7.8052, "lng": 110.364 }, "jarak_bandara_km": 10 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["The Phoenix Hotel", "Tentrem Hotel"], "atm": true },
-      "tiket": { "harga_dewasa": 15000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Yogyakarta",
+        "koordinat": {
+          "lat": -7.8052,
+          "lng": 110.364
+        },
+        "jarak_bandara_km": 10
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "The Phoenix Hotel",
+          "Tentrem Hotel"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 15000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "08:00 - 14:00",
       "pengunjung_per_tahun": 1500000
     },
@@ -356,9 +809,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=400&q=80",
       "deskripsi": "Sabana Afrika-nya Indonesia dengan banteng, rusa, merak, dan kerbau liar.",
-      "lokasi": { "kota": "Situbondo", "koordinat": { "lat": -7.8564, "lng": 114.3663 }, "jarak_bandara_km": 60 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Baluran Guest House"], "atm": false },
-      "tiket": { "harga_dewasa": 15000, "harga_anak": 7500, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Situbondo",
+        "koordinat": {
+          "lat": -7.8564,
+          "lng": 114.3663
+        },
+        "jarak_bandara_km": 60
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Baluran Guest House"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 15000,
+        "harga_anak": 7500,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 17:00",
       "pengunjung_per_tahun": 100000
     },
@@ -371,9 +843,28 @@
       "rating": 4.3,
       "gambar": "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&q=80",
       "deskripsi": "Pantai selatan Yogyakarta terkenal dengan gumuk pasir dan legenda Nyi Roro Kidul.",
-      "lokasi": { "kota": "Bantul", "koordinat": { "lat": -8.0245, "lng": 110.3327 }, "jarak_bandara_km": 27 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Queen of the South Resort"], "atm": true },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Bantul",
+        "koordinat": {
+          "lat": -8.0245,
+          "lng": 110.3327
+        },
+        "jarak_bandara_km": 27
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Queen of the South Resort"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 1200000
     },
@@ -386,9 +877,29 @@
       "rating": 4.2,
       "gambar": "https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=400&q=80",
       "deskripsi": "Kawasan bersejarah peninggalan Belanda dengan museum dan bangunan kolonial abad ke-17.",
-      "lokasi": { "kota": "Jakarta Barat", "koordinat": { "lat": -6.1352, "lng": 106.8133 }, "jarak_bandara_km": 25 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Hotel Batavia", "Mercure Jakarta Batavia"], "atm": true },
-      "tiket": { "harga_dewasa": 0, "harga_anak": 0, "mata_uang": "IDR", "gratis": true },
+      "lokasi": {
+        "kota": "Jakarta Barat",
+        "koordinat": {
+          "lat": -6.1352,
+          "lng": 106.8133
+        },
+        "jarak_bandara_km": 25
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Hotel Batavia",
+          "Mercure Jakarta Batavia"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 0,
+        "harga_anak": 0,
+        "mata_uang": "IDR",
+        "gratis": true
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 4000000
     },
@@ -401,9 +912,28 @@
       "rating": 4.8,
       "gambar": "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80",
       "deskripsi": "Tiga danau kawah dengan warna berbeda — biru, hijau, dan merah — di puncak gunung.",
-      "lokasi": { "kota": "Ende", "koordinat": { "lat": -8.7706, "lng": 121.8217 }, "jarak_bandara_km": 50 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Kelimutu Crater Lakes Ecolodge"], "atm": false },
-      "tiket": { "harga_dewasa": 20000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Ende",
+        "koordinat": {
+          "lat": -8.7706,
+          "lng": 121.8217
+        },
+        "jarak_bandara_km": 50
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Kelimutu Crater Lakes Ecolodge"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 20000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "05:00 - 17:00",
       "pengunjung_per_tahun": 80000
     },
@@ -416,9 +946,28 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80",
       "deskripsi": "Pantai tersembunyi di Bukit Peninsula Bali dengan tebing kapur putih yang dramatis.",
-      "lokasi": { "kota": "Badung", "koordinat": { "lat": -8.7978, "lng": 115.1417 }, "jarak_bandara_km": 18 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Rimba Jimbaran Bali"], "atm": false },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Badung",
+        "koordinat": {
+          "lat": -8.7978,
+          "lng": 115.1417
+        },
+        "jarak_bandara_km": 18
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Rimba Jimbaran Bali"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 19:00",
       "pengunjung_per_tahun": 400000
     },
@@ -431,9 +980,28 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80",
       "deskripsi": "Rumah bagi orangutan Kalimantan, klotok wisata menapaki sungai di hutan tropis.",
-      "lokasi": { "kota": "Pangkalan Bun", "koordinat": { "lat": -2.7167, "lng": 111.8333 }, "jarak_bandara_km": 20 },
-      "fasilitas": { "parkir": false, "toilet": true, "penginapan_terdekat": ["Rimba Orangutan Eco Lodge"], "atm": false },
-      "tiket": { "harga_dewasa": 150000, "harga_anak": 75000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Pangkalan Bun",
+        "koordinat": {
+          "lat": -2.7167,
+          "lng": 111.8333
+        },
+        "jarak_bandara_km": 20
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Rimba Orangutan Eco Lodge"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 150000,
+        "harga_anak": 75000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 40000
     },
@@ -446,9 +1014,29 @@
       "rating": 4.8,
       "gambar": "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=400&q=80",
       "deskripsi": "Pulau di selatan Bali dengan tebing dramatis, Kelingking Beach, dan snorkeling manta ray.",
-      "lokasi": { "kota": "Klungkung", "koordinat": { "lat": -8.7278, "lng": 115.5444 }, "jarak_bandara_km": 45 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Penida Colada Beach Club", "Adiwana Warnakali"], "atm": true },
-      "tiket": { "harga_dewasa": 0, "harga_anak": 0, "mata_uang": "IDR", "gratis": true },
+      "lokasi": {
+        "kota": "Klungkung",
+        "koordinat": {
+          "lat": -8.7278,
+          "lng": 115.5444
+        },
+        "jarak_bandara_km": 45
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Penida Colada Beach Club",
+          "Adiwana Warnakali"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 0,
+        "harga_anak": 0,
+        "mata_uang": "IDR",
+        "gratis": true
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 800000
     },
@@ -461,9 +1049,28 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=400&q=80",
       "deskripsi": "Museum terbesar di Indonesia dengan koleksi artefak dari seluruh Nusantara.",
-      "lokasi": { "kota": "Jakarta Pusat", "koordinat": { "lat": -6.1762, "lng": 106.8227 }, "jarak_bandara_km": 18 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Grand Hyatt Jakarta"], "atm": true },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Jakarta Pusat",
+        "koordinat": {
+          "lat": -6.1762,
+          "lng": 106.8227
+        },
+        "jarak_bandara_km": 18
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Grand Hyatt Jakarta"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "08:00 - 16:00",
       "pengunjung_per_tahun": 500000
     },
@@ -476,9 +1083,28 @@
       "rating": 4.8,
       "gambar": "https://images.unsplash.com/photo-1589308454676-22a8e049c4e7?w=400&q=80",
       "deskripsi": "Puncak tertinggi di Jawa 3.676 mdpl, dikenal sebagai Mahameru sang atap Pulau Jawa.",
-      "lokasi": { "kota": "Lumajang", "koordinat": { "lat": -8.1084, "lng": 112.922 }, "jarak_bandara_km": 70 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Ranu Pane Lodge"], "atm": false },
-      "tiket": { "harga_dewasa": 20000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Lumajang",
+        "koordinat": {
+          "lat": -8.1084,
+          "lng": 112.922
+        },
+        "jarak_bandara_km": 70
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Ranu Pane Lodge"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 20000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "05:00 - 16:00",
       "pengunjung_per_tahun": 60000
     },
@@ -491,9 +1117,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=400&q=80",
       "deskripsi": "Pusat konservasi gajah Sumatera terbesar, juga habitat badak Sumatera yang kritis.",
-      "lokasi": { "kota": "Lampung Timur", "koordinat": { "lat": -4.9833, "lng": 105.8333 }, "jarak_bandara_km": 100 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Way Kambas Guest House"], "atm": false },
-      "tiket": { "harga_dewasa": 25000, "harga_anak": 12500, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Lampung Timur",
+        "koordinat": {
+          "lat": -4.9833,
+          "lng": 105.8333
+        },
+        "jarak_bandara_km": 100
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Way Kambas Guest House"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 25000,
+        "harga_anak": 12500,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 17:00",
       "pengunjung_per_tahun": 80000
     },
@@ -506,9 +1151,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=400&q=80",
       "deskripsi": "Pantai berpasir putih halus di ujung Sulawesi dengan air laut biru kehijauan.",
-      "lokasi": { "kota": "Bulukumba", "koordinat": { "lat": -5.5833, "lng": 120.45 }, "jarak_bandara_km": 200 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Bira Beach Hotel"], "atm": true },
-      "tiket": { "harga_dewasa": 15000, "harga_anak": 7500, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Bulukumba",
+        "koordinat": {
+          "lat": -5.5833,
+          "lng": 120.45
+        },
+        "jarak_bandara_km": 200
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Bira Beach Hotel"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 15000,
+        "harga_anak": 7500,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 150000
     },
@@ -521,9 +1185,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?w=400&q=80",
       "deskripsi": "Kompleks keraton kuno di atas bukit dengan pemandangan matahari terbenam spektakuler.",
-      "lokasi": { "kota": "Sleman", "koordinat": { "lat": -7.7693, "lng": 110.4888 }, "jarak_bandara_km": 19 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Plataran Heritage Borobudur"], "atm": true },
-      "tiket": { "harga_dewasa": 40000, "harga_anak": 20000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Sleman",
+        "koordinat": {
+          "lat": -7.7693,
+          "lng": 110.4888
+        },
+        "jarak_bandara_km": 19
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Plataran Heritage Borobudur"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 40000,
+        "harga_anak": 20000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 17:30",
       "pengunjung_per_tahun": 400000
     },
@@ -536,9 +1219,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80",
       "deskripsi": "Danau terbesar di Papua dengan pulau-pulau kecil dan festival seni budaya tahunan.",
-      "lokasi": { "kota": "Jayapura", "koordinat": { "lat": -2.5833, "lng": 140.5167 }, "jarak_bandara_km": 15 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Swiss Belhotel Jayapura"], "atm": true },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Jayapura",
+        "koordinat": {
+          "lat": -2.5833,
+          "lng": 140.5167
+        },
+        "jarak_bandara_km": 15
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Swiss Belhotel Jayapura"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 17:00",
       "pengunjung_per_tahun": 70000
     },
@@ -551,9 +1253,28 @@
       "rating": 4.9,
       "gambar": "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&q=80",
       "deskripsi": "Pantai terpencil di Seram dengan air biru jernih, rumah apung, dan hutan tropis.",
-      "lokasi": { "kota": "Seram Utara", "koordinat": { "lat": -2.9667, "lng": 129.35 }, "jarak_bandara_km": 120 },
-      "fasilitas": { "parkir": false, "toilet": true, "penginapan_terdekat": ["Ora Beach Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 50000, "harga_anak": 25000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Seram Utara",
+        "koordinat": {
+          "lat": -2.9667,
+          "lng": 129.35
+        },
+        "jarak_bandara_km": 120
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Ora Beach Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 50000,
+        "harga_anak": 25000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 15000
     },
@@ -566,9 +1287,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1574226516831-e1dff420e562?w=400&q=80",
       "deskripsi": "Gunung berapi aktif di Bali dengan pendakian sunrise dan pemandangan Danau Batur.",
-      "lokasi": { "kota": "Bangli", "koordinat": { "lat": -8.2407, "lng": 115.375 }, "jarak_bandara_km": 60 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Lakeview Hotel Kintamani"], "atm": false },
-      "tiket": { "harga_dewasa": 150000, "harga_anak": 75000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Bangli",
+        "koordinat": {
+          "lat": -8.2407,
+          "lng": 115.375
+        },
+        "jarak_bandara_km": 60
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Lakeview Hotel Kintamani"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 150000,
+        "harga_anak": 75000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "02:00 - 14:00",
       "pengunjung_per_tahun": 200000
     },
@@ -581,9 +1321,28 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1555993539-1732b0258235?w=400&q=80",
       "deskripsi": "Desa Bali terbersih di dunia dengan tata ruang adat yang terjaga rapi selama berabad-abad.",
-      "lokasi": { "kota": "Bangli", "koordinat": { "lat": -8.3869, "lng": 115.3584 }, "jarak_bandara_km": 65 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Penglipuran Village Hotel"], "atm": false },
-      "tiket": { "harga_dewasa": 15000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Bangli",
+        "koordinat": {
+          "lat": -8.3869,
+          "lng": 115.3584
+        },
+        "jarak_bandara_km": 65
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Penglipuran Village Hotel"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 15000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 18:00",
       "pengunjung_per_tahun": 250000
     },
@@ -596,9 +1355,28 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=400&q=80",
       "deskripsi": "Pantai dengan pasir merica unik berbentuk bulat kecil, air jernih kehijauan di Lombok.",
-      "lokasi": { "kota": "Lombok Tengah", "koordinat": { "lat": -8.9278, "lng": 116.2944 }, "jarak_bandara_km": 45 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Kuta Beach Club Lombok"], "atm": false },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Lombok Tengah",
+        "koordinat": {
+          "lat": -8.9278,
+          "lng": 116.2944
+        },
+        "jarak_bandara_km": 45
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Kuta Beach Club Lombok"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 200000
     },
@@ -611,9 +1389,28 @@
       "rating": 4.3,
       "gambar": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80",
       "deskripsi": "Air terjun tertinggi di Bali setinggi 35 meter dikelilingi hutan tropis yang rimbun.",
-      "lokasi": { "kota": "Buleleng", "koordinat": { "lat": -8.1467, "lng": 115.1025 }, "jarak_bandara_km": 55 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Puri Bagus Lovina"], "atm": false },
-      "tiket": { "harga_dewasa": 15000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Buleleng",
+        "koordinat": {
+          "lat": -8.1467,
+          "lng": 115.1025
+        },
+        "jarak_bandara_km": 55
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Puri Bagus Lovina"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 15000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 17:00",
       "pengunjung_per_tahun": 120000
     },
@@ -626,9 +1423,28 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=400&q=80",
       "deskripsi": "Hutan hujan pegunungan dengan kawasan edelweis dan elang Jawa yang langka.",
-      "lokasi": { "kota": "Bogor", "koordinat": { "lat": -6.7167, "lng": 106.5333 }, "jarak_bandara_km": 80 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Jungle Land Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 20000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Bogor",
+        "koordinat": {
+          "lat": -6.7167,
+          "lng": 106.5333
+        },
+        "jarak_bandara_km": 80
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Jungle Land Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 20000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 17:00",
       "pengunjung_per_tahun": 90000
     },
@@ -641,9 +1457,29 @@
       "rating": 4.8,
       "gambar": "https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=400&q=80",
       "deskripsi": "Kepulauan rempah bersejarah dengan diving di dinding karang vertikal yang memukau.",
-      "lokasi": { "kota": "Banda Naira", "koordinat": { "lat": -4.5244, "lng": 129.8974 }, "jarak_bandara_km": 5 },
-      "fasilitas": { "parkir": false, "toilet": true, "penginapan_terdekat": ["Maulana Inn", "Delfika Hotel"], "atm": false },
-      "tiket": { "harga_dewasa": 50000, "harga_anak": 25000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Banda Naira",
+        "koordinat": {
+          "lat": -4.5244,
+          "lng": 129.8974
+        },
+        "jarak_bandara_km": 5
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Maulana Inn",
+          "Delfika Hotel"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 50000,
+        "harga_anak": 25000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 20000
     },
@@ -656,9 +1492,29 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80",
       "deskripsi": "Pantai sunrise di Bali dengan suasana tenang, ideal untuk kayak dan sepeda pantai.",
-      "lokasi": { "kota": "Denpasar", "koordinat": { "lat": -8.7061, "lng": 115.2621 }, "jarak_bandara_km": 10 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Hyatt Regency Bali", "Fairmont Sanur"], "atm": true },
-      "tiket": { "harga_dewasa": 0, "harga_anak": 0, "mata_uang": "IDR", "gratis": true },
+      "lokasi": {
+        "kota": "Denpasar",
+        "koordinat": {
+          "lat": -8.7061,
+          "lng": 115.2621
+        },
+        "jarak_bandara_km": 10
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Hyatt Regency Bali",
+          "Fairmont Sanur"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 0,
+        "harga_anak": 0,
+        "mata_uang": "IDR",
+        "gratis": true
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 1500000
     },
@@ -671,9 +1527,29 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=400&q=80",
       "deskripsi": "Lembah hijau dengan tebing granit setinggi 150 meter, air terjun, dan sawah terasering.",
-      "lokasi": { "kota": "Lima Puluh Kota", "koordinat": { "lat": -0.1333, "lng": 100.6667 }, "jarak_bandara_km": 130 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Harau Resort", "Rimbo Tujuah Homestay"], "atm": false },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Lima Puluh Kota",
+        "koordinat": {
+          "lat": -0.1333,
+          "lng": 100.6667
+        },
+        "jarak_bandara_km": 130
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Harau Resort",
+          "Rimbo Tujuah Homestay"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 17:00",
       "pengunjung_per_tahun": 90000
     },
@@ -686,9 +1562,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&q=80",
       "deskripsi": "Pantai yang tersembunyi di Gunungkidul dengan kolam alami terbentuk dari batu karang.",
-      "lokasi": { "kota": "Gunungkidul", "koordinat": { "lat": -8.2078, "lng": 110.7186 }, "jarak_bandara_km": 70 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Baron Beach Hotel"], "atm": false },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Gunungkidul",
+        "koordinat": {
+          "lat": -8.2078,
+          "lng": 110.7186
+        },
+        "jarak_bandara_km": 70
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Baron Beach Hotel"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 100000
     },
@@ -701,9 +1596,29 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1555993539-1732b0258235?w=400&q=80",
       "deskripsi": "Istana kerajaan Deli bergaya Melayu-Mughal yang megah, simbol kejayaan Sultan Deli.",
-      "lokasi": { "kota": "Medan", "koordinat": { "lat": 3.575, "lng": 98.6833 }, "jarak_bandara_km": 28 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Aryaduta Medan", "Grand Mercure Medan"], "atm": true },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Medan",
+        "koordinat": {
+          "lat": 3.575,
+          "lng": 98.6833
+        },
+        "jarak_bandara_km": 28
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Aryaduta Medan",
+          "Grand Mercure Medan"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "08:00 - 17:00",
       "pengunjung_per_tahun": 300000
     },
@@ -716,9 +1631,28 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80",
       "deskripsi": "Taman nasional terbesar di Asia Tenggara, mencakup gletser tropis dan terumbu karang.",
-      "lokasi": { "kota": "Mimika", "koordinat": { "lat": -4.6833, "lng": 137.6667 }, "jarak_bandara_km": 80 },
-      "fasilitas": { "parkir": false, "toilet": false, "penginapan_terdekat": ["Timika Guest House"], "atm": false },
-      "tiket": { "harga_dewasa": 150000, "harga_anak": 75000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Mimika",
+        "koordinat": {
+          "lat": -4.6833,
+          "lng": 137.6667
+        },
+        "jarak_bandara_km": 80
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": false,
+        "penginapan_terdekat": [
+          "Timika Guest House"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 150000,
+        "harga_anak": 75000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 15:00",
       "pengunjung_per_tahun": 5000
     },
@@ -731,9 +1665,28 @@
       "rating": 4.9,
       "gambar": "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=400&q=80",
       "deskripsi": "Pantai privat Sumba terpilih sebagai pantai terbaik di dunia oleh Travel+Leisure.",
-      "lokasi": { "kota": "Sumba Barat", "koordinat": { "lat": -9.7167, "lng": 119.1833 }, "jarak_bandara_km": 35 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Nihiwatu Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 500000, "harga_anak": 250000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Sumba Barat",
+        "koordinat": {
+          "lat": -9.7167,
+          "lng": 119.1833
+        },
+        "jarak_bandara_km": 35
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Nihiwatu Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 500000,
+        "harga_anak": 250000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 18:00",
       "pengunjung_per_tahun": 8000
     },
@@ -746,9 +1699,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?w=400&q=80",
       "deskripsi": "Candi Buddha berusia 1.200 tahun dengan patung Bodhisatwa raksasa yang megah.",
-      "lokasi": { "kota": "Magelang", "koordinat": { "lat": -7.5989, "lng": 110.2281 }, "jarak_bandara_km": 39 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Saraswati Borobudur"], "atm": false },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Magelang",
+        "koordinat": {
+          "lat": -7.5989,
+          "lng": 110.2281
+        },
+        "jarak_bandara_km": 39
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Saraswati Borobudur"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 17:00",
       "pengunjung_per_tahun": 200000
     },
@@ -761,9 +1733,28 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1498855926480-d98e83099315?w=400&q=80",
       "deskripsi": "Pulau bersejarah Perang Dunia II dengan wreck diving bangkai kapal dan pesawat tempur.",
-      "lokasi": { "kota": "Pulau Morotai", "koordinat": { "lat": 2.1667, "lng": 128.35 }, "jarak_bandara_km": 10 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Morotai Island Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 50000, "harga_anak": 25000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Pulau Morotai",
+        "koordinat": {
+          "lat": 2.1667,
+          "lng": 128.35
+        },
+        "jarak_bandara_km": 10
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Morotai Island Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 50000,
+        "harga_anak": 25000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 25000
     },
@@ -776,9 +1767,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=400&q=80",
       "deskripsi": "Gunung berapi aktif dengan kawah belerang dan hutan mati yang fotogenik.",
-      "lokasi": { "kota": "Garut", "koordinat": { "lat": -7.3194, "lng": 107.7319 }, "jarak_bandara_km": 65 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Papandayan Hotel"], "atm": false },
-      "tiket": { "harga_dewasa": 20000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Garut",
+        "koordinat": {
+          "lat": -7.3194,
+          "lng": 107.7319
+        },
+        "jarak_bandara_km": 65
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Papandayan Hotel"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 20000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "05:00 - 15:00",
       "pengunjung_per_tahun": 150000
     },
@@ -791,9 +1801,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80",
       "deskripsi": "Pantai tersembunyi di Selayar dengan pasir putih dan air kristal biru kehijauan.",
-      "lokasi": { "kota": "Kepulauan Selayar", "koordinat": { "lat": -6.1167, "lng": 120.4667 }, "jarak_bandara_km": 15 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Phinisi Selayar Dive Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 15000, "harga_anak": 7500, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Kepulauan Selayar",
+        "koordinat": {
+          "lat": -6.1167,
+          "lng": 120.4667
+        },
+        "jarak_bandara_km": 15
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Phinisi Selayar Dive Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 15000,
+        "harga_anak": 7500,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 30000
     },
@@ -806,9 +1835,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?w=400&q=80",
       "deskripsi": "Danau kaldera dengan pemandangan bukit menghijau dan desa nelayan yang damai.",
-      "lokasi": { "kota": "Agam", "koordinat": { "lat": -0.3167, "lng": 100.1833 }, "jarak_bandara_km": 38 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Maninjau Lake Hotel"], "atm": false },
-      "tiket": { "harga_dewasa": 5000, "harga_anak": 3000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Agam",
+        "koordinat": {
+          "lat": -0.3167,
+          "lng": 100.1833
+        },
+        "jarak_bandara_km": 38
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Maninjau Lake Hotel"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 5000,
+        "harga_anak": 3000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 18:00",
       "pengunjung_per_tahun": 100000
     },
@@ -821,9 +1869,28 @@
       "rating": 4.3,
       "gambar": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&q=80",
       "deskripsi": "Pulau di Kepulauan Seribu dengan jembatan cinta ikonik dan snorkeling terumbu karang.",
-      "lokasi": { "kota": "Kepulauan Seribu", "koordinat": { "lat": -5.7944, "lng": 106.5083 }, "jarak_bandara_km": 70 },
-      "fasilitas": { "parkir": false, "toilet": true, "penginapan_terdekat": ["Tidung Beach Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 0, "harga_anak": 0, "mata_uang": "IDR", "gratis": true },
+      "lokasi": {
+        "kota": "Kepulauan Seribu",
+        "koordinat": {
+          "lat": -5.7944,
+          "lng": 106.5083
+        },
+        "jarak_bandara_km": 70
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Tidung Beach Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 0,
+        "harga_anak": 0,
+        "mata_uang": "IDR",
+        "gratis": true
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 400000
     },
@@ -836,9 +1903,28 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80",
       "deskripsi": "Gua stalaktit dan stalagmit terbesar dan terindah di Asia Tenggara di Pacitan.",
-      "lokasi": { "kota": "Pacitan", "koordinat": { "lat": -8.2333, "lng": 111.1 }, "jarak_bandara_km": 40 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Pacitan Beach Inn"], "atm": false },
-      "tiket": { "harga_dewasa": 15000, "harga_anak": 7500, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Pacitan",
+        "koordinat": {
+          "lat": -8.2333,
+          "lng": 111.1
+        },
+        "jarak_bandara_km": 40
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Pacitan Beach Inn"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 15000,
+        "harga_anak": 7500,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 17:00",
       "pengunjung_per_tahun": 150000
     },
@@ -851,9 +1937,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1555993539-1732b0258235?w=400&q=80",
       "deskripsi": "Pura induk terbesar dan tersuci di Bali, dikenal sebagai Mother Temple of Bali.",
-      "lokasi": { "kota": "Karangasem", "koordinat": { "lat": -8.3739, "lng": 115.4517 }, "jarak_bandara_km": 70 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Karangasem Grand Hotel"], "atm": false },
-      "tiket": { "harga_dewasa": 60000, "harga_anak": 30000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Karangasem",
+        "koordinat": {
+          "lat": -8.3739,
+          "lng": 115.4517
+        },
+        "jarak_bandara_km": 70
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Karangasem Grand Hotel"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 60000,
+        "harga_anak": 30000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 18:00",
       "pengunjung_per_tahun": 500000
     },
@@ -866,9 +1971,28 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=400&q=80",
       "deskripsi": "Gunung dengan tiga danau kawah berubah warna, menjadi salah satu keajaiban alam Indonesia.",
-      "lokasi": { "kota": "Ende", "koordinat": { "lat": -8.7717, "lng": 121.8217 }, "jarak_bandara_km": 50 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Kelimutu Crater Eco Lodge"], "atm": false },
-      "tiket": { "harga_dewasa": 20000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Ende",
+        "koordinat": {
+          "lat": -8.7717,
+          "lng": 121.8217
+        },
+        "jarak_bandara_km": 50
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Kelimutu Crater Eco Lodge"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 20000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "04:00 - 16:00",
       "pengunjung_per_tahun": 60000
     },
@@ -881,9 +2005,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=400&q=80",
       "deskripsi": "Pantai surfing di Sumbawa dengan ombak Super Suck legendaris kelas dunia.",
-      "lokasi": { "kota": "Sumbawa Barat", "koordinat": { "lat": -8.9833, "lng": 116.85 }, "jarak_bandara_km": 30 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Maluk Bay Beach Hotel"], "atm": false },
-      "tiket": { "harga_dewasa": 0, "harga_anak": 0, "mata_uang": "IDR", "gratis": true },
+      "lokasi": {
+        "kota": "Sumbawa Barat",
+        "koordinat": {
+          "lat": -8.9833,
+          "lng": 116.85
+        },
+        "jarak_bandara_km": 30
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Maluk Bay Beach Hotel"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 0,
+        "harga_anak": 0,
+        "mata_uang": "IDR",
+        "gratis": true
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 50000
     },
@@ -896,9 +2039,29 @@
       "rating": 4.3,
       "gambar": "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?w=400&q=80",
       "deskripsi": "Benteng peninggalan VOC Belanda abad ke-17 di Makassar dengan museum di dalamnya.",
-      "lokasi": { "kota": "Makassar", "koordinat": { "lat": -5.1344, "lng": 119.4065 }, "jarak_bandara_km": 22 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Aryaduta Makassar", "Claro Hotel Makassar"], "atm": true },
-      "tiket": { "harga_dewasa": 5000, "harga_anak": 3000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Makassar",
+        "koordinat": {
+          "lat": -5.1344,
+          "lng": 119.4065
+        },
+        "jarak_bandara_km": 22
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Aryaduta Makassar",
+          "Claro Hotel Makassar"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 5000,
+        "harga_anak": 3000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "08:00 - 18:00",
       "pengunjung_per_tahun": 400000
     },
@@ -911,9 +2074,28 @@
       "rating": 4.3,
       "gambar": "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80",
       "deskripsi": "Danau dangkal dengan ekosistem unik rumah apung nelayan Bugis di atas air.",
-      "lokasi": { "kota": "Wajo", "koordinat": { "lat": -4.0167, "lng": 120.1167 }, "jarak_bandara_km": 90 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Sengkang Inn"], "atm": false },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Wajo",
+        "koordinat": {
+          "lat": -4.0167,
+          "lng": 120.1167
+        },
+        "jarak_bandara_km": 90
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Sengkang Inn"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 50000
     },
@@ -926,9 +2108,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=400&q=80",
       "deskripsi": "Pantai indah di Sangihe dengan pasir putih dan alam bawah laut yang masih terjaga.",
-      "lokasi": { "kota": "Kepulauan Sangihe", "koordinat": { "lat": 3.65, "lng": 125.55 }, "jarak_bandara_km": 10 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Hotel Tahuna"], "atm": false },
-      "tiket": { "harga_dewasa": 5000, "harga_anak": 3000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Kepulauan Sangihe",
+        "koordinat": {
+          "lat": 3.65,
+          "lng": 125.55
+        },
+        "jarak_bandara_km": 10
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Hotel Tahuna"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 5000,
+        "harga_anak": 3000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 18:00",
       "pengunjung_per_tahun": 20000
     },
@@ -941,9 +2142,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1574226516831-e1dff420e562?w=400&q=80",
       "deskripsi": "Gunung tertinggi di Bali 3.031 mdpl, gunung suci dalam kepercayaan Hindu Bali.",
-      "lokasi": { "kota": "Karangasem", "koordinat": { "lat": -8.3425, "lng": 115.508 }, "jarak_bandara_km": 75 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Sidemen Countryside Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 50000, "harga_anak": 25000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Karangasem",
+        "koordinat": {
+          "lat": -8.3425,
+          "lng": 115.508
+        },
+        "jarak_bandara_km": 75
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Sidemen Countryside Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 50000,
+        "harga_anak": 25000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 30000
     },
@@ -956,9 +2176,28 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=400&q=80",
       "deskripsi": "Situs manusia purba terpenting di dunia, UNESCO World Heritage tempat fosil Homo erectus.",
-      "lokasi": { "kota": "Sragen", "koordinat": { "lat": -7.4383, "lng": 110.8233 }, "jarak_bandara_km": 15 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Surya Hotel Sragen"], "atm": true },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Sragen",
+        "koordinat": {
+          "lat": -7.4383,
+          "lng": 110.8233
+        },
+        "jarak_bandara_km": 15
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Surya Hotel Sragen"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "08:00 - 16:00",
       "pengunjung_per_tahun": 150000
     },
@@ -971,9 +2210,28 @@
       "rating": 4.8,
       "gambar": "https://images.unsplash.com/photo-1559128010-7c1ad6e1b6a5?w=400&q=80",
       "deskripsi": "Kepulauan terpencil di Teluk Tomini dengan ekosistem terumbu cincin dan danau ubur-ubur.",
-      "lokasi": { "kota": "Tojo Una-Una", "koordinat": { "lat": -0.3667, "lng": 121.9333 }, "jarak_bandara_km": 80 },
-      "fasilitas": { "parkir": false, "toilet": true, "penginapan_terdekat": ["Togean Islands Retreat"], "atm": false },
-      "tiket": { "harga_dewasa": 150000, "harga_anak": 75000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Tojo Una-Una",
+        "koordinat": {
+          "lat": -0.3667,
+          "lng": 121.9333
+        },
+        "jarak_bandara_km": 80
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Togean Islands Retreat"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 150000,
+        "harga_anak": 75000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 15000
     },
@@ -986,9 +2244,28 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=400&q=80",
       "deskripsi": "Pantai selatan Malang dengan pura Hindu di atas pulau karang mirip Tanah Lot Bali.",
-      "lokasi": { "kota": "Malang", "koordinat": { "lat": -8.3667, "lng": 112.5417 }, "jarak_bandara_km": 65 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Balekambang Beach Camp"], "atm": false },
-      "tiket": { "harga_dewasa": 15000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Malang",
+        "koordinat": {
+          "lat": -8.3667,
+          "lng": 112.5417
+        },
+        "jarak_bandara_km": 65
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Balekambang Beach Camp"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 15000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 200000
     },
@@ -1001,9 +2278,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80",
       "deskripsi": "Air terjun setinggi 120 meter yang mengalir langsung ke Danau Toba.",
-      "lokasi": { "kota": "Karo", "koordinat": { "lat": 2.9667, "lng": 98.5 }, "jarak_bandara_km": 70 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Tongging Village"], "atm": false },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Karo",
+        "koordinat": {
+          "lat": 2.9667,
+          "lng": 98.5
+        },
+        "jarak_bandara_km": 70
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Tongging Village"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 17:00",
       "pengunjung_per_tahun": 150000
     },
@@ -1016,9 +2312,28 @@
       "rating": 4.8,
       "gambar": "https://images.unsplash.com/photo-1498855926480-d98e83099315?w=400&q=80",
       "deskripsi": "Taman nasional dengan keanekaragaman hayati laut tertinggi, wall diving legendaris.",
-      "lokasi": { "kota": "Manado", "koordinat": { "lat": 1.65, "lng": 124.75 }, "jarak_bandara_km": 30 },
-      "fasilitas": { "parkir": false, "toilet": true, "penginapan_terdekat": ["Bunaken SeaGarden Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 150000, "harga_anak": 75000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Manado",
+        "koordinat": {
+          "lat": 1.65,
+          "lng": 124.75
+        },
+        "jarak_bandara_km": 30
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Bunaken SeaGarden Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 150000,
+        "harga_anak": 75000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 120000
     },
@@ -1031,9 +2346,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=400&q=80",
       "deskripsi": "Hutan suci dengan ratusan monyet ekor panjang dan pura kuno di tengah Ubud.",
-      "lokasi": { "kota": "Gianyar", "koordinat": { "lat": -8.5194, "lng": 115.2625 }, "jarak_bandara_km": 35 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Komaneka at Bisma Ubud"], "atm": true },
-      "tiket": { "harga_dewasa": 80000, "harga_anak": 60000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Gianyar",
+        "koordinat": {
+          "lat": -8.5194,
+          "lng": 115.2625
+        },
+        "jarak_bandara_km": 35
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Komaneka at Bisma Ubud"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 80000,
+        "harga_anak": 60000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "08:30 - 18:00",
       "pengunjung_per_tahun": 1000000
     },
@@ -1046,9 +2380,28 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?w=400&q=80",
       "deskripsi": "Danau vulkanik kedua terbesar di Sumatera dengan air bersih dan Gunung Seminung.",
-      "lokasi": { "kota": "OKU Selatan", "koordinat": { "lat": -4.8333, "lng": 103.9333 }, "jarak_bandara_km": 200 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Ranau Lake Hotel"], "atm": false },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "OKU Selatan",
+        "koordinat": {
+          "lat": -4.8333,
+          "lng": 103.9333
+        },
+        "jarak_bandara_km": 200
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Ranau Lake Hotel"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 17:00",
       "pengunjung_per_tahun": 60000
     },
@@ -1061,9 +2414,28 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&q=80",
       "deskripsi": "Kepulauan dengan 27 pulau, terumbu karang, dan pasir putih di Laut Jawa.",
-      "lokasi": { "kota": "Jepara", "koordinat": { "lat": -5.8667, "lng": 110.4667 }, "jarak_bandara_km": 90 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Karimunjawa Beach Club"], "atm": false },
-      "tiket": { "harga_dewasa": 30000, "harga_anak": 15000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Jepara",
+        "koordinat": {
+          "lat": -5.8667,
+          "lng": 110.4667
+        },
+        "jarak_bandara_km": 90
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Karimunjawa Beach Club"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 30000,
+        "harga_anak": 15000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 200000
     },
@@ -1076,9 +2448,28 @@
       "rating": 4.3,
       "gambar": "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?w=400&q=80",
       "deskripsi": "Benteng kolonial Belanda di kota pegunungan Bukittinggi dengan pemandangan Ngarai Sianok.",
-      "lokasi": { "kota": "Bukittinggi", "koordinat": { "lat": -0.3056, "lng": 100.3694 }, "jarak_bandara_km": 90 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Novotel Bukittinggi"], "atm": true },
-      "tiket": { "harga_dewasa": 8000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Bukittinggi",
+        "koordinat": {
+          "lat": -0.3056,
+          "lng": 100.3694
+        },
+        "jarak_bandara_km": 90
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Novotel Bukittinggi"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 8000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "08:00 - 17:00",
       "pengunjung_per_tahun": 300000
     },
@@ -1091,9 +2482,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=400&q=80",
       "deskripsi": "Lembah sempit dengan tebing 100 meter di Bukittinggi, menembus Patahan Semangko.",
-      "lokasi": { "kota": "Bukittinggi", "koordinat": { "lat": -0.3167, "lng": 100.3667 }, "jarak_bandara_km": 90 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Benteng Hotel"], "atm": false },
-      "tiket": { "harga_dewasa": 5000, "harga_anak": 3000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Bukittinggi",
+        "koordinat": {
+          "lat": -0.3167,
+          "lng": 100.3667
+        },
+        "jarak_bandara_km": 90
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Benteng Hotel"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 5000,
+        "harga_anak": 3000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 200000
     },
@@ -1106,9 +2516,28 @@
       "rating": 4.8,
       "gambar": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80",
       "deskripsi": "Surga tersembunyi di Maluku dengan air toska jernih dan hutan mangrove yang lebat.",
-      "lokasi": { "kota": "Seram Utara", "koordinat": { "lat": -2.95, "lng": 129.3 }, "jarak_bandara_km": 130 },
-      "fasilitas": { "parkir": false, "toilet": true, "penginapan_terdekat": ["Ora Beach Bungalow"], "atm": false },
-      "tiket": { "harga_dewasa": 50000, "harga_anak": 25000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Seram Utara",
+        "koordinat": {
+          "lat": -2.95,
+          "lng": 129.3
+        },
+        "jarak_bandara_km": 130
+      },
+      "fasilitas": {
+        "parkir": false,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Ora Beach Bungalow"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 50000,
+        "harga_anak": 25000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 10000
     },
@@ -1121,9 +2550,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=400&q=80",
       "deskripsi": "Gunung dengan kaldera terbesar di Indonesia, terkenal karena letusan dahsyat 1815.",
-      "lokasi": { "kota": "Dompu", "koordinat": { "lat": -8.25, "lng": 117.9833 }, "jarak_bandara_km": 60 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Tambora Guest House"], "atm": false },
-      "tiket": { "harga_dewasa": 150000, "harga_anak": 75000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Dompu",
+        "koordinat": {
+          "lat": -8.25,
+          "lng": 117.9833
+        },
+        "jarak_bandara_km": 60
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Tambora Guest House"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 150000,
+        "harga_anak": 75000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "05:00 - 16:00",
       "pengunjung_per_tahun": 20000
     },
@@ -1136,9 +2584,28 @@
       "rating": 4.3,
       "gambar": "https://images.unsplash.com/photo-1555993539-1732b0258235?w=400&q=80",
       "deskripsi": "Candi peninggalan Kerajaan Singhasari abad ke-13 dengan arca penjaga raksasa Dwarapala.",
-      "lokasi": { "kota": "Malang", "koordinat": { "lat": -7.9106, "lng": 112.6678 }, "jarak_bandara_km": 17 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Hotel Tugu Malang"], "atm": true },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Malang",
+        "koordinat": {
+          "lat": -7.9106,
+          "lng": 112.6678
+        },
+        "jarak_bandara_km": 17
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Hotel Tugu Malang"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 17:00",
       "pengunjung_per_tahun": 80000
     },
@@ -1151,9 +2618,28 @@
       "rating": 4.3,
       "gambar": "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=400&q=80",
       "deskripsi": "Pantai dengan pohon lontar dan batu karang berlumut di tepi pantai Kupang.",
-      "lokasi": { "kota": "Kupang", "koordinat": { "lat": -10.1581, "lng": 123.6583 }, "jarak_bandara_km": 12 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Kristal Hotel Kupang"], "atm": true },
-      "tiket": { "harga_dewasa": 5000, "harga_anak": 3000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Kupang",
+        "koordinat": {
+          "lat": -10.1581,
+          "lng": 123.6583
+        },
+        "jarak_bandara_km": 12
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Kristal Hotel Kupang"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 5000,
+        "harga_anak": 3000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 100000
     },
@@ -1166,9 +2652,28 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=400&q=80",
       "deskripsi": "Hutan Kalimantan dengan orangutan, proboscis monkey, dan beruang madu di habitat aslinya.",
-      "lokasi": { "kota": "Bontang", "koordinat": { "lat": -0.1183, "lng": 117.4833 }, "jarak_bandara_km": 50 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Bontang Kuala Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 20000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Bontang",
+        "koordinat": {
+          "lat": -0.1183,
+          "lng": 117.4833
+        },
+        "jarak_bandara_km": 50
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Bontang Kuala Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 20000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 17:00",
       "pengunjung_per_tahun": 30000
     },
@@ -1181,9 +2686,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=400&q=80",
       "deskripsi": "Pantai dengan batu karang raksasa unik dan air toska di Jember, Jawa Timur.",
-      "lokasi": { "kota": "Jember", "koordinat": { "lat": -8.4917, "lng": 113.6861 }, "jarak_bandara_km": 45 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Papuma Watu Ulo Cottage"], "atm": false },
-      "tiket": { "harga_dewasa": 15000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Jember",
+        "koordinat": {
+          "lat": -8.4917,
+          "lng": 113.6861
+        },
+        "jarak_bandara_km": 45
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Papuma Watu Ulo Cottage"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 15000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 150000
     },
@@ -1196,9 +2720,28 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=400&q=80",
       "deskripsi": "Kawasan kota tua Semarang dengan gedung-gedung kolonial Belanda abad ke-18 yang terawat.",
-      "lokasi": { "kota": "Semarang", "koordinat": { "lat": -6.9644, "lng": 110.4286 }, "jarak_bandara_km": 12 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Louis Kienne Hotel Pandanaran"], "atm": true },
-      "tiket": { "harga_dewasa": 0, "harga_anak": 0, "mata_uang": "IDR", "gratis": true },
+      "lokasi": {
+        "kota": "Semarang",
+        "koordinat": {
+          "lat": -6.9644,
+          "lng": 110.4286
+        },
+        "jarak_bandara_km": 12
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Louis Kienne Hotel Pandanaran"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 0,
+        "harga_anak": 0,
+        "mata_uang": "IDR",
+        "gratis": true
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 1000000
     },
@@ -1211,9 +2754,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1555993539-1732b0258235?w=400&q=80",
       "deskripsi": "Pulau rempah bersejarah dengan Benteng Tolukko dan Gunung Gamalama yang aktif.",
-      "lokasi": { "kota": "Ternate", "koordinat": { "lat": 0.7833, "lng": 127.3667 }, "jarak_bandara_km": 5 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Grand Dafam Q Hotel Ternate"], "atm": true },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Ternate",
+        "koordinat": {
+          "lat": 0.7833,
+          "lng": 127.3667
+        },
+        "jarak_bandara_km": 5
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Grand Dafam Q Hotel Ternate"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "08:00 - 17:00",
       "pengunjung_per_tahun": 50000
     },
@@ -1226,9 +2788,28 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=400&q=80",
       "deskripsi": "Hutan primer dengan air terjun bertingkat dan habitat orangutan Sumatera.",
-      "lokasi": { "kota": "Dairi", "koordinat": { "lat": 2.7833, "lng": 98.3333 }, "jarak_bandara_km": 90 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Sidikalang Inn"], "atm": false },
-      "tiket": { "harga_dewasa": 15000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Dairi",
+        "koordinat": {
+          "lat": 2.7833,
+          "lng": 98.3333
+        },
+        "jarak_bandara_km": 90
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Sidikalang Inn"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 15000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 16:00",
       "pengunjung_per_tahun": 20000
     },
@@ -1241,9 +2822,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&q=80",
       "deskripsi": "Pantai dengan batu karang seruling samudra yang mengeluarkan semburan air setinggi 10 meter.",
-      "lokasi": { "kota": "Pacitan", "koordinat": { "lat": -8.1486, "lng": 110.9811 }, "jarak_bandara_km": 55 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Pacitan Beach Inn"], "atm": false },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Pacitan",
+        "koordinat": {
+          "lat": -8.1486,
+          "lng": 110.9811
+        },
+        "jarak_bandara_km": 55
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Pacitan Beach Inn"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 200000
     },
@@ -1256,9 +2856,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1589308454676-22a8e049c4e7?w=400&q=80",
       "deskripsi": "Gunung bersejarah 3.265 mdpl dengan situs Candi Cetho dan Sukuh di lerengnya.",
-      "lokasi": { "kota": "Karanganyar", "koordinat": { "lat": -7.6353, "lng": 111.1928 }, "jarak_bandara_km": 40 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Tawangmangu Park Hotel"], "atm": false },
-      "tiket": { "harga_dewasa": 20000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Karanganyar",
+        "koordinat": {
+          "lat": -7.6353,
+          "lng": 111.1928
+        },
+        "jarak_bandara_km": 40
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Tawangmangu Park Hotel"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 20000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 100000
     },
@@ -1271,9 +2890,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&q=80",
       "deskripsi": "Danau air tawar di dataran tinggi Gayo dengan ikan depik endemik dan udara segar.",
-      "lokasi": { "kota": "Aceh Tengah", "koordinat": { "lat": 4.6333, "lng": 96.9167 }, "jarak_bandara_km": 5 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Lut Tawar Lake Hotel"], "atm": true },
-      "tiket": { "harga_dewasa": 5000, "harga_anak": 3000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Aceh Tengah",
+        "koordinat": {
+          "lat": 4.6333,
+          "lng": 96.9167
+        },
+        "jarak_bandara_km": 5
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Lut Tawar Lake Hotel"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 5000,
+        "harga_anak": 3000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 80000
     },
@@ -1286,9 +2924,29 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=400&q=80",
       "deskripsi": "Pulau dengan batu granit raksasa dan air biru jernih, lokasi syuting Laskar Pelangi.",
-      "lokasi": { "kota": "Belitung", "koordinat": { "lat": -2.75, "lng": 107.75 }, "jarak_bandara_km": 20 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Billiton Hotel", "Meotel Belitung"], "atm": true },
-      "tiket": { "harga_dewasa": 0, "harga_anak": 0, "mata_uang": "IDR", "gratis": true },
+      "lokasi": {
+        "kota": "Belitung",
+        "koordinat": {
+          "lat": -2.75,
+          "lng": 107.75
+        },
+        "jarak_bandara_km": 20
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Billiton Hotel",
+          "Meotel Belitung"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 0,
+        "harga_anak": 0,
+        "mata_uang": "IDR",
+        "gratis": true
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 500000
     },
@@ -1301,9 +2959,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80",
       "deskripsi": "Hutan paling timur Jawa dengan padang savana, pantai G-land, dan banteng Jawa.",
-      "lokasi": { "kota": "Banyuwangi", "koordinat": { "lat": -8.6667, "lng": 114.3667 }, "jarak_bandara_km": 60 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Trianggulasi Bungalow"], "atm": false },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Banyuwangi",
+        "koordinat": {
+          "lat": -8.6667,
+          "lng": 114.3667
+        },
+        "jarak_bandara_km": 60
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Trianggulasi Bungalow"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 17:00",
       "pengunjung_per_tahun": 50000
     },
@@ -1316,9 +2993,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?w=400&q=80",
       "deskripsi": "Pusat rehabilitasi orangutan Sumatera di pinggir Taman Nasional Gunung Leuser.",
-      "lokasi": { "kota": "Langkat", "koordinat": { "lat": 3.5333, "lng": 98.1333 }, "jarak_bandara_km": 80 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Jungle Inn Bukit Lawang"], "atm": false },
-      "tiket": { "harga_dewasa": 200000, "harga_anak": 100000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Langkat",
+        "koordinat": {
+          "lat": 3.5333,
+          "lng": 98.1333
+        },
+        "jarak_bandara_km": 80
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Jungle Inn Bukit Lawang"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 200000,
+        "harga_anak": 100000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 17:00",
       "pengunjung_per_tahun": 30000
     },
@@ -1331,9 +3027,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=400&q=80",
       "deskripsi": "Pantai tersembunyi di Gunungkidul dengan pohon duras raksasa yang instagramable.",
-      "lokasi": { "kota": "Gunungkidul", "koordinat": { "lat": -8.1689, "lng": 110.5928 }, "jarak_bandara_km": 60 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Pok Tunggal Camping"], "atm": false },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Gunungkidul",
+        "koordinat": {
+          "lat": -8.1689,
+          "lng": 110.5928
+        },
+        "jarak_bandara_km": 60
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Pok Tunggal Camping"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 120000
     },
@@ -1346,9 +3061,28 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&q=80",
       "deskripsi": "Titik paling barat Indonesia dengan diving kelas dunia dan hiu paus musiman.",
-      "lokasi": { "kota": "Sabang", "koordinat": { "lat": 5.8933, "lng": 95.3167 }, "jarak_bandara_km": 10 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Freddie's Diving Resort"], "atm": true },
-      "tiket": { "harga_dewasa": 50000, "harga_anak": 25000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Sabang",
+        "koordinat": {
+          "lat": 5.8933,
+          "lng": 95.3167
+        },
+        "jarak_bandara_km": 10
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Freddie's Diving Resort"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 50000,
+        "harga_anak": 25000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 70000
     },
@@ -1361,9 +3095,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1574226516831-e1dff420e562?w=400&q=80",
       "deskripsi": "Gunung kembar Sumbing 3.150 mdpl dengan padang edelweis luas dan sunrise indah.",
-      "lokasi": { "kota": "Temanggung", "koordinat": { "lat": -7.3041, "lng": 109.9917 }, "jarak_bandara_km": 55 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Basecamp Kledung"], "atm": false },
-      "tiket": { "harga_dewasa": 20000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Temanggung",
+        "koordinat": {
+          "lat": -7.3041,
+          "lng": 109.9917
+        },
+        "jarak_bandara_km": 55
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Basecamp Kledung"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 20000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "24 Jam",
       "pengunjung_per_tahun": 80000
     },
@@ -1376,9 +3129,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?w=400&q=80",
       "deskripsi": "Candi Hindu abad ke-15 di lereng Gunung Lawu 1.500 mdpl, sering tertutup kabut.",
-      "lokasi": { "kota": "Karanganyar", "koordinat": { "lat": -7.5828, "lng": 111.1714 }, "jarak_bandara_km": 45 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Cetho Villa"], "atm": false },
-      "tiket": { "harga_dewasa": 10000, "harga_anak": 5000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Karanganyar",
+        "koordinat": {
+          "lat": -7.5828,
+          "lng": 111.1714
+        },
+        "jarak_bandara_km": 45
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Cetho Villa"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 10000,
+        "harga_anak": 5000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "07:00 - 17:00",
       "pengunjung_per_tahun": 100000
     },
@@ -1391,9 +3163,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?w=400&q=80",
       "deskripsi": "Danau kaldera terbesar di Bali di kaki Gunung Batur, sumber air bagi Bali.",
-      "lokasi": { "kota": "Bangli", "koordinat": { "lat": -8.2572, "lng": 115.3811 }, "jarak_bandara_km": 60 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Puri Bening Hayatt Hotel"], "atm": false },
-      "tiket": { "harga_dewasa": 30000, "harga_anak": 15000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Bangli",
+        "koordinat": {
+          "lat": -8.2572,
+          "lng": 115.3811
+        },
+        "jarak_bandara_km": 60
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Puri Bening Hayatt Hotel"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 30000,
+        "harga_anak": 15000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 300000
     },
@@ -1406,9 +3197,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=400&q=80",
       "deskripsi": "Pantai Belitung dengan batu granit dan snorkeling di sekitar pulau kecil.",
-      "lokasi": { "kota": "Belitung", "koordinat": { "lat": -2.5361, "lng": 107.6528 }, "jarak_bandara_km": 25 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Belitung Seaview Hotel"], "atm": false },
-      "tiket": { "harga_dewasa": 5000, "harga_anak": 3000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Belitung",
+        "koordinat": {
+          "lat": -2.5361,
+          "lng": 107.6528
+        },
+        "jarak_bandara_km": 25
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Belitung Seaview Hotel"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 5000,
+        "harga_anak": 3000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 300000
     },
@@ -1421,9 +3231,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=400&q=80",
       "deskripsi": "Dataran tinggi vulkanik 2.093 mdpl dengan kawah berwarna, telaga, dan candi tertua di Jawa.",
-      "lokasi": { "kota": "Banjarnegara", "koordinat": { "lat": -7.2089, "lng": 109.9139 }, "jarak_bandara_km": 90 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Hotel Dieng Plateau"], "atm": false },
-      "tiket": { "harga_dewasa": 25000, "harga_anak": 12500, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Banjarnegara",
+        "koordinat": {
+          "lat": -7.2089,
+          "lng": 109.9139
+        },
+        "jarak_bandara_km": 90
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Hotel Dieng Plateau"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 25000,
+        "harga_anak": 12500,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 17:00",
       "pengunjung_per_tahun": 400000
     },
@@ -1436,9 +3265,28 @@
       "rating": 4.4,
       "gambar": "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=400&q=80",
       "deskripsi": "Pantai di dalam kawasan Taman Nasional Baluran dengan mangrove dan monyet kera abu-abu.",
-      "lokasi": { "kota": "Situbondo", "koordinat": { "lat": -7.8722, "lng": 114.4222 }, "jarak_bandara_km": 65 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Baluran Bama Guesthouse"], "atm": false },
-      "tiket": { "harga_dewasa": 15000, "harga_anak": 7500, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Situbondo",
+        "koordinat": {
+          "lat": -7.8722,
+          "lng": 114.4222
+        },
+        "jarak_bandara_km": 65
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Baluran Bama Guesthouse"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 15000,
+        "harga_anak": 7500,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 17:00",
       "pengunjung_per_tahun": 80000
     },
@@ -1451,9 +3299,28 @@
       "rating": 4.8,
       "gambar": "https://images.unsplash.com/photo-1555993539-1732b0258235?w=400&q=80",
       "deskripsi": "Masjid bersejarah abad ke-17 yang selamat dari tsunami 2004, simbol keteguhan Aceh.",
-      "lokasi": { "kota": "Banda Aceh", "koordinat": { "lat": 5.5497, "lng": 95.3175 }, "jarak_bandara_km": 12 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Hermes Palace Hotel"], "atm": true },
-      "tiket": { "harga_dewasa": 0, "harga_anak": 0, "mata_uang": "IDR", "gratis": true },
+      "lokasi": {
+        "kota": "Banda Aceh",
+        "koordinat": {
+          "lat": 5.5497,
+          "lng": 95.3175
+        },
+        "jarak_bandara_km": 12
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Hermes Palace Hotel"
+        ],
+        "atm": true
+      },
+      "tiket": {
+        "harga_dewasa": 0,
+        "harga_anak": 0,
+        "mata_uang": "IDR",
+        "gratis": true
+      },
       "jam_operasional": "04:30 - 22:00",
       "pengunjung_per_tahun": 1000000
     },
@@ -1466,9 +3333,28 @@
       "rating": 4.5,
       "gambar": "https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=80",
       "deskripsi": "Hutan pantai selatan Jawa dengan penyu belimbing terbesar dunia yang bertelur di sini.",
-      "lokasi": { "kota": "Jember", "koordinat": { "lat": -8.45, "lng": 113.7167 }, "jarak_bandara_km": 40 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Sukamade Turtle Beach Camp"], "atm": false },
-      "tiket": { "harga_dewasa": 15000, "harga_anak": 7500, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Jember",
+        "koordinat": {
+          "lat": -8.45,
+          "lng": 113.7167
+        },
+        "jarak_bandara_km": 40
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Sukamade Turtle Beach Camp"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 15000,
+        "harga_anak": 7500,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 17:00",
       "pengunjung_per_tahun": 30000
     },
@@ -1481,9 +3367,28 @@
       "rating": 4.6,
       "gambar": "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=400&q=80",
       "deskripsi": "Pantai Belitung ikon film Laskar Pelangi dengan batu granit besar dan air biru jernih.",
-      "lokasi": { "kota": "Belitung", "koordinat": { "lat": -2.52, "lng": 107.6494 }, "jarak_bandara_km": 27 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Grand Hatika Hotel"], "atm": false },
-      "tiket": { "harga_dewasa": 5000, "harga_anak": 3000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Belitung",
+        "koordinat": {
+          "lat": -2.52,
+          "lng": 107.6494
+        },
+        "jarak_bandara_km": 27
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Grand Hatika Hotel"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 5000,
+        "harga_anak": 3000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "06:00 - 18:00",
       "pengunjung_per_tahun": 400000
     },
@@ -1496,9 +3401,28 @@
       "rating": 4.7,
       "gambar": "https://images.unsplash.com/photo-1574226516831-e1dff420e562?w=400&q=80",
       "deskripsi": "Gunung berapi tertinggi di Indonesia dan Asia Tenggara 3.805 mdpl di Taman Nasional Kerinci Seblat.",
-      "lokasi": { "kota": "Kerinci", "koordinat": { "lat": -1.6972, "lng": 101.2639 }, "jarak_bandara_km": 50 },
-      "fasilitas": { "parkir": true, "toilet": true, "penginapan_terdekat": ["Kerinchi Valley Eco Resort"], "atm": false },
-      "tiket": { "harga_dewasa": 20000, "harga_anak": 10000, "mata_uang": "IDR", "gratis": false },
+      "lokasi": {
+        "kota": "Kerinci",
+        "koordinat": {
+          "lat": -1.6972,
+          "lng": 101.2639
+        },
+        "jarak_bandara_km": 50
+      },
+      "fasilitas": {
+        "parkir": true,
+        "toilet": true,
+        "penginapan_terdekat": [
+          "Kerinchi Valley Eco Resort"
+        ],
+        "atm": false
+      },
+      "tiket": {
+        "harga_dewasa": 20000,
+        "harga_anak": 10000,
+        "mata_uang": "IDR",
+        "gratis": false
+      },
       "jam_operasional": "05:00 - 16:00",
       "pengunjung_per_tahun": 30000
     }

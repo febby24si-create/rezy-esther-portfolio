@@ -2,16 +2,16 @@ import { Link } from 'react-router-dom'
 import { MdDirectionsCar, MdPhone, MdEmail, MdLocationOn, MdAccessTime } from 'react-icons/md'
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp } from 'react-icons/fa'
 
-const layananLinks   = ['Service Berkala','Tune Up','Ganti Oli','Spooring & Balancing','Service AC','Service Kelistrikan']
+const layananLinks = ['Service Berkala', 'Tune Up', 'Ganti Oli', 'Spooring & Balancing', 'Service AC', 'Service Kelistrikan']
 const pelangganLinks = [
-  { label: 'Dashboard Saya',  path: '/guest/dashboard' },
-  { label: 'Booking Online',  path: '/guest/booking'   },
-  { label: 'Tracking Status', path: '/guest/tracking'  },
-  { label: 'Riwayat Service', path: '/guest/riwayat'   },
-  { label: 'Loyalty Point',   path: '/guest/loyalty'   },
-  { label: 'Voucher Saya',    path: '/guest/voucher'   },
+  { label: 'Dashboard Saya', path: '/guest/dashboard' },
+  { label: 'Booking Online', path: '/guest/booking' },
+  { label: 'Tracking Status', path: '/guest/tracking' },
+  { label: 'Riwayat Service', path: '/guest/riwayat' },
+  { label: 'Loyalty Point', path: '/guest/loyalty' },
+  { label: 'Voucher Saya', path: '/guest/voucher' },
 ]
-const infoLinks = ['Tentang Kami','Promo & Voucher','FAQ','Kebijakan Privasi','Syarat & Ketentuan']
+const infoLinks = ['Tentang Kami', 'Promo & Voucher', 'FAQ', 'Kebijakan Privasi', 'Syarat & Ketentuan']
 
 export default function GuestFooter() {
   return (
@@ -31,13 +31,13 @@ export default function GuestFooter() {
               </div>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-sm">
-              Bengkel modern terpercaya di Jakarta Selatan sejak 2015. Teknologi diagnostik terkini, mekanik bersertifikat, dan transparansi harga tanpa kejutan.
+              Bengkel modern terpercaya di Sumatera Barat sejak 2015. Teknologi diagnostik terkini, mekanik bersertifikat, dan transparansi harga tanpa kejutan.
             </p>
             <div className="space-y-2.5 mb-6">
               {[
-                { icon: MdLocationOn, text: 'Jl. Raya Kemang No. 88, Jakarta Selatan 12730' },
-                { icon: MdPhone,      text: '(021) 5588-7799' },
-                { icon: MdEmail,      text: 'hello@esthergarage.id' },
+                { icon: MdLocationOn, text: 'Bukittinggi, Sumatera Barat' },
+                { icon: MdPhone, text: '+62 887-082-30676' },
+                { icon: MdEmail, text: 'febby24si@mahasiswa.pcr.ac.id' },
                 { icon: MdAccessTime, text: 'Senin–Sabtu, 08.00–18.00 WIB' },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-start gap-3 text-sm text-gray-400">
@@ -90,7 +90,7 @@ export default function GuestFooter() {
             <div className="mt-6">
               <p className="text-xs text-gray-600 uppercase tracking-widest mb-3 font-semibold">Sertifikasi</p>
               <div className="flex flex-wrap gap-1.5">
-                {['ISO 9001','AHM','TAM','Bosch'].map((c) => (
+                {['ISO 9001', 'AHM', 'TAM', 'Bosch'].map((c) => (
                   <span key={c} className="text-xs px-2 py-1 rounded-md bg-green-500/10 text-green-400 border border-green-500/20 font-medium">{c}</span>
                 ))}
               </div>

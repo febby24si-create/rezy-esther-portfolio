@@ -1,32 +1,56 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { MdPerson, MdEmail, MdLock } from 'react-icons/md'
+import { motion } from 'framer-motion'
 
 export default function Register() {
-  const [form, setForm] = useState({ name:'', email:'', password:'' })
+  const [form, setForm] = useState({ name: '', email: '', password: '' })
+  
   return (
-    <div className="glass-card neon-border p-8 animate-fade-in">
-      <h2 className="text-2xl font-display font-bold text-white mb-1">Buat Akun Baru</h2>
-      <p className="text-gray-500 text-sm mb-6">Bergabung dengan EstherGarage</p>
-      <form className="space-y-4">
+    <div className="backdrop-blur-xl bg-garage-900/40 border border-white/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-8 relative overflow-hidden">
+      {/* Subtle top ambient glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[2px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
+
+      <h2 className="text-2xl font-display font-extrabold text-white tracking-wide mb-1">Buat Akun Baru</h2>
+      <p className="text-gray-400 text-sm mb-6">Bergabung dengan ekosistem EstherGarage</p>
+      
+      <form className="space-y-5">
         {[
-          { label:'Nama Lengkap', key:'name', icon:MdPerson, placeholder:'Nama Anda', type:'text' },
-          { label:'Email', key:'email', icon:MdEmail, placeholder:'email@contoh.com', type:'email' },
-          { label:'Password', key:'password', icon:MdLock, placeholder:'Min. 8 karakter', type:'password' },
-        ].map(({ label, key, icon:Icon, placeholder, type }) => (
+          { label: 'Nama Lengkap', key: 'name', icon: MdPerson, placeholder: 'Nama Anda', type: 'text' },
+          { label: 'Email', key: 'email', icon: MdEmail, placeholder: 'email@contoh.com', type: 'email' },
+          { label: 'Password', key: 'password', icon: MdLock, placeholder: 'Min. 8 karakter', type: 'password' },
+        ].map(({ label, key, icon: Icon, placeholder, type }) => (
           <div key={key}>
-            <label className="block text-sm text-gray-400 mb-1.5">{label}</label>
-            <div className="relative">
-              <Icon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-              <input type={type} value={form[key]} onChange={e=>setForm({...form,[key]:e.target.value})} placeholder={placeholder}
-                className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white outline-none" style={{background:'rgba(11,59,46,0.4)', border:'1px solid rgba(34,197,94,0.15)'}} />
+            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{label}</label>
+            <div className="relative group">
+              <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 transition-colors group-focus-within:text-cyan-400" size={18} />
+              <input
+                type={type}
+                required
+                value={form[key]}
+                onChange={e => setForm({ ...form, [key]: e.target.value })}
+                placeholder={placeholder}
+                className="w-full pl-11 pr-4 py-3 bg-garage-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-gray-600 outline-none transition-all focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/30"
+              />
             </div>
           </div>
         ))}
-        <button type="button" className="btn-primary w-full py-3 rounded-xl text-sm font-semibold">Daftar Sekarang</button>
+
+        <motion.button
+          whileHover={{ scale: 1.01, boxShadow: '0 0 20px rgba(6, 182, 212, 0.45)' }}
+          whileTap={{ scale: 0.99 }}
+          type="button"
+          className="w-full py-3.5 rounded-xl text-sm font-semibold text-white relative transition-all duration-300 cursor-pointer bg-gradient-to-r from-cyan-600 to-cyan-400 border-none flex items-center justify-center shadow-[0_4px_15px_rgba(6,182,212,0.25)] mt-2"
+        >
+          Daftar Sekarang
+        </motion.button>
       </form>
-      <p className="text-center text-sm text-gray-500 mt-5">
-        Sudah punya akun? <Link to="/login" className="text-green-400 hover:text-green-300 font-semibold transition-colors">Masuk</Link>
+      
+      <p className="text-center text-xs sm:text-sm text-gray-400 mt-6">
+        Sudah punya akun?{' '}
+        <Link to="/login" className="text-cyan-300 hover:text-cyan-200 font-semibold transition-colors">
+          Masuk
+        </Link>
       </p>
     </div>
   )

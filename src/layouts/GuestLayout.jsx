@@ -14,7 +14,7 @@ export default function GuestLayout() {
 
   return (
     <ToastCtx.Provider value={addToast}>
-      <div className="min-h-screen flex flex-col" style={{ background: '#020f09' }}>
+      <div className="min-h-screen flex flex-col guest-theme" style={{ background: '#020b18' }}>
         <GuestNavbar />
         <main className="flex-1">
           <AnimatePresence mode="wait" initial={false}>

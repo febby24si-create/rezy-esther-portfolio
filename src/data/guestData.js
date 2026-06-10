@@ -7,13 +7,13 @@ export const bengkelProfile = {
   name: 'Esther Garage',
   tagline: 'Bengkel Modern, Servis Terpercaya',
   founded: '2015',
-  address: 'Jl. Raya Kemang No. 88, Jakarta Selatan 12730',
-  phone: '(021) 5588-7799',
-  whatsapp: '0812-8899-0011',
-  email: 'hello@esthergarage.id',
+  address: 'Jl. Raya Bukittinggi No. 88, Bukittinggi Sumatera Barat 25113',
+  phone: '+62 887-082-30676',
+  whatsapp: '+62 887-082-30676',
+  email: 'febby24si@mahasiswa.pcr.ac.id',
   openHours: 'Senin–Sabtu 08.00–18.00',
   description:
-    'Esther Garage hadir sejak 2015 sebagai bengkel terpercaya di Jakarta Selatan. Kami menggabungkan teknologi diagnostik modern dengan mekanik bersertifikat untuk memberikan layanan terbaik bagi kendaraan Anda.',
+    'Esther Garage hadir sejak 2015 sebagai bengkel terpercaya di Sumatera Barat. Kami menggabungkan teknologi diagnostik modern dengan mekanik bersertifikat untuk memberikan layanan terbaik bagi kendaraan Anda.',
   stats: { customers: 12500, serviceDone: 48000, mechanics: 24, satisfaction: 98 },
   visi: 'Menjadi bengkel otomotif terpercaya dan berteknologi tinggi di Indonesia dengan standar layanan kelas dunia.',
   misi: [
@@ -25,10 +25,10 @@ export const bengkelProfile = {
   ],
   certifications: ['ISO 9001:2015', 'AHM Authorized', 'TAM Certified', 'Snap-on Certified', 'Bosch Service Partner'],
   milestones: [
-    { year: '2015', event: 'Berdiri di Kemang dengan 3 mekanik dan 2 bay servis' },
+    { year: '2015', event: 'Berdiri di Bukittinggi dengan 3 mekanik dan 2 bay servis' },
     { year: '2017', event: 'Ekspansi — 10 bay servis dan bergabung dengan jaringan TAM' },
     { year: '2019', event: 'Peluncuran sistem CRM dan loyalitas pelanggan digital' },
-    { year: '2021', event: 'Raih penghargaan "Best Workshop Jakarta Selatan"' },
+    { year: '2021', event: 'Raih penghargaan "Best Workshop Sumatera Barat"' },
     { year: '2023', event: 'Launching booking online & tracking service real-time' },
     { year: '2025', event: 'Lebih dari 12.500 pelanggan aktif' },
   ],
@@ -36,10 +36,10 @@ export const bengkelProfile = {
 
 // ─── MEKANIK ────────────────────────────────────────────────
 export const mechanics = [
-  { id: 1, name: 'Ahmad Supriyadi', role: 'Kepala Mekanik',  exp: '12 Tahun', specialty: 'Mesin & Transmisi',    cert: 'TAM Expert',      rating: 4.9 },
-  { id: 2, name: 'Eka Fitriani',    role: 'Senior Mekanik', exp: '8 Tahun',  specialty: 'Kelistrikan & AC',     cert: 'Bosch Certified', rating: 4.8 },
-  { id: 3, name: 'Budi Hartanto',   role: 'Mekanik',        exp: '5 Tahun',  specialty: 'Spooring & Balancing', cert: 'Hunter Certified',rating: 4.7 },
-  { id: 4, name: 'Dedi Kurniawan',  role: 'Mekanik',        exp: '6 Tahun',  specialty: 'Body & Rem',           cert: 'AHM Certified',   rating: 4.8 },
+  { id: 1, name: 'Ahmad Supriyadi', role: 'Kepala Mekanik', exp: '12 Tahun', specialty: 'Mesin & Transmisi', cert: 'TAM Expert', rating: 4.9 },
+  { id: 2, name: 'Eka Fitriani', role: 'Senior Mekanik', exp: '8 Tahun', specialty: 'Kelistrikan & AC', cert: 'Bosch Certified', rating: 4.8 },
+  { id: 3, name: 'Budi Hartanto', role: 'Mekanik', exp: '5 Tahun', specialty: 'Spooring & Balancing', cert: 'Hunter Certified', rating: 4.7 },
+  { id: 4, name: 'Dedi Kurniawan', role: 'Mekanik', exp: '6 Tahun', specialty: 'Body & Rem', cert: 'AHM Certified', rating: 4.8 },
 ]
 
 // ─── LAYANAN ─────────────────────────────────────────────────
@@ -140,11 +140,11 @@ export const promos = [
 
 // ─── VOUCHER SAYA ────────────────────────────────────────────
 export const myVouchers = [
-  { id: 'VC-2401', code: 'BDAY-BUDI-2024', title: 'Voucher Ulang Tahun',   diskon: 20,  status: 'active',  validUntil: '2025-07-31', type: 'birthday' },
-  { id: 'VC-2402', code: 'AFTER-SVC-001',  title: 'Voucher Setelah Service',diskon: 10,  status: 'active',  validUntil: '2025-08-15', type: 'aftersvc' },
-  { id: 'VC-2403', code: 'LOYAL-GOLD-01',  title: 'Reward Pelanggan Gold',  diskon: 100, status: 'active',  validUntil: '2025-09-01', type: 'loyalty'  },
-  { id: 'VC-2404', code: 'MEMBER-BARU',    title: 'Welcome Member',         diskon: 15,  status: 'used',    validUntil: '2024-12-31', usedAt: '2024-11-20', type: 'member' },
-  { id: 'VC-2405', code: 'PROMO-ACX10',    title: 'Diskon Service AC',      diskon: 25,  status: 'expired', validUntil: '2024-10-31', type: 'promo'    },
+  { id: 'VC-2401', code: 'BDAY-BUDI-2024', title: 'Voucher Ulang Tahun', diskon: 20, status: 'active', validUntil: '2025-07-31', type: 'birthday' },
+  { id: 'VC-2402', code: 'AFTER-SVC-001', title: 'Voucher Setelah Service', diskon: 10, status: 'active', validUntil: '2025-08-15', type: 'aftersvc' },
+  { id: 'VC-2403', code: 'LOYAL-GOLD-01', title: 'Reward Pelanggan Gold', diskon: 100, status: 'active', validUntil: '2025-09-01', type: 'loyalty' },
+  { id: 'VC-2404', code: 'MEMBER-BARU', title: 'Welcome Member', diskon: 15, status: 'used', validUntil: '2024-12-31', usedAt: '2024-11-20', type: 'member' },
+  { id: 'VC-2405', code: 'PROMO-ACX10', title: 'Diskon Service AC', diskon: 25, status: 'expired', validUntil: '2024-10-31', type: 'promo' },
 ]
 
 // ─── LOYALTY POINT ───────────────────────────────────────────
@@ -152,20 +152,20 @@ export const loyaltyData = {
   currentPoints: 3250, tier: 'Gold', nextTier: 'Platinum',
   pointsToNextTier: 750, tierProgress: 81,
   history: [
-    { id: 'LP-001', type: 'in',  desc: 'Service Berkala — #ORD-A1B2C3D4', points: 450,  date: '2025-05-10', ref: '#ORD-A1B2C3D4' },
-    { id: 'LP-002', type: 'in',  desc: 'Bonus Loyal Customer',             points: 200,  date: '2025-04-28', ref: 'SYSTEM'       },
-    { id: 'LP-003', type: 'out', desc: 'Redeem Voucher Service',           points: -300, date: '2025-04-15', ref: 'VC-2402'      },
-    { id: 'LP-004', type: 'in',  desc: 'Ganti Oli — #ORD-E5F6G7H8',       points: 120,  date: '2025-03-20', ref: '#ORD-E5F6G7H8'},
-    { id: 'LP-005', type: 'in',  desc: 'Tune Up — #ORD-I9J0K1L2',         points: 350,  date: '2025-02-14', ref: '#ORD-I9J0K1L2'},
-    { id: 'LP-006', type: 'out', desc: 'Redeem Free Service',              points: -500, date: '2025-01-30', ref: 'VC-2403'      },
-    { id: 'LP-007', type: 'in',  desc: 'Service AC — #ORD-M3N4O5P6',      points: 280,  date: '2024-12-05', ref: '#ORD-M3N4O5P6'},
+    { id: 'LP-001', type: 'in', desc: 'Service Berkala — #ORD-A1B2C3D4', points: 450, date: '2025-05-10', ref: '#ORD-A1B2C3D4' },
+    { id: 'LP-002', type: 'in', desc: 'Bonus Loyal Customer', points: 200, date: '2025-04-28', ref: 'SYSTEM' },
+    { id: 'LP-003', type: 'out', desc: 'Redeem Voucher Service', points: -300, date: '2025-04-15', ref: 'VC-2402' },
+    { id: 'LP-004', type: 'in', desc: 'Ganti Oli — #ORD-E5F6G7H8', points: 120, date: '2025-03-20', ref: '#ORD-E5F6G7H8' },
+    { id: 'LP-005', type: 'in', desc: 'Tune Up — #ORD-I9J0K1L2', points: 350, date: '2025-02-14', ref: '#ORD-I9J0K1L2' },
+    { id: 'LP-006', type: 'out', desc: 'Redeem Free Service', points: -500, date: '2025-01-30', ref: 'VC-2403' },
+    { id: 'LP-007', type: 'in', desc: 'Service AC — #ORD-M3N4O5P6', points: 280, date: '2024-12-05', ref: '#ORD-M3N4O5P6' },
   ],
   rewards: [
-    { id: 'R01', name: 'Diskon 10% Service',    points: 500,  category: 'Voucher',      available: true  },
-    { id: 'R02', name: 'Ganti Oli Gratis',       points: 1000, category: 'Service',      available: true  },
-    { id: 'R03', name: 'Service Berkala Gratis', points: 2500, category: 'Service',      available: true  },
-    { id: 'R04', name: 'Voucher Rp100.000',      points: 800,  category: 'Voucher',      available: true  },
-    { id: 'R05', name: 'Merchandise Esther Garage',  points: 1500, category: 'Merchandise',  available: false },
+    { id: 'R01', name: 'Diskon 10% Service', points: 500, category: 'Voucher', available: true },
+    { id: 'R02', name: 'Ganti Oli Gratis', points: 1000, category: 'Service', available: true },
+    { id: 'R03', name: 'Service Berkala Gratis', points: 2500, category: 'Service', available: true },
+    { id: 'R04', name: 'Voucher Rp100.000', points: 800, category: 'Voucher', available: true },
+    { id: 'R05', name: 'Merchandise Esther Garage', points: 1500, category: 'Merchandise', available: false },
   ],
 }
 
@@ -177,8 +177,8 @@ export const serviceHistory = [
     status: 'Selesai', total: 450000, duration: '2.5 Jam',
     parts: [
       { name: 'Oli Mesin Shell 4T', qty: 4, price: 65000 },
-      { name: 'Filter Oli',          qty: 1, price: 45000 },
-      { name: 'Filter Udara',        qty: 1, price: 85000 },
+      { name: 'Filter Oli', qty: 1, price: 45000 },
+      { name: 'Filter Udara', qty: 1, price: 85000 },
     ],
     jasa: [{ name: 'Jasa Service Berkala', price: 100000 }],
     notes: 'Kondisi kendaraan baik. Disarankan ganti busi pada service berikutnya (±5000 km lagi).',
@@ -215,16 +215,16 @@ export const serviceHistory = [
 
 // ─── KENDARAAN CUSTOMER ──────────────────────────────────────
 export const myVehicles = [
-  { id: 'V01', brand: 'Toyota',  model: 'Avanza', year: 2020, plate: 'B 1234 ABC', color: 'Silver', lastService: '2025-05-10', nextService: '2025-11-10', km: 48500, type: 'mobil' },
-  { id: 'V02', brand: 'Honda',   model: 'Beat',   year: 2022, plate: 'D 5678 XYZ', color: 'Merah',  lastService: '2025-03-20', nextService: '2025-09-20', km: 15200, type: 'motor' },
-  { id: 'V03', brand: 'Suzuki',  model: 'Ertiga', year: 2019, plate: 'F 9012 PQR', color: 'Putih',  lastService: '2025-02-14', nextService: '2025-08-14', km: 72300, type: 'mobil' },
+  { id: 'V01', brand: 'Toyota', model: 'Avanza', year: 2020, plate: 'B 1234 ABC', color: 'Silver', lastService: '2025-05-10', nextService: '2025-11-10', km: 48500, type: 'mobil' },
+  { id: 'V02', brand: 'Honda', model: 'Beat', year: 2022, plate: 'D 5678 XYZ', color: 'Merah', lastService: '2025-03-20', nextService: '2025-09-20', km: 15200, type: 'motor' },
+  { id: 'V03', brand: 'Suzuki', model: 'Ertiga', year: 2019, plate: 'F 9012 PQR', color: 'Putih', lastService: '2025-02-14', nextService: '2025-08-14', km: 72300, type: 'mobil' },
 ]
 
 // ─── BOOKING ─────────────────────────────────────────────────
 export const availableTimeSlots = [
-  '08:00','08:30','09:00','09:30','10:00','10:30',
-  '11:00','11:30','13:00','13:30','14:00','14:30',
-  '15:00','15:30','16:00','16:30',
+  '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
+  '11:00', '11:30', '13:00', '13:30', '14:00', '14:30',
+  '15:00', '15:30', '16:00', '16:30',
 ]
 
 // ─── TRACKING AKTIF ──────────────────────────────────────────
@@ -233,41 +233,41 @@ export const activeTracking = {
   service: 'Service Berkala + Tune Up', mechanic: 'Ahmad Supriyadi',
   estimatedFinish: '14:30', currentStep: 2,
   steps: [
-    { id: 0, label: 'Booking Diterima',      time: '08:15', done: true,  note: 'Booking dikonfirmasi oleh resepsionis.' },
-    { id: 1, label: 'Kendaraan Masuk Bay',   time: '09:00', done: true,  note: 'Kendaraan sudah ada di bay no. 3.' },
-    { id: 2, label: 'Sedang Dikerjakan',     time: '09:10', done: true,  note: 'Ahmad sedang mengerjakan service berkala.', active: true },
-    { id: 3, label: 'Menunggu Sparepart',    time: '—',     done: false, note: '' },
-    { id: 4, label: 'Quality Check',         time: '—',     done: false, note: '' },
-    { id: 5, label: 'Selesai & Siap Ambil',  time: '—',     done: false, note: '' },
+    { id: 0, label: 'Booking Diterima', time: '08:15', done: true, note: 'Booking dikonfirmasi oleh resepsionis.' },
+    { id: 1, label: 'Kendaraan Masuk Bay', time: '09:00', done: true, note: 'Kendaraan sudah ada di bay no. 3.' },
+    { id: 2, label: 'Sedang Dikerjakan', time: '09:10', done: true, note: 'Ahmad sedang mengerjakan service berkala.', active: true },
+    { id: 3, label: 'Menunggu Sparepart', time: '—', done: false, note: '' },
+    { id: 4, label: 'Quality Check', time: '—', done: false, note: '' },
+    { id: 5, label: 'Selesai & Siap Ambil', time: '—', done: false, note: '' },
   ],
 }
 
 // ─── CRM NOTIFICATIONS ───────────────────────────────────────
 export const crmNotifications = [
-  { id: 'N01', type: 'reminder', icon: '🔔', title: 'Reminder Service Berkala',     desc: 'Toyota Avanza Anda sudah 6 bulan sejak service terakhir. Jadwalkan sekarang!',         time: '2 jam lalu',    action: 'Booking Sekarang', actionPath: '/guest/booking', priority: 'high'   },
-  { id: 'N02', type: 'promo',    icon: '🎁', title: 'Voucher Ulang Tahun Menanti!', desc: 'Selamat ulang tahun! Klaim voucher diskon 20% khusus untuk Anda.',                    time: '1 hari lalu',   action: 'Klaim Voucher',    actionPath: '/guest/voucher', priority: 'high'   },
-  { id: 'N03', type: 'point',    icon: '⭐', title: 'Point Loyalty Bertambah',      desc: 'Anda mendapat 450 poin dari service terakhir. Total poin: 3.250.',                    time: '5 hari lalu',   action: 'Lihat Point',      actionPath: '/guest/loyalty', priority: 'medium' },
-  { id: 'N04', type: 'reminder', icon: '📋', title: 'Reminder STNK Kendaraan',      desc: 'STNK Toyota Avanza (B 1234 ABC) akan habis masa berlakunya 30 hari lagi.',          time: '1 minggu lalu', action: 'Lihat Detail',     actionPath: '/guest/dashboard',priority: 'medium'},
-  { id: 'N05', type: 'followup', icon: '💬', title: 'Terima Kasih Sudah Servis!',   desc: 'Bagaimana kondisi kendaraan Anda setelah service kemarin? Beri rating mekanik kami.', time: '2 minggu lalu', action: 'Beri Rating',       actionPath: '/guest/riwayat', priority: 'low'    },
-  { id: 'N06', type: 'promo',    icon: '🏷️', title: 'Promo Spesial Akhir Bulan',   desc: 'Diskon 30% untuk Service Berkala. Berlaku hingga akhir bulan ini!',                  time: '3 minggu lalu', action: 'Lihat Promo',      actionPath: '/guest/promo',   priority: 'low'    },
+  { id: 'N01', type: 'reminder', icon: '🔔', title: 'Reminder Service Berkala', desc: 'Toyota Avanza Anda sudah 6 bulan sejak service terakhir. Jadwalkan sekarang!', time: '2 jam lalu', action: 'Booking Sekarang', actionPath: '/guest/booking', priority: 'high' },
+  { id: 'N02', type: 'promo', icon: '🎁', title: 'Voucher Ulang Tahun Menanti!', desc: 'Selamat ulang tahun! Klaim voucher diskon 20% khusus untuk Anda.', time: '1 hari lalu', action: 'Klaim Voucher', actionPath: '/guest/voucher', priority: 'high' },
+  { id: 'N03', type: 'point', icon: '⭐', title: 'Point Loyalty Bertambah', desc: 'Anda mendapat 450 poin dari service terakhir. Total poin: 3.250.', time: '5 hari lalu', action: 'Lihat Point', actionPath: '/guest/loyalty', priority: 'medium' },
+  { id: 'N04', type: 'reminder', icon: '📋', title: 'Reminder STNK Kendaraan', desc: 'STNK Toyota Avanza (B 1234 ABC) akan habis masa berlakunya 30 hari lagi.', time: '1 minggu lalu', action: 'Lihat Detail', actionPath: '/guest/dashboard', priority: 'medium' },
+  { id: 'N05', type: 'followup', icon: '💬', title: 'Terima Kasih Sudah Servis!', desc: 'Bagaimana kondisi kendaraan Anda setelah service kemarin? Beri rating mekanik kami.', time: '2 minggu lalu', action: 'Beri Rating', actionPath: '/guest/riwayat', priority: 'low' },
+  { id: 'N06', type: 'promo', icon: '🏷️', title: 'Promo Spesial Akhir Bulan', desc: 'Diskon 30% untuk Service Berkala. Berlaku hingga akhir bulan ini!', time: '3 minggu lalu', action: 'Lihat Promo', actionPath: '/guest/promo', priority: 'low' },
 ]
 
 // ─── TESTIMONI ───────────────────────────────────────────────
 export const testimonials = [
-  { id: 1, name: 'Budi Santoso',    vehicle: 'Toyota Avanza',      rating: 5, text: 'Servis cepat dan transparan. Mekaniknya profesional, hasil diagnosa akurat. Sudah langganan 3 tahun dan tidak kecewa!', tier: 'Gold',     date: 'Mei 2025'      },
-  { id: 2, name: 'Siti Rahayu',     vehicle: 'Honda Jazz',          rating: 5, text: 'Booking online sangat mudah, estimasi waktu tepat. Fasilitas ruang tunggu nyaman. Esther Garage memang beda!',               tier: 'Platinum', date: 'April 2025'    },
-  { id: 3, name: 'Agus Purnomo',    vehicle: 'Suzuki Ertiga',       rating: 4, text: 'Harga transparan, tidak ada biaya tersembunyi. Program loyalitas poinnya membantu hemat biaya servis.',                  tier: 'Silver',   date: 'Maret 2025'    },
-  { id: 4, name: 'Dewi Anggraini',  vehicle: 'Yamaha NMAX',         rating: 5, text: 'Service AC cepat selesai dalam 2 jam. Sistem tracking real-time sangat membantu, bisa pantau dari kantor!',              tier: 'Gold',     date: 'Maret 2025'    },
-  { id: 5, name: 'Riko Firmansyah', vehicle: 'Mitsubishi Xpander',  rating: 5, text: 'WhatsApp reminder service sangat berguna. Mekanik handal, kendaraan seperti baru setelah tune up.',                     tier: 'Platinum', date: 'Februari 2025' },
+  { id: 1, name: 'Budi Santoso', vehicle: 'Toyota Avanza', rating: 5, text: 'Servis cepat dan transparan. Mekaniknya profesional, hasil diagnosa akurat. Sudah langganan 3 tahun dan tidak kecewa!', tier: 'Gold', date: 'Mei 2025' },
+  { id: 2, name: 'Siti Rahayu', vehicle: 'Honda Jazz', rating: 5, text: 'Booking online sangat mudah, estimasi waktu tepat. Fasilitas ruang tunggu nyaman. Esther Garage memang beda!', tier: 'Platinum', date: 'April 2025' },
+  { id: 3, name: 'Agus Purnomo', vehicle: 'Suzuki Ertiga', rating: 4, text: 'Harga transparan, tidak ada biaya tersembunyi. Program loyalitas poinnya membantu hemat biaya servis.', tier: 'Silver', date: 'Maret 2025' },
+  { id: 4, name: 'Dewi Anggraini', vehicle: 'Yamaha NMAX', rating: 5, text: 'Service AC cepat selesai dalam 2 jam. Sistem tracking real-time sangat membantu, bisa pantau dari kantor!', tier: 'Gold', date: 'Maret 2025' },
+  { id: 5, name: 'Riko Firmansyah', vehicle: 'Mitsubishi Xpander', rating: 5, text: 'WhatsApp reminder service sangat berguna. Mekanik handal, kendaraan seperti baru setelah tune up.', tier: 'Platinum', date: 'Februari 2025' },
 ]
 
 // ─── CUSTOMER JOURNEY ────────────────────────────────────────
 export const customerJourney = [
-  { step: 1, label: 'Daftar Member',   desc: 'Buat akun gratis dan dapatkan voucher welcome 15%',      icon: '👤', color: 'blue'   },
-  { step: 2, label: 'Booking Service', desc: 'Pilih layanan, tanggal, dan jam servis secara online',    icon: '📅', color: 'indigo' },
-  { step: 3, label: 'Servis Dikerjakan',desc: 'Pantau progress real-time via tracking status',          icon: '🔧', color: 'violet' },
-  { step: 4, label: 'Terima Voucher',  desc: 'Voucher diskon otomatis terkirim setelah servis',         icon: '🎁', color: 'purple' },
-  { step: 5, label: 'Kumpulkan Point', desc: 'Setiap servis menghasilkan poin loyalitas',               icon: '⭐', color: 'amber'  },
-  { step: 6, label: 'Dapat Reminder',  desc: 'Pengingat otomatis via WhatsApp & email',                 icon: '🔔', color: 'orange' },
-  { step: 7, label: 'Jadi Loyal Customer', desc: 'Nikmati reward eksklusif dan prioritas servis',       icon: '👑', color: 'green'  },
+  { step: 1, label: 'Daftar Member', desc: 'Buat akun gratis dan dapatkan voucher welcome 15%', icon: '👤', color: 'blue' },
+  { step: 2, label: 'Booking Service', desc: 'Pilih layanan, tanggal, dan jam servis secara online', icon: '📅', color: 'indigo' },
+  { step: 3, label: 'Servis Dikerjakan', desc: 'Pantau progress real-time via tracking status', icon: '🔧', color: 'violet' },
+  { step: 4, label: 'Terima Voucher', desc: 'Voucher diskon otomatis terkirim setelah servis', icon: '🎁', color: 'purple' },
+  { step: 5, label: 'Kumpulkan Point', desc: 'Setiap servis menghasilkan poin loyalitas', icon: '⭐', color: 'amber' },
+  { step: 6, label: 'Dapat Reminder', desc: 'Pengingat otomatis via WhatsApp & email', icon: '🔔', color: 'orange' },
+  { step: 7, label: 'Jadi Loyal Customer', desc: 'Nikmati reward eksklusif dan prioritas servis', icon: '👑', color: 'green' },
 ]

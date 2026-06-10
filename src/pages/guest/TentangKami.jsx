@@ -1,5 +1,6 @@
 import { bengkelProfile, mechanics } from '../../data/guestData'
 import { MdStar, MdVerified, MdBuild } from 'react-icons/md'
+import { getMechanicAvatar } from '../../utils/randomAvatar'
 
 export default function TentangKami() {
   return (
@@ -79,15 +80,28 @@ export default function TentangKami() {
           <h2 className="text-2xl font-extrabold text-white text-center mb-10">Tim Mekanik Kami</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {mechanics.map((m) => (
-              <div key={m.id} className="rounded-2xl p-6 text-center border transition-all hover:-translate-y-1"
+              <div key={m.id} className="rounded-2xl p-6 text-center border transition-all hover:-translate-y-1 hover:shadow-lg group"
                 style={{ background: 'rgba(34,197,94,0.04)', borderColor: 'rgba(34,197,94,0.12)' }}>
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-400/20 to-emerald-600/20 border border-green-500/20 flex items-center justify-center text-2xl font-bold text-green-400 mx-auto mb-4">
-                  {m.name.split(' ').map(w => w[0]).slice(0,2).join('')}
+                {/* Mechanic photo */}
+                <div className="relative w-20 h-20 mx-auto mb-4">
+                  <img
+                    src={getMechanicAvatar(m.name, 150)}
+                    alt={m.name}
+                    className="w-20 h-20 rounded-2xl object-cover border-2 group-hover:scale-105 transition-transform duration-300"
+                    style={{ borderColor: 'rgba(34,197,94,0.35)' }}
+                    onError={e => { e.target.onerror = null; e.target.style.display='none'; e.target.nextSibling.style.display='flex' }}
+                  />
+                  {/* Fallback initials */}
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-400/20 to-blue-600/20 border border-cyan-500/20 items-center justify-center text-2xl font-bold text-cyan-400 absolute inset-0" style={{ display: 'none' }}>
+                    {m.name.split(' ').map(w => w[0]).slice(0,2).join('')}
+                  </div>
+                  {/* Online indicator */}
+                  <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-400 border-2" style={{ borderColor: '#041C15' }} />
                 </div>
                 <h3 className="text-white font-bold text-sm">{m.name}</h3>
-                <p className="text-green-400 text-xs mb-1">{m.role}</p>
+                <p className="text-cyan-400 text-xs mb-1">{m.role}</p>
                 <p className="text-gray-500 text-xs mb-3">{m.specialty} · {m.exp}</p>
-                <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full">{m.cert}</span>
+                <span className="text-xs bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2 py-0.5 rounded-full">{m.cert}</span>
                 <div className="flex items-center justify-center gap-1 mt-3">
                   <MdStar className="text-yellow-400 text-sm" />
                   <span className="text-white text-sm font-bold">{m.rating}</span>

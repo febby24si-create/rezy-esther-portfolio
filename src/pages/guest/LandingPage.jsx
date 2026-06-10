@@ -74,20 +74,22 @@ function Particles() {
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {particles.map(p => (
         <div key={p.id} className="absolute rounded-full bg-green-400"
-          style={{ left: p.left, top: p.top, width: p.size, height: p.size, opacity: 0,
-            animation: `particleFloat ${p.dur}s ease-in-out ${p.delay}s infinite alternate` }} />
+          style={{
+            left: p.left, top: p.top, width: p.size, height: p.size, opacity: 0,
+            animation: `particleFloat ${p.dur}s ease-in-out ${p.delay}s infinite alternate`
+          }} />
       ))}
     </div>
   )
 }
 
 const features = [
-  { icon: MdCalendarMonth, title: 'Booking Online 24/7',    desc: 'Pesan slot servis kapan saja, tanpa antri di bengkel.',          color: 'green'  },
-  { icon: MdGpsFixed,      title: 'Tracking Real-Time',     desc: 'Pantau progress kendaraan Anda langsung dari smartphone.',       color: 'blue'   },
-  { icon: MdStars,         title: 'Loyalty Points',         desc: 'Kumpulkan poin setiap servis dan tukarkan dengan reward.',       color: 'yellow' },
-  { icon: MdCardGiftcard,  title: 'Voucher & Promo',        desc: 'Diskon eksklusif member, voucher ulang tahun, dan promo rutin.', color: 'purple' },
-  { icon: MdVerified,      title: 'Mekanik Bersertifikat',  desc: 'Seluruh mekanik tersertifikasi TAM, AHM, dan Bosch.',           color: 'green'  },
-  { icon: MdSupportAgent,  title: 'Support WhatsApp',       desc: 'Tim CS siap membantu via WhatsApp setiap hari kerja.',          color: 'blue'   },
+  { icon: MdCalendarMonth, title: 'Booking Online 24/7', desc: 'Pesan slot servis kapan saja, tanpa antri di bengkel.', color: 'green' },
+  { icon: MdGpsFixed, title: 'Tracking Real-Time', desc: 'Pantau progress kendaraan Anda langsung dari smartphone.', color: 'blue' },
+  { icon: MdStars, title: 'Loyalty Points', desc: 'Kumpulkan poin setiap servis dan tukarkan dengan reward.', color: 'yellow' },
+  { icon: MdCardGiftcard, title: 'Voucher & Promo', desc: 'Diskon eksklusif member, voucher ulang tahun, dan promo rutin.', color: 'purple' },
+  { icon: MdVerified, title: 'Mekanik Bersertifikat', desc: 'Seluruh mekanik tersertifikasi TAM, AHM, dan Bosch.', color: 'green' },
+  { icon: MdSupportAgent, title: 'Support WhatsApp', desc: 'Tim CS siap membantu via WhatsApp setiap hari kerja.', color: 'blue' },
 ]
 
 export default function LandingPage() {
@@ -148,7 +150,7 @@ export default function LandingPage() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 mb-6 rounded-full px-4 py-1.5 border border-green-500/30 bg-green-500/10 backdrop-blur-sm">
               <MdVerified className="text-green-400 text-sm" />
-              <span className="text-green-400 text-xs font-semibold tracking-wider">BENGKEL TERPERCAYA JAKARTA SELATAN #1</span>
+              <span className="text-green-400 text-xs font-semibold tracking-wider">BENGKEL TERPERCAYA BUKITTINGGI #1</span>
             </div>
 
             {/* Headline */}
@@ -188,9 +190,9 @@ export default function LandingPage() {
             {/* Floating badges for diagnostic feel */}
             <div className="flex flex-wrap gap-2">
               {[
-                { dot: 'bg-green-400', label: 'ENGINE OK',    color: 'border-green-500/25 text-green-400' },
-                { dot: 'bg-blue-400',  label: 'OBD2 LINKED',  color: 'border-blue-500/25 text-blue-400'   },
-                { dot: 'bg-yellow-400',label: 'BOSCH CERTIFIED', color: 'border-yellow-500/25 text-yellow-400' },
+                { dot: 'bg-green-400', label: 'ENGINE OK', color: 'border-green-500/25 text-green-400' },
+                { dot: 'bg-blue-400', label: 'OBD2 LINKED', color: 'border-blue-500/25 text-blue-400' },
+                { dot: 'bg-yellow-400', label: 'BOSCH CERTIFIED', color: 'border-yellow-500/25 text-yellow-400' },
               ].map(b => (
                 <div key={b.label} className={`inline-flex items-center gap-1.5 border rounded-lg px-2.5 py-1 backdrop-blur-sm bg-black/40 ${b.color}`}>
                   <div className={`w-1.5 h-1.5 rounded-full ${b.dot} animate-pulse`} />
@@ -208,10 +210,10 @@ export default function LandingPage() {
             </div>
             <div className="grid grid-cols-4 gap-2">
               {[
-                { label: 'Pelanggan',  target: bengkelProfile.stats.customers,    suffix: '+' },
-                { label: 'Service',    target: bengkelProfile.stats.serviceDone,  suffix: '+' },
-                { label: 'Mekanik',    target: bengkelProfile.stats.mechanics,    suffix: ''  },
-                { label: 'Kepuasan',   target: bengkelProfile.stats.satisfaction, suffix: '%' },
+                { label: 'Pelanggan', target: bengkelProfile.stats.customers, suffix: '+' },
+                { label: 'Service', target: bengkelProfile.stats.serviceDone, suffix: '+' },
+                { label: 'Mekanik', target: bengkelProfile.stats.mechanics, suffix: '' },
+                { label: 'Kepuasan', target: bengkelProfile.stats.satisfaction, suffix: '%' },
               ].map(({ label, target, suffix }) => (
                 <div key={label} className="rounded-xl p-3 text-center backdrop-blur-sm"
                   style={{ background: 'rgba(2,15,9,0.65)', border: '1px solid rgba(34,197,94,0.15)' }}>
@@ -303,11 +305,10 @@ export default function LandingPage() {
                 {features.map(({ icon: Icon, title, desc, color }, i) => (
                   <div key={title} style={{ animationDelay: `${i * 80}ms`, background: 'rgba(34,197,94,0.03)', borderColor: 'rgba(34,197,94,0.08)' }}
                     className="animate-slide-up group p-6 rounded-2xl border hover:border-green-500/30 transition-all hover:-translate-y-2 hover:shadow-lg hover:shadow-green-500/10">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 ${
-                      color === 'green'  ? 'bg-green-500/15  text-green-400'  :
-                      color === 'blue'   ? 'bg-blue-500/15   text-blue-400'   :
-                      color === 'yellow' ? 'bg-yellow-500/15 text-yellow-400' :
-                                           'bg-purple-500/15 text-purple-400' }`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 ${color === 'green' ? 'bg-green-500/15  text-green-400' :
+                        color === 'blue' ? 'bg-blue-500/15   text-blue-400' :
+                          color === 'yellow' ? 'bg-yellow-500/15 text-yellow-400' :
+                            'bg-purple-500/15 text-purple-400'}`}>
                       <Icon className="text-2xl" />
                     </div>
                     <h3 className="text-white font-bold mb-2">{title}</h3>
@@ -416,7 +417,7 @@ export default function LandingPage() {
               Jadilah member Esther Garage dan nikmati voucher selamat datang, loyalty points, reminder otomatis, dan promo eksklusif member.
             </p>
             <div className="flex flex-wrap justify-center gap-3 mb-8">
-              {['Voucher Welcome 15%','Loyalty Points','Reminder Service','Promo Ulang Tahun'].map((b) => (
+              {['Voucher Welcome 15%', 'Loyalty Points', 'Reminder Service', 'Promo Ulang Tahun'].map((b) => (
                 <span key={b} className="flex items-center gap-1.5 text-sm text-green-300 bg-green-500/10 border border-green-500/20 px-3 py-1.5 rounded-full hover:scale-105 transition-transform">
                   <MdCheckCircle className="text-green-400 text-base" /> {b}
                 </span>

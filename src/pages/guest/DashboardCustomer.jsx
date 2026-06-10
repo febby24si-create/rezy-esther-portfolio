@@ -10,6 +10,7 @@ import {
   AnimatedPage, ScrollReveal, StaggerReveal, StaggerItem,
   AnimatedProgress, HoverCard, PressButton, GlowDot, fadeUp, scaleIn
 } from '../../components/AnimatedPage'
+import { getCustomerAvatar } from '../../utils/randomAvatar'
 
 function getInitials(name) {
   if (!name) return '?'
@@ -137,10 +138,26 @@ export default function DashboardCustomer() {
                 <div className="relative">
                   <motion.div
                     whileHover={{ scale: 1.06 }}
-                    className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-extrabold text-white flex-shrink-0"
-                    style={{ background: TIER_GRADIENT[loyalty.tier], boxShadow: `0 8px 28px ${TIER_GLOW[loyalty.tier]}` }}
+                    className="w-16 h-16 rounded-2xl flex-shrink-0 overflow-hidden relative"
+                    style={{ boxShadow: `0 8px 28px ${TIER_GLOW[loyalty.tier]}` }}
                   >
-                    {getInitials(customer.name)}
+                    <img
+                      src={getCustomerAvatar(customer.name, 150)}
+                      alt={customer.name}
+                      className="w-full h-full object-cover rounded-2xl"
+                      onError={e => {
+                        e.target.onerror = null
+                        e.target.style.display = 'none'
+                        e.target.nextSibling.style.display = 'flex'
+                      }}
+                    />
+                    {/* Fallback initials */}
+                    <div
+                      className="w-full h-full absolute inset-0 items-center justify-center text-2xl font-extrabold text-white rounded-2xl"
+                      style={{ display: 'none', background: TIER_GRADIENT[loyalty.tier] }}
+                    >
+                      {getInitials(customer.name)}
+                    </div>
                   </motion.div>
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 rounded-full"
                     style={{ borderColor: '#041C15' }} />

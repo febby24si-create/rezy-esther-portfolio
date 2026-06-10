@@ -1,10 +1,37 @@
 import { useMemo } from 'react'
 import { getAllCustomers, calcTier, TIER_CONFIG } from '../../context/CustomerAuthContext'
 import { MdEmojiEvents, MdLeaderboard } from 'react-icons/md'
+import { getCustomerAvatar } from '../../utils/randomAvatar'
 
 function getInitials(name) {
   if (!name) return '?'
   return name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()
+}
+
+/** Avatar with photo + initials fallback */
+function AvatarImg({ name, size = 'w-12 h-12', rounded = 'rounded-2xl', borderColor = null, style = {} }) {
+  const initials = getInitials(name)
+  const seed = (name || '').toLowerCase().replace(/\s+/g, '')
+  return (
+    <div className={`${size} ${rounded} relative flex-shrink-0 overflow-hidden`} style={style}>
+      <img
+        src={getCustomerAvatar(name || '', 150)}
+        alt={name}
+        className={`${size} ${rounded} object-cover w-full h-full`}
+        onError={e => {
+          e.target.onerror = null
+          e.target.style.display = 'none'
+          e.target.nextSibling.style.display = 'flex'
+        }}
+      />
+      <div
+        className={`${size} ${rounded} absolute inset-0 items-center justify-center text-white font-extrabold`}
+        style={{ display: 'none', background: borderColor || 'rgba(99,179,237,0.4)', fontSize: '0.7em' }}
+      >
+        {initials}
+      </div>
+    </div>
+  )
 }
 
 const RANK_ICONS = ['🥇', '🥈', '🥉']
@@ -51,10 +78,12 @@ export default function Leaderboard() {
                 {top3[1] && (
                   <div className="flex flex-col items-center gap-2 mb-0">
                     <div className="text-2xl">🥈</div>
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-base font-extrabold text-white"
-                      style={{ background: TIER_CONFIG[calcTier(top3[1].points || 0)].color }}>
-                      {getInitials(top3[1].name)}
-                    </div>
+                    <AvatarImg
+                      name={top3[1].name}
+                      size="w-12 h-12"
+                      rounded="rounded-2xl"
+                      style={{ border: `2px solid ${TIER_CONFIG[calcTier(top3[1].points || 0)].color}` }}
+                    />
                     <p className="text-white font-bold text-xs text-center max-w-[80px] truncate">{top3[1].name.split(' ')[0]}</p>
                     <p className="text-gray-400 text-xs">{(top3[1].points || 0).toLocaleString('id-ID')} pt</p>
                     <div className="w-20 rounded-t-xl text-center py-3" style={{ background: 'rgba(148,163,184,0.15)', height: '60px', border: '1px solid rgba(148,163,184,0.2)' }} />
@@ -63,10 +92,12 @@ export default function Leaderboard() {
                 {/* Posisi 1 */}
                 <div className="flex flex-col items-center gap-2">
                   <div className="text-3xl">🥇</div>
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-extrabold text-white shadow-lg"
-                    style={{ background: TIER_CONFIG[calcTier(top3[0].points || 0)].color, boxShadow: `0 4px 20px ${TIER_CONFIG[calcTier(top3[0].points || 0)].color}66` }}>
-                    {getInitials(top3[0].name)}
-                  </div>
+                  <AvatarImg
+                    name={top3[0].name}
+                    size="w-16 h-16"
+                    rounded="rounded-2xl"
+                    style={{ border: `3px solid ${TIER_CONFIG[calcTier(top3[0].points || 0)].color}`, boxShadow: `0 4px 20px ${TIER_CONFIG[calcTier(top3[0].points || 0)].color}66` }}
+                  />
                   <p className="text-white font-extrabold text-sm text-center max-w-[100px] truncate">{top3[0].name.split(' ')[0]}</p>
                   <p className="text-yellow-400 text-sm font-bold">{(top3[0].points || 0).toLocaleString('id-ID')} pt</p>
                   <div className="w-24 rounded-t-xl text-center py-3" style={{ background: 'rgba(251,191,36,0.15)', height: '80px', border: '1px solid rgba(251,191,36,0.25)' }} />
@@ -75,10 +106,12 @@ export default function Leaderboard() {
                 {top3[2] && (
                   <div className="flex flex-col items-center gap-2">
                     <div className="text-2xl">🥉</div>
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-base font-extrabold text-white"
-                      style={{ background: TIER_CONFIG[calcTier(top3[2].points || 0)].color }}>
-                      {getInitials(top3[2].name)}
-                    </div>
+                    <AvatarImg
+                      name={top3[2].name}
+                      size="w-12 h-12"
+                      rounded="rounded-2xl"
+                      style={{ border: `2px solid ${TIER_CONFIG[calcTier(top3[2].points || 0)].color}` }}
+                    />
                     <p className="text-white font-bold text-xs text-center max-w-[80px] truncate">{top3[2].name.split(' ')[0]}</p>
                     <p className="text-gray-400 text-xs">{(top3[2].points || 0).toLocaleString('id-ID')} pt</p>
                     <div className="w-20 rounded-t-xl" style={{ background: 'rgba(249,115,22,0.15)', height: '45px', border: '1px solid rgba(249,115,22,0.2)' }} />
@@ -108,10 +141,12 @@ export default function Leaderboard() {
                     style={{ borderColor: 'rgba(255,255,255,0.04)', background: i === 0 ? 'rgba(251,191,36,0.04)' : 'transparent' }}>
                     <div className="col-span-1 text-center text-lg">{RANK_ICONS[i]}</div>
                     <div className="col-span-5 flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0"
-                        style={{ background: tierCfg.color }}>
-                        {getInitials(c.name)}
-                      </div>
+                      <AvatarImg
+                        name={c.name}
+                        size="w-8 h-8"
+                        rounded="rounded-lg"
+                        style={{ border: `1.5px solid ${tierCfg.color}55`, flexShrink: 0 }}
+                      />
                       <div className="min-w-0">
                         <p className="text-white font-semibold text-sm truncate">{c.name}</p>
                         <p className="text-gray-500 text-xs">Bergabung {new Date(c.joinDate).getFullYear()}</p>
@@ -139,10 +174,12 @@ export default function Leaderboard() {
                     style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
                     <div className="col-span-1 text-center text-gray-500 font-bold text-sm">{rank}</div>
                     <div className="col-span-5 flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0"
-                        style={{ background: tierCfg.color }}>
-                        {getInitials(c.name)}
-                      </div>
+                      <AvatarImg
+                        name={c.name}
+                        size="w-8 h-8"
+                        rounded="rounded-lg"
+                        style={{ border: `1.5px solid ${tierCfg.color}44`, flexShrink: 0 }}
+                      />
                       <div className="min-w-0">
                         <p className="text-white font-semibold text-sm truncate">{c.name}</p>
                       </div>

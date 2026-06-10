@@ -7,6 +7,7 @@ import {
   MdNotifications, MdPerson, MdLogout, MdLogin, MdLeaderboard
 } from 'react-icons/md'
 import { useCustomerAuth, calcTier, TIER_CONFIG } from '../../context/CustomerAuthContext'
+import { getCustomerAvatar } from '../../utils/randomAvatar'
 
 function getInitials(name) {
   if (!name) return '?'
@@ -137,10 +138,20 @@ export default function GuestNavbar() {
                     <>
                       <motion.div
                         whileHover={{ scale: 1.1 }}
-                        className="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold text-white"
-                        style={{ background: tierCfg?.color || '#22C55E' }}
+                        className="w-6 h-6 rounded-lg overflow-hidden flex-shrink-0"
+                        style={{ border: `1.5px solid ${tierCfg?.color || '#22C55E'}66` }}
                       >
-                        {getInitials(customer?.name)}
+                        <img
+                          src={getCustomerAvatar(customer?.name || '', 60)}
+                          alt={customer?.name}
+                          className="w-full h-full object-cover"
+                          onError={e => {
+                            e.target.onerror = null
+                            e.target.style.display = 'none'
+                            e.target.parentElement.style.background = tierCfg?.color || '#22C55E'
+                            e.target.parentElement.innerHTML = `<span style='color:white;font-size:9px;font-weight:bold;display:flex;align-items:center;justify-content:center;width:100%;height:100%'>${(customer?.name||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}</span>`
+                          }}
+                        />
                       </motion.div>
                       <span className="text-white max-w-[90px] truncate">{customer?.name?.split(' ')[0]}</span>
                       <span className="text-xs px-1.5 py-0.5 rounded-full font-bold"
@@ -302,9 +313,24 @@ export default function GuestNavbar() {
                   transition={{ delay: 0.05 }}
                   className="flex items-center gap-3 p-3 rounded-xl mb-3"
                   style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}>
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-white"
-                    style={{ background: tierCfg?.color || '#22C55E' }}>
-                    {getInitials(customer?.name)}
+                  <div
+                    className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0"
+                    style={{ border: `2px solid ${tierCfg?.color || '#22C55E'}55` }}
+                  >
+                    <img
+                      src={getCustomerAvatar(customer?.name || '', 80)}
+                      alt={customer?.name}
+                      className="w-full h-full object-cover"
+                      onError={e => {
+                        e.target.onerror = null
+                        e.target.style.display = 'none'
+                        e.target.parentElement.style.background = tierCfg?.color || '#22C55E'
+                        e.target.parentElement.style.display = 'flex'
+                        e.target.parentElement.style.alignItems = 'center'
+                        e.target.parentElement.style.justifyContent = 'center'
+                        e.target.parentElement.innerHTML = `<span style='color:white;font-size:11px;font-weight:bold'>${(customer?.name||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}</span>`
+                      }}
+                    />
                   </div>
                   <div>
                     <p className="text-white text-sm font-semibold">{customer?.name}</p>

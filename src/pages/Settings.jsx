@@ -35,8 +35,8 @@ export default function Settings() {
     }
     return {
       name: "EstherGarage",
-      address: "Jl. Otomotif No. 1, Jakarta",
-      hours: "08:00 - 17:00",
+      address: "Bukittinggi, Sumatera Barat",
+      hours: "Senin–Sabtu, 08.00–18.00",
     };
   });
 
@@ -161,11 +161,10 @@ export default function Settings() {
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium transition-all ${
-                activeTab === id
+              className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium transition-all ${activeTab === id
                   ? "text-green-400 border-b-2 border-green-400"
                   : "text-gray-500 hover:text-gray-300"
-              }`}
+                }`}
             >
               <Icon size={16} />
               {label}

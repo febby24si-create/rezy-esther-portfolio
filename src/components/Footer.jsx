@@ -5,12 +5,12 @@ import { MdBuild, MdLocationOn, MdPhone, MdEmail } from 'react-icons/md'
 import { Link } from 'react-router-dom'
 
 const LINKS = [
-  { label: 'Dashboard',    to: '/'          },
-  { label: 'Order Servis', to: '/orders'    },
-  { label: 'Pelanggan',    to: '/customers' },
-  { label: 'Kendaraan',    to: '/vehicles'  },
-  { label: 'Mekanik',      to: '/mechanics' },
-  { label: 'Laporan',      to: '/reports'   },
+  { label: 'Dashboard', to: '/' },
+  { label: 'Order Servis', to: '/orders' },
+  { label: 'Pelanggan', to: '/customers' },
+  { label: 'Kendaraan', to: '/vehicles' },
+  { label: 'Mekanik', to: '/mechanics' },
+  { label: 'Laporan', to: '/reports' },
 ]
 
 export default function Footer() {
@@ -66,9 +66,9 @@ export default function Footer() {
             <p className="text-xs text-gray-600 uppercase tracking-widest font-semibold mb-4">Kontak</p>
             <div className="space-y-3">
               {[
-                { icon: MdLocationOn, text: 'Jl. Bengkel Raya No. 88, Jakarta' },
-                { icon: MdPhone,      text: '+62 812-3456-7890'                },
-                { icon: MdEmail,      text: 'admin@esthergarage.id'            },
+                { icon: MdLocationOn, text: 'Bukittinggi, Sumatera Barat' },
+                { icon: MdPhone, text: '+62 887-082-30676' },
+                { icon: MdEmail, text: 'admin@esthergarage.id' },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-start gap-2.5">
                   <Icon size={15} className="text-green-500 mt-0.5 flex-shrink-0" />
