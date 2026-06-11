@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
 import {
-  getAllCustomers,
   calcTier,
   TIER_CONFIG,
   calcLoyaltyProgress,
 } from "../context/CustomerAuthContext";
+import { getAllCustomersFromStore } from "../hooks/useCustomerStore";
 import {
   MdSend,
   MdNotifications,
@@ -155,8 +155,8 @@ const REMINDER_TEMPLATES = [
 ];
 
 function useAllCustomers() {
-  const raw = useMemo(() => getAllCustomers(), []);
-  // Inject lastOrderDate mock untuk demo (pakai joinDate jika tidak ada)
+  // Baca dari garage_customers (sumber yang sama dengan halaman Customers & Orders)
+  const raw = useMemo(() => getAllCustomersFromStore(), []);
   return useMemo(
     () =>
       raw.map((c) => ({

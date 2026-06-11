@@ -27,10 +27,13 @@ import {
   MdTrendingUp,
   MdBarChart,
   MdMessage,
+  MdOpenInNew,
 } from "react-icons/md";
 import Pagination from "../components/Pagination";
 import customersData from "../data/customersData.json";
 import { getCustomerAvatar } from "../utils/randomAvatar";
+import { useCustomerStore } from "../hooks/useCustomerStore";
+import CustomerDetail from "./CustomerDetail";
 
 import {
   Dialog,
@@ -547,7 +550,7 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
 }
 
 // ─── Customer Card (grid view) ────────────────────────────────────────
-function CustomerCard({ customer, allOrders, onDetail, onEdit, onDelete }) {
+function CustomerCard({ customer, allOrders, onDetail, onEdit, onDelete, onProfile }) {
   const cfg = LOYALTY[customer.loyalty] || LOYALTY.Bronze;
   const { avg: avgRating, count: ratedCount } = computeCustomerRating(customer.name, allOrders);
 
@@ -581,6 +584,15 @@ function CustomerCard({ customer, allOrders, onDetail, onEdit, onDelete }) {
           >
             <MdDelete size={13} />
           </button>
+          {onProfile && (
+            <button
+              onClick={() => onProfile(customer)}
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-green-400 hover:bg-green-500/15"
+              style={{ background: "rgba(0,0,0,0.3)" }}
+            >
+              <MdOpenInNew size={13} />
+            </button>
+          )}
         </div>
         <div className="flex items-center gap-3 mb-3 pr-16">
           <Avatar customer={customer} size={48} />
@@ -761,19 +773,10 @@ function DeleteConfirm({ target, onConfirm, onCancel }) {
 
 // ─── Halaman Utama Customers ──────────────────────────────────────────
 export default function Customers() {
-  const [customers, setCustomers] = useState(() => {
-    try {
-      const stored = localStorage.getItem("garage_customers");
-      return stored ? JSON.parse(stored) : customersData;
-    } catch {
-      return customersData;
-    }
-  });
+  // Gunakan shared store — satu sumber data untuk semua halaman
+  const { customers, setCustomers } = useCustomerStore();
   const [allOrders, setAllOrders] = useState(() => getOrdersFromStorage());
-
-  useEffect(() => {
-    localStorage.setItem("garage_customers", JSON.stringify(customers));
-  }, [customers]);
+  const [profileTarget, setProfileTarget] = useState(null); // CustomerDetail inline
 
   // Refresh orders from storage when rating changes propagate
   const refreshOrders = useCallback(() => {
@@ -1154,6 +1157,9 @@ export default function Customers() {
                             <DropdownMenuItem onClick={() => { setDetailTarget(customer); refreshOrders(); }} className="cursor-pointer text-gray-300 hover:text-white focus:text-white focus:bg-green-500/10">
                               <MdPerson size={14} className="mr-2 text-blue-400" /> Lihat Detail
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setProfileTarget(customer)} className="cursor-pointer text-gray-300 hover:text-white focus:text-white focus:bg-blue-500/10">
+                              <MdOpenInNew size={14} className="mr-2 text-green-400" /> Profil Lengkap
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleEdit(customer)} className="cursor-pointer text-gray-300 hover:text-white focus:text-white focus:bg-yellow-500/10">
                               <MdEdit size={14} className="mr-2 text-yellow-400" /> Edit Pelanggan
                             </DropdownMenuItem>
@@ -1190,6 +1196,7 @@ export default function Customers() {
                 customer={customer}
                 allOrders={allOrders}
                 onDetail={(c) => { setDetailTarget(c); refreshOrders(); }}
+                onProfile={(c) => setProfileTarget(c)}
                 onEdit={handleEdit}
                 onDelete={setDeleteTarget}
               />
@@ -1221,6 +1228,25 @@ export default function Customers() {
       </div>
 
       {/* Dialogs */}
+      {/* CustomerDetail inline panel */}
+      {profileTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-end"
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          onClick={(e) => { if (e.target === e.currentTarget) setProfileTarget(null) }}
+        >
+          <div
+            className="h-full w-full max-w-2xl overflow-y-auto"
+            style={{ background: '#041C15', borderLeft: '1px solid rgba(34,197,94,0.15)' }}
+          >
+            <CustomerDetail
+              customerId={profileTarget.id}
+              onClose={() => setProfileTarget(null)}
+            />
+          </div>
+        </div>
+      )}
+
       {detailTarget && (
         <CustomerDetailDialog
           customer={detailTarget}

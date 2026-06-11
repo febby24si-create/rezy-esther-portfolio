@@ -21,6 +21,7 @@ const Components      = React.lazy(() => import('./pages/Components'))
 const Inventory       = React.lazy(() => import('./pages/Inventory'))
 const MechanicSchedule = React.lazy(() => import('./pages/MechanicSchedule'))
 const CRMAutomation   = React.lazy(() => import('./pages/CRMAutomation'))
+const CustomerDetail  = React.lazy(() => import('./pages/CustomerDetail'))
 
 // ─── Auth Pages (Admin) ───────────────────────────────────────
 const Login    = React.lazy(() => import('./pages/auth/Login'))
@@ -69,6 +70,7 @@ export default function App() {
                 <Route path="/inventory"    element={<Inventory />} />
                 <Route path="/components"   element={<Components />} />
                 <Route path="/crm"          element={<CRMAutomation />} />
+                <Route path="/customers/:id" element={<CustomerDetail />} />
                 <Route path="/error-400" element={<ErrorPage code="400" message="Bad Request"  description="Permintaan tidak valid atau tidak dapat diproses." />} />
                 <Route path="/error-401" element={<ErrorPage code="401" message="Unauthorized" description="Anda tidak memiliki izin untuk mengakses halaman ini." />} />
                 <Route path="/error-403" element={<ErrorPage code="403" message="Forbidden"    description="Akses ke halaman ini dilarang." />} />

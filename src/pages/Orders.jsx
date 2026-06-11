@@ -439,14 +439,12 @@ export default function Orders() {
   const [mechanicsList, setMechanicsList] = useState([])
 
   useEffect(() => {
-    // Ambil data pelanggan dari localStorage
-    const storedCustomers = localStorage.getItem('garage_customers')
-    if (storedCustomers) {
-      setCustomersList(JSON.parse(storedCustomers))
-    } else {
-      // Jika belum ada, coba import dari file JSON (fallback)
+    // Ambil data pelanggan dari shared store (garage_customers / customersData.json)
+    import('../hooks/useCustomerStore').then(({ getAllCustomersFromStore }) => {
+      setCustomersList(getAllCustomersFromStore())
+    }).catch(() => {
       import('../data/customersData.json').then(module => setCustomersList(module.default)).catch(() => {})
-    }
+    })
   }, [])
 
   useEffect(() => {
