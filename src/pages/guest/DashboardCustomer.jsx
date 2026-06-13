@@ -298,9 +298,12 @@ export default function DashboardCustomer() {
                             whileHover={{ x: 4 }}
                             className="flex items-center gap-3 p-3.5 rounded-xl border"
                             style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.06)' }}>
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 overflow-hidden"
                               style={{ background: 'rgba(34,197,94,0.08)' }}>
-                              {v.type === 'motor' ? '🏍️' : '🚗'}
+                              {v.photo
+                                ? <img src={v.photo} alt={v.model} className="w-full h-full object-cover" />
+                                : <span>{v.type === 'motor' ? '🏍️' : '🚗'}</span>
+                              }
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-white font-semibold text-sm">{v.brand} {v.model} {v.year}</p>
