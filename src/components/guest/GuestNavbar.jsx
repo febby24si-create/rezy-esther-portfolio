@@ -28,6 +28,7 @@ const customerLinks = [
   { path: '/guest/loyalty',     label: 'Poin Saya',   icon: MdStars        },
   { path: '/guest/voucher',     label: 'Voucher',     icon: MdCardGiftcard },
   { path: '/guest/riwayat',     label: 'Riwayat',     icon: MdHistory      },
+  { path: '/guest/profil',      label: 'Profil',      icon: MdPerson       },
   { path: '/guest/leaderboard', label: 'Leaderboard', icon: MdLeaderboard  },
 ]
 

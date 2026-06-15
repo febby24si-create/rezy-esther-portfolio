@@ -382,6 +382,65 @@ export default function DashboardCustomer() {
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
 
+          {/* ── Membership Banner (Non-Member) ───────────────── */}
+          {customer.membershipStatus !== 'active' && (
+            <ScrollReveal className="mb-6">
+              <motion.div
+                className="relative rounded-2xl overflow-hidden p-5"
+                style={{
+                  background: 'linear-gradient(135deg, #052015 0%, #082b1e 100%)',
+                  border: '1px solid rgba(34,197,94,0.25)',
+                  boxShadow: '0 4px 24px rgba(34,197,94,0.08)',
+                }}
+                whileHover={{ scale: 1.01 }}
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-2xl"
+                    style={{ background: 'rgba(34,197,94,0.12)' }}>🎖️</div>
+                  <div className="flex-1">
+                    <p className="text-white font-bold text-sm">Aktifkan Membership Gratis</p>
+                    <p className="text-gray-400 text-xs mt-0.5">Kumpulkan poin, naik tier, dan nikmati diskon eksklusif setiap servis.</p>
+                  </div>
+                  <Link to="/guest/profil"
+                    className="flex-shrink-0 text-xs font-bold px-4 py-2 rounded-xl text-white transition-all hover:scale-105"
+                    style={{ background: 'linear-gradient(135deg,#16A34A,#22C55E)', boxShadow: '0 4px 12px rgba(34,197,94,0.3)' }}>
+                    Daftar
+                  </Link>
+                </div>
+              </motion.div>
+            </ScrollReveal>
+          )}
+
+          {/* ── Voucher Spotlight ─────────────────────────────── */}
+          {(customer.vouchers||[]).filter(v => v.status === 'active').length > 0 && (
+            <ScrollReveal className="mb-6">
+              <div className="rounded-2xl border p-5"
+                style={{ background: 'rgba(168,85,247,0.04)', borderColor: 'rgba(168,85,247,0.15)' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-white font-bold text-sm flex items-center gap-2">
+                    <MdCardGiftcard className="text-purple-400" /> Voucher Aktif
+                  </h2>
+                  <Link to="/guest/voucher" className="text-xs text-purple-400 hover:text-purple-300">Lihat semua →</Link>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {(customer.vouchers||[]).filter(v => v.status === 'active').slice(0,2).map(v => (
+                    <motion.div key={v.id} whileHover={{ scale: 1.02, y: -2 }}
+                      className="p-3 rounded-xl border flex items-center gap-3"
+                      style={{ background: 'rgba(168,85,247,0.08)', borderColor: 'rgba(168,85,247,0.2)' }}>
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center text-lg flex-shrink-0"
+                        style={{ background: 'rgba(168,85,247,0.15)' }}>🎫</div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-semibold text-xs truncate">{v.title}</p>
+                        <p className="text-purple-400 font-bold text-sm">Diskon {v.diskon}%</p>
+                        <p className="text-gray-500 text-xs">s/d {v.validUntil}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </ScrollReveal>
+          )}
+
           {/* ── Loyalty Progress Premium Card ──────────────────── */}
           <ScrollReveal variant={fadeUp} className="mb-6">
             <motion.div 

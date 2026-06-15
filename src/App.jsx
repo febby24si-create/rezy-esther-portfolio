@@ -48,6 +48,10 @@ const LoyaltyPoint      = React.lazy(() => import('./pages/guest/LoyaltyPoint'))
 const VoucherSaya       = React.lazy(() => import('./pages/guest/VoucherSaya'))
 const RiwayatService    = React.lazy(() => import('./pages/guest/RiwayatService'))
 const DashboardCustomer = React.lazy(() => import('./pages/guest/DashboardCustomer'))
+const ProfilCustomer    = React.lazy(() => import('./pages/guest/ProfilCustomer'))
+
+// ─── Admin Membership ─────────────────────────────────────────
+const MembershipAdmin   = React.lazy(() => import('./pages/MembershipAdmin'))
 
 export default function App() {
   return (
@@ -71,6 +75,7 @@ export default function App() {
                 <Route path="/components"   element={<Components />} />
                 <Route path="/crm"          element={<CRMAutomation />} />
                 <Route path="/customers/:id" element={<CustomerDetail />} />
+                <Route path="/membership"   element={<MembershipAdmin />} />
                 <Route path="/error-400" element={<ErrorPage code="400" message="Bad Request"  description="Permintaan tidak valid atau tidak dapat diproses." />} />
                 <Route path="/error-401" element={<ErrorPage code="401" message="Unauthorized" description="Anda tidak memiliki izin untuk mengakses halaman ini." />} />
                 <Route path="/error-403" element={<ErrorPage code="403" message="Forbidden"    description="Akses ke halaman ini dilarang." />} />
@@ -102,6 +107,7 @@ export default function App() {
                 <Route path="/guest/loyalty"   element={<LoyaltyPoint />} />
                 <Route path="/guest/voucher"   element={<VoucherSaya />} />
                 <Route path="/guest/riwayat"   element={<RiwayatService />} />
+                <Route path="/guest/profil"    element={<ProfilCustomer />} />
               </Route>
             </Route>
 

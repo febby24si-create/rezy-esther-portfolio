@@ -4,7 +4,7 @@ import logo from '../assets/logo2.png'
 import {
   MdDashboard, MdBuild, MdPeople, MdDirectionsCar, MdEngineering,
   MdBarChart, MdSettings, MdError, MdWarning, MdBlock, MdWidgets,
-  MdInventory2, MdClose, MdLogout, MdCalendarMonth, MdAutoAwesome
+  MdInventory2, MdClose, MdLogout, MdCalendarMonth, MdAutoAwesome, MdCardMembership
 } from 'react-icons/md'
 
 const navItems = [
@@ -19,7 +19,8 @@ const navItems = [
 ]
 
 const crmItems = [
-  { path: '/crm', icon: MdAutoAwesome, label: 'CRM Automation', badge: 'NEW' },
+  { path: '/crm',        icon: MdAutoAwesome,     label: 'CRM Automation',   badge: 'NEW' },
+  { path: '/membership', icon: MdCardMembership,  label: 'Membership',       badge: 'NEW' },
 ]
 
 const errorItems = [

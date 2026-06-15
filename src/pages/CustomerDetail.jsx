@@ -180,31 +180,11 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
   const customer = useMemo(() => customers.find(c => c.id === id), [customers, id])
 
   // Orders for this customer
-  // ============================================================
-  // PHASE 3 — RELATION MIGRATION: order.customer (nama, exact match)
-  // -> order.customerId.
-  //
-  // Sejak Phase 2/3, order.customerId bisa berisi:
-  //   - format LAMA ('C-001', dari BookingService -> customer.id
-  //     di eg_customers, sekarang tersimpan sebagai
-  //     customer.legacyPortalId)
-  //   - format BARU ('CUST-xxx', dari Orders.jsx admin resolve,
-  //     sama dengan customer.id setelah unifikasi)
-  //   - format admin lama ('C-xxx' dari customersData.json,
-  //     tersimpan sebagai customer.legacyAdminId)
-  //
-  // Matching memeriksa customerId terhadap SEMUA kemungkinan id
-  // (id baru + kedua legacy id), fallback ke nama-exact-match untuk
-  // order yang belum pernah ter-resolve (mis. order sangat lama
-  // sebelum Phase 2). Field string `order.customer` TETAP
-  // dipertahankan, tidak dihapus (additive).
-  // ============================================================
   const customerOrders = useMemo(() => {
     const stored = localStorage.getItem('garage_orders')
     const allOrders = stored ? JSON.parse(stored) : ordersData
-    const candidateIds = [customer?.id, customer?.legacyAdminId, customer?.legacyPortalId].filter(Boolean)
     return allOrders
-      .filter(o => (o.customerId && candidateIds.includes(o.customerId)) || (!o.customerId && o.customer === customer?.name))
+      .filter(o => o.customer === customer?.name)
       .sort((a, b) => new Date(b.date) - new Date(a.date))
   }, [customer])
 
@@ -365,14 +345,60 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
 
           {/* Membership */}
           <SectionCard title="Data Akun & Membership" icon={MdCardMembership} iconColor="#FBBF24">
-            <InfoRow label="Tanggal Daftar"  value={fmtDate(customer.joinDate)} />
-            <InfoRow label="Status Member"   value={customer.memberStatus}
+            <InfoRow label="Tanggal Daftar"    value={fmtDate(customer.joinDate)} />
+            <InfoRow label="Status Member"     value={customer.memberStatus}
               highlight={customer.memberStatus === 'Aktif'} />
-            <InfoRow label="Level Membership" value={`${loyalty.icon} ${customer.loyalty}`} />
-            <InfoRow label="Poin Loyalty"    value={`${(customer.points || 0).toLocaleString('id-ID')} poin`} />
-            <InfoRow label="Creator Code"    value={customer.creatorCode || '-'} mono copyable
+            <InfoRow label="Level Membership"  value={`${loyalty.icon} ${customer.loyalty}`} />
+            <InfoRow label="Poin Loyalty"      value={`${(customer.points || 0).toLocaleString('id-ID')} poin`} />
+            <InfoRow label="Membership ID"     value={customer.membershipId || '—'} mono copyable={!!customer.membershipId} />
+            <InfoRow label="Member Sejak"      value={customer.memberSince ? fmtDate(customer.memberSince) : '—'} />
+            <InfoRow label="Creator Code"      value={customer.creatorCode || '-'} mono copyable
               highlight={!!customer.creatorCode} />
-            <InfoRow label="Status Aktif"    value={customer.memberStatus} />
+
+            {/* Quick Point Adjustment */}
+            <div className="mt-4 pt-4 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+              <p className="text-gray-500 text-xs mb-2 font-semibold uppercase tracking-wider">Kelola Poin</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    const amt = parseInt(prompt(`Tambah poin untuk ${customer.name}?\nMasukkan jumlah poin:`))
+                    if (!amt || isNaN(amt)) return
+                    const customers = JSON.parse(localStorage.getItem('eg_customers') || '[]')
+                    const idx = customers.findIndex(c => c.id === customer.id || c.name === customer.name)
+                    if (idx === -1) { alert('Customer tidak ditemukan di localStorage.'); return }
+                    customers[idx].points = (customers[idx].points || 0) + amt
+                    customers[idx].pointHistory = [
+                      { id: 'LP-ADM-'+Date.now(), type:'in', desc:'Penambahan poin oleh Admin (dari Customer Detail)', points: amt, date: new Date().toISOString().slice(0,10), createdBy:'admin' },
+                      ...(customers[idx].pointHistory || []),
+                    ]
+                    localStorage.setItem('eg_customers', JSON.stringify(customers))
+                    alert(`✅ +${amt} poin berhasil ditambahkan ke ${customer.name}`)
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
+                  style={{ background: 'rgba(34,197,94,0.12)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.25)' }}>
+                  + Tambah Poin
+                </button>
+                <button
+                  onClick={() => {
+                    const amt = parseInt(prompt(`Kurangi poin dari ${customer.name}?\nMasukkan jumlah poin:`))
+                    if (!amt || isNaN(amt)) return
+                    const customers = JSON.parse(localStorage.getItem('eg_customers') || '[]')
+                    const idx = customers.findIndex(c => c.id === customer.id || c.name === customer.name)
+                    if (idx === -1) { alert('Customer tidak ditemukan di localStorage.'); return }
+                    customers[idx].points = Math.max(0, (customers[idx].points || 0) - amt)
+                    customers[idx].pointHistory = [
+                      { id: 'LP-ADM-'+Date.now(), type:'out', desc:'Pengurangan poin oleh Admin (dari Customer Detail)', points: -amt, date: new Date().toISOString().slice(0,10), createdBy:'admin' },
+                      ...(customers[idx].pointHistory || []),
+                    ]
+                    localStorage.setItem('eg_customers', JSON.stringify(customers))
+                    alert(`✅ −${amt} poin berhasil dikurangi dari ${customer.name}`)
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
+                  style={{ background: 'rgba(239,68,68,0.12)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.25)' }}>
+                  − Kurangi Poin
+                </button>
+              </div>
+            </div>
           </SectionCard>
 
           {/* Admin Notes */}
