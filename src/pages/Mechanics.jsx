@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   MdAdd, MdClose, MdEdit, MdDelete, MdStar,
   MdPhone, MdSchedule, MdArrowBack, MdCamera,
@@ -6,6 +6,47 @@ import {
   MdCheckCircle, MdPending
 } from 'react-icons/md'
 import mechanicsData from '../data/mechanicsData.json'
+
+// ============================================================
+// PHASE 1 FIX — garage_mechanics phantom key
+// Sebelumnya halaman ini hanya pakai useState(mechanicsData) tanpa
+// pernah membaca/menulis localStorage('garage_mechanics'), padahal
+// Orders, Vehicles, Reports, dan Dashboard membaca key ini.
+// Akibatnya: CRUD mekanik di sini tidak persisten, dan 4 modul lain
+// selalu fallback ke data statis mechanicsData.json.
+//
+// Fix: load = merge(localStorage, mechanicsData by id), save = persist
+// setiap perubahan ke localStorage('garage_mechanics').
+// Pola ini sengaja dibuat sama dengan useCustomerStore agar konsisten
+// dan mudah diangkat jadi useMechanicStore di Phase 2/3.
+// ============================================================
+const LS_KEY_MECHANICS = 'garage_mechanics'
+
+function loadMechanics() {
+  try {
+    const raw = localStorage.getItem(LS_KEY_MECHANICS)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      // Merge: data tersimpan menang (preserve edit admin), tapi field baru
+      // dari mechanicsData.json (jika ada penambahan field di masa depan)
+      // tetap ter-enrich.
+      const enriched = parsed.map(stored => {
+        const fresh = mechanicsData.find(m => m.id === stored.id)
+        return fresh ? { ...fresh, ...stored } : stored
+      })
+      const storedIds = new Set(parsed.map(m => m.id))
+      const newOnes = mechanicsData.filter(m => !storedIds.has(m.id))
+      return [...enriched, ...newOnes]
+    }
+  } catch { /* ignore */ }
+  return mechanicsData
+}
+
+function saveMechanics(list) {
+  try {
+    localStorage.setItem(LS_KEY_MECHANICS, JSON.stringify(list))
+  } catch { /* ignore */ }
+}
 
 const initialForm = { name: '', specialty: '', experience: '', status: 'Tersedia', rating: '5.0', phone: '', photo: null, jobsDone: 0 }
 
@@ -350,12 +391,18 @@ function MechanicModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
 
 // ─── Halaman Utama ────────────────────────────────────────────────────
 export default function Mechanics() {
-  const [mechanics, setMechanics] = useState(mechanicsData)
+  const [mechanics, setMechanics] = useState(loadMechanics)
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState(initialForm)
   const [editId, setEditId] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [detailMechanic, setDetailMechanic] = useState(null)
+
+  // PHASE 1 FIX — persist setiap perubahan ke garage_mechanics
+  // sehingga Orders, Vehicles, Reports, Dashboard membaca data terbaru.
+  useEffect(() => {
+    saveMechanics(mechanics)
+  }, [mechanics])
 
   const openAdd = () => { setForm(initialForm); setEditId(null); setShowModal(true) }
   const openEdit = (m) => {
@@ -369,7 +416,11 @@ export default function Mechanics() {
     if (editId) {
       setMechanics(prev => prev.map(m => m.id === editId ? { ...m, ...form, rating: parseFloat(form.rating), jobsDone: parseInt(form.jobsDone) || 0 } : m))
     } else {
-      setMechanics(prev => [{ ...form, rating: parseFloat(form.rating), jobsDone: parseInt(form.jobsDone) || 0, id: `M-${String(mechanics.length + 1).padStart(3, '0')}` }, ...prev])
+      // PHASE 1 FIX — generator ID lama (`M-${mechanics.length + 1}`) berisiko
+      // duplikat begitu ada penghapusan (mis. 20 mekanik -> hapus 1 -> tambah 1
+      // baru -> ID = M-020 yang sudah dipakai). Pakai timestamp-based suffix.
+      const newId = 'M-' + String(Date.now()).slice(-6)
+      setMechanics(prev => [{ ...form, rating: parseFloat(form.rating), jobsDone: parseInt(form.jobsDone) || 0, id: newId }, ...prev])
     }
     setShowModal(false)
   }

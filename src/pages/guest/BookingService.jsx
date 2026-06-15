@@ -5,6 +5,8 @@ import { layanan, availableTimeSlots } from '../../data/guestData'
 import { searchCatalog } from '../../data/vehicleCatalog'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { syncCustomerVehicle } from '../../utils/syncVehicle'
+import { emit, ORDER_EVENTS } from '../../lib/orderEvents'
+import { resolveVehicleId } from '../../lib/vehicleEngine'
 import {
   MdArrowBack, MdArrowForward, MdCheckCircle,
   MdDirectionsCar, MdBuild, MdCalendarMonth, MdSend,
@@ -464,15 +466,27 @@ function VehicleStep({ customer, form, setForm, updateCustomer }) {
 // ── Main ──────────────────────────────────────────────────────────────
 export default function BookingService() {
   const navigate = useNavigate()
-  const { customer, addPoints, updateCustomer } = useCustomerAuth()
+  const { customer, updateCustomer } = useCustomerAuth()
   const [step, setStep]       = useState(0)
   const [loading, setLoading] = useState(false)
   const [done, setDone]       = useState(false)
   const [orderId, setOrderId] = useState('')
   const [form, setForm]       = useState({ vehicle: null, service: null, date: null, time: null, keluhan: '' })
+  // PHASE 2 — RULE 3: voucher dipilih di sini (VOUCHER_REDEEMED secara
+  // konsep), tapi TIDAK ditandai 'used' di sini. voucherId hanya
+  // dilampirkan ke order; status voucher baru berubah jadi 'used'
+  // saat ORDER_COMPLETED (lihat lib/orderSubscribers.js).
+  const [selectedVoucherId, setSelectedVoucherId] = useState(null)
 
   const dates         = getNextDates(14)
   const totalEstimate = form.service ? Math.round((form.service.hargaMulai + form.service.hargaMaks) / 2) : 0
+
+  // Voucher aktif milik customer yang bisa dipakai untuk booking ini.
+  const activeVouchers = (customer?.vouchers || []).filter(v => v.status === 'active')
+  const selectedVoucher = activeVouchers.find(v => v.id === selectedVoucherId) || null
+  const estimateAfterVoucher = selectedVoucher
+    ? Math.round(totalEstimate * (1 - (selectedVoucher.diskon || 0) / 100))
+    : totalEstimate
 
   const isStepValid = () => {
     if (step === 0) return !!form.vehicle
@@ -486,15 +500,59 @@ export default function BookingService() {
     const id = genOrderId(); setOrderId(id)
     setTimeout(() => {
       const orders = JSON.parse(localStorage.getItem('garage_orders') || '[]')
-      localStorage.setItem('garage_orders', JSON.stringify([{
+      const vehicleDisplay = `${form.vehicle.brand} ${form.vehicle.model} - ${form.vehicle.plate}`
+
+      // RELATION MIGRATION — pastikan kendaraan yang dipilih sudah
+      // tersinkron ke garage_vehicles (idempotent, dedup by plate di
+      // syncCustomerVehicle/loadVehicles), lalu resolve vehicleId
+      // sebelum order ditulis. Ini menutup kasus kendaraan yang
+      // dipilih dari `customer.vehicles` existing (bukan baru
+      // ditambahkan di step 0, sehingga syncCustomerVehicle belum
+      // pernah jalan untuk plate ini).
+      syncCustomerVehicle(form.vehicle, customer)
+      const resolvedVehicleId = resolveVehicleId({ vehicle: vehicleDisplay })
+
+      const newOrder = {
         id, customer: customer.name, customerId: customer.id,
-        vehicle: `${form.vehicle.brand} ${form.vehicle.model} - ${form.vehicle.plate}`,
+        vehicle: vehicleDisplay, vehicleId: resolvedVehicleId, vehicleDisplay,
+        // PHASE 1 NOTE — status 'Antrian' tetap ditulis apa adanya (additive
+        // migration, tidak mengubah data writer). Admin (Orders.jsx) sekarang
+        // membaca status ini melalui normalizeOrderStatus() dari
+        // constants/orderStatus.js, yang memetakan 'Antrian' -> 'Menunggu'
+        // untuk keperluan filter & counter. TrackingStatus.jsx (customer side)
+        // sudah fallback ke 'Menunggu Konfirmasi' untuk status tak dikenal.
         service: form.service.name, status: 'Antrian',
-        total: totalEstimate, date: form.date.toISOString().slice(0, 10),
-        time: form.time, mechanic: '—', keluhan: form.keluhan,
+        // estimatedTotal disimpan terpisah dari `total` (additive) agar
+        // Phase 2/3 dapat membedakan estimasi awal vs finalTotal saat
+        // ORDER_COMPLETED. `total` dipertahankan untuk kompatibilitas
+        // tampilan existing yang membaca order.total.
+        // Jika voucher dipilih, `total` mencerminkan estimasi setelah
+        // diskon (untuk tampilan), tapi finalTotal aktual tetap diisi
+        // admin saat ORDER_COMPLETED — voucher baru benar-benar
+        // "terpakai" (status: 'used') pada saat itu (Rule 3).
+        total: estimateAfterVoucher, estimatedTotal: totalEstimate,
+        voucherId: selectedVoucher?.id || null,
+        date: form.date.toISOString().slice(0, 10),
+        time: form.time, mechanic: '—', mechanicId: null, keluhan: form.keluhan,
         createdAt: new Date().toISOString(),
-      }, ...orders]))
-      addPoints(id, totalEstimate, form.service.name)
+      }
+      localStorage.setItem('garage_orders', JSON.stringify([newOrder, ...orders]))
+
+      // ============================================================
+      // RULE 1 — BookingService HANYA membuat Order.
+      // Sebelumnya baris ini adalah `addPoints(id, totalEstimate, ...)`,
+      // yang LANGSUNG memberi poin + voucher tier-up + voucher
+      // after-service saat booking dibuat (status masih 'Antrian',
+      // belum dikonfirmasi, belum dikerjakan, belum selesai).
+      //
+      // Sekarang: hanya emit ORDER_CREATED. Subscriber yang terdaftar
+      // di lib/orderSubscribers.js untuk event ini sengaja TIDAK
+      // melakukan apapun (no-op) — poin/voucher/achievement HANYA
+      // diproses saat admin mengubah status order menjadi 'Selesai'
+      // (ORDER_COMPLETED), menggunakan finalTotal (Rule 2).
+      // ============================================================
+      emit(ORDER_EVENTS.ORDER_CREATED, { order: newOrder })
+
       setLoading(false); setDone(true)
     }, 1800)
   }
@@ -514,9 +572,18 @@ export default function BookingService() {
             <h2 className="text-2xl font-extrabold text-white mb-2">Booking Berhasil!</h2>
             <p className="text-gray-400 text-sm mb-1">No. booking: <span className="text-green-400 font-bold font-mono">{orderId}</span></p>
             <p className="text-gray-500 text-xs mb-5">Konfirmasi dikirim via WhatsApp ke nomor terdaftar.</p>
+            {/*
+              PHASE 2 FIX — pesan ini sebelumnya berbunyi
+              "+X poin loyalty ditambahkan!" seolah poin sudah masuk
+              saat ini juga. Pada kenyataannya (setelah Rule 1 & 2),
+              poin HANYA diberikan saat admin menandai order
+              'Selesai' (ORDER_COMPLETED), berdasarkan finalTotal —
+              bukan estimasi ini. Ubah jadi pesan estimasi agar tidak
+              menjanjikan sesuatu yang belum terjadi.
+            */}
             <div className="inline-flex items-center gap-2 text-sm text-yellow-400 px-4 py-2 rounded-xl mb-5"
               style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.2)' }}>
-              ⭐ +{Math.floor(totalEstimate / 1000)} poin loyalty ditambahkan!
+              ⭐ Estimasi +{Math.floor(estimateAfterVoucher / 1000)} poin loyalty setelah servis selesai
             </div>
             <div className="rounded-xl p-4 mb-6 text-left space-y-2.5"
               style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.12)' }}>
@@ -532,7 +599,7 @@ export default function BookingService() {
                 { label: 'Layanan',   value: form.service?.name },
                 { label: 'Tanggal',   value: form.date?.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long' }) },
                 { label: 'Jam',       value: form.time },
-                { label: 'Estimasi',  value: fmt(totalEstimate) },
+                { label: 'Estimasi',  value: fmt(estimateAfterVoucher) },
               ].map(({ label, value }) => (
                 <div key={label} className="flex justify-between text-sm">
                   <span className="text-gray-400">{label}</span>
@@ -717,6 +784,49 @@ export default function BookingService() {
                       <img src={form.vehicle.photo} alt={form.vehicle.model} className="w-full h-full object-cover" />
                     </div>
                   )}
+
+                  {/*
+                    PHASE 2 — Voucher selector.
+                    RULE 3: memilih voucher di sini HANYA melampirkan
+                    voucherId ke order (konsep VOUCHER_REDEEMED).
+                    Voucher TIDAK ditandai 'used' sampai admin
+                    menandai order 'Selesai' (ORDER_COMPLETED,
+                    lihat lib/orderSubscribers.js). Jika order
+                    dibatalkan sebelum itu, voucher tetap 'active'
+                    dan bisa dipilih lagi untuk booking lain.
+                  */}
+                  {activeVouchers.length > 0 && (
+                    <div className="pb-2">
+                      <p className="text-gray-400 text-sm mb-2">Gunakan Voucher (opsional)</p>
+                      <div className="space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedVoucherId(null)}
+                          className="w-full text-left px-3 py-2 rounded-xl text-sm transition-all flex items-center justify-between"
+                          style={{
+                            background: !selectedVoucherId ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.03)',
+                            border: !selectedVoucherId ? '1px solid rgba(34,197,94,0.4)' : '1px solid rgba(255,255,255,0.08)',
+                          }}>
+                          <span className={!selectedVoucherId ? 'text-green-400 font-medium' : 'text-gray-400'}>Tanpa voucher</span>
+                        </button>
+                        {activeVouchers.map(v => (
+                          <button
+                            key={v.id}
+                            type="button"
+                            onClick={() => setSelectedVoucherId(v.id)}
+                            className="w-full text-left px-3 py-2 rounded-xl text-sm transition-all flex items-center justify-between gap-2"
+                            style={{
+                              background: selectedVoucherId === v.id ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.03)',
+                              border: selectedVoucherId === v.id ? '1px solid rgba(34,197,94,0.4)' : '1px solid rgba(255,255,255,0.08)',
+                            }}>
+                            <span className={selectedVoucherId === v.id ? 'text-green-400 font-medium' : 'text-gray-300'}>{v.title}</span>
+                            <span className="text-xs font-bold flex-shrink-0" style={{ color: selectedVoucherId === v.id ? '#4ade80' : '#9CA3AF' }}>-{v.diskon}%</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {[
                     { label: 'Atas Nama',   value: customer?.name },
                     { label: 'Kendaraan',   value: `${form.vehicle?.brand} ${form.vehicle?.model} ${form.vehicle?.year}` },
@@ -731,17 +841,32 @@ export default function BookingService() {
                       <span className="text-white text-sm font-medium">{value}</span>
                     </div>
                   ))}
-                  <div className="pt-3 flex items-center justify-between border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-                    <span className="text-gray-300 font-semibold">Estimasi Biaya</span>
-                    <span className="text-green-400 font-extrabold text-lg">{fmt(totalEstimate)}</span>
+                  <div className="pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+                    {selectedVoucher && (
+                      <div className="flex items-center justify-between mb-1.5 text-sm">
+                        <span className="text-gray-400">Estimasi Awal</span>
+                        <span className="text-gray-500 line-through">{fmt(totalEstimate)}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300 font-semibold">
+                        Estimasi Biaya{selectedVoucher ? ` (-${selectedVoucher.diskon}%)` : ''}
+                      </span>
+                      <span className="text-green-400 font-extrabold text-lg">{fmt(estimateAfterVoucher)}</span>
+                    </div>
+                    {selectedVoucher && (
+                      <p className="text-gray-500 text-xs mt-1">
+                        Voucher diterapkan setelah servis selesai &amp; dikonfirmasi admin.
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="p-4 rounded-xl mb-4 flex items-center gap-3 text-sm"
                   style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.15)' }}>
                   <span className="text-2xl">⭐</span>
                   <div>
-                    <p className="text-yellow-400 font-semibold">+{Math.floor(totalEstimate / 1000)} poin loyalty</p>
-                    <p className="text-gray-400 text-xs">1 poin per Rp 1.000</p>
+                    <p className="text-yellow-400 font-semibold">+{Math.floor(estimateAfterVoucher / 1000)} poin loyalty</p>
+                    <p className="text-gray-400 text-xs">1 poin per Rp 1.000, diberikan setelah servis selesai</p>
                   </div>
                 </div>
               </div>

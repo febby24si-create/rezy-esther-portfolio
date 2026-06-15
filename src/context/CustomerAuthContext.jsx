@@ -5,58 +5,26 @@
 // ============================================================
 
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { applyOrderCompletedLoyalty } from '../lib/loyaltyEngine'
+import {
+  TIER_CONFIG,
+  calcTier,
+  calcLoyaltyProgress,
+  calcPointsFromOrder,
+  calcAchievements,
+} from '../lib/loyaltyConstants'
 
 const CustomerAuthContext = createContext(null)
 
-// ─── Loyalty Engine ──────────────────────────────────────────
-export const TIER_CONFIG = {
-  Bronze:   { min: 0,    max: 499,  next: 'Silver',   color: '#F97316', bg: 'rgba(249,115,22,0.12)',  border: 'rgba(249,115,22,0.25)',  icon: '🥉' },
-  Silver:   { min: 500,  max: 1499, next: 'Gold',     color: '#94A3B8', bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.25)', icon: '🥈' },
-  Gold:     { min: 1500, max: 2999, next: 'Platinum', color: '#FBBF24', bg: 'rgba(251,191,36,0.12)',  border: 'rgba(251,191,36,0.25)',  icon: '🥇' },
-  Platinum: { min: 3000, max: Infinity, next: null,   color: '#A855F7', bg: 'rgba(168,85,247,0.12)',  border: 'rgba(168,85,247,0.25)',  icon: '💎' },
-}
-
-export function calcTier(points) {
-  if (points >= 3000) return 'Platinum'
-  if (points >= 1500) return 'Gold'
-  if (points >= 500)  return 'Silver'
-  return 'Bronze'
-}
-
-export function calcLoyaltyProgress(points) {
-  const tier = calcTier(points)
-  const cfg  = TIER_CONFIG[tier]
-  if (!cfg.next) return { tier, nextTier: null, progress: 100, pointsToNext: 0 }
-  const nextCfg   = TIER_CONFIG[cfg.next]
-  const rangeSize = nextCfg.min - cfg.min
-  const inRange   = points - cfg.min
-  const progress  = Math.min(Math.round((inRange / rangeSize) * 100), 100)
-  return { tier, nextTier: cfg.next, progress, pointsToNext: nextCfg.min - points }
-}
-
-export function calcPointsFromOrder(total) {
-  // 1 point per Rp 1.000 transaksi
-  return Math.floor(Number(total) / 1000)
-}
-
-// ─── Achievement Engine ──────────────────────────────────────
-const ACHIEVEMENT_DEFS = [
-  { id: 'first_service',   label: 'First Service',    icon: '🔧', desc: 'Menyelesaikan servis pertama',           check: (c) => c.totalOrders >= 1    },
-  { id: 'loyal_5',         label: 'Loyal Customer',   icon: '⭐', desc: 'Sudah 5 kali servis di Esther Garage',   check: (c) => c.totalOrders >= 5    },
-  { id: 'loyal_10',        label: 'Elite Customer',   icon: '👑', desc: 'Sudah 10 kali servis di Esther Garage',  check: (c) => c.totalOrders >= 10   },
-  { id: 'silver_member',   label: 'Silver Member',    icon: '🥈', desc: 'Mencapai tier Silver',                   check: (c) => ['Silver','Gold','Platinum'].includes(calcTier(c.points)) },
-  { id: 'gold_member',     label: 'Gold Member',      icon: '🥇', desc: 'Mencapai tier Gold',                     check: (c) => ['Gold','Platinum'].includes(calcTier(c.points))          },
-  { id: 'platinum_member', label: 'Platinum Member',  icon: '💎', desc: 'Mencapai tier Platinum',                 check: (c) => calcTier(c.points) === 'Platinum'                         },
-  { id: 'top_reviewer',    label: 'Top Reviewer',     icon: '📝', desc: 'Memberikan 3 review atau lebih',         check: (c) => (c.reviewCount || 0) >= 3                                 },
-  { id: 'big_spender',     label: 'Big Spender',      icon: '💰', desc: 'Total pengeluaran di atas Rp 2.000.000', check: (c) => (c.totalSpent || 0) >= 2000000                            },
-]
-
-export function calcAchievements(customerData) {
-  return ACHIEVEMENT_DEFS.map(def => ({
-    ...def,
-    unlocked: def.check(customerData),
-  }))
-}
+// PHASE 2 — TIER_CONFIG, calcTier, calcLoyaltyProgress,
+// calcPointsFromOrder, calcAchievements dipindahkan ke
+// lib/loyaltyConstants.js (untuk menghindari circular import
+// dengan lib/loyaltyEngine.js, lihat komentar di file tersebut).
+// Re-export di sini agar SEMUA import existing dari
+// '../../context/CustomerAuthContext' (GuestNavbar, CRMAutomation,
+// LoyaltyPoint, DashboardCustomer, Leaderboard) tetap berfungsi
+// tanpa perlu diubah satu pun — additive, tidak ada breaking change.
+export { TIER_CONFIG, calcTier, calcLoyaltyProgress, calcPointsFromOrder, calcAchievements }
 
 // ─── LocalStorage helpers ────────────────────────────────────
 const LS_KEY_CUSTOMERS = 'eg_customers'
@@ -205,67 +173,39 @@ export function CustomerAuthProvider({ children }) {
   }, [])
 
   // ── Tambah point setelah order ────────────────────────────
+  // ============================================================
+  // PHASE 2 — DEPRECATED dari jalur booking.
+  //
+  // Fungsi ini SEBELUMNYA dipanggil langsung dari
+  // BookingService.handleSubmit saat order baru dibuat (status
+  // 'Antrian'), memberikan poin/tier-voucher/after-service-voucher
+  // berdasarkan totalEstimate — sebelum servis benar-benar
+  // dikerjakan/selesai. Ini melanggar Rule 1 & 2.
+  //
+  // Sekarang: BookingService TIDAK memanggil fungsi ini lagi.
+  // Logic poin/tier/voucher telah diekstrak ke
+  // lib/loyaltyEngine.js (applyOrderCompletedLoyalty), yang
+  // dipanggil oleh subscriber ORDER_COMPLETED
+  // (lib/orderSubscribers.js) saat admin menandai order 'Selesai',
+  // menggunakan finalTotal.
+  //
+  // addPoints tetap diekspor untuk backward-compat (jika ada kode
+  // lain yang memanggilnya), tapi sekarang hanya mendelegasikan ke
+  // loyaltyEngine agar tidak ada dua implementasi logic yang
+  // divergen. Idealnya dihapus sepenuhnya begitu dipastikan tidak
+  // ada caller tersisa.
+  // ============================================================
   const addPoints = useCallback((orderId, total, serviceLabel) => {
     if (!customer) return
-    const earned = calcPointsFromOrder(total)
-    if (earned <= 0) return
-
-    const customers = loadCustomers()
-    const idx = customers.findIndex(c => c.id === customer.id)
-    if (idx === -1) return
-
-    const updated = {
-      ...customers[idx],
-      points:      (customers[idx].points || 0) + earned,
-      totalOrders: (customers[idx].totalOrders || 0) + 1,
-      totalSpent:  (customers[idx].totalSpent  || 0) + Number(total),
-      pointHistory: [
-        {
-          id:     'LP-' + Date.now(),
-          type:   'in',
-          desc:   `${serviceLabel} — ${orderId}`,
-          points: earned,
-          date:   new Date().toISOString().slice(0, 10),
-        },
-        ...(customers[idx].pointHistory || []),
-      ],
+    const result = applyOrderCompletedLoyalty(customer.id, total, orderId, serviceLabel)
+    if (result.success) {
+      // Sinkronkan state customer di context dengan data terbaru
+      // yang sudah ditulis applyOrderCompletedLoyalty ke eg_customers.
+      const customers = loadCustomers()
+      const fresh = customers.find(c => c.id === customer.id)
+      if (fresh) setCustomer(fresh)
     }
-
-    // Cek apakah naik tier → berikan bonus voucher
-    const oldTier = calcTier(customers[idx].points || 0)
-    const newTier = calcTier(updated.points)
-    if (oldTier !== newTier) {
-      updated.vouchers = [
-        {
-          id:         'VC-TIER-' + Date.now(),
-          code:       newTier.toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase(),
-          title:      `Selamat! Naik ke ${newTier} Member`,
-          diskon:     newTier === 'Silver' ? 10 : newTier === 'Gold' ? 15 : 20,
-          status:     'active',
-          validUntil: new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10),
-          type:       'loyalty',
-        },
-        ...(updated.vouchers || []),
-      ]
-    }
-
-    // Voucher setelah service (sekali per order)
-    updated.vouchers = [
-      {
-        id:         'VC-AFTER-' + Date.now(),
-        code:       'AFTER-' + orderId.replace('#', '').slice(-6),
-        title:      'Voucher Setelah Service — Diskon 10%',
-        diskon:     10,
-        status:     'active',
-        validUntil: new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
-        type:       'aftersvc',
-      },
-      ...(updated.vouchers || []),
-    ]
-
-    customers[idx] = updated
-    saveCustomers(customers)
-    setCustomer(updated)
+    return result
   }, [customer])
 
   // ── Tambah review ─────────────────────────────────────────

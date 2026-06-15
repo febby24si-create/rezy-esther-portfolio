@@ -487,14 +487,38 @@ function VehicleModal({ isOpen, onClose, onSubmit, form, setForm, editId, mechan
   )
 }
 
+// ============================================================
+// PHASE 1 FIX — Vehicles seed data loss
+// Sebelumnya: useState(() => garage_vehicles ? parse(garage_vehicles) : vehiclesData)
+// Begitu satu kendaraan dari booking customer ter-sync ke garage_vehicles
+// (via syncVehicle.js), SELURUH seed vehiclesData.json (V-001 dst) hilang
+// dari tampilan admin karena ini OR eksklusif, bukan merge.
+//
+// Fix: merge kedua sumber, dedup by `plate` (natural key kendaraan).
+// Data di garage_vehicles menang untuk plate yang sama (preserve edit admin
+// & data sync terbaru dari booking), seed yang belum punya pasangan plate
+// di garage_vehicles tetap dipertahankan.
+// ============================================================
+const LS_KEY_VEHICLES = 'garage_vehicles'
+
+function loadVehicles() {
+  try {
+    const raw = localStorage.getItem(LS_KEY_VEHICLES)
+    if (raw) {
+      const stored = JSON.parse(raw)
+      const storedPlates = new Set(stored.map(v => (v.plate || '').trim().toLowerCase()))
+      const seedRemaining = vehiclesData.filter(
+        v => !storedPlates.has((v.plate || '').trim().toLowerCase())
+      )
+      return [...seedRemaining, ...stored]
+    }
+  } catch { /* ignore */ }
+  return vehiclesData
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────
 export default function Vehicles() {
-  const [vehicles, setVehicles] = useState(() => {
-    try {
-      const s = localStorage.getItem('garage_vehicles')
-      return s ? JSON.parse(s) : vehiclesData
-    } catch { return vehiclesData }
-  })
+  const [vehicles, setVehicles] = useState(loadVehicles)
 
   const [mechanics] = useState(() => {
     try {
@@ -518,12 +542,12 @@ export default function Vehicles() {
   const [currentPage,  setCurrentPage]  = useState(1)
   const itemsPerPage = 30
 
-  // Auto-refresh: cek kendaraan baru dari booking customer
+  // Auto-refresh: cek kendaraan baru dari booking customer.
+  // PHASE 1 FIX — sebelumnya overwrite langsung dengan raw garage_vehicles
+  // (mengulang bug yang sama dengan inisialisasi state). Sekarang pakai
+  // loadVehicles() yang sudah merge dengan seed by-plate.
   const handleRefresh = () => {
-    try {
-      const raw = localStorage.getItem('garage_vehicles')
-      if (raw) setVehicles(JSON.parse(raw))
-    } catch {}
+    setVehicles(loadVehicles())
   }
 
   useEffect(() => {

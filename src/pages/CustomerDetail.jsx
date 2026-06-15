@@ -180,11 +180,31 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
   const customer = useMemo(() => customers.find(c => c.id === id), [customers, id])
 
   // Orders for this customer
+  // ============================================================
+  // PHASE 3 — RELATION MIGRATION: order.customer (nama, exact match)
+  // -> order.customerId.
+  //
+  // Sejak Phase 2/3, order.customerId bisa berisi:
+  //   - format LAMA ('C-001', dari BookingService -> customer.id
+  //     di eg_customers, sekarang tersimpan sebagai
+  //     customer.legacyPortalId)
+  //   - format BARU ('CUST-xxx', dari Orders.jsx admin resolve,
+  //     sama dengan customer.id setelah unifikasi)
+  //   - format admin lama ('C-xxx' dari customersData.json,
+  //     tersimpan sebagai customer.legacyAdminId)
+  //
+  // Matching memeriksa customerId terhadap SEMUA kemungkinan id
+  // (id baru + kedua legacy id), fallback ke nama-exact-match untuk
+  // order yang belum pernah ter-resolve (mis. order sangat lama
+  // sebelum Phase 2). Field string `order.customer` TETAP
+  // dipertahankan, tidak dihapus (additive).
+  // ============================================================
   const customerOrders = useMemo(() => {
     const stored = localStorage.getItem('garage_orders')
     const allOrders = stored ? JSON.parse(stored) : ordersData
+    const candidateIds = [customer?.id, customer?.legacyAdminId, customer?.legacyPortalId].filter(Boolean)
     return allOrders
-      .filter(o => o.customer === customer?.name)
+      .filter(o => (o.customerId && candidateIds.includes(o.customerId)) || (!o.customerId && o.customer === customer?.name))
       .sort((a, b) => new Date(b.date) - new Date(a.date))
   }, [customer])
 

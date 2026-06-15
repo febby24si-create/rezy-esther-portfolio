@@ -1,56 +1,49 @@
 // ============================================================
 // useCustomerStore.js
-// Satu sumber data customer yang konsisten di semua halaman.
-// Membaca dari localStorage('garage_customers'), dengan fallback
-// ke customersData.json. Semua mutasi disimpan kembali ke localStorage.
+//
+// PHASE 3 — Diarahkan ke unified `customers` store
+//
+// Sebelumnya hook ini membaca/menulis langsung ke
+// localStorage('garage_customers'), terpisah dari
+// localStorage('eg_customers') yang dipakai portal customer
+// (CustomerAuthContext). Ini adalah AKAR dari masalah dualisme
+// customer store.
+//
+// Fix: hook ini sekarang membaca/menulis ke localStorage('customers')
+// -- hasil merge garage_customers + eg_customers oleh
+// lib/customerMigration.js (runCustomerMigration, dipanggil
+// idempoten via loadUnifiedCustomers).
+//
+// PENTING -- API hook ini TIDAK BERUBAH:
+//   { customers, setCustomers, addCustomer, updateCustomer,
+//     deleteCustomer, getCustomerById, getCustomerByName }
+// dan getAllCustomersFromStore() tetap punya signature yang sama.
+//
+// Ini berarti SEMUA consumer existing (Customers.jsx,
+// CustomerDetail.jsx, CRMAutomation.jsx, Vehicles.jsx, Orders.jsx)
+// TIDAK PERLU DIUBAH SAMA SEKALI -- mereka sekarang membaca data
+// gabungan tanpa perlu tahu bahwa sumbernya sudah berubah.
+//
+// garage_customers & eg_customers TETAP ADA (ditandai deprecated
+// oleh customerMigration.js), tidak dihapus -- additive migration.
 // ============================================================
 
 import { useState, useEffect, useCallback } from 'react'
-import customersData from '../data/customersData.json'
-
-const LS_KEY = 'garage_customers'
-
-// ─── Storage helpers ──────────────────────────────────────────
-function loadCustomers() {
-  try {
-    const raw = localStorage.getItem(LS_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      // Pastikan field baru yang ada di customersData.json tapi belum
-      // ada di localStorage di-merge agar data tidak basi
-      const enriched = parsed.map(stored => {
-        const fresh = customersData.find(c => c.id === stored.id)
-        if (!fresh) return stored
-        return { ...fresh, ...stored } // stored override fresh (preserve edits)
-      })
-      // Tambahkan customer baru dari customersData yang belum ada di storage
-      const storedIds = new Set(parsed.map(c => c.id))
-      const newOnes = customersData.filter(c => !storedIds.has(c.id))
-      return [...enriched, ...newOnes]
-    }
-  } catch { /* ignore */ }
-  return customersData
-}
-
-function saveCustomers(list) {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(list))
-  } catch { /* ignore */ }
-}
+import { loadUnifiedCustomers, saveUnifiedCustomers } from '../lib/customerMigration'
 
 // ─── Hook ─────────────────────────────────────────────────────
 export function useCustomerStore() {
-  const [customers, setCustomersState] = useState(loadCustomers)
+  const [customers, setCustomersState] = useState(loadUnifiedCustomers)
 
   // Persist setiap kali data berubah
   useEffect(() => {
-    saveCustomers(customers)
+    saveUnifiedCustomers(customers)
   }, [customers])
 
   const setCustomers = useCallback((updater) => {
     setCustomersState(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater
-      saveCustomers(next)
+      saveUnifiedCustomers(next)
       return next
     })
   }, [])
@@ -88,21 +81,7 @@ export function useCustomerStore() {
   }
 }
 
-// ─── Fungsi non-hook untuk dibaca modul non-React (CRM, dll) ─
+// ─── Fungsi non-hook untuk dibaca modul non-React (CRM, Orders, dll) ─
 export function getAllCustomersFromStore() {
-  try {
-    const raw = localStorage.getItem(LS_KEY)
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      const enriched = parsed.map(stored => {
-        const fresh = customersData.find(c => c.id === stored.id)
-        if (!fresh) return stored
-        return { ...fresh, ...stored }
-      })
-      const storedIds = new Set(parsed.map(c => c.id))
-      const newOnes = customersData.filter(c => !storedIds.has(c.id))
-      return [...enriched, ...newOnes]
-    }
-  } catch { /* ignore */ }
-  return customersData
+  return loadUnifiedCustomers()
 }

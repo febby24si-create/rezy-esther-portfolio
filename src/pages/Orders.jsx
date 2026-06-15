@@ -9,6 +9,9 @@ import {
 } from 'react-icons/md'
 import Pagination from '../components/Pagination'
 import ordersData from '../data/ordersData.json'
+import { CANONICAL_STATUS, CANONICAL_STATUS_LIST, normalizeOrderStatus, filterByCanonicalStatus } from '../constants/orderStatus'
+import { emit, ORDER_EVENTS } from '../lib/orderEvents'
+import { resolveVehicleId } from '../lib/vehicleEngine'
 
 // ─── Utils ────────────────────────────────────────────────────────────
 const formatCurrency = (amount) => {
@@ -36,8 +39,19 @@ const STATUS = {
 }
 
 // ─── StatusBadge ──────────────────────────────────────────────────────
+// PHASE 1 FIX — status 'Antrian' (dan varian lain dari BookingService/
+// TrackingStatus/Vehicles) sebelumnya selalu fallback ke styling
+// STATUS.Menunggu via `STATUS[status] || STATUS.Menunggu`, TAPI label
+// yang ditampilkan tetap raw `status` ('Antrian') — secara visual sudah
+// "terlihat benar" (ada warna, ada label), padahal di belakangnya filter
+// dropdown dan counter TIDAK menganggap order ini sebagai 'Menunggu'.
+//
+// Fix: styling tetap di-derive dari status kanonik (normalizeOrderStatus),
+// tapi label yang ditampilkan tetap status asli — admin tetap bisa lihat
+// "Antrian" sebagai label, namun secara visual dan filter ia konsisten
+// dikelompokkan sebagai 'Menunggu'.
 function StatusBadge({ status, size = 'md' }) {
-  const cfg = STATUS[status] || STATUS.Menunggu
+  const cfg = STATUS[normalizeOrderStatus(status)] || STATUS.Menunggu
   const pad = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs'
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full font-semibold ${pad}`}
@@ -68,9 +82,13 @@ function Avatar({ name, size = 32 }) {
 function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
   const [copied, setCopied] = useState(false)
   if (!order) return null
-  const cfg = STATUS[order.status] || STATUS.Menunggu
-  const statusOrder = ['Menunggu', 'Sedang Dikerjakan', 'Selesai']
-  const currentIdx = statusOrder.indexOf(order.status)
+  // PHASE 1 FIX — currentIdx sebelumnya `statusOrder.indexOf(order.status)`.
+  // Untuk status non-kanonik ('Antrian', 'Dikonfirmasi', dll), indexOf
+  // mengembalikan -1, membuat progress bar tampil kosong/salah.
+  // Normalisasi dulu sebelum dicari posisinya.
+  const normalizedStatus = normalizeOrderStatus(order.status)
+  const cfg = STATUS[normalizedStatus] || STATUS.Menunggu
+  const currentIdx = CANONICAL_STATUS_LIST.indexOf(normalizedStatus)
 
   const copyId = () => {
     navigator.clipboard.writeText(order.id)
@@ -160,7 +178,7 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
         <div className="mx-5 mb-5 flex-shrink-0">
           <p className="text-xs text-gray-600 uppercase tracking-wider mb-3">Progress</p>
           <div className="space-y-2.5">
-            {statusOrder.map((s, idx) => {
+            {CANONICAL_STATUS_LIST.map((s, idx) => {
               const done = idx <= currentIdx
               const current = idx === currentIdx
               const lineDone = idx < currentIdx
@@ -173,7 +191,7 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
                         : { background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)' }}>
                       {done && <MdCheck size={13} style={{ color: cfg.color }} />}
                     </div>
-                    {idx < statusOrder.length - 1 && (
+                    {idx < CANONICAL_STATUS_LIST.length - 1 && (
                       <div className="w-0.5 h-4 mt-1 rounded-full"
                         style={{ background: lineDone ? cfg.color + '60' : 'rgba(255,255,255,0.06)' }} />
                     )}
@@ -489,7 +507,10 @@ export default function Orders() {
   const filtered = useMemo(() => {
     let r = [...orders]
     if (search) { const s = search.toLowerCase(); r = r.filter(o => [o.customer, o.id, o.service, o.vehicle].some(v => v?.toLowerCase().includes(s))) }
-    if (filterStatus) r = r.filter(o => o.status === filterStatus)
+    // PHASE 1 FIX — sebelumnya `o.status === filterStatus` (exact match).
+    // Order dari BookingService (status: 'Antrian') tidak pernah match
+    // filterStatus 'Menunggu' meski secara konsep sama. Pakai normalisasi.
+    r = filterByCanonicalStatus(r, filterStatus)
     if (filterFrom) r = r.filter(o => o.date >= filterFrom)
     if (filterTo) r = r.filter(o => o.date <= filterTo)
     if (sortColumn) r.sort((a, b) => {
@@ -513,11 +534,121 @@ export default function Orders() {
 
   const handleAdd = () => { setEditId(null); setShowForm(true) }
   const handleEdit = (order) => { setEditId(order.id); setShowForm(true) }
+
+  // PHASE 2 — best-effort resolve customerId/mechanicId dari field
+  // string (order.customer / order.mechanic) terhadap customersList/
+  // mechanicsList. Ini BUKAN migrasi penuh (Phase 3) — hanya jembatan
+  // agar subscriber ORDER_COMPLETED (loyalty, mechanic engine) bisa
+  // berjalan untuk order yang belum punya customerId/mechanicId
+  // tersimpan (mis. order lama dari ordersData.json, atau order admin
+  // yang customer-nya tidak match exact). Field string asli tetap
+  // dipertahankan apa adanya (additive).
+  const resolveCustomerId = useCallback((data) => {
+    if (data.customerId) return data.customerId
+    const match = customersList.find(c => c.name === data.customer)
+    return match ? match.id : null
+  }, [customersList])
+
+  const resolveMechanicId = useCallback((data) => {
+    if (data.mechanicId) return data.mechanicId
+    const match = mechanicsList.find(m => m.name === data.mechanic)
+    return match ? match.id : null
+  }, [mechanicsList])
+
   const handleSubmit = useCallback((data) => {
-    if (editId) setOrders(prev => prev.map(o => o.id === editId ? { ...o, ...data } : o))
-    else setOrders(prev => [{ ...data, id: generateId() }, ...prev])
+    const resolvedCustomerId = resolveCustomerId(data)
+    const resolvedMechanicId = resolveMechanicId(data)
+    // RELATION MIGRATION — order.vehicle (string "{brand} {model} - {plate}")
+    // -> vehicleId. Field string asli `vehicle` TETAP dipertahankan
+    // sebagai vehicleDisplay (additive, lihat lib/vehicleEngine.js).
+    const resolvedVehicleId = resolveVehicleId(data)
+    const enrichedData = {
+      ...data,
+      customerId: resolvedCustomerId,
+      mechanicId: resolvedMechanicId,
+      vehicleId: resolvedVehicleId,
+      vehicleDisplay: data.vehicle,
+    }
+
+    if (editId) {
+      const prevOrder = orders.find(o => o.id === editId)
+      const prevStatus = normalizeOrderStatus(prevOrder?.status)
+      const nextStatus = normalizeOrderStatus(data.status)
+
+      let updatedOrder = { ...prevOrder, ...enrichedData }
+      const now = new Date().toISOString()
+
+      // ── Transisi ke SELESAI -> ORDER_COMPLETED ──────────────
+      // RULE 2: finalTotal = total yang diisi admin SAAT transisi ini
+      // (bukan estimatedTotal dari booking). Loyalty/Voucher/Mechanic
+      // side effect diproses oleh subscriber, BUKAN di sini.
+      if (prevStatus !== CANONICAL_STATUS.SELESAI && nextStatus === CANONICAL_STATUS.SELESAI) {
+        updatedOrder = { ...updatedOrder, finalTotal: Number(data.total), completedAt: now }
+        emit(ORDER_EVENTS.ORDER_COMPLETED, { order: updatedOrder })
+      }
+      // ── Transisi ke SEDANG_DIKERJAKAN dengan mekanik baru -> ORDER_CONFIRMED ──
+      // Mekanik mendapat 1 order aktif baru (Rule 5: activeOrderIds).
+      else if (prevStatus !== CANONICAL_STATUS.SEDANG_DIKERJAKAN
+               && nextStatus === CANONICAL_STATUS.SEDANG_DIKERJAKAN
+               && resolvedMechanicId
+               && resolvedMechanicId !== prevOrder?.mechanicId) {
+        updatedOrder = { ...updatedOrder, confirmedAt: prevOrder?.confirmedAt || now, startedAt: now }
+        emit(ORDER_EVENTS.ORDER_CONFIRMED, { order: updatedOrder })
+        emit(ORDER_EVENTS.ORDER_STARTED, { order: updatedOrder })
+      }
+      // ── Order dibatalkan (admin set status kembali ke Menunggu
+      // setelah sebelumnya sudah dikerjakan/diassign) -> ORDER_CANCELLED
+      // Catatan: aplikasi ini belum punya status 'CANCELLED' eksplisit
+      // di STATUS enum admin (additive — belum ditambahkan agar tidak
+      // mengubah UI dropdown secara drastis di Phase 2). Cancellation
+      // detection di sini hanya untuk melepas activeOrderIds mekanik
+      // jika order yang sudah di-assign dikembalikan ke Menunggu.
+      else if (prevStatus === CANONICAL_STATUS.SEDANG_DIKERJAKAN
+               && nextStatus === CANONICAL_STATUS.MENUNGGU
+               && prevOrder?.mechanicId) {
+        emit(ORDER_EVENTS.ORDER_CANCELLED, { order: { ...updatedOrder, mechanicId: prevOrder.mechanicId } })
+        updatedOrder = { ...updatedOrder, mechanicId: null }
+      }
+
+      setOrders(prev => prev.map(o => o.id === editId ? updatedOrder : o))
+    } else {
+      // ── Order baru dibuat oleh admin -> ORDER_CREATED ────────
+      // Rule 1: tidak ada side effect loyalty/voucher/inventory/mechanic
+      // untuk order yang baru dibuat, terlepas dari status awalnya.
+      let newOrder = { ...enrichedData, id: generateId(), createdAt: new Date().toISOString() }
+      const now = new Date().toISOString()
+
+      // Edge case: admin input order yang LANGSUNG berstatus 'Selesai'
+      // (mis. mencatat transaksi historis/walk-in yang sudah lunas).
+      // ORDER_CREATED tetap di-emit dulu (no side effect), lalu
+      // ORDER_COMPLETED dengan finalTotal = total yang diinput admin —
+      // ini SATU-SATUNYA jalur di mana order baru langsung memicu
+      // loyalty, karena order ini secara definisi sudah selesai
+      // sejak dibuat (tidak ada transisi PENDING->COMPLETED yang
+      // bisa dideteksi).
+      if (normalizeOrderStatus(newOrder.status) === CANONICAL_STATUS.SELESAI) {
+        newOrder = { ...newOrder, finalTotal: Number(newOrder.total), completedAt: now }
+      }
+      // Edge case: admin membuat order BARU yang langsung berstatus
+      // 'Sedang Dikerjakan' dengan mekanik sudah terisi (mis. input
+      // order untuk pekerjaan yang sudah berjalan). Mekanik tersebut
+      // perlu masuk activeOrderIds sejak awal.
+      else if (normalizeOrderStatus(newOrder.status) === CANONICAL_STATUS.SEDANG_DIKERJAKAN && resolvedMechanicId) {
+        newOrder = { ...newOrder, confirmedAt: now, startedAt: now }
+      }
+
+      setOrders(prev => [newOrder, ...prev])
+      emit(ORDER_EVENTS.ORDER_CREATED, { order: newOrder })
+
+      if (normalizeOrderStatus(newOrder.status) === CANONICAL_STATUS.SELESAI) {
+        emit(ORDER_EVENTS.ORDER_COMPLETED, { order: newOrder })
+      } else if (normalizeOrderStatus(newOrder.status) === CANONICAL_STATUS.SEDANG_DIKERJAKAN && resolvedMechanicId) {
+        emit(ORDER_EVENTS.ORDER_CONFIRMED, { order: newOrder })
+      }
+    }
     setShowForm(false); setEditId(null)
-  }, [editId])
+  }, [editId, orders, resolveCustomerId, resolveMechanicId])
+
   const handleDelete = useCallback(() => {
     setOrders(prev => prev.filter(o => o.id !== deleteTarget.id))
     setDeleteTarget(null)
@@ -529,8 +660,18 @@ export default function Orders() {
     a.download = `orders_${new Date().toISOString().slice(0,10)}.csv`; a.click()
   }, [filtered])
 
-  const totalPendapatan = orders.filter(o => o.status === 'Selesai').reduce((s, o) => s + Number(o.total), 0)
-  const counts = { selesai: orders.filter(o => o.status === 'Selesai').length, proses: orders.filter(o => o.status === 'Sedang Dikerjakan').length, menunggu: orders.filter(o => o.status === 'Menunggu').length }
+  // PHASE 1 FIX — sebelumnya `o.status === 'Selesai'` / `=== 'Sedang Dikerjakan'`
+  // / `=== 'Menunggu'` (exact match). Order dengan status 'Antrian' tidak
+  // terhitung di counts.menunggu meski secara konsep adalah order yang
+  // sedang menunggu. Pakai normalizeOrderStatus agar konsisten dengan filter.
+  const totalPendapatan = orders
+    .filter(o => normalizeOrderStatus(o.status) === CANONICAL_STATUS.SELESAI)
+    .reduce((s, o) => s + Number(o.total), 0)
+  const counts = {
+    selesai: orders.filter(o => normalizeOrderStatus(o.status) === CANONICAL_STATUS.SELESAI).length,
+    proses: orders.filter(o => normalizeOrderStatus(o.status) === CANONICAL_STATUS.SEDANG_DIKERJAKAN).length,
+    menunggu: orders.filter(o => normalizeOrderStatus(o.status) === CANONICAL_STATUS.MENUNGGU).length,
+  }
   const thCls = "text-left py-3 px-3 text-xs text-gray-600 font-semibold uppercase tracking-wider whitespace-nowrap cursor-pointer select-none hover:text-gray-400 transition-colors"
 
   return (
@@ -570,7 +711,7 @@ export default function Orders() {
                 <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl p-4 z-30" style={{ background: '#051A0E', border: '1px solid rgba(34,197,94,0.2)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
                   <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-3">Filter</p>
                   <div className="space-y-3">
-                    <div><label className="block text-xs text-gray-500 mb-1.5">Status</label><select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none" style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }}><option value="">Semua Status</option>{Object.keys(STATUS).map(s => <option key={s} value={s}>{s}</option>)}</select></div>
+                    <div><label className="block text-xs text-gray-500 mb-1.5">Status</label><select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none" style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }}><option value="">Semua Status</option>{CANONICAL_STATUS_LIST.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
                     <div className="grid grid-cols-2 gap-2"><div><label className="block text-xs text-gray-500 mb-1.5">Dari</label><input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none" style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }} /></div><div><label className="block text-xs text-gray-500 mb-1.5">Sampai</label><input type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none" style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }} /></div></div>
                     <button onClick={resetFilters} className="w-full py-2 rounded-xl text-xs text-red-400 transition-all hover:bg-red-500/10" style={{ border: '1px solid rgba(239,68,68,0.2)' }}>Reset Semua</button>
                   </div>
