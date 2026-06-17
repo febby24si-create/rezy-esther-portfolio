@@ -3,7 +3,7 @@ import { NavLink, Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo2.png'
 import {
   MdDashboard, MdBuild, MdPeople, MdDirectionsCar, MdEngineering,
-  MdBarChart, MdSettings, MdError, MdWarning, MdBlock, MdWidgets,
+  MdBarChart, MdSettings,
   MdInventory2, MdClose, MdLogout, MdCalendarMonth, MdAutoAwesome, MdCardMembership
 } from 'react-icons/md'
 
@@ -21,12 +21,6 @@ const navItems = [
 const crmItems = [
   { path: '/crm',        icon: MdAutoAwesome,     label: 'CRM Automation',   badge: 'NEW' },
   { path: '/membership', icon: MdCardMembership,  label: 'Membership',       badge: 'NEW' },
-]
-
-const errorItems = [
-  { path: '/error-400', icon: MdError,   label: 'Error 400' },
-  { path: '/error-401', icon: MdWarning, label: 'Error 401' },
-  { path: '/error-403', icon: MdBlock,   label: 'Error 403' },
 ]
 
 const SectionLabel = ({ label }) => (
@@ -128,22 +122,6 @@ export default function Sidebar({ onClose }) {
                 {badge}
               </span>
             )}
-          </NavLink>
-        ))}
-
-        {/* Developer */}
-        <SectionLabel label="Developer" />
-        <NavLink to="/components" className={linkClass} onClick={onClose}>
-          <MdWidgets size={18} />
-          <span>Components</span>
-        </NavLink>
-
-        {/* Error Pages */}
-        <SectionLabel label="Error Pages" />
-        {errorItems.map(({ path, icon: Icon, label }) => (
-          <NavLink key={path} to={path} className={linkClass} onClick={onClose}>
-            <Icon size={18} />
-            <span>{label}</span>
           </NavLink>
         ))}
 
