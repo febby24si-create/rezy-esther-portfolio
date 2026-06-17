@@ -6,7 +6,7 @@
         "service": "Servis Berkala",
         "status": "Selesai",
         "total": 450000,
-        "date": "2024-10-05",
+        "date": "2026-06-05",
         "mechanic": "Ahmad Supriyadi"
     },
     {
@@ -16,7 +16,7 @@
         "service": "Ganti Oli",
         "status": "Selesai",
         "total": 120000,
-        "date": "2024-10-08",
+        "date": "2026-06-08",
         "mechanic": "Eka Fitriani"
     },
     {
@@ -26,7 +26,7 @@
         "service": "Tune Up",
         "status": "Selesai",
         "total": 350000,
-        "date": "2024-10-11",
+        "date": "2026-06-11",
         "mechanic": "Budi Santoso"
     },
     {
@@ -36,7 +36,7 @@
         "service": "Servis Rem",
         "status": "Selesai",
         "total": 180000,
-        "date": "2024-10-14",
+        "date": "2026-06-14",
         "mechanic": "Dedi Kurniawan"
     },
     {
@@ -46,7 +46,7 @@
         "service": "Spooring & Balancing",
         "status": "Selesai",
         "total": 250000,
-        "date": "2024-10-17",
+        "date": "2026-06-17",
         "mechanic": "Ahmad Supriyadi"
     },
     {
@@ -56,7 +56,7 @@
         "service": "Ganti Ban",
         "status": "Selesai",
         "total": 800000,
-        "date": "2024-10-20",
+        "date": "2026-06-20",
         "mechanic": "Cindy Permata"
     },
     {
@@ -66,7 +66,7 @@
         "service": "Servis AC",
         "status": "Selesai",
         "total": 320000,
-        "date": "2024-10-23",
+        "date": "2026-06-23",
         "mechanic": "Eka Fitriani"
     },
     {
@@ -76,7 +76,7 @@
         "service": "Ganti Kampas Rem",
         "status": "Selesai",
         "total": 95000,
-        "date": "2024-10-26",
+        "date": "2026-06-26",
         "mechanic": "Budi Santoso"
     },
     {
@@ -86,7 +86,7 @@
         "service": "Servis Berkala",
         "status": "Selesai",
         "total": 550000,
-        "date": "2024-10-29",
+        "date": "2026-06-29",
         "mechanic": "Dedi Kurniawan"
     },
     {
@@ -96,7 +96,7 @@
         "service": "Cuci Mobil",
         "status": "Selesai",
         "total": 75000,
-        "date": "2024-11-01",
+        "date": "2026-06-01",
         "mechanic": "Cindy Permata"
     },
     {
@@ -106,7 +106,7 @@
         "service": "Ganti Oli",
         "status": "Selesai",
         "total": 130000,
-        "date": "2024-11-04",
+        "date": "2026-06-04",
         "mechanic": "Ahmad Supriyadi"
     },
     {
@@ -116,7 +116,7 @@
         "service": "Tune Up",
         "status": "Selesai",
         "total": 375000,
-        "date": "2024-11-07",
+        "date": "2026-06-07",
         "mechanic": "Eka Fitriani"
     },
     {
@@ -126,7 +126,7 @@
         "service": "Detailing",
         "status": "Selesai",
         "total": 650000,
-        "date": "2024-11-10",
+        "date": "2026-06-10",
         "mechanic": "Budi Santoso"
     },
     {
@@ -136,7 +136,7 @@
         "service": "Servis Rem",
         "status": "Selesai",
         "total": 160000,
-        "date": "2024-11-13",
+        "date": "2026-06-13",
         "mechanic": "Dedi Kurniawan"
     },
     {
@@ -146,7 +146,7 @@
         "service": "Ganti Ban",
         "status": "Selesai",
         "total": 960000,
-        "date": "2024-11-16",
+        "date": "2026-06-16",
         "mechanic": "Cindy Permata"
     },
     {
@@ -156,7 +156,7 @@
         "service": "Spooring & Balancing",
         "status": "Selesai",
         "total": 270000,
-        "date": "2024-11-19",
+        "date": "2026-06-19",
         "mechanic": "Ahmad Supriyadi"
     },
     {
@@ -166,7 +166,7 @@
         "service": "Servis AC",
         "status": "Selesai",
         "total": 480000,
-        "date": "2024-11-22",
+        "date": "2026-06-22",
         "mechanic": "Eka Fitriani"
     },
     {
@@ -176,7 +176,7 @@
         "service": "Servis Berkala",
         "status": "Selesai",
         "total": 420000,
-        "date": "2024-11-25",
+        "date": "2026-06-25",
         "mechanic": "Budi Santoso"
     },
     {
@@ -186,7 +186,7 @@
         "service": "Ganti Oli",
         "status": "Selesai",
         "total": 85000,
-        "date": "2024-11-28",
+        "date": "2026-06-28",
         "mechanic": "Dedi Kurniawan"
     },
     {
@@ -196,7 +196,7 @@
         "service": "Tune Up",
         "status": "Selesai",
         "total": 340000,
-        "date": "2024-12-01",
+        "date": "2026-06-01",
         "mechanic": "Cindy Permata"
     },
     {
@@ -206,7 +206,7 @@
         "service": "Ganti Kampas Rem",
         "status": "Selesai",
         "total": 110000,
-        "date": "2024-12-03",
+        "date": "2026-06-03",
         "mechanic": "Ahmad Supriyadi"
     },
     {
@@ -216,7 +216,7 @@
         "service": "Detailing",
         "status": "Selesai",
         "total": 850000,
-        "date": "2024-12-05",
+        "date": "2026-06-05",
         "mechanic": "Eka Fitriani"
     },
     {
@@ -226,7 +226,7 @@
         "service": "Cuci Mobil",
         "status": "Selesai",
         "total": 65000,
-        "date": "2024-12-06",
+        "date": "2026-06-06",
         "mechanic": "Budi Santoso"
     },
     {
@@ -236,7 +236,7 @@
         "service": "Servis Rem",
         "status": "Selesai",
         "total": 195000,
-        "date": "2024-12-07",
+        "date": "2026-06-07",
         "mechanic": "Dedi Kurniawan"
     },
     {
@@ -246,7 +246,7 @@
         "service": "Servis Berkala",
         "status": "Selesai",
         "total": 620000,
-        "date": "2024-12-08",
+        "date": "2026-06-08",
         "mechanic": "Cindy Permata"
     },
     {
@@ -256,7 +256,7 @@
         "service": "Ganti Oli",
         "status": "Selesai",
         "total": 70000,
-        "date": "2024-12-09",
+        "date": "2026-06-09",
         "mechanic": "Ahmad Supriyadi"
     },
     {
@@ -266,7 +266,7 @@
         "service": "Spooring & Balancing",
         "status": "Selesai",
         "total": 290000,
-        "date": "2024-12-10",
+        "date": "2026-06-10",
         "mechanic": "Eka Fitriani"
     },
     {
@@ -276,7 +276,7 @@
         "service": "Servis AC",
         "status": "Selesai",
         "total": 360000,
-        "date": "2024-12-10",
+        "date": "2026-06-10",
         "mechanic": "Budi Santoso"
     },
     {
@@ -286,7 +286,7 @@
         "service": "Ganti Ban",
         "status": "Selesai",
         "total": 720000,
-        "date": "2024-12-11",
+        "date": "2026-06-11",
         "mechanic": "Dedi Kurniawan"
     },
     {
@@ -296,7 +296,7 @@
         "service": "Tune Up",
         "status": "Selesai",
         "total": 145000,
-        "date": "2024-12-11",
+        "date": "2026-06-11",
         "mechanic": "Cindy Permata"
     },
     {
@@ -306,7 +306,7 @@
         "service": "Detailing",
         "status": "Selesai",
         "total": 750000,
-        "date": "2024-12-12",
+        "date": "2026-06-12",
         "mechanic": "Ahmad Supriyadi"
     },
     {
@@ -316,7 +316,7 @@
         "service": "Servis Berkala",
         "status": "Selesai",
         "total": 410000,
-        "date": "2024-12-12",
+        "date": "2026-06-12",
         "mechanic": "Eka Fitriani"
     },
     {
@@ -326,7 +326,7 @@
         "service": "Ganti Kampas Rem",
         "status": "Selesai",
         "total": 135000,
-        "date": "2024-12-13",
+        "date": "2026-06-13",
         "mechanic": "Budi Santoso"
     },
     {
@@ -336,7 +336,7 @@
         "service": "Cuci Mobil",
         "status": "Selesai",
         "total": 75000,
-        "date": "2024-12-13",
+        "date": "2026-06-13",
         "mechanic": "Dedi Kurniawan"
     },
     {
@@ -346,7 +346,7 @@
         "service": "Spooring & Balancing",
         "status": "Selesai",
         "total": 260000,
-        "date": "2024-12-13",
+        "date": "2026-06-13",
         "mechanic": "Cindy Permata"
     },
     {
@@ -356,7 +356,7 @@
         "service": "Ganti Oli",
         "status": "Sedang Dikerjakan",
         "total": 115000,
-        "date": "2024-12-14",
+        "date": "2026-06-14",
         "mechanic": "Ahmad Supriyadi"
     },
     {
@@ -366,7 +366,7 @@
         "service": "Servis Rem",
         "status": "Sedang Dikerjakan",
         "total": 170000,
-        "date": "2024-12-14",
+        "date": "2026-06-14",
         "mechanic": "Eka Fitriani"
     },
     {
@@ -376,7 +376,7 @@
         "service": "Servis AC",
         "status": "Sedang Dikerjakan",
         "total": 395000,
-        "date": "2024-12-14",
+        "date": "2026-06-14",
         "mechanic": "Budi Santoso"
     },
     {
@@ -386,7 +386,7 @@
         "service": "Tune Up",
         "status": "Sedang Dikerjakan",
         "total": 385000,
-        "date": "2024-12-14",
+        "date": "2026-06-14",
         "mechanic": "Dedi Kurniawan"
     },
     {
@@ -396,7 +396,7 @@
         "service": "Ganti Ban",
         "status": "Sedang Dikerjakan",
         "total": 580000,
-        "date": "2024-12-15",
+        "date": "2026-06-15",
         "mechanic": "Cindy Permata"
     },
     {
@@ -406,7 +406,7 @@
         "service": "Servis Berkala",
         "status": "Sedang Dikerjakan",
         "total": 490000,
-        "date": "2024-12-15",
+        "date": "2026-06-15",
         "mechanic": "Ahmad Supriyadi"
     },
     {
@@ -416,7 +416,7 @@
         "service": "Detailing",
         "status": "Sedang Dikerjakan",
         "total": 700000,
-        "date": "2024-12-15",
+        "date": "2026-06-15",
         "mechanic": "Eka Fitriani"
     },
     {
@@ -426,7 +426,7 @@
         "service": "Ganti Kampas Rem",
         "status": "Sedang Dikerjakan",
         "total": 125000,
-        "date": "2024-12-15",
+        "date": "2026-06-15",
         "mechanic": "Budi Santoso"
     },
     {
@@ -436,7 +436,7 @@
         "service": "Cuci Mobil",
         "status": "Menunggu",
         "total": 65000,
-        "date": "2024-12-16",
+        "date": "2026-06-16",
         "mechanic": "Dedi Kurniawan"
     },
     {
@@ -446,7 +446,7 @@
         "service": "Spooring & Balancing",
         "status": "Menunggu",
         "total": 255000,
-        "date": "2024-12-16",
+        "date": "2026-06-16",
         "mechanic": "Cindy Permata"
     },
     {
@@ -456,7 +456,7 @@
         "service": "Ganti Oli",
         "status": "Menunggu",
         "total": 100000,
-        "date": "2024-12-16",
+        "date": "2026-06-16",
         "mechanic": "Ahmad Supriyadi"
     },
     {
@@ -466,7 +466,7 @@
         "service": "Servis AC",
         "status": "Menunggu",
         "total": 340000,
-        "date": "2024-12-16",
+        "date": "2026-06-16",
         "mechanic": "Eka Fitriani"
     },
     {
@@ -476,7 +476,7 @@
         "service": "Servis Rem",
         "status": "Menunggu",
         "total": 155000,
-        "date": "2024-12-17",
+        "date": "2026-06-17",
         "mechanic": "Budi Santoso"
     },
     {
@@ -486,7 +486,7 @@
         "service": "Tune Up",
         "status": "Menunggu",
         "total": 420000,
-        "date": "2024-12-17",
+        "date": "2026-06-17",
         "mechanic": "Dedi Kurniawan"
     },
     {
@@ -496,7 +496,7 @@
         "service": "Servis Berkala",
         "status": "Menunggu",
         "total": 465000,
-        "date": "2024-12-17",
+        "date": "2026-06-17",
         "mechanic": "Cindy Permata"
     }
 ]
