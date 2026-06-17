@@ -505,7 +505,9 @@ export default function BookingService() {
       const orders = JSON.parse(localStorage.getItem('garage_orders') || '[]')
       localStorage.setItem('garage_orders', JSON.stringify([{
         id, customer: customer.name, customerId: customer.id,
+        customerPhone: customer.phone || customer.whatsapp || '',
         vehicle: `${form.vehicle.brand} ${form.vehicle.model} - ${form.vehicle.plate}`,
+        vehiclePlate: form.vehicle.plate,
         service: form.service.name, status: 'Antrian',
         total: finalTotal, date: form.date.toISOString().slice(0, 10),
         time: form.time, mechanic: '—', keluhan: form.keluhan,
@@ -513,6 +515,10 @@ export default function BookingService() {
         discountApplied: discountAmt,
         pointsAwarded: false,
         createdAt: new Date().toISOString(),
+        // FIX: tandai asal order agar Orders.jsx tahu data ini sudah lengkap
+        // dari booking online — admin tinggal assign mekanik, tanpa input ulang.
+        source: 'online-booking',
+        needsMechanicAssignment: true,
       }, ...orders]))
       // Gunakan voucher jika ada
       if (appliedVoucher) {

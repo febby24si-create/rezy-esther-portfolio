@@ -7,8 +7,14 @@
 // ============================================================
 
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import customersDataJson from '../data/customersData.json'
 
 const CustomerAuthContext = createContext(null)
+
+// Cache static JSON data ke window agar getAllCustomers() (sync) bisa akses
+if (typeof window !== 'undefined') {
+  window.__customersDataCache__ = customersDataJson
+}
 
 // ─── Loyalty Engine ──────────────────────────────────────────
 export const TIER_CONFIG = {
@@ -562,8 +568,42 @@ export function useCustomerAuth() {
 }
 
 // ── Fungsi publik untuk admin (tanpa context) ─────────────────
+// FIX: Merge localStorage (eg_customers) dengan customersData.json
+// sehingga seluruh 50 data customer terbaca di MembershipAdmin.
+// Prioritas: data localStorage menang (preserves admin edits & loyalty),
+// tapi customer dari JSON yang belum ada di LS tetap ikut tampil.
 export function getAllCustomers() {
-  return loadCustomers()
+  let lsCustomers = []
+  try {
+    lsCustomers = loadCustomers()
+  } catch { lsCustomers = [] }
+
+  let jsonCustomers = []
+  try {
+    // Dynamic import tidak bisa sync — pakai require-style via window cache
+    // yang di-seed saat runtime, atau fallback ke import statis via moduleCache
+    if (window.__customersDataCache__) {
+      jsonCustomers = window.__customersDataCache__
+    }
+  } catch { jsonCustomers = [] }
+
+  if (jsonCustomers.length === 0) {
+    // Jika cache belum ada, kembalikan LS saja (akan lengkap setelah
+    // seedCustomersFromJSON() dipanggil di CustomerAuthProvider)
+    return lsCustomers
+  }
+
+  // Merge: LS menang untuk customer yang sama (berdasarkan id atau email)
+  const lsMap = new Map(lsCustomers.map(c => [c.id, c]))
+  const lsEmails = new Set(lsCustomers.map(c => c.email?.toLowerCase()))
+
+  const merged = [...lsCustomers]
+  for (const jc of jsonCustomers) {
+    if (!lsMap.has(jc.id) && !lsEmails.has(jc.email?.toLowerCase())) {
+      merged.push(jc)
+    }
+  }
+  return merged
 }
 
 export function getCustomerById(id) {

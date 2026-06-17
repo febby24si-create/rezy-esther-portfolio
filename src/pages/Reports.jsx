@@ -145,6 +145,7 @@ export default function Reports() {
   }, [])
 
   const [monthsBack, setMonthsBack] = useState(12)
+  const [showAllMechanics, setShowAllMechanics] = useState(false)
   const [activeShortcut, setActiveShortcut] = useState('Tahun Ini')
 
   const allMonthly = useMemo(() => buildMonthlyData(orders, 12), [orders])
@@ -160,29 +161,33 @@ export default function Reports() {
   const lastMonth = allMonthly[allMonthly.length - 2]
   const revTrend = lastMonth?.revenue > 0 ? Math.round(((thisMonth?.revenue - lastMonth?.revenue) / lastMonth.revenue) * 100) : null
 
-  // Top mekanik berdasarkan order (tanpa harus cocok dengan data mechanics)
+  // FIX: Top mekanik sekarang dibangun dari SELURUH daftar mechanics
+  // (bukan hanya dari nama yang muncul di orders). Sebelumnya, mekanik
+  // yang belum punya order tercatat di ordersData.json otomatis tidak
+  // pernah masuk laporan — padahal mechanicsData.json punya 20 mekanik
+  // sementara ordersData.json hanya menyebut 5 nama mekanik berbeda.
+  // Sekarang: mulai dari semua mechanics (total=0, selesai=0), lalu
+  // akumulasi dari orders yang cocok by name.
   const topMechanics = useMemo(() => {
     const map = {}
+    // Seed semua mekanik dari sumber data mekanik (LS atau JSON), termasuk yang belum ada order-nya
+    mechanics.forEach(m => {
+      map[m.name.trim()] = { name: m.name.trim(), total: 0, selesai: 0, mechanicData: m }
+    })
     orders.forEach(o => {
-      if (!o.mechanic) return
+      if (!o.mechanic || o.mechanic === '—') return
       const mechanicName = o.mechanic.trim()
       if (!map[mechanicName]) {
-        // Coba cari data mekanik yang cocok (opsional)
+        // Order menyebut nama yang tidak ada di data mekanik — tetap dicatat
         const mechanicData = getMechanicByName(mechanicName, mechanics)
-        map[mechanicName] = {
-          name: mechanicName,
-          total: 0,
-          selesai: 0,
-          mechanicData: mechanicData // bisa null jika tidak ada
-        }
+        map[mechanicName] = { name: mechanicName, total: 0, selesai: 0, mechanicData }
       }
       map[mechanicName].total++
       if (o.status === 'Selesai') map[mechanicName].selesai++
     })
-    // Urutkan berdasarkan jumlah order selesai terbanyak
+    // Urutkan: yang punya order selesai dulu, baru yang belum punya order
     return Object.values(map)
-      .sort((a, b) => b.selesai - a.selesai)
-      .slice(0, 5)
+      .sort((a, b) => b.selesai - a.selesai || b.total - a.total)
   }, [orders, mechanics])
 
   const handleExport = () => {
@@ -287,9 +292,19 @@ export default function Reports() {
 
       {topMechanics.length > 0 && (
         <div className="rounded-2xl p-5" style={{ background: 'rgba(6,28,20,0.8)', border: '1px solid rgba(34,197,94,0.1)' }}>
-          <h3 className="text-white font-bold mb-4">Performa Mekanik</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-white font-bold">Performa Mekanik</h3>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-gray-600">{topMechanics.length} mekanik total</span>
+              {topMechanics.length > 8 && (
+                <button onClick={() => setShowAllMechanics(s => !s)} className="text-xs text-green-400 hover:underline">
+                  {showAllMechanics ? 'Tampilkan teratas' : 'Lihat semua'}
+                </button>
+              )}
+            </div>
+          </div>
           <div className="space-y-3">
-            {topMechanics.map((m, i) => {
+            {(showAllMechanics ? topMechanics : topMechanics.slice(0, 8)).map((m, i) => {
               const pct = m.total > 0 ? Math.round((m.selesai / m.total) * 100) : 0
               const hasData = !!m.mechanicData
               return (

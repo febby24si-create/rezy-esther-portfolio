@@ -4,17 +4,9 @@ import {
   MdWarning, MdAddCircle, MdRemoveCircle, MdHistory, MdArrowBack,
   MdCheck, MdTrendingUp, MdTrendingDown
 } from 'react-icons/md'
+import inventoryData from '../data/inventoryData.json'
 
 const fmt = (n) => 'Rp ' + Number(n).toLocaleString('id-ID')
-
-const inventoryData = [
-  { id: 'INV-001', code: 'OL-001', name: 'Oli Mesin Shell 10W-40', category: 'Oli',    stock: 32, unit: 'liter', minStock: 10, buyPrice: 45000,  sellPrice: 65000  },
-  { id: 'INV-002', code: 'BN-001', name: 'Ban Bridgestone 185/65',  category: 'Ban',   stock: 4,  unit: 'pcs',   minStock: 6,  buyPrice: 350000, sellPrice: 475000 },
-  { id: 'INV-003', code: 'AK-001', name: 'Aki GS Astra 45 Ah',     category: 'Aki',   stock: 0,  unit: 'pcs',   minStock: 3,  buyPrice: 450000, sellPrice: 620000 },
-  { id: 'INV-004', code: 'FL-001', name: 'Filter Oli Toyota',       category: 'Filter',stock: 18, unit: 'pcs',   minStock: 8,  buyPrice: 35000,  sellPrice: 55000  },
-  { id: 'INV-005', code: 'RM-001', name: 'Kampas Rem Depan Honda',  category: 'Rem',   stock: 5,  unit: 'set',   minStock: 5,  buyPrice: 120000, sellPrice: 180000 },
-  { id: 'INV-006', code: 'OL-002', name: 'Oli Transmisi ATF',       category: 'Oli',   stock: 15, unit: 'liter', minStock: 8,  buyPrice: 55000,  sellPrice: 80000  },
-]
 
 const getStockStatus = (stock, minStock) => {
   if (stock === 0)          return { label: 'Habis',   cls: 'text-red-400',    bg: 'rgba(239,68,68,0.1)',   border: 'rgba(239,68,68,0.25)'   }
@@ -22,9 +14,14 @@ const getStockStatus = (stock, minStock) => {
   return                           { label: 'Aman',    cls: 'text-green-400',  bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.2)'    }
 }
 
-const CATEGORIES = ['Semua', 'Oli', 'Ban', 'Aki', 'Filter', 'Rem', 'Lainnya']
+const CATEGORIES = [
+  'Semua', 'Oli Mesin', 'Oli Transmisi', 'Filter Oli', 'Filter Udara',
+  'Busi', 'Kampas Rem', 'Aki', 'Ban', 'Cairan Radiator', 'Lampu Kendaraan',
+  'Bearing', 'Belt', 'Fuse', 'Sensor Kendaraan', 'Sparepart Fast Moving',
+  'Tools & Consumables', 'Lainnya'
+]
 
-const initialForm = { code: '', name: '', category: 'Oli', stock: '', unit: 'pcs', minStock: '5', buyPrice: '', sellPrice: '' }
+const initialForm = { code: '', name: '', category: 'Oli Mesin', stock: '', unit: 'pcs', minStock: '5', buyPrice: '', sellPrice: '' }
 
 const inputCls = 'w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all focus:ring-2 focus:ring-green-500/20'
 const inputStyle = { background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }
@@ -286,10 +283,30 @@ function ItemModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
 }
 
 // ─── Halaman Utama ────────────────────────────────────────────────────
+// FIX (terkait isu localStorage #1): jika localStorage('garage_inventory')
+// sudah pernah ter-set dengan data lama (6 item versi sebelumnya), maka
+// item baru dari inventoryData.json (79 item, 16 kategori) TIDAK akan
+// muncul karena localStorage selalu diprioritaskan dan menimpa seluruhnya.
+// Solusi: merge by id — data localStorage tetap menang untuk item yang
+// sudah ada (preserve stok yang sudah diubah admin), tapi item baru dari
+// JSON yang belum pernah ada di localStorage akan ditambahkan otomatis.
+function loadInventory() {
+  let stored = []
+  try {
+    const raw = localStorage.getItem('garage_inventory')
+    stored = raw ? JSON.parse(raw) : []
+  } catch { stored = [] }
+
+  if (stored.length === 0) return inventoryData
+
+  const storedIds = new Set(stored.map(i => i.id))
+  const storedCodes = new Set(stored.map(i => i.code))
+  const newOnes = inventoryData.filter(i => !storedIds.has(i.id) && !storedCodes.has(i.code))
+  return [...stored, ...newOnes]
+}
+
 export default function Inventory() {
-  const [items, setItems] = useState(() => {
-    try { const s = localStorage.getItem('garage_inventory'); return s ? JSON.parse(s) : inventoryData } catch { return inventoryData }
-  })
+  const [items, setItems] = useState(() => loadInventory())
   const [history, setHistory] = useState(() => {
     try { const s = localStorage.getItem('garage_inventory_history'); return s ? JSON.parse(s) : [] } catch { return [] }
   })

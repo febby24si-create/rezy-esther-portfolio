@@ -94,48 +94,108 @@ export const layanan = [
   },
 ]
 
-// ─── PROMO & VOUCHER ─────────────────────────────────────────
 export const promos = [
   {
-    id: 'P01', title: 'Paket Lebaran Hemat', type: 'promo', badge: 'HOT', badgeColor: 'red',
-    desc: 'Service berkala + ganti oli gratis filter udara. Siapkan kendaraan sebelum mudik!',
-    diskon: 30, minTransaction: 300000,
+    id: 'P01',
+    title: 'Paket Servis Berkala Hemat',
+    type: 'promo',
+    badge: 'HOT',
+    badgeColor: 'red',
+    desc: 'Servis berkala lengkap + ganti oli + pengecekan 21 titik kendaraan.',
+    diskon: 30,
+    minTransaction: 300000,
     validUntil: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-    terms: 'Berlaku untuk servis berkala min. Rp300.000. Tidak berlaku bersamaan promo lain.', active: true,
+    terms: 'Minimal transaksi Rp300.000. Tidak dapat digabung promo lain.',
+    active: true,
+    code: 'HEMAT30',
+    image:
+      'https://images.pexels.com/photos/3807329/pexels-photo-3807329.jpeg?auto=compress&cs=tinysrgb&w=1200'
   },
+
   {
-    id: 'P02', title: 'Diskon Service AC', type: 'promo', badge: 'NEW', badgeColor: 'blue',
-    desc: 'Cuci evaporator + isi freon R134a diskon 25%. Musim panas, AC harus prima!',
-    diskon: 25, minTransaction: 200000,
+    id: 'P02',
+    title: 'Diskon Service AC',
+    type: 'promo',
+    badge: 'NEW',
+    badgeColor: 'blue',
+    desc: 'Cuci evaporator dan isi freon dengan harga spesial.',
+    diskon: 25,
+    minTransaction: 200000,
     validUntil: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
-    terms: 'Berlaku untuk paket service AC lengkap.', active: true,
+    terms: 'Berlaku untuk paket service AC lengkap.',
+    active: true,
+    code: 'AC25',
+    image:
+      'https://images.pexels.com/photos/4489732/pexels-photo-4489732.jpeg?auto=compress&cs=tinysrgb&w=1200'
   },
+
   {
-    id: 'P03', title: 'Voucher Ulang Tahun', type: 'birthday', badge: '🎂', badgeColor: 'purple',
-    desc: 'Selamat ulang tahun! Nikmati diskon 20% untuk semua layanan di bulan ulang tahun Anda.',
-    diskon: 20, minTransaction: 0, validUntil: 'Bulan Ulang Tahun',
-    terms: 'Berlaku satu kali selama bulan ulang tahun. Tidak dapat digabung promo lain.', active: true,
+    id: 'P03',
+    title: 'Voucher Ulang Tahun',
+    type: 'birthday',
+    badge: '🎂',
+    badgeColor: 'purple',
+    desc: 'Diskon spesial 20% untuk semua layanan di bulan ulang tahun.',
+    diskon: 20,
+    minTransaction: 0,
+    validUntil: 'Bulan Ulang Tahun',
+    terms: 'Berlaku satu kali selama bulan ulang tahun.',
+    active: true,
+    code: 'BDAY20',
+    image:
+      'https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg?auto=compress&cs=tinysrgb&w=1200'
   },
+
   {
-    id: 'P04', title: 'Reward Loyal Customer', type: 'loyalty', badge: '⭐', badgeColor: 'yellow',
-    desc: 'Telah 10x servis di Esther Garage? Dapatkan service berkala GRATIS berikutnya!',
-    diskon: 100, minTransaction: 0, validUntil: 'Tidak Ada Batas',
-    terms: 'Berlaku untuk pelanggan dengan minimal 10 transaksi. Berlaku 1x redeem.', active: true,
+    id: 'P04',
+    title: 'Reward Loyal Customer',
+    type: 'loyalty',
+    badge: '⭐',
+    badgeColor: 'yellow',
+    desc: 'Servis ke-10 gratis untuk pelanggan setia Esther Garage.',
+    diskon: 100,
+    minTransaction: 0,
+    validUntil: 'Tidak Ada Batas',
+    terms: 'Minimal telah melakukan 10 transaksi.',
+    active: true,
+    code: 'LOYAL10',
+    image:
+      'https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=1200'
   },
+
   {
-    id: 'P05', title: 'Voucher Member Baru', type: 'member', badge: 'WELCOME', badgeColor: 'green',
-    desc: 'Selamat datang di Esther Garage! Diskon 15% untuk servis pertama Anda.',
-    diskon: 15, minTransaction: 0,
+    id: 'P05',
+    title: 'Voucher Member Baru',
+    type: 'member',
+    badge: 'WELCOME',
+    badgeColor: 'green',
+    desc: 'Diskon 15% untuk servis pertama setelah registrasi member.',
+    diskon: 15,
+    minTransaction: 0,
     validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    terms: 'Berlaku 1x untuk member baru. Masa berlaku 30 hari setelah registrasi.', active: true,
+    terms: 'Berlaku satu kali dalam 30 hari pertama.',
+    active: true,
+    code: 'WELCOME15',
+    image:
+      'https://images.pexels.com/photos/3806288/pexels-photo-3806288.jpeg?auto=compress&cs=tinysrgb&w=1200'
   },
+
   {
-    id: 'P06', title: 'Spooring + Balancing Bundling', type: 'promo', badge: 'BUNDLING', badgeColor: 'orange',
-    desc: 'Paket spooring + balancing 4 roda hanya Rp199.000. Hemat hingga 40%!',
-    diskon: 40, minTransaction: 0,
+    id: 'P06',
+    title: 'Spooring + Balancing',
+    type: 'promo',
+    badge: 'BUNDLING',
+    badgeColor: 'orange',
+    desc: 'Paket spooring dan balancing 4 roda dengan harga spesial.',
+    diskon: 40,
+    minTransaction: 0,
     validUntil: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
-    terms: 'Berlaku untuk paket 4 roda. Tidak termasuk penggantian spare part.', active: true,
-  },
+    terms: 'Tidak termasuk penggantian sparepart.',
+    active: true,
+    code: 'BUNDLE40',
+    image:
+      'https://images.pexels.com/photos/6873088/pexels-photo-6873088.jpeg?auto=compress&cs=tinysrgb&w=1200'
+  }
 ]
 
 // ─── VOUCHER SAYA ────────────────────────────────────────────

@@ -240,9 +240,18 @@ export default function MembershipAdmin() {
   const [toast, setToast]         = useState(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
+  // FIX: Load semua customer (merge LS + JSON) setiap refreshKey berubah
+  // dan juga saat storage event dari tab lain
   useEffect(() => {
     setCustomers(getAllCustomers())
   }, [refreshKey])
+
+  useEffect(() => {
+    // Sync jika ada perubahan dari tab/window lain (eg_customers berubah)
+    const handleStorageSync = () => setCustomers(getAllCustomers())
+    window.addEventListener('storage', handleStorageSync)
+    return () => window.removeEventListener('storage', handleStorageSync)
+  }, [])
 
   const showToast = (msg) => {
     setToast(msg)

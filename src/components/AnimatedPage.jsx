@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import { motion, AnimatePresence, useInView } from 'framer-motion'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 // ── Variants dasar ────────────────────────────────────────────
 export const fadeUp = {
@@ -177,7 +177,7 @@ export function AnimatedProgress({ value, color, height = 10, bg = 'rgba(255,255
       <motion.div
         className="h-full rounded-full"
         initial={{ width: 0 }}
-        animate={isInView ? { width: `${value}%` } : { width: 0 }}
+        animate={isInView ? { width: `${Math.min(value, 100)}%` } : { width: 0 }}
         transition={{ duration: 1.2, delay, ease: [0.16, 1, 0.3, 1] }}
         style={{ background: color }}
       />
@@ -219,7 +219,6 @@ export function CountUpNumber({ value, suffix = '', prefix = '', duration = 1.5,
 }
 
 function CountUpSpan({ target, duration }) {
-  // Simple internal count-up
   const [count, setCount] = useState(0)
   useEffect(() => {
     let start = null
@@ -234,6 +233,13 @@ function CountUpSpan({ target, duration }) {
     requestAnimationFrame(step)
   }, [target, duration])
   return <>{count.toLocaleString('id-ID')}</>
+}
+
+// ── AnimatedNumber (untuk dashboard) ──────────────────────────
+// Versi sederhana yang langsung menampilkan angka (tanpa count-up)
+// Karena di dashboard sudah di-handle dengan useSpring.
+export function AnimatedNumber({ value, format = (v) => v.toLocaleString('id-ID') }) {
+  return <span>{format(value)}</span>
 }
 
 // Re-export AnimatePresence for convenience
