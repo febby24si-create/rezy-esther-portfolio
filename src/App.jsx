@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CustomerAuthProvider } from "./context/CustomerAuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -73,7 +73,7 @@ export default function App() {
             {/* ── Admin Protected Routes ─────────────────── */}
             <Route element={<ProtectedRoute />}>
               <Route element={<MainLayout />}>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/customers" element={<Customers />} />
                 <Route path="/vehicles" element={<Vehicles />} />
@@ -121,7 +121,8 @@ export default function App() {
 
             {/* ── Guest Public Routes ────────────────────── */}
             <Route element={<GuestLayout />}>
-              <Route path="/guest" element={<LandingPage />} />
+              <Route path="/guest" element={<LandingPage/>} />
+              <Route path="/" element={<LandingPage />} />
               <Route path="/guest/tentang" element={<TentangKami />} />
               <Route path="/guest/layanan" element={<Layanan />} />
               <Route path="/guest/promo" element={<PromoVoucher />} />
