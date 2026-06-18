@@ -49,11 +49,11 @@ export default function Header({ onToggleSidebar }) {
       return JSON.parse(saved);
     }
     return {
-      name: "Admin Workshop",
-      role: "Manajer",
-      email: "admin@bengkel.id",
+      name: "Febby Fahrezyyy",
+      role: "CEO & Founder",
+      email: "rezyadmin@bengkel.id",
       phone: "",
-      avatar: null,
+      avatar: 'minju.jpg', // PATH DEFAULT DARI PUBLIC
     };
   });
 

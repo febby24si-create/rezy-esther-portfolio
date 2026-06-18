@@ -227,28 +227,31 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 // ─── Mini Sparkline ───────────────────────────────────────────────────
 function MiniSparkline({ data, color = "#22C55E" }) {
+  // FIX: Bungkus ResponsiveContainer dengan div berukuran tetap
   return (
-    <ResponsiveContainer width="100%" height={48}>
-      <AreaChart data={data} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
-        <defs>
-          <linearGradient id={`spark-${color.replace("#", "")}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor={color} stopOpacity={0.3} />
-            <stop offset="95%" stopColor={color} stopOpacity={0.02} />
-          </linearGradient>
-        </defs>
-        <Area
-          type="monotone"
-          dataKey="v"
-          stroke={color}
-          strokeWidth={2}
-          fill={`url(#spark-${color.replace("#", "")})`}
-          dot={false}
-          isAnimationActive={true}
-          animationDuration={1200}
-          animationEasing="ease-out"
-        />
-      </AreaChart>
-    </ResponsiveContainer>
+    <div style={{ width: "100%", height: 48, minHeight: 48 }}>
+      <ResponsiveContainer width="100%" height={48}>
+        <AreaChart data={data} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
+          <defs>
+            <linearGradient id={`spark-${color.replace("#", "")}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={color} stopOpacity={0.3} />
+              <stop offset="95%" stopColor={color} stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
+          <Area
+            type="monotone"
+            dataKey="v"
+            stroke={color}
+            strokeWidth={2}
+            fill={`url(#spark-${color.replace("#", "")})`}
+            dot={false}
+            isAnimationActive={true}
+            animationDuration={1200}
+            animationEasing="ease-out"
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
 
@@ -513,7 +516,61 @@ function ChatbotModal({ isOpen, onClose }) {
 }
 
 // ─── FLOATING MENU ────────────────────────────────────────────────────
-// ── Member List Widget ─────────────────────────────────────────
+function FloatingCRMMenu() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [showChatbot, setShowChatbot] = useState(false);
+
+  const handleWhatsApp = () => {
+    const phoneNumber = "6281234567890";
+    const message = "Halo Esther Garage, saya ingin menanyakan...";
+    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, "_blank");
+    setIsOpen(false);
+  };
+
+  return (
+    <>
+      <div className="fixed bottom-6 right-6 z-40">
+        {isOpen && (
+          <div className="absolute bottom-16 right-0 mb-2 space-y-2">
+            <button
+              onClick={() => {
+                setShowChatbot(true);
+                setIsOpen(false);
+              }}
+              className="flex items-center gap-2 rounded-full px-4 py-2 shadow-lg transition-all w-36 border animate-fadeInUp"
+              style={{ background: "#0a1e15", color: "#22C55E", borderColor: "rgba(34,197,94,0.3)" }}
+            >
+              <Bot size={16} className="animate-spin-slow" />
+              <span className="text-sm font-medium">AI Chatbot</span>
+            </button>
+            <button
+              onClick={handleWhatsApp}
+              className="flex items-center gap-2 rounded-full px-4 py-2 shadow-lg transition-all w-36 border animate-fadeInUp"
+              style={{ background: "#0a1e15", color: "#22C55E", borderColor: "rgba(34,197,94,0.3)" }}
+            >
+              <MessageCircle size={16} />
+              <span className="text-sm font-medium">WhatsApp</span>
+            </button>
+          </div>
+        )}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-13 h-13 rounded-full flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 animate-pulse-ring"
+          style={{ background: "#16a34a", boxShadow: "0 0 20px rgba(34,197,94,0.4)", width: 52, height: 52 }}
+        >
+          {isOpen ? (
+            <X size={22} className="rotate-90 transition-transform duration-300" />
+          ) : (
+            <MessageSquare size={22} className="transition-transform duration-300" />
+          )}
+        </button>
+      </div>
+      <ChatbotModal isOpen={showChatbot} onClose={() => setShowChatbot(false)} />
+    </>
+  );
+}
+
+// ─── Member List Widget ─────────────────────────────────────────
 function MemberListWidget({ membership }) {
   const [search, setSearch] = useState("")
   const [filterTier, setFilterTier] = useState("Semua")
@@ -631,60 +688,6 @@ function MemberListWidget({ membership }) {
       )}
     </div>
   )
-}
-
-function FloatingCRMMenu() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [showChatbot, setShowChatbot] = useState(false);
-
-  const handleWhatsApp = () => {
-    const phoneNumber = "6281234567890";
-    const message = "Halo Esther Garage, saya ingin menanyakan...";
-    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, "_blank");
-    setIsOpen(false);
-  };
-
-  return (
-    <>
-      <div className="fixed bottom-6 right-6 z-40">
-        {isOpen && (
-          <div className="absolute bottom-16 right-0 mb-2 space-y-2">
-            <button
-              onClick={() => {
-                setShowChatbot(true);
-                setIsOpen(false);
-              }}
-              className="flex items-center gap-2 rounded-full px-4 py-2 shadow-lg transition-all w-36 border animate-fadeInUp"
-              style={{ background: "#0a1e15", color: "#22C55E", borderColor: "rgba(34,197,94,0.3)" }}
-            >
-              <Bot size={16} className="animate-spin-slow" />
-              <span className="text-sm font-medium">AI Chatbot</span>
-            </button>
-            <button
-              onClick={handleWhatsApp}
-              className="flex items-center gap-2 rounded-full px-4 py-2 shadow-lg transition-all w-36 border animate-fadeInUp"
-              style={{ background: "#0a1e15", color: "#22C55E", borderColor: "rgba(34,197,94,0.3)" }}
-            >
-              <MessageCircle size={16} />
-              <span className="text-sm font-medium">WhatsApp</span>
-            </button>
-          </div>
-        )}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-13 h-13 rounded-full flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 animate-pulse-ring"
-          style={{ background: "#16a34a", boxShadow: "0 0 20px rgba(34,197,94,0.4)", width: 52, height: 52 }}
-        >
-          {isOpen ? (
-            <X size={22} className="rotate-90 transition-transform duration-300" />
-          ) : (
-            <MessageSquare size={22} className="transition-transform duration-300" />
-          )}
-        </button>
-      </div>
-      <ChatbotModal isOpen={showChatbot} onClose={() => setShowChatbot(false)} />
-    </>
-  );
 }
 
 // ─── MAIN DASHBOARD ───────────────────────────────────────────────────
@@ -897,43 +900,45 @@ export default function Dashboard() {
           {orders.length === 0 ? (
             <div className="h-52 flex items-center justify-center text-gray-600 text-sm">Belum ada data order</div>
           ) : (
-            <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={revenueChart} margin={{ top: 10, right: 5, left: 5, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#22C55E" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#22C55E" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fill: "#4b5563", fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  interval={Math.max(0, Math.floor(revenueChart.length / 6))}
-                />
-                <YAxis
-                  tick={{ fill: "#4b5563", fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(v) => (v === 0 ? "0" : `${(v / 1000000).toFixed(0)}M`)}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#22C55E"
-                  strokeWidth={2.5}
-                  fill="url(#revGrad)"
-                  dot={false}
-                  activeDot={{ r: 5, fill: "#22C55E", stroke: "#060f0a", strokeWidth: 2 }}
-                  isAnimationActive={true}
-                  animationDuration={1500}
-                  animationEasing="ease-out"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <div style={{ width: "100%", height: 220, minHeight: 220 }}>
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={revenueChart} margin={{ top: 10, right: 5, left: 5, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#22C55E" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#22C55E" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fill: "#4b5563", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                    interval={Math.max(0, Math.floor(revenueChart.length / 6))}
+                  />
+                  <YAxis
+                    tick={{ fill: "#4b5563", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v) => (v === 0 ? "0" : `${(v / 1000000).toFixed(0)}M`)}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#22C55E"
+                    strokeWidth={2.5}
+                    fill="url(#revGrad)"
+                    dot={false}
+                    activeDot={{ r: 5, fill: "#22C55E", stroke: "#060f0a", strokeWidth: 2 }}
+                    isAnimationActive={true}
+                    animationDuration={1500}
+                    animationEasing="ease-out"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           )}
         </div>
 
