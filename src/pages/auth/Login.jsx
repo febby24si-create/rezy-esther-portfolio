@@ -22,7 +22,7 @@ export default function Login() {
 
     const result = login(form.email, form.password)
     if (result.success) {
-      navigate('/')
+      navigate('/dashboard')
     } else {
       setError(result.message || 'Email atau password salah.')
     }
