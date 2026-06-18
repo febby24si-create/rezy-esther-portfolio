@@ -21,7 +21,7 @@ export default function ServiceTracking({ customer }) {
         </motion.div>
         <p className="text-white font-medium">Tidak ada service aktif</p>
         <p className="text-gray-500 text-sm mt-1">Booking sekarang untuk perawatan kendaraan Anda.</p>
-        <Link to="/guest/booking" className="inline-block mt-4 text-emerald-400 hover:text-emerald-300 text-sm font-medium">
+        <Link to="/member/booking" className="inline-block mt-4 text-emerald-400 hover:text-emerald-300 text-sm font-medium">
           Booking Sekarang →
         </Link>
       </div>
@@ -75,7 +75,7 @@ export default function ServiceTracking({ customer }) {
           <p className="text-gray-400">Mekanik: <span className="text-white">{activeOrder.mechanic}</span></p>
           <p className="text-gray-400">{activeOrder.service}</p>
         </div>
-        <Link to="/guest/tracking" className="text-emerald-400 hover:text-emerald-300 text-xs flex items-center gap-1">
+        <Link to="/member/tracking" className="text-emerald-400 hover:text-emerald-300 text-xs flex items-center gap-1">
           Detail <MdArrowForward size={12} />
         </Link>
       </div>

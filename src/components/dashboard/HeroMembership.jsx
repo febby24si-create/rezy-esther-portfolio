@@ -95,7 +95,7 @@ export default function HeroMembership({ customer, onRefresh }) {
             </motion.div>
           </motion.button>
 
-          <Link to="/guest/booking"
+          <Link to="/member/booking"
             className="inline-flex items-center justify-center gap-2 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
             style={{ background: 'linear-gradient(135deg,#059669,#10B981)', boxShadow: '0 4px 20px rgba(16,185,129,0.3)' }}
           >
@@ -122,7 +122,7 @@ export default function HeroMembership({ customer, onRefresh }) {
         <AnimatedProgress value={loyalty.progress} color={tierCfg.color} height={6} bg="rgba(255,255,255,0.15)" delay={0.4} />
         <div className="flex justify-between mt-1.5 text-xs text-white/30">
           <span>{loyalty.progress}% selesai</span>
-          <Link to="/guest/loyalty" className="text-white/50 hover:text-white transition-colors">Detail →</Link>
+          <Link to="/member/loyalty" className="text-white/50 hover:text-white transition-colors">Detail →</Link>
         </div>
       </div>
     </motion.div>

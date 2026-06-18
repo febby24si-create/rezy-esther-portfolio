@@ -4,12 +4,12 @@ import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp } from 'react-icons/fa'
 
 const layananLinks = ['Service Berkala', 'Tune Up', 'Ganti Oli', 'Spooring & Balancing', 'Service AC', 'Service Kelistrikan']
 const pelangganLinks = [
-  { label: 'Dashboard Saya', path: '/guest/dashboard' },
-  { label: 'Booking Online', path: '/guest/booking' },
-  { label: 'Tracking Status', path: '/guest/tracking' },
-  { label: 'Riwayat Service', path: '/guest/riwayat' },
-  { label: 'Loyalty Point', path: '/guest/loyalty' },
-  { label: 'Voucher Saya', path: '/guest/voucher' },
+  { label: 'Dashboard Saya', path: '/member/dashboard' },
+  { label: 'Booking Online', path: '/member/booking' },
+  { label: 'Tracking Status', path: '/member/tracking' },
+  { label: 'Riwayat Service', path: '/member/riwayat' },
+  { label: 'Loyalty Point', path: '/member/loyalty' },
+  { label: 'Voucher Saya', path: '/member/voucher' },
 ]
 const infoLinks = ['Tentang Kami', 'Promo & Voucher', 'FAQ', 'Kebijakan Privasi', 'Syarat & Ketentuan']
 

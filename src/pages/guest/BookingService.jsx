@@ -570,12 +570,12 @@ export default function BookingService() {
               ))}
             </div>
             <div className="flex gap-3">
-              <button onClick={() => navigate('/guest/tracking')}
+              <button onClick={() => navigate('/member/tracking')}
                 className="flex-1 py-3 rounded-xl text-sm font-semibold text-green-400 transition-all"
                 style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}>
                 Pantau Status
               </button>
-              <button onClick={() => navigate('/guest/dashboard')}
+              <button onClick={() => navigate('/member/dashboard')}
                 className="flex-1 py-3 rounded-xl text-sm font-semibold text-white transition-all"
                 style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
                 Dashboard

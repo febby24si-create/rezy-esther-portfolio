@@ -643,7 +643,7 @@ export default function LandingPage() {
 
             <div className="flex flex-col sm:flex-row gap-3.5 mb-10 animate-fade-in-up animation-delay-500">
               <button
-                onClick={() => navigate('/guest/booking')}
+                onClick={() => navigate('/member/booking')}
                 className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-8 py-4 rounded-2xl transition-all duration-300 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.02] active:scale-95 text-sm group"
               >
                 🚗 Booking Service
@@ -909,8 +909,241 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── MEMBERSHIP ─── */}
+      <section id="membership" className="py-24 px-6 sm:px-10 lg:px-16 bg-[#0F1A2E] relative overflow-hidden">
+        {/* Ambient blobs konsisten dengan section lain */}
+        <div className="absolute top-0 left-0 w-80 h-80 bg-purple-600/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Heading */}
+          <div className="text-center mb-14">
+            <Reveal>
+              <span className="text-purple-400 text-xs font-semibold tracking-widest uppercase">Program Keanggotaan</span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-2">
+                Pilihan Membership <span className="bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">Eksklusif</span>
+              </h2>
+              <p className="text-gray-400 text-sm max-w-lg mx-auto mt-3 leading-relaxed">
+                Bergabung sebagai member dan nikmati berbagai keistimewaan — dari diskon servis hingga layanan antar-jemput kendaraan. Pilih tier sesuai kebutuhan Anda.
+              </p>
+            </Reveal>
+          </div>
+
+          {/* Cards — urutan dari tier tertinggi ke terendah */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+            {[
+              {
+                key: 'VIP',
+                label: 'VIP',
+                sublabel: 'Platinum Member',
+                icon: '👑',
+                accent: '#D4AF37',
+                accentLight: '#F5D76E',
+                accentGlow: 'rgba(212,175,55,0.20)',
+                cardBg: 'linear-gradient(160deg, #0f0c00 0%, #1c1600 50%, #0a0a00 100%)',
+                border: 'rgba(212,175,55,0.40)',
+                desc: 'Pengalaman premium tertinggi dengan semua keistimewaan eksklusif.',
+                minPoin: '3.000 poin',
+                harga: 'Gratis — Kumpulkan Poin',
+                benefits: ['Diskon 15% setiap servis', 'Layanan antar-jemput kendaraan', 'Dedicated service advisor', 'Voucher eksklusif VIP', 'Prioritas booking & antrian'],
+                highlight: true,
+              },
+              {
+                key: 'Platinum',
+                label: 'Platinum',
+                sublabel: 'Gold Member',
+                icon: '💎',
+                accent: '#A855F7',
+                accentLight: '#D8B4FE',
+                accentGlow: 'rgba(168,85,247,0.18)',
+                cardBg: 'linear-gradient(160deg, #0c0a18 0%, #160f2a 50%, #0c0a18 100%)',
+                border: 'rgba(168,85,247,0.38)',
+                desc: 'Layanan premium dengan akses prioritas dan diskon spesial.',
+                minPoin: '1.500 poin',
+                harga: 'Gratis — Kumpulkan Poin',
+                benefits: ['Diskon 10% setiap servis', 'Prioritas booking jadwal', 'Early access promo spesial', 'Voucher bulanan eksklusif', 'Prioritas antrian servis'],
+                highlight: false,
+              },
+              {
+                key: 'Gold',
+                label: 'Gold',
+                sublabel: 'Silver Member',
+                icon: '🥇',
+                accent: '#FBBF24',
+                accentLight: '#FDE68A',
+                accentGlow: 'rgba(251,191,36,0.18)',
+                cardBg: 'linear-gradient(160deg, #120e00 0%, #1e1800 50%, #120e00 100%)',
+                border: 'rgba(251,191,36,0.38)',
+                desc: 'Nikmati diskon lebih besar dan akses fitur eksklusif member Gold.',
+                minPoin: '500 poin',
+                harga: 'Gratis — Kumpulkan Poin',
+                benefits: ['Diskon 5% setiap servis', 'Voucher bulanan eksklusif', 'Prioritas antrian servis', 'Booking online 24/7', 'Notifikasi jadwal service'],
+                highlight: false,
+              },
+              {
+                key: 'Silver',
+                label: 'Silver',
+                sublabel: 'Bronze Member',
+                icon: '🥈',
+                accent: '#94A3B8',
+                accentLight: '#CBD5E1',
+                accentGlow: 'rgba(148,163,184,0.15)',
+                cardBg: 'linear-gradient(160deg, #0a0d12 0%, #111820 50%, #0a0d12 100%)',
+                border: 'rgba(148,163,184,0.35)',
+                desc: 'Akses fitur dasar member dengan bonus voucher setiap transaksi.',
+                minPoin: '0 poin',
+                harga: 'Gratis — Daftar Sekarang',
+                benefits: ['Booking online 24/7', 'Voucher setelah setiap servis', 'Promo umum & diskon seasonal', 'Notifikasi jadwal service'],
+                highlight: false,
+              },
+              {
+                key: 'Bronze',
+                label: 'Bronze',
+                sublabel: 'Starter Member',
+                icon: '🥉',
+                accent: '#F97316',
+                accentLight: '#FDBA74',
+                accentGlow: 'rgba(249,115,22,0.15)',
+                cardBg: 'linear-gradient(160deg, #0f0800 0%, #1a1000 50%, #0f0800 100%)',
+                border: 'rgba(249,115,22,0.32)',
+                desc: 'Mulai perjalanan membership Anda dan kumpulkan poin dari setiap servis.',
+                minPoin: '0 poin',
+                harga: 'Gratis — Daftar Sekarang',
+                benefits: ['Booking online 24/7', 'Kumpulkan poin setiap servis', 'Akses promo member', 'Notifikasi berkala'],
+                highlight: false,
+              },
+            ].map((tier, idx) => (
+              <Reveal key={tier.key} delay={idx * 80} direction="up" distance={24}>
+                <div
+                  className="relative flex flex-col rounded-2xl overflow-hidden h-full transition-all duration-500 hover:-translate-y-2 group"
+                  style={{
+                    background: tier.cardBg,
+                    border: `1.5px solid ${tier.highlight ? tier.border : tier.border}`,
+                    boxShadow: tier.highlight
+                      ? `0 0 0 1px ${tier.accent}50, 0 24px 48px ${tier.accentGlow}`
+                      : `0 8px 32px rgba(0,0,0,0.4)`,
+                  }}
+                >
+                  {/* Popular badge */}
+                  {tier.highlight && (
+                    <div className="absolute top-0 left-0 right-0 flex justify-center z-10 -translate-y-px">
+                      <span
+                        className="text-[10px] font-extrabold uppercase tracking-widest px-4 py-1 rounded-b-xl"
+                        style={{ background: `linear-gradient(90deg, ${tier.accent}dd, ${tier.accentLight}cc)`, color: '#000' }}
+                      >
+                        ✦ Paling Eksklusif
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Shimmer overlay */}
+                  <div
+                    className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{ background: `linear-gradient(105deg, transparent 30%, ${tier.accentGlow} 50%, transparent 70%)` }}
+                  />
+
+                  {/* Card content */}
+                  <div className="relative z-10 flex flex-col flex-1 p-6">
+                    {/* Icon + label */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <div
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-3 transition-transform duration-300 group-hover:scale-110"
+                          style={{ background: `${tier.accent}18`, border: `1px solid ${tier.accent}30` }}
+                        >
+                          {tier.icon}
+                        </div>
+                        <h3 className="text-white font-extrabold text-xl leading-none">{tier.label}</h3>
+                        <p className="text-xs font-medium mt-0.5" style={{ color: `${tier.accentLight}80` }}>{tier.sublabel}</p>
+                      </div>
+                      <div
+                        className="px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider"
+                        style={{ background: `${tier.accent}18`, color: tier.accentLight, border: `1px solid ${tier.accent}30` }}
+                      >
+                        {tier.minPoin}
+                      </div>
+                    </div>
+
+                    {/* Desc */}
+                    <p className="text-gray-400 text-xs leading-relaxed mb-5">{tier.desc}</p>
+
+                    {/* Divider */}
+                    <div className="h-px mb-5" style={{ background: `linear-gradient(90deg, transparent, ${tier.accent}40, transparent)` }} />
+
+                    {/* Benefits */}
+                    <ul className="space-y-2 flex-1 mb-6">
+                      {tier.benefits.map((b) => (
+                        <li key={b} className="flex items-start gap-2">
+                          <div
+                            className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                            style={{ background: `${tier.accent}22` }}
+                          >
+                            <MdCheckCircle size={10} style={{ color: tier.accent }} />
+                          </div>
+                          <span className="text-gray-300 text-xs leading-relaxed">{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Harga placeholder */}
+                    <div className="mb-4 text-center">
+                      <p className="text-[10px] uppercase tracking-widest mb-0.5" style={{ color: `${tier.accentLight}60` }}>Cara Mendapatkan</p>
+                      <p className="font-bold text-sm" style={{ color: tier.accentLight }}>{tier.harga}</p>
+                    </div>
+
+                    {/* CTA Button */}
+                    <button
+                      onClick={() => navigate('/guest/register')}
+                      className="w-full py-2.5 rounded-xl text-sm font-bold transition-all duration-300 group-hover:gap-3 flex items-center justify-center gap-2"
+                      style={{
+                        background: tier.highlight
+                          ? `linear-gradient(135deg, ${tier.accent}cc, ${tier.accentLight}99)`
+                          : `${tier.accent}18`,
+                        color: tier.highlight ? '#000' : tier.accentLight,
+                        border: `1px solid ${tier.accent}${tier.highlight ? 'cc' : '40'}`,
+                        boxShadow: tier.highlight ? `0 4px 16px ${tier.accentGlow}` : 'none',
+                      }}
+                    >
+                      Daftar Gratis
+                      <MdArrowForward size={16} />
+                    </button>
+                  </div>
+
+                  {/* Bottom accent bar */}
+                  <div
+                    className="h-0.5 w-full"
+                    style={{ background: `linear-gradient(90deg, transparent, ${tier.accent}, transparent)` }}
+                  />
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* CTA bawah */}
+          <div className="text-center mt-12">
+            <Reveal delay={200}>
+              <p className="text-gray-500 text-sm mb-4">Sudah punya akun? Cek tier keanggotaan Anda sekarang.</p>
+              <div className="flex items-center justify-center gap-3 flex-wrap">
+                <button
+                  onClick={() => navigate('/guest/login')}
+                  className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 font-semibold text-sm border border-purple-500/30 hover:border-purple-400/50 px-6 py-2.5 rounded-xl transition-all bg-purple-500/10 hover:bg-purple-500/20"
+                >
+                  <MdStars size={16} /> Lihat Status Membership Saya
+                </button>
+                <button
+                  onClick={() => navigate('/guest/register')}
+                  className="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 font-semibold text-sm border border-amber-500/30 hover:border-amber-400/50 px-6 py-2.5 rounded-xl transition-all bg-amber-500/10 hover:bg-amber-500/20"
+                >
+                  Daftar Sekarang <MdArrowForward size={16} />
+                </button>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
       {/* ─── GALERI ─── */}
-      <section id="galeri" className="py-24 px-6 sm:px-10 lg:px-16 bg-[#0F1A2E]">
+      <section id="galeri" className="py-24 px-6 sm:px-10 lg:px-16 bg-[#0B1120]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
             <Reveal>
@@ -1397,7 +1630,7 @@ export default function LandingPage() {
 
             <div className="flex flex-col sm:flex-row justify-center gap-3.5 animate-fade-in-up animation-delay-500">
               <button
-                onClick={() => navigate('/guest/booking')}
+                onClick={() => navigate('/member/booking')}
                 className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-8 py-4 rounded-2xl transition-all duration-300 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.02] active:scale-95 text-sm group"
               >
                 🚗 Booking Sekarang

@@ -642,7 +642,7 @@ export default function PromoVoucher() {
                 </div>
               </div>
               <a
-                href="/guest/dashboard"
+                href="/member/dashboard"
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-orange-500/30 hover:scale-[1.02] transition-all whitespace-nowrap"
               >
                 Daftar Sekarang <MdArrowForward />
@@ -747,7 +747,7 @@ export default function PromoVoucher() {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3.5">
               <a
-                href="/guest/dashboard"
+                href="/member/dashboard"
                 className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.02]"
               >
                 Daftar Member <MdArrowForward />

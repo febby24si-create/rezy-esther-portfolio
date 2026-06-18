@@ -8,6 +8,9 @@ import { createContext, useContext } from 'react'
 const ToastCtx = createContext(null)
 export const useGuestToast = () => useContext(ToastCtx)
 
+// GuestLayout — halaman publik, dapat diakses siapa saja (login maupun tidak).
+// Redirect ke member dashboard setelah login ditangani oleh LoginCustomer.jsx,
+// bukan di sini, agar member tetap bisa melihat halaman publik kapan saja.
 export default function GuestLayout() {
   const { toasts, addToast, removeToast } = useToast()
   const location = useLocation()

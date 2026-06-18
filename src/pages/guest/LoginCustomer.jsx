@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { MdEmail, MdLock, MdVisibility, MdVisibilityOff, MdArrowBack } from 'react-icons/md'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { motion } from 'framer-motion'
@@ -8,8 +8,11 @@ import logo from '../../assets/logo2.png'
 export default function LoginCustomer() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { login } = useCustomerAuth()
-  const redirectTo = location.state?.from || '/guest/dashboard'
+  const { login, isLoggedIn } = useCustomerAuth()
+
+  // Jika sudah login, arahkan ke member dashboard
+  if (isLoggedIn) return <Navigate to="/member/dashboard" replace />
+  const redirectTo = location.state?.from || '/member/dashboard'
 
   const [form, setForm]       = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)

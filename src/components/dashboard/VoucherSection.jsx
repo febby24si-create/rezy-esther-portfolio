@@ -9,7 +9,7 @@ export default function VoucherSection({ customer }) {
     return (
       <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center">
         <p className="text-gray-500 text-sm">Belum ada voucher aktif.</p>
-        <Link to="/guest/voucher" className="text-emerald-400 text-sm hover:text-emerald-300 inline-block mt-2">
+        <Link to="/member/voucher" className="text-emerald-400 text-sm hover:text-emerald-300 inline-block mt-2">
           Lihat semua voucher →
         </Link>
       </div>
@@ -22,7 +22,7 @@ export default function VoucherSection({ customer }) {
         <h3 className="text-white font-bold flex items-center gap-2">
           <MdCardGiftcard className="text-purple-400" /> Voucher Aktif
         </h3>
-        <Link to="/guest/voucher" className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1">
+        <Link to="/member/voucher" className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1">
           Lihat semua <MdArrowForward size={12} />
         </Link>
       </div>

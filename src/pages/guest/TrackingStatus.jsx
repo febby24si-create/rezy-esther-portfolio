@@ -168,7 +168,7 @@ function OrderCard({ order }) {
         <div className="mt-4 p-4 rounded-xl border text-sm text-green-300 flex items-center gap-2"
           style={{ background: 'rgba(34,197,94,0.06)', borderColor: 'rgba(34,197,94,0.15)' }}>
           <MdCheckCircle /> Kendaraan selesai! Silakan ambil atau{' '}
-          <Link to="/guest/riwayat" className="underline font-semibold">beri rating</Link>.
+          <Link to="/member/riwayat" className="underline font-semibold">beri rating</Link>.
         </div>
       )}
     </motion.div>
@@ -256,7 +256,7 @@ export default function TrackingStatus() {
               <MdHourglassEmpty className="text-gray-600 text-5xl mx-auto mb-3" />
               <p className="text-white font-semibold text-lg mb-1">Tidak ada service aktif</p>
               <p className="text-gray-500 text-sm mb-4">Semua kendaraan selesai diservis.</p>
-              <Link to="/guest/booking"
+              <Link to="/member/booking"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
                 style={{ background: 'linear-gradient(135deg,#16A34A,#22C55E)' }}>
                 🚗 Booking Service Baru
@@ -270,7 +270,7 @@ export default function TrackingStatus() {
                 <h2 className="text-white font-bold text-sm flex items-center gap-2">
                   <MdCheckCircle className="text-green-400" /> Selesai Sebelumnya
                 </h2>
-                <Link to="/guest/riwayat" className="text-xs text-green-400 hover:text-green-300">Lihat riwayat →</Link>
+                <Link to="/member/riwayat" className="text-xs text-green-400 hover:text-green-300">Lihat riwayat →</Link>
               </div>
               <div className="space-y-3">
                 {doneOrders.slice(0,2).map(o => (

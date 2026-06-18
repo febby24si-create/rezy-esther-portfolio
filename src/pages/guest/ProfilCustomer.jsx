@@ -359,7 +359,7 @@ export default function ProfilCustomer() {
                     <h3 className="text-white font-bold text-sm flex items-center gap-2">
                       <MdStars style={{ color: tierCfg.color }} /> Poin & Progress
                     </h3>
-                    <Link to="/guest/loyalty" className="text-xs text-green-400 hover:text-green-300">Tukar Poin →</Link>
+                    <Link to="/member/loyalty" className="text-xs text-green-400 hover:text-green-300">Tukar Poin →</Link>
                   </div>
                   <div className="flex items-center justify-between mb-3">
                     <div>

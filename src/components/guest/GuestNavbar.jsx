@@ -5,42 +5,39 @@ import {
   MdMenu, MdClose, MdDirectionsCar, MdDashboard, MdBuild,
   MdCardGiftcard, MdHistory, MdStars, MdGpsFixed,
   MdNotifications, MdPerson, MdLogout, MdLogin, MdLeaderboard,
-  MdCardMembership,
+  MdCardMembership, MdOpenInNew, MdChevronRight,
 } from 'react-icons/md'
 import { useCustomerAuth, calcTier, TIER_CONFIG } from '../../context/CustomerAuthContext'
 import { getCustomerAvatar } from '../../utils/randomAvatar'
 
-function getInitials(name) {
-  if (!name) return '?'
-  return name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()
-}
-
-const navLinks = [
+// ─── Nav links (halaman Guest yang boleh diakses siapa saja) ──
+const GUEST_NAV = [
   { path: '/guest',         label: 'Beranda', exact: true },
   { path: '/guest/layanan', label: 'Layanan'              },
   { path: '/guest/promo',   label: 'Promo'                },
   { path: '/guest/tentang', label: 'Tentang'              },
 ]
 
-const customerLinks = [
-  { path: '/guest/dashboard',   label: 'Dashboard',       icon: MdDashboard       },
-  { path: '/guest/member',      label: 'Member',          icon: MdCardMembership  },
-  { path: '/guest/booking',     label: 'Booking',         icon: MdBuild           },
-  { path: '/guest/tracking',    label: 'Tracking',        icon: MdGpsFixed        },
-  { path: '/guest/loyalty',     label: 'Poin Saya',       icon: MdStars           },
-  { path: '/guest/voucher',     label: 'Voucher',         icon: MdCardGiftcard    },
-  { path: '/guest/riwayat',     label: 'Riwayat',         icon: MdHistory         },
-  { path: '/guest/profil',      label: 'Profil',          icon: MdPerson          },
-  { path: '/guest/leaderboard', label: 'Leaderboard',     icon: MdLeaderboard     },
+// ─── Quick links saat logged-in (dropdown) ────────────────────
+const MEMBER_QUICK = [
+  { path: '/member/dashboard',   label: 'Dashboard',       icon: MdDashboard       },
+  { path: '/member/kartu',       label: 'Kartu Member',    icon: MdCardMembership  },
+  { path: '/member/booking',     label: 'Booking',         icon: MdBuild           },
+  { path: '/member/tracking',    label: 'Tracking',        icon: MdGpsFixed        },
+  { path: '/member/loyalty',     label: 'Poin Saya',       icon: MdStars           },
+  { path: '/member/voucher',     label: 'Voucher',         icon: MdCardGiftcard    },
+  { path: '/member/riwayat',     label: 'Riwayat',         icon: MdHistory         },
+  { path: '/member/profil',      label: 'Profil',          icon: MdPerson          },
+  { path: '/member/leaderboard', label: 'Leaderboard',     icon: MdLeaderboard     },
 ]
 
 export default function GuestNavbar() {
   const [menuOpen, setMenuOpen]         = useState(false)
   const [scrolled, setScrolled]         = useState(false)
-  const [customerOpen, setCustomerOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
   const location  = useLocation()
   const navigate  = useNavigate()
-  const isLanding = location.pathname === '/guest'
+  const isLanding = location.pathname === '/guest' || location.pathname === '/'
 
   const { customer, isLoggedIn, logout } = useCustomerAuth()
   const tier    = isLoggedIn ? calcTier(customer?.points || 0) : null
@@ -54,16 +51,16 @@ export default function GuestNavbar() {
 
   useEffect(() => {
     setMenuOpen(false)
-    setCustomerOpen(false)
+    setDropdownOpen(false)
   }, [location.pathname])
 
   const handleLogout = () => {
     logout()
     navigate('/guest')
-    setCustomerOpen(false)
+    setDropdownOpen(false)
+    setMenuOpen(false)
   }
 
-  // Navbar bg
   const showBg = !isLanding || scrolled
 
   return (
@@ -74,16 +71,16 @@ export default function GuestNavbar() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         style={{
-          background: showBg ? 'rgba(2,15,9,0.92)' : 'transparent',
-          backdropFilter: showBg ? 'blur(12px)' : 'none',
-          WebkitBackdropFilter: showBg ? 'blur(12px)' : 'none',
+          background: showBg ? 'rgba(2,15,9,0.94)' : 'transparent',
+          backdropFilter: showBg ? 'blur(14px)' : 'none',
+          WebkitBackdropFilter: showBg ? 'blur(14px)' : 'none',
           borderBottom: showBg ? '1px solid rgba(34,197,94,0.08)' : 'none',
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16">
 
-            {/* Logo */}
+            {/* ── Logo ── */}
             <Link to="/guest" className="flex items-center gap-2.5 flex-shrink-0 group">
               <motion.div
                 whileHover={{ rotate: [0, -8, 8, 0], scale: 1.08 }}
@@ -103,9 +100,9 @@ export default function GuestNavbar() {
               </div>
             </Link>
 
-            {/* Desktop nav links */}
+            {/* ── Desktop Guest Nav ── */}
             <div className="hidden md:flex items-center gap-1">
-              {navLinks.map(({ path, label, exact }) => (
+              {GUEST_NAV.map(({ path, label, exact }) => (
                 <NavLink key={path} to={path} end={!!exact}>
                   {({ isActive }) => (
                     <div className="relative px-3 py-2">
@@ -124,25 +121,61 @@ export default function GuestNavbar() {
                   )}
                 </NavLink>
               ))}
+
+              {/* "Dashboard Member" shortcut — hanya saat logged in */}
+              {isLoggedIn && (
+                <Link to="/member/dashboard">
+                  <motion.div
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="flex items-center gap-1.5 text-sm font-semibold px-3 py-1.5 rounded-xl ml-1 transition-all"
+                    style={{
+                      background: `${tierCfg?.color}18`,
+                      color: tierCfg?.color,
+                      border: `1px solid ${tierCfg?.color}35`,
+                    }}
+                  >
+                    <MdDashboard size={15} />
+                    Dashboard Member
+                  </motion.div>
+                </Link>
+              )}
             </div>
 
-            {/* Desktop right */}
+            {/* ── Desktop Right Section ── */}
             <div className="hidden md:flex items-center gap-2">
 
-              {/* Customer dropdown */}
-              <div className="relative">
-                <motion.button
-                  onClick={() => setCustomerOpen(!customerOpen)}
-                  whileTap={{ scale: 0.97 }}
-                  className="flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-xl transition-all"
-                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)' }}
-                >
-                  {isLoggedIn ? (
-                    <>
+              {isLoggedIn ? (
+                <>
+                  {/* Notification bell */}
+                  <Link to="/member/dashboard">
+                    <motion.div
+                      whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
+                      className="relative w-9 h-9 flex items-center justify-center rounded-xl text-gray-300 hover:text-white transition-all cursor-pointer"
+                      style={{ background: 'rgba(255,255,255,0.05)' }}>
+                      <MdNotifications className="text-lg" />
+                      {(customer?.vouchers?.filter(v => v.status === 'active').length || 0) > 0 && (
+                        <motion.span
+                          initial={{ scale: 0 }} animate={{ scale: 1 }}
+                          transition={{ type: 'spring', stiffness: 300 }}
+                          className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border border-[#020f09]"
+                        />
+                      )}
+                    </motion.div>
+                  </Link>
+
+                  {/* Avatar + Dropdown */}
+                  <div className="relative">
+                    <motion.button
+                      onClick={() => setDropdownOpen(v => !v)}
+                      whileTap={{ scale: 0.97 }}
+                      className="flex items-center gap-2 text-sm font-medium px-3 py-2 rounded-xl transition-all"
+                      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)' }}
+                    >
                       <motion.div
                         whileHover={{ scale: 1.1 }}
                         className="w-6 h-6 rounded-lg overflow-hidden flex-shrink-0"
-                        style={{ border: `1.5px solid ${tierCfg?.color || '#22C55E'}66` }}
+                        style={{ border: `1.5px solid ${tierCfg?.color}66` }}
                       >
                         <img
                           src={getCustomerAvatar(customer?.name || '', 60)}
@@ -156,39 +189,31 @@ export default function GuestNavbar() {
                           }}
                         />
                       </motion.div>
-                      <span className="text-white max-w-[90px] truncate">{customer?.name?.split(' ')[0]}</span>
+                      <span className="text-white max-w-[80px] truncate">{customer?.name?.split(' ')[0]}</span>
                       <span className="text-xs px-1.5 py-0.5 rounded-full font-bold"
                         style={{ background: `${tierCfg?.color}22`, color: tierCfg?.color, border: `1px solid ${tierCfg?.color}44` }}>
-                        {tier}
+                        {tierCfg?.icon} {tier}
                       </span>
-                    </>
-                  ) : (
-                    <>
-                      <MdPerson className="text-lg text-gray-300" />
-                      <span className="text-gray-300">Area Saya</span>
-                    </>
-                  )}
-                  <motion.svg
-                    animate={{ rotate: customerOpen ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </motion.svg>
-                </motion.button>
+                      <motion.svg
+                        animate={{ rotate: dropdownOpen ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </motion.svg>
+                    </motion.button>
 
-                <AnimatePresence>
-                  {customerOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: -8 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: -8 }}
-                      transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute right-0 mt-2 w-56 rounded-2xl shadow-2xl py-2 z-50"
-                      style={{ background: '#041C15', border: '1px solid rgba(34,197,94,0.15)', boxShadow: '0 16px 48px rgba(0,0,0,0.5)' }}
-                    >
-                      {isLoggedIn ? (
-                        <>
+                    <AnimatePresence>
+                      {dropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: -8 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: -8 }}
+                          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                          className="absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl py-2 z-50"
+                          style={{ background: '#041C15', border: '1px solid rgba(34,197,94,0.15)', boxShadow: '0 20px 60px rgba(0,0,0,0.6)' }}
+                        >
+                          {/* User info header */}
                           <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(34,197,94,0.1)' }}>
                             <p className="text-white font-bold text-sm truncate">{customer?.name}</p>
                             <div className="flex items-center gap-1.5 mt-1">
@@ -199,81 +224,85 @@ export default function GuestNavbar() {
                               <span className="text-xs text-gray-500">{(customer?.points || 0).toLocaleString('id-ID')} poin</span>
                             </div>
                           </div>
-                          {customerLinks.map(({ path, label, icon: Icon }, i) => (
-                            <motion.div key={path}
-                              initial={{ opacity: 0, x: -8 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: i * 0.03 }}>
-                              <NavLink to={path}
-                                className={({ isActive }) =>
-                                  `flex items-center gap-2.5 px-4 py-2.5 text-sm transition-colors ${isActive ? 'text-green-400 bg-green-500/10' : 'text-gray-300 hover:text-white hover:bg-white/5'}`
-                                }
-                              >
-                                <Icon className="text-base flex-shrink-0" /> {label}
-                              </NavLink>
-                            </motion.div>
-                          ))}
-                          <div className="border-t mt-1 pt-1" style={{ borderColor: 'rgba(34,197,94,0.1)' }}>
+
+                          {/* Go to Member Dashboard */}
+                          <div className="px-2 pt-2">
+                            <Link to="/member/dashboard" onClick={() => setDropdownOpen(false)}
+                              className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all mb-1"
+                              style={{ background: `${tierCfg?.color}14`, color: tierCfg?.color, border: `1px solid ${tierCfg?.color}30` }}>
+                              <div className="flex items-center gap-2">
+                                <MdDashboard size={16} />
+                                Masuk ke Area Member
+                              </div>
+                              <MdChevronRight size={16} />
+                            </Link>
+                          </div>
+
+                          {/* Quick links */}
+                          <div className="px-2 pb-1">
+                            {MEMBER_QUICK.slice(1, 6).map(({ path, label, icon: Icon }, i) => (
+                              <motion.div key={path}
+                                initial={{ opacity: 0, x: -8 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: i * 0.03 }}>
+                                <NavLink to={path} onClick={() => setDropdownOpen(false)}
+                                  className={({ isActive }) =>
+                                    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${isActive ? 'text-green-400 bg-green-500/10' : 'text-gray-300 hover:text-white hover:bg-white/5'}`
+                                  }
+                                >
+                                  <Icon className="text-base flex-shrink-0 text-gray-500" /> {label}
+                                </NavLink>
+                              </motion.div>
+                            ))}
+                          </div>
+
+                          {/* Logout */}
+                          <div className="border-t mx-2 mt-1 pt-1" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
                             <button onClick={handleLogout}
-                              className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors">
+                              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors">
                               <MdLogout className="text-base" /> Keluar
                             </button>
                           </div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(34,197,94,0.1)' }}>
-                            <p className="text-gray-400 text-xs">Masuk untuk akses penuh fitur CRM</p>
-                          </div>
-                          <Link to="/guest/login"
-                            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors">
-                            <MdLogin className="text-base" /> Masuk
-                          </Link>
-                          <Link to="/guest/register"
-                            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-green-400 hover:bg-green-500/10 transition-colors">
-                            <MdPerson className="text-base" /> Daftar Gratis
-                          </Link>
-                        </>
+                        </motion.div>
                       )}
+                    </AnimatePresence>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Guest: Login + Register */}
+                  <Link to="/guest/login"
+                    className="flex items-center gap-1.5 text-sm font-medium px-4 py-2 rounded-xl text-gray-300 hover:text-white transition-all"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <MdLogin size={16} /> Masuk
+                  </Link>
+                  <Link to="/guest/register">
+                    <motion.div
+                      whileHover={{ scale: 1.04, boxShadow: '0 8px 24px rgba(34,197,94,0.4)' }}
+                      whileTap={{ scale: 0.97 }}
+                      className="text-white text-sm font-bold px-4 py-2 rounded-xl cursor-pointer"
+                      style={{ background: 'linear-gradient(135deg,#16A34A,#22C55E)', boxShadow: '0 4px 16px rgba(34,197,94,0.25)' }}
+                    >
+                      Daftar Gratis
                     </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* Notif bell */}
-              {isLoggedIn && (
-                <Link to="/guest/dashboard">
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="relative w-9 h-9 flex items-center justify-center rounded-xl text-gray-300 hover:text-white transition-all cursor-pointer"
-                    style={{ background: 'rgba(255,255,255,0.05)' }}>
-                    <MdNotifications className="text-lg" />
-                    {(customer?.vouchers?.filter(v => v.status === 'active').length || 0) > 0 && (
-                      <motion.span
-                        initial={{ scale: 0 }} animate={{ scale: 1 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                        className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border border-[#020f09]"
-                      />
-                    )}
-                  </motion.div>
-                </Link>
+                  </Link>
+                </>
               )}
 
-              {/* CTA booking */}
-              <Link to={isLoggedIn ? '/guest/booking' : '/guest/login'}>
+              {/* Booking CTA — always visible */}
+              <Link to={isLoggedIn ? '/member/booking' : '/guest/login'}>
                 <motion.div
                   whileHover={{ scale: 1.04, boxShadow: '0 8px 24px rgba(34,197,94,0.4)' }}
                   whileTap={{ scale: 0.97 }}
                   className="text-white text-sm font-bold px-4 py-2 rounded-xl cursor-pointer"
                   style={{ background: 'linear-gradient(135deg,#16A34A,#22C55E)', boxShadow: '0 4px 16px rgba(34,197,94,0.25)' }}
                 >
-                  Booking Sekarang
+                  Booking
                 </motion.div>
               </Link>
             </div>
 
-            {/* Mobile hamburger */}
+            {/* ── Mobile Hamburger ── */}
             <motion.button
               className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl text-white"
               style={{ background: 'rgba(255,255,255,0.06)' }}
@@ -299,7 +328,7 @@ export default function GuestNavbar() {
           </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* ── Mobile Menu ── */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
@@ -310,16 +339,15 @@ export default function GuestNavbar() {
               className="md:hidden overflow-hidden border-t px-4 pb-4 pt-2"
               style={{ background: 'rgba(2,15,9,0.98)', borderColor: 'rgba(34,197,94,0.1)' }}
             >
+              {/* Logged-in: user card */}
               {isLoggedIn && (
                 <motion.div
                   initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.05 }}
                   className="flex items-center gap-3 p-3 rounded-xl mb-3"
-                  style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}>
-                  <div
-                    className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0"
-                    style={{ border: `2px solid ${tierCfg?.color || '#22C55E'}55` }}
-                  >
+                  style={{ background: `${tierCfg?.color}10`, border: `1px solid ${tierCfg?.color}25` }}>
+                  <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0"
+                    style={{ border: `2px solid ${tierCfg?.color}55` }}>
                     <img
                       src={getCustomerAvatar(customer?.name || '', 80)}
                       alt={customer?.name}
@@ -335,17 +363,24 @@ export default function GuestNavbar() {
                       }}
                     />
                   </div>
-                  <div>
-                    <p className="text-white text-sm font-semibold">{customer?.name}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm font-semibold truncate">{customer?.name}</p>
                     <p className="text-xs" style={{ color: tierCfg?.color || '#22C55E' }}>
                       {tierCfg?.icon} {tier} · {(customer?.points || 0).toLocaleString('id-ID')} poin
                     </p>
                   </div>
+                  <Link to="/member/dashboard" onClick={() => setMenuOpen(false)}
+                    className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-all"
+                    style={{ background: `${tierCfg?.color}20`, color: tierCfg?.color, border: `1px solid ${tierCfg?.color}35` }}>
+                    <MdDashboard size={13} />
+                    Area Member
+                  </Link>
                 </motion.div>
               )}
 
+              {/* Guest nav links */}
               <div className="flex flex-col gap-0.5">
-                {navLinks.map(({ path, label, exact }, i) => (
+                {GUEST_NAV.map(({ path, label, exact }, i) => (
                   <motion.div key={path}
                     initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.04 + 0.05 }}>
@@ -359,15 +394,16 @@ export default function GuestNavbar() {
                   </motion.div>
                 ))}
 
+                {/* Auth section */}
                 <div className="mt-2 pt-2 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-                  <p className="text-xs text-gray-600 uppercase tracking-widest px-3 mb-1.5 font-semibold">Area Pelanggan</p>
                   {isLoggedIn ? (
                     <>
-                      {customerLinks.map(({ path, label, icon: Icon }, i) => (
+                      <p className="text-xs text-gray-600 uppercase tracking-widest px-3 mb-1.5 font-semibold">Area Member</p>
+                      {MEMBER_QUICK.map(({ path, label, icon: Icon }, i) => (
                         <motion.div key={path}
                           initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.04 + 0.2 }}>
-                          <NavLink to={path}
+                          transition={{ delay: i * 0.03 + 0.2 }}>
+                          <NavLink to={path} onClick={() => setMenuOpen(false)}
                             className={({ isActive }) =>
                               `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-green-500/15 text-green-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`
                             }
@@ -383,17 +419,22 @@ export default function GuestNavbar() {
                     </>
                   ) : (
                     <>
-                      <Link to="/guest/login" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+                      <p className="text-xs text-gray-600 uppercase tracking-widest px-3 mb-1.5 font-semibold">Akun</p>
+                      <Link to="/guest/login" onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
                         <MdLogin className="text-base" /> Masuk
                       </Link>
-                      <Link to="/guest/register" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-green-400 hover:bg-green-500/10 transition-colors">
+                      <Link to="/guest/register" onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-green-400 hover:bg-green-500/10 transition-colors">
                         <MdPerson className="text-base" /> Daftar Gratis
                       </Link>
                     </>
                   )}
                 </div>
 
-                <Link to={isLoggedIn ? '/guest/booking' : '/guest/login'}
+                {/* Booking CTA */}
+                <Link to={isLoggedIn ? '/member/booking' : '/guest/login'}
+                  onClick={() => setMenuOpen(false)}
                   className="mt-3 text-white text-sm font-bold px-4 py-3 rounded-xl text-center block"
                   style={{ background: 'linear-gradient(135deg,#16A34A,#22C55E)' }}>
                   🚗 Booking Service Sekarang
@@ -404,8 +445,9 @@ export default function GuestNavbar() {
         </AnimatePresence>
       </motion.nav>
 
-      {customerOpen && (
-        <div className="fixed inset-0 z-40" onClick={() => setCustomerOpen(false)} />
+      {/* Backdrop untuk dropdown */}
+      {dropdownOpen && (
+        <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
       )}
     </>
   )

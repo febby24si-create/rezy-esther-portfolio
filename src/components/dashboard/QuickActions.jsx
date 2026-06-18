@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 import { MdDirectionsCar, MdCardGiftcard, MdHistory, MdStars, MdCardMembership } from 'react-icons/md'
 
 const actions = [
-  { icon: MdDirectionsCar,  label: 'Booking',  path: '/guest/booking', color: '#10B981' },
-  { icon: MdCardMembership, label: 'Member',   path: '/guest/member',  color: '#A855F7' },
-  { icon: MdHistory,        label: 'Riwayat',  path: '/guest/riwayat', color: '#F59E0B' },
-  { icon: MdStars,          label: 'Loyalty',  path: '/guest/loyalty', color: '#60A5FA' },
+  { icon: MdDirectionsCar,  label: 'Booking',  path: '/member/booking', color: '#10B981' },
+  { icon: MdCardMembership, label: 'Member',   path: '/member/kartu',  color: '#A855F7' },
+  { icon: MdHistory,        label: 'Riwayat',  path: '/member/riwayat', color: '#F59E0B' },
+  { icon: MdStars,          label: 'Loyalty',  path: '/member/loyalty', color: '#60A5FA' },
 ]
 
 export default function QuickActions() {

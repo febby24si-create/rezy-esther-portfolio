@@ -162,11 +162,11 @@ export default function VoucherSaya() {
             </p>
             {tab === 'active' && (
               <div className="flex gap-3 justify-center">
-                <Link to="/guest/loyalty"
+                <Link to="/member/loyalty"
                   className="px-4 py-2 rounded-xl text-sm font-semibold text-yellow-400 border border-yellow-500/25 bg-yellow-500/10 hover:bg-yellow-500/15 transition-all">
                   Tukar Poin
                 </Link>
-                <Link to="/guest/booking"
+                <Link to="/member/booking"
                   className="px-4 py-2 rounded-xl text-sm font-semibold text-green-400 border border-green-500/25 bg-green-500/10 hover:bg-green-500/15 transition-all">
                   Booking Service
                 </Link>

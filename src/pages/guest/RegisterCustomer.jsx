@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, Navigate } from 'react-router-dom'
 import { MdPerson, MdEmail, MdLock, MdPhone, MdVisibility, MdVisibilityOff, MdArrowBack, MdCake } from 'react-icons/md'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { motion } from 'framer-motion'
@@ -7,7 +7,9 @@ import logo from '../../assets/logo2.png'
 
 export default function RegisterCustomer() {
   const navigate = useNavigate()
-  const { register } = useCustomerAuth()
+  const { register, isLoggedIn } = useCustomerAuth()
+
+  if (isLoggedIn) return <Navigate to="/member/dashboard" replace />
 
   const [form, setForm] = useState({ name: '', email: '', phone: '', birthDate: '', password: '', confirm: '' })
   const [loading, setLoading] = useState(false)
@@ -39,7 +41,7 @@ export default function RegisterCustomer() {
     await new Promise(r => setTimeout(r, 800))
     const result = register({ name: form.name, email: form.email, phone: form.phone, birthDate: form.birthDate, password: form.password })
     if (result.success) {
-      navigate('/guest/dashboard')
+      navigate('/member/dashboard')
     } else {
       setError(result.message || 'Pendaftaran gagal.')
     }

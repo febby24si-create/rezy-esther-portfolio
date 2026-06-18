@@ -326,7 +326,7 @@ export default function Layanan() {
 
   const handleBooking = () => {
     setSelectedService(null)
-    navigate('/guest/booking')
+    navigate('/member/booking')
   }
 
   return (
@@ -360,7 +360,7 @@ export default function Layanan() {
               Dari perawatan rutin hingga perbaikan mesin, semua dikerjakan oleh mekanik bersertifikat dengan peralatan diagnostik modern.
             </p>
             <button
-              onClick={() => navigate('/guest/booking')}
+              onClick={() => navigate('/member/booking')}
               className="inline-flex items-center gap-2.5 mt-6 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-blue-600/30 transition-all"
             >
               Booking Sekarang <MdArrowForward />
@@ -465,7 +465,7 @@ export default function Layanan() {
                 <span>{String(timeLeft.h).padStart(2,'0')}:{String(timeLeft.m).padStart(2,'0')}:{String(timeLeft.s).padStart(2,'0')}</span>
               </div>
               <button
-                onClick={() => navigate('/guest/booking')}
+                onClick={() => navigate('/member/booking')}
                 className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white font-semibold px-5 py-2.5 rounded-xl transition-all"
               >
                 Booking Sekarang <MdArrowForward />
@@ -530,7 +530,7 @@ export default function Layanan() {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3.5">
               <button
-                onClick={() => navigate('/guest/booking')}
+                onClick={() => navigate('/member/booking')}
                 className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/30 hover:scale-[1.02]"
               >
                 Booking Sekarang <MdArrowForward />

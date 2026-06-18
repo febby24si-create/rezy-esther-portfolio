@@ -304,11 +304,11 @@ export const activeTracking = {
 
 // ─── CRM NOTIFICATIONS ───────────────────────────────────────
 export const crmNotifications = [
-  { id: 'N01', type: 'reminder', icon: '🔔', title: 'Reminder Service Berkala', desc: 'Toyota Avanza Anda sudah 6 bulan sejak service terakhir. Jadwalkan sekarang!', time: '2 jam lalu', action: 'Booking Sekarang', actionPath: '/guest/booking', priority: 'high' },
-  { id: 'N02', type: 'promo', icon: '🎁', title: 'Voucher Ulang Tahun Menanti!', desc: 'Selamat ulang tahun! Klaim voucher diskon 20% khusus untuk Anda.', time: '1 hari lalu', action: 'Klaim Voucher', actionPath: '/guest/voucher', priority: 'high' },
-  { id: 'N03', type: 'point', icon: '⭐', title: 'Point Loyalty Bertambah', desc: 'Anda mendapat 450 poin dari service terakhir. Total poin: 3.250.', time: '5 hari lalu', action: 'Lihat Point', actionPath: '/guest/loyalty', priority: 'medium' },
-  { id: 'N04', type: 'reminder', icon: '📋', title: 'Reminder STNK Kendaraan', desc: 'STNK Toyota Avanza (B 1234 ABC) akan habis masa berlakunya 30 hari lagi.', time: '1 minggu lalu', action: 'Lihat Detail', actionPath: '/guest/dashboard', priority: 'medium' },
-  { id: 'N05', type: 'followup', icon: '💬', title: 'Terima Kasih Sudah Servis!', desc: 'Bagaimana kondisi kendaraan Anda setelah service kemarin? Beri rating mekanik kami.', time: '2 minggu lalu', action: 'Beri Rating', actionPath: '/guest/riwayat', priority: 'low' },
+  { id: 'N01', type: 'reminder', icon: '🔔', title: 'Reminder Service Berkala', desc: 'Toyota Avanza Anda sudah 6 bulan sejak service terakhir. Jadwalkan sekarang!', time: '2 jam lalu', action: 'Booking Sekarang', actionPath: '/member/booking', priority: 'high' },
+  { id: 'N02', type: 'promo', icon: '🎁', title: 'Voucher Ulang Tahun Menanti!', desc: 'Selamat ulang tahun! Klaim voucher diskon 20% khusus untuk Anda.', time: '1 hari lalu', action: 'Klaim Voucher', actionPath: '/member/voucher', priority: 'high' },
+  { id: 'N03', type: 'point', icon: '⭐', title: 'Point Loyalty Bertambah', desc: 'Anda mendapat 450 poin dari service terakhir. Total poin: 3.250.', time: '5 hari lalu', action: 'Lihat Point', actionPath: '/member/loyalty', priority: 'medium' },
+  { id: 'N04', type: 'reminder', icon: '📋', title: 'Reminder STNK Kendaraan', desc: 'STNK Toyota Avanza (B 1234 ABC) akan habis masa berlakunya 30 hari lagi.', time: '1 minggu lalu', action: 'Lihat Detail', actionPath: '/member/dashboard', priority: 'medium' },
+  { id: 'N05', type: 'followup', icon: '💬', title: 'Terima Kasih Sudah Servis!', desc: 'Bagaimana kondisi kendaraan Anda setelah service kemarin? Beri rating mekanik kami.', time: '2 minggu lalu', action: 'Beri Rating', actionPath: '/member/riwayat', priority: 'low' },
   { id: 'N06', type: 'promo', icon: '🏷️', title: 'Promo Spesial Akhir Bulan', desc: 'Diskon 30% untuk Service Berkala. Berlaku hingga akhir bulan ini!', time: '3 minggu lalu', action: 'Lihat Promo', actionPath: '/guest/promo', priority: 'low' },
 ]
 

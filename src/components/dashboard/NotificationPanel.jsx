@@ -12,8 +12,8 @@ function buildNotifications(customer) {
   // ... 
   // (Saya akan menggunakan notifikasi dummy sebagai contoh)
   return [
-    { id: '1', icon: '🔔', title: 'Reminder Service', desc: 'Toyota Avanza perlu servis dalam 14 hari.', action: 'Booking', actionPath: '/guest/booking', priority: 'high' },
-    { id: '2', icon: '🎁', title: 'Voucher Ulang Tahun', desc: 'Diskon 20% untuk semua layanan.', action: 'Klaim', actionPath: '/guest/voucher', priority: 'high' },
+    { id: '1', icon: '🔔', title: 'Reminder Service', desc: 'Toyota Avanza perlu servis dalam 14 hari.', action: 'Booking', actionPath: '/member/booking', priority: 'high' },
+    { id: '2', icon: '🎁', title: 'Voucher Ulang Tahun', desc: 'Diskon 20% untuk semua layanan.', action: 'Klaim', actionPath: '/member/voucher', priority: 'high' },
   ]
 }
 
