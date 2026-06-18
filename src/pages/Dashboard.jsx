@@ -513,6 +513,126 @@ function ChatbotModal({ isOpen, onClose }) {
 }
 
 // ─── FLOATING MENU ────────────────────────────────────────────────────
+// ── Member List Widget ─────────────────────────────────────────
+function MemberListWidget({ membership }) {
+  const [search, setSearch] = useState("")
+  const [filterTier, setFilterTier] = useState("Semua")
+  const allCustomers = getAllCustomers()
+  const members = allCustomers.filter(c => c.membershipStatus === "active")
+
+  const tierColors = { Bronze: "#F97316", Silver: "#94A3B8", Gold: "#FBBF24", Platinum: "#A855F7" }
+  const tiers = ["Semua", "Platinum", "Gold", "Silver", "Bronze"]
+
+  const filtered = members.filter(c => {
+    const matchSearch = !search || c.name?.toLowerCase().includes(search.toLowerCase()) || c.email?.toLowerCase().includes(search.toLowerCase())
+    const matchTier = filterTier === "Semua" || calcTier(c.points || 0) === filterTier
+    return matchSearch && matchTier
+  }).sort((a, b) => (b.points || 0) - (a.points || 0))
+
+  return (
+    <div className="rounded-2xl p-5 animate-fadeInUp" style={{ background: "#0a1a12", border: "1px solid rgba(34,197,94,0.1)", animationDelay: "900ms", animationFillMode: "both" }}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+        <div className="flex items-center gap-2">
+          <Users size={15} className="text-green-400" />
+          <p className="text-white text-sm font-bold">Daftar Member Aktif</p>
+          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-green-500/15 text-green-400">{members.length}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Cari member..."
+            className="text-xs bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white placeholder-gray-600 outline-none focus:border-green-500/40 w-40"
+          />
+          <Link to="/membership" className="text-xs text-green-400 hover:text-green-300 flex items-center gap-1 group transition-all">
+            Kelola <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Tier filter */}
+      <div className="flex flex-wrap gap-1.5 mb-4">
+        {tiers.map(t => (
+          <button key={t} onClick={() => setFilterTier(t)}
+            className={`px-3 py-1 rounded-lg text-xs font-medium transition-all border ${
+              filterTier === t
+                ? "bg-green-500/20 text-green-400 border-green-500/30"
+                : "bg-white/3 text-gray-500 border-white/8 hover:text-white hover:bg-white/8"
+            }`}
+          >{t}</button>
+        ))}
+      </div>
+
+      {/* Member table */}
+      {filtered.length === 0 ? (
+        <div className="text-center py-8 text-gray-600 text-sm">
+          {members.length === 0 ? "Belum ada member aktif." : "Tidak ada member yang cocok."}
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-gray-600 uppercase tracking-wider border-b border-white/5">
+                <th className="text-left pb-2 font-medium">Member</th>
+                <th className="text-left pb-2 font-medium">Tier</th>
+                <th className="text-right pb-2 font-medium">Poin</th>
+                <th className="text-right pb-2 font-medium">Servis</th>
+                <th className="text-right pb-2 font-medium">Total Belanja</th>
+                <th className="text-right pb-2 font-medium">Bergabung</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/4">
+              {filtered.slice(0, 8).map((c, i) => {
+                const tier = calcTier(c.points || 0)
+                const cfg = TIER_CONFIG[tier]
+                return (
+                  <tr key={c.id || i} className="hover:bg-white/3 transition-colors group">
+                    <td className="py-2.5 pr-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
+                          style={{ background: `${cfg?.color}20`, color: cfg?.color }}>
+                          {c.name?.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-white font-semibold truncate max-w-[120px]">{c.name}</p>
+                          <p className="text-gray-600 truncate max-w-[120px]">{c.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-2.5 pr-3">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border"
+                        style={{ background: `${cfg?.color}15`, color: cfg?.color, borderColor: `${cfg?.color}30` }}>
+                        {cfg?.icon} {tier}
+                      </span>
+                    </td>
+                    <td className="py-2.5 text-right font-bold" style={{ color: cfg?.color }}>
+                      {(c.points || 0).toLocaleString("id-ID")}
+                    </td>
+                    <td className="py-2.5 text-right text-gray-400">{c.totalOrders || 0}x</td>
+                    <td className="py-2.5 text-right text-gray-300">
+                      Rp{((c.totalSpent || 0) / 1000000).toFixed(1)}jt
+                    </td>
+                    <td className="py-2.5 text-right text-gray-600">
+                      {c.memberSince ? c.memberSince.slice(0, 7) : "-"}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+          {filtered.length > 8 && (
+            <div className="text-center mt-3">
+              <Link to="/membership" className="text-xs text-green-400 hover:text-green-300 transition-colors">
+                + {filtered.length - 8} member lainnya → Lihat semua
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function FloatingCRMMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [showChatbot, setShowChatbot] = useState(false);
@@ -1135,6 +1255,9 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* ── DAFTAR MEMBER AKTIF ── */}
+      <MemberListWidget membership={membership} />
 
       {/* Floating CRM Menu */}
       <FloatingCRMMenu />

@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   MdMenu, MdClose, MdDirectionsCar, MdDashboard, MdBuild,
   MdCardGiftcard, MdHistory, MdStars, MdGpsFixed,
-  MdNotifications, MdPerson, MdLogout, MdLogin, MdLeaderboard
+  MdNotifications, MdPerson, MdLogout, MdLogin, MdLeaderboard,
+  MdCardMembership,
 } from 'react-icons/md'
 import { useCustomerAuth, calcTier, TIER_CONFIG } from '../../context/CustomerAuthContext'
 import { getCustomerAvatar } from '../../utils/randomAvatar'
@@ -22,14 +23,15 @@ const navLinks = [
 ]
 
 const customerLinks = [
-  { path: '/guest/dashboard',   label: 'Dashboard',   icon: MdDashboard    },
-  { path: '/guest/booking',     label: 'Booking',     icon: MdBuild        },
-  { path: '/guest/tracking',    label: 'Tracking',    icon: MdGpsFixed     },
-  { path: '/guest/loyalty',     label: 'Poin Saya',   icon: MdStars        },
-  { path: '/guest/voucher',     label: 'Voucher',     icon: MdCardGiftcard },
-  { path: '/guest/riwayat',     label: 'Riwayat',     icon: MdHistory      },
-  { path: '/guest/profil',      label: 'Profil',      icon: MdPerson       },
-  { path: '/guest/leaderboard', label: 'Leaderboard', icon: MdLeaderboard  },
+  { path: '/guest/dashboard',   label: 'Dashboard',       icon: MdDashboard       },
+  { path: '/guest/member',      label: 'Member',          icon: MdCardMembership  },
+  { path: '/guest/booking',     label: 'Booking',         icon: MdBuild           },
+  { path: '/guest/tracking',    label: 'Tracking',        icon: MdGpsFixed        },
+  { path: '/guest/loyalty',     label: 'Poin Saya',       icon: MdStars           },
+  { path: '/guest/voucher',     label: 'Voucher',         icon: MdCardGiftcard    },
+  { path: '/guest/riwayat',     label: 'Riwayat',         icon: MdHistory         },
+  { path: '/guest/profil',      label: 'Profil',          icon: MdPerson          },
+  { path: '/guest/leaderboard', label: 'Leaderboard',     icon: MdLeaderboard     },
 ]
 
 export default function GuestNavbar() {

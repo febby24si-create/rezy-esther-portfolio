@@ -52,6 +52,7 @@ const RiwayatService = React.lazy(() => import("./pages/guest/RiwayatService"));
 const DashboardCustomer = React.lazy(
   () => import("./pages/guest/DashboardCustomer"),
 );
+const MemberDashboard = React.lazy(() => import("./pages/guest/MemberDashboard"));
 const ProfilCustomer = React.lazy(() => import("./pages/guest/ProfilCustomer"));
 
 // ─── Admin Membership ─────────────────────────────────────────
@@ -136,6 +137,7 @@ export default function App() {
                   path="/guest/dashboard"
                   element={<DashboardCustomer />}
                 />
+                <Route path="/guest/member" element={<MemberDashboard />} />
                 <Route path="/guest/booking" element={<BookingService />} />
                 <Route path="/guest/tracking" element={<TrackingStatus />} />
                 <Route path="/guest/loyalty" element={<LoyaltyPoint />} />

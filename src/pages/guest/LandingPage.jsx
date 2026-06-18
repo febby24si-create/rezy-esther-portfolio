@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import GuestNavbar from '../../components/guest/GuestNavbar';
 import {
   MdWhatsapp,
@@ -15,6 +16,7 @@ import {
   MdEmail,
   MdPhone,
   MdMessage,
+  MdArrowForward,
 } from 'react-icons/md';
 
 // ─── GAMBAR BENGKEL REALISTIS (Unsplash stable) ──────────────
@@ -496,6 +498,7 @@ const ContactForm = () => {
 
 // ─── MAIN COMPONENT ────────────────────────────────────────────
 export default function LandingPage() {
+  const navigate = useNavigate();
   const [seconds, setSeconds] = useState(137);
   const [scrollY, setScrollY] = useState(0);
   const [activeSection, setActiveSection] = useState('home');
@@ -639,15 +642,15 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3.5 mb-10 animate-fade-in-up animation-delay-500">
-              <a
-                href="#booking"
+              <button
+                onClick={() => navigate('/guest/booking')}
                 className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-8 py-4 rounded-2xl transition-all duration-300 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.02] active:scale-95 text-sm group"
               >
                 🚗 Booking Service
                 <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
-              </a>
+              </button>
               <a
                 href="https://wa.me/6288708230676?text=Halo%20Esther%20Garage%2C%20saya%20mau%20konsultasi%20servis"
                 target="_blank"
@@ -853,13 +856,13 @@ export default function LandingPage() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
-              { img: IMAGES.service1, title: 'Servis Mesin', desc: 'Diagnostik OBD2, tune-up, dan perbaikan mesin.', icon: '🔧' },
-              { img: IMAGES.service2, title: 'Ganti Oli & Filter', desc: 'Pelumas berkualitas, filter original, dan cek kebocoran.', icon: '🛢️' },
-              { img: IMAGES.service3, title: 'Tune Up & ECU', desc: 'Pengaturan ulang ECU, pembersihan injector, dan busi.', icon: '⚡' },
-              { img: IMAGES.service4, title: 'Pemeriksaan Total', desc: 'Cek semua sistem kendaraan secara menyeluruh.', icon: '🔍' },
+              { img: IMAGES.service1, title: 'Servis Mesin', desc: 'Diagnostik OBD2, tune-up, dan perbaikan mesin oleh mekanik bersertifikat.', icon: '🔧', category: 'Performa' },
+              { img: IMAGES.service2, title: 'Ganti Oli & Filter', desc: 'Pelumas berkualitas, filter original, dan cek kebocoran untuk performa optimal.', icon: '🛢️', category: 'Perawatan' },
+              { img: IMAGES.service3, title: 'Tune Up & ECU', desc: 'Pengaturan ulang ECU, pembersihan injector, dan busi untuk efisiensi BBM.', icon: '⚡', category: 'Performa' },
+              { img: IMAGES.service4, title: 'Pemeriksaan Total', desc: 'Cek semua sistem kendaraan secara menyeluruh dengan teknologi diagnostik modern.', icon: '🔍', category: 'Perawatan' },
             ].map((service, idx) => (
               <Reveal key={service.title} delay={idx * 100} direction="up" distance={20}>
-                <div className="glass-card rounded-2xl overflow-hidden group transform transition-all duration-500 hover:-translate-y-4 hover:shadow-2xl">
+                <div className="glass-card rounded-2xl overflow-hidden group transform transition-all duration-500 hover:-translate-y-4 hover:shadow-2xl flex flex-col">
                   <div className="relative h-48 overflow-hidden">
                     <img
                       src={service.img}
@@ -868,17 +871,40 @@ export default function LandingPage() {
                       loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] to-transparent opacity-60" />
+                    <div className="absolute top-3 left-3">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider bg-blue-500/80 text-white px-2.5 py-0.5 rounded-full backdrop-blur-sm">
+                        {service.category}
+                      </span>
+                    </div>
                     <div className="absolute top-3 right-3 text-2xl animate-float" style={{ animationDelay: `${idx * 0.2}s` }}>
                       {service.icon}
                     </div>
                   </div>
-                  <div className="p-5">
+                  <div className="p-5 flex flex-col flex-1">
                     <h3 className="text-white font-bold text-base group-hover:text-blue-400 transition-colors">{service.title}</h3>
-                    <p className="text-gray-500 text-xs leading-relaxed mt-1">{service.desc}</p>
+                    <p className="text-gray-500 text-xs leading-relaxed mt-1 flex-1">{service.desc}</p>
+                    <button
+                      onClick={() => navigate('/guest/layanan')}
+                      className="mt-4 w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/30 transition-all flex items-center justify-center gap-2 group-hover:gap-3 cursor-pointer"
+                    >
+                      Lihat Detail <MdArrowForward className="text-sm" />
+                    </button>
                   </div>
                 </div>
               </Reveal>
             ))}
+          </div>
+
+          {/* CTA ke halaman layanan */}
+          <div className="text-center mt-10">
+            <Reveal delay={200}>
+              <button
+                onClick={() => navigate('/guest/layanan')}
+                className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 font-semibold text-sm border border-blue-500/30 hover:border-blue-400/50 px-6 py-2.5 rounded-xl transition-all bg-blue-500/10 hover:bg-blue-500/20"
+              >
+                Lihat Semua Layanan <MdArrowForward />
+              </button>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -1370,15 +1396,15 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-3.5 animate-fade-in-up animation-delay-500">
-              <a
-                href="#booking"
+              <button
+                onClick={() => navigate('/guest/booking')}
                 className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-8 py-4 rounded-2xl transition-all duration-300 shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.02] active:scale-95 text-sm group"
               >
                 🚗 Booking Sekarang
                 <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
-              </a>
+              </button>
               <a
                 href="https://wa.me/6288708230676?text=Halo%20Esther%20Garage%2C%20saya%20mau%20konsultasi"
                 target="_blank"
