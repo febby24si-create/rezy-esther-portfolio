@@ -8,7 +8,7 @@ import {
 } from 'react-icons/md'
 
 const navItems = [
-  { path: '/',          icon: MdDashboard,    label: 'Dashboard'       },
+  { path: '/dashboard',          icon: MdDashboard,    label: 'Dashboard'       },
   { path: '/orders',    icon: MdBuild,        label: 'Order Servis'    },
   { path: '/customers', icon: MdPeople,       label: 'Pelanggan'       },
   { path: '/vehicles',  icon: MdDirectionsCar,label: 'Kendaraan'       },
@@ -77,7 +77,7 @@ export default function Sidebar({ onClose }) {
     >
       {/* Logo + mobile close */}
       <div className="p-5 border-b flex items-center justify-between" style={{ borderColor: 'rgba(34,197,94,0.1)' }}>
-        <Link to="/" className="flex items-center gap-3" onClick={onClose}>
+        <Link to="/dashboard" className="flex items-center gap-3" onClick={onClose}>
           <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 border border-green-500/20 shadow-lg">
             <img src={logo} alt="Logo" className="w-full h-full object-cover" />
           </div>
