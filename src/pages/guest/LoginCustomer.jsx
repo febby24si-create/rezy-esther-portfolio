@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { MdEmail, MdLock, MdVisibility, MdVisibilityOff, MdArrowBack } from 'react-icons/md'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { motion } from 'framer-motion'
@@ -7,7 +7,9 @@ import logo from '../../assets/logo2.png'
 
 export default function LoginCustomer() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { login } = useCustomerAuth()
+  const redirectTo = location.state?.from || '/guest/dashboard'
 
   const [form, setForm]       = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
@@ -29,7 +31,7 @@ export default function LoginCustomer() {
     await new Promise(r => setTimeout(r, 800))
     const result = login(form.email, form.password)
     if (result.success) {
-      navigate('/guest/dashboard')
+      navigate(redirectTo)
     } else {
       setError(result.message || 'Email atau password salah.')
     }

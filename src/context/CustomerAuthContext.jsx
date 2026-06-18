@@ -506,6 +506,43 @@ export function CustomerAuthProvider({ children }) {
     return { success: true, newPoints }
   }, [customer])
 
+  // ── Klaim promo dari halaman PromoVoucher ────────────────
+  const claimPromo = useCallback((promo) => {
+    if (!customer) return { success: false, message: 'Belum login.' }
+
+    const customers = loadCustomers()
+    const idx = customers.findIndex(c => c.id === customer.id)
+    if (idx === -1) return { success: false, message: 'Data tidak ditemukan.' }
+
+    // Cek kalau sudah pernah klaim promo yang sama
+    const alreadyClaimed = (customers[idx].vouchers || []).some(
+      v => v.promoId === promo.id && v.status === 'active'
+    )
+    if (alreadyClaimed) return { success: false, message: 'Kamu sudah mengklaim promo ini.' }
+
+    const voucherCode = promo.code || ('PROMO-' + Math.random().toString(36).slice(2, 8).toUpperCase())
+    const newVoucher = {
+      id:         'VC-PROMO-' + Date.now(),
+      code:       voucherCode,
+      title:      promo.title,
+      diskon:     promo.diskon || 10,
+      status:     'active',
+      validUntil: promo.validUntil && promo.validUntil !== 'Tidak Ada Batas' && promo.validUntil !== 'Bulan Ulang Tahun'
+        ? promo.validUntil
+        : new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+      type:       'promo',
+      promoId:    promo.id,
+    }
+
+    customers[idx] = {
+      ...customers[idx],
+      vouchers: [newVoucher, ...(customers[idx].vouchers || [])],
+    }
+    saveCustomers(customers)
+    setCustomer(customers[idx])
+    return { success: true, voucher: newVoucher }
+  }, [customer])
+
   // ── [ADMIN] Buat voucher manual untuk customer tertentu ──
   const createVoucherForCustomer = useCallback((customerId, voucherData) => {
     const customers = loadCustomers()
@@ -552,6 +589,7 @@ export function CustomerAuthProvider({ children }) {
       activateMembership,
       adjustPointsAdmin,
       createVoucherForCustomer,
+      claimPromo,
       // helpers
       getLoyaltyInfo:  () => customer ? calcLoyaltyProgress(customer.points || 0) : null,
       getAchievements: () => customer ? calcAchievements(customer) : [],

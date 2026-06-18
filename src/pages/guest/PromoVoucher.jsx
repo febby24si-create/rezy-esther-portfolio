@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { promos } from '../../data/guestData'
+import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import {
   MdSearch, MdArrowForward, MdWhatsapp,
   MdDiscount, MdCardGiftcard, MdStars,
   MdCalendarToday, MdPersonAdd, MdLocalOffer,
   MdTimer, MdCheckCircle, MdEmojiEvents,
-  MdRedeem, MdClose, MdVerified, MdPeople
+  MdRedeem, MdClose, MdVerified, MdPeople,
+  MdContentCopy, MdCheckCircleOutline, MdLock
 } from 'react-icons/md'
 
 const filters = ['Semua', 'Promo', 'Birthday', 'Loyalty', 'Member']
@@ -94,19 +97,42 @@ function FaqItem({ question, answer }) {
 }
 
 // ─── COMPONENT: Promo Card dengan Gambar ──────────────────────
-function PromoCard({ promo, showCode }) {
+function PromoCard({ promo, showCode, onClaim }) {
   const { id, title, desc, diskon, type, validUntil, image, code, countdown, badge, badgeColor } = promo
+  const [claimState, setClaimState] = useState('idle') // 'idle' | 'success' | 'already' | 'copied'
   const defaultImage =
   'https://images.pexels.com/photos/3807329/pexels-photo-3807329.jpeg?auto=compress&cs=tinysrgb&w=800'
   const discountText = diskon ? `${diskon}%` : 'Promo'
+  const isExpired = countdown === 'Berakhir'
+
+  const handleClaim = () => {
+    if (isExpired) return
+    const result = onClaim(promo)
+    if (result.redirect) return // navigated away
+
+    if (result.alreadyClaimed) {
+      setClaimState('already')
+      // Still copy the code
+      if (code) {
+        navigator.clipboard.writeText(code).catch(() => {})
+        setClaimState('copied')
+      }
+    } else if (result.success) {
+      setClaimState('success')
+      if (result.voucher?.code) {
+        navigator.clipboard.writeText(result.voucher.code).catch(() => {})
+      }
+    }
+    setTimeout(() => setClaimState('idle'), 3000)
+  }
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      whileHover={{ y: -8 }}
-      className="glass-card rounded-2xl overflow-hidden group bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all"
+      whileHover={!isExpired ? { y: -8 } : {}}
+      className={`glass-card rounded-2xl overflow-hidden group bg-[#1E293B]/40 border border-white/5 transition-all ${isExpired ? 'opacity-60' : 'hover:border-blue-500/30'}`}
     >
       {/* ─── Gambar Thumbnail ─── */}
       <div className="relative h-48 overflow-hidden bg-[#0F172A]">
@@ -115,9 +141,7 @@ function PromoCard({ promo, showCode }) {
           alt={title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
-          onError={(e) => {
-            e.target.src = defaultImage
-          }}
+          onError={(e) => { e.target.src = defaultImage }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-transparent to-transparent opacity-60" />
 
@@ -130,17 +154,13 @@ function PromoCard({ promo, showCode }) {
 
         {/* Badge tipe / badge custom */}
         <div className="absolute top-3 right-3">
-            <span
-              className={`text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full backdrop-blur-sm text-white ${
-                badgeColors[badgeColor] || 'bg-blue-500/80'
-              }`}
-            >
-              {badge}
-            </span>
+          <span className={`text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full backdrop-blur-sm text-white ${badgeColors[badgeColor] || 'bg-blue-500/80'}`}>
+            {badge}
+          </span>
         </div>
 
         {/* Badge HOT untuk diskon besar */}
-        {diskon && diskon >= 30 && (
+        {diskon && diskon >= 30 && !isExpired && (
           <div className="absolute bottom-3 left-3">
             <span className="text-[10px] font-bold bg-red-500/80 text-white px-2.5 py-0.5 rounded-full backdrop-blur-sm animate-pulse">
               🔥 HOT
@@ -155,33 +175,70 @@ function PromoCard({ promo, showCode }) {
         <p className="text-gray-400 text-xs leading-relaxed mt-1 line-clamp-2">{desc}</p>
 
         {/* Countdown */}
-        {countdown && countdown !== 'Berakhir' && (
+        {countdown && !isExpired && countdown !== 'Tidak Ada Batas' && (
           <div className="flex items-center gap-1.5 text-xs font-mono text-white bg-black/40 px-3 py-1.5 rounded-lg border border-white/10 mt-3">
             <MdTimer className="text-orange-400" />
             <span>{countdown}</span>
           </div>
         )}
-        {countdown === 'Berakhir' && (
+        {isExpired && (
           <div className="flex items-center gap-1.5 text-xs font-mono text-red-400 bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20 mt-3">
             <span>⏰ Promo Berakhir</span>
           </div>
         )}
 
-        {/* Kode voucher */}
-        {showCode && code && (
+        {/* Kode voucher — tampil setelah berhasil diklaim */}
+        {claimState === 'success' && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+            className="mt-3 bg-green-500/10 rounded-lg px-3 py-2 text-center border border-green-500/25"
+          >
+            <span className="text-green-400 text-[10px] uppercase tracking-wider font-semibold">✓ Tersimpan & Disalin</span>
+            <p className="text-white font-mono font-bold text-sm mt-0.5">{promo.code || '—'}</p>
+            <p className="text-green-400/60 text-[10px] mt-0.5">Cek Voucher Saya</p>
+          </motion.div>
+        )}
+        {claimState === 'already' || claimState === 'copied' ? (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+            className="mt-3 bg-yellow-500/10 rounded-lg px-3 py-2 text-center border border-yellow-500/25"
+          >
+            <span className="text-yellow-400 text-[10px] uppercase tracking-wider font-semibold">Sudah Diklaim</span>
+            <p className="text-white font-mono font-bold text-sm mt-0.5">{code}</p>
+            <p className="text-yellow-400/60 text-[10px] mt-0.5">Kode disalin ke clipboard</p>
+          </motion.div>
+        ) : showCode && code && claimState === 'idle' && (
           <div className="mt-3 bg-white/5 rounded-lg px-3 py-1.5 text-center border border-white/10">
             <span className="text-gray-400 text-[10px] uppercase tracking-wider">Kode Voucher</span>
             <p className="text-white font-mono font-bold text-sm">{code}</p>
           </div>
         )}
 
-        {/* Tombol */}
+        {/* Tombol Klaim */}
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="mt-4 w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600/30 to-blue-500/30 hover:from-blue-600/50 hover:to-blue-500/50 border border-blue-500/30 transition-all flex items-center justify-center gap-2 group-hover:gap-3"
+          onClick={handleClaim}
+          disabled={isExpired}
+          whileHover={!isExpired ? { scale: 1.02 } : {}}
+          whileTap={!isExpired ? { scale: 0.98 } : {}}
+          className={`mt-4 w-full py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+            isExpired
+              ? 'bg-white/5 text-gray-600 border border-white/5 cursor-not-allowed'
+              : claimState === 'success'
+              ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+              : claimState === 'already' || claimState === 'copied'
+              ? 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/25'
+              : 'text-white bg-gradient-to-r from-blue-600/30 to-blue-500/30 hover:from-blue-600/50 hover:to-blue-500/50 border border-blue-500/30 group-hover:gap-3'
+          }`}
         >
-          Klaim Promo <MdArrowForward className="text-sm" />
+          {claimState === 'success' ? (
+            <><MdCheckCircleOutline className="text-base" /> Berhasil Diklaim!</>
+          ) : claimState === 'already' || claimState === 'copied' ? (
+            <><MdContentCopy className="text-base" /> Kode Disalin</>
+          ) : isExpired ? (
+            <>Promo Berakhir</>
+          ) : (
+            <>Klaim Promo <MdArrowForward className="text-sm" /></>
+          )}
         </motion.button>
       </div>
     </motion.div>
@@ -190,10 +247,36 @@ function PromoCard({ promo, showCode }) {
 
 // ─── MAIN ──────────────────────────────────────────────────────
 export default function PromoVoucher() {
+  const { isLoggedIn, claimPromo } = useCustomerAuth()
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('Semua')
   const [countdown, setCountdown] = useState({})
   const [featuredIndex, setFeaturedIndex] = useState(0)
+  const [toast, setToast] = useState(null)
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3500)
+  }
+
+  const handleClaim = (promo) => {
+    if (!isLoggedIn) {
+      navigate('/guest/login', { state: { from: '/guest/promo' } })
+      return { redirect: true }
+    }
+    const result = claimPromo(promo)
+    if (result.alreadyClaimed) {
+      showToast('Kamu sudah mengklaim promo ini sebelumnya.', 'warning')
+      return { alreadyClaimed: true }
+    }
+    if (result.success) {
+      showToast(`✓ Promo berhasil diklaim! Cek halaman Voucher Saya.`, 'success')
+      return { success: true, voucher: result.voucher }
+    }
+    showToast(result.message || 'Gagal mengklaim promo.', 'error')
+    return { success: false }
+  }
 
   // ─── Countdown ───────────────────────────────────────────────
   useEffect(() => {
@@ -478,7 +561,7 @@ export default function PromoVoucher() {
                 <p className="text-gray-500 text-sm mb-5">{filtered.length} promo tersedia</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filtered.map((p) => (
-                    <PromoCard key={p.id} promo={{ ...p, countdown: countdown[p.id] }} showCode />
+                    <PromoCard key={p.id} promo={{ ...p, countdown: countdown[p.id] }} showCode onClaim={handleClaim} />
                   ))}
                 </div>
               </motion.div>
@@ -708,6 +791,29 @@ export default function PromoVoucher() {
         <MdWhatsapp className="text-white text-3xl" />
         <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-ping" />
       </a>
+
+      {/* ─── TOAST ──────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 60, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-semibold backdrop-blur-sm border"
+            style={
+              toast.type === 'success'
+                ? { background: 'rgba(16,185,129,0.15)', color: '#34D399', borderColor: 'rgba(52,211,153,0.25)' }
+                : toast.type === 'warning'
+                ? { background: 'rgba(234,179,8,0.15)', color: '#FCD34D', borderColor: 'rgba(252,211,77,0.25)' }
+                : { background: 'rgba(239,68,68,0.15)', color: '#F87171', borderColor: 'rgba(248,113,113,0.25)' }
+            }
+          >
+            <span>{toast.type === 'success' ? '🎉' : toast.type === 'warning' ? '⚠️' : '❌'}</span>
+            <span>{toast.message}</span>
+            <button onClick={() => setToast(null)} className="ml-2 opacity-50 hover:opacity-100">✕</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ─── GLOBAL STYLES ──────────────────────────────────────── */}
       <style>{`

@@ -2,16 +2,64 @@ import { useState, useEffect } from 'react'
 import {
   MdAdd, MdSearch, MdClose, MdEdit, MdDelete, MdInventory2,
   MdWarning, MdAddCircle, MdRemoveCircle, MdHistory, MdArrowBack,
-  MdCheck, MdTrendingUp, MdTrendingDown
+  MdCheck, MdTrendingUp, MdTrendingDown, MdShoppingCart,
+  MdOilBarrel, MdFilterAlt, MdCarRepair, MdSettings,
+  MdLocalGasStation, MdFlashOn, MdLightbulb, MdCircle,
+  MdMoreVert, MdBuild
 } from 'react-icons/md'
+import { motion, AnimatePresence } from 'framer-motion'
 import inventoryData from '../data/inventoryData.json'
 
 const fmt = (n) => 'Rp ' + Number(n).toLocaleString('id-ID')
 
+// ─── Ikon dan Warna per Kategori ──────────────────────────────────────
+const categoryIcons = {
+  'Oli Mesin': <MdOilBarrel size={20} />,
+  'Oli Transmisi': <MdOilBarrel size={20} />,
+  'Filter Oli': <MdFilterAlt size={20} />,
+  'Filter Udara': <MdFilterAlt size={20} />,
+  'Busi': <MdFlashOn size={20} />,
+  'Kampas Rem': <MdCarRepair size={20} />,
+  'Aki': <MdFlashOn size={20} />,
+  'Ban': <MdCircle size={20} />,
+  'Cairan Radiator': <MdLocalGasStation size={20} />,
+  'Lampu Kendaraan': <MdLightbulb size={20} />,
+  'Bearing': <MdSettings size={20} />,
+  'Belt': <MdSettings size={20} />,
+  'Fuse': <MdFlashOn size={20} />,
+  'Sensor Kendaraan': <MdBuild size={20} />,
+  'Sparepart Fast Moving': <MdCarRepair size={20} />,
+  'Tools & Consumables': <MdBuild size={20} />,
+  'Lainnya': <MdMoreVert size={20} />,
+}
+
+const categoryColors = {
+  'Oli Mesin': '#22C55E',
+  'Oli Transmisi': '#22C55E',
+  'Filter Oli': '#3B82F6',
+  'Filter Udara': '#3B82F6',
+  'Busi': '#F59E0B',
+  'Kampas Rem': '#EF4444',
+  'Aki': '#8B5CF6',
+  'Ban': '#14B8A6',
+  'Cairan Radiator': '#06B6D4',
+  'Lampu Kendaraan': '#FBBF24',
+  'Bearing': '#6B7280',
+  'Belt': '#6B7280',
+  'Fuse': '#F59E0B',
+  'Sensor Kendaraan': '#8B5CF6',
+  'Sparepart Fast Moving': '#EC4899',
+  'Tools & Consumables': '#F97316',
+  'Lainnya': '#9CA3AF',
+}
+
+const getCategoryIcon = (cat) => categoryIcons[cat] || <MdInventory2 size={20} />
+const getCategoryColor = (cat) => categoryColors[cat] || '#9CA3AF'
+
 const getStockStatus = (stock, minStock) => {
-  if (stock === 0)          return { label: 'Habis',   cls: 'text-red-400',    bg: 'rgba(239,68,68,0.1)',   border: 'rgba(239,68,68,0.25)'   }
-  if (stock <= minStock)    return { label: 'Menipis', cls: 'text-yellow-400', bg: 'rgba(251,191,36,0.1)',  border: 'rgba(251,191,36,0.25)'  }
-  return                           { label: 'Aman',    cls: 'text-green-400',  bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.2)'    }
+  if (stock === 0)          return { label: 'Habis',   cls: 'text-red-400', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)' }
+  if (stock <= minStock)    return { label: 'Menipis', cls: 'text-yellow-400', bg: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.3)' }
+  return                     { label: 'Aman',    cls: 'text-green-400', bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.2)' }
 }
 
 const CATEGORIES = [
@@ -26,270 +74,7 @@ const initialForm = { code: '', name: '', category: 'Oli Mesin', stock: '', unit
 const inputCls = 'w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all focus:ring-2 focus:ring-green-500/20'
 const inputStyle = { background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }
 
-// ─── Restock Modal ────────────────────────────────────────────────────
-function RestockModal({ item, onClose, onConfirm }) {
-  const [qty, setQty] = useState('')
-  const [type, setType] = useState('add') // 'add' | 'reduce'
-  const [note, setNote] = useState('')
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const n = parseInt(qty)
-    if (!n || n <= 0) return
-    onConfirm(item.id, type === 'add' ? n : -n, note || (type === 'add' ? 'Restock' : 'Pengeluaran'))
-  }
-
-  const preview = type === 'add' ? item.stock + (parseInt(qty) || 0) : item.stock - (parseInt(qty) || 0)
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}
-      onClick={onClose}>
-      <div className="w-full max-w-sm rounded-2xl overflow-hidden"
-        style={{ background: 'linear-gradient(160deg,#061a14,#0a2e1e)', border: '1px solid rgba(34,197,94,0.2)', boxShadow: '0 25px 60px rgba(0,0,0,0.5)' }}
-        onClick={e => e.stopPropagation()}>
-
-        <div className="flex items-center justify-between px-5 py-4"
-          style={{ borderBottom: '1px solid rgba(34,197,94,0.1)' }}>
-          <div>
-            <h3 className="text-white font-bold">Ubah Stok</h3>
-            <p className="text-xs text-gray-500 mt-0.5 truncate max-w-[220px]">{item.name}</p>
-          </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5">
-            <MdClose size={18} />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
-          {/* Stok sekarang */}
-          <div className="flex items-center justify-between p-3 rounded-xl"
-            style={{ background: 'rgba(11,59,46,0.4)', border: '1px solid rgba(34,197,94,0.1)' }}>
-            <span className="text-xs text-gray-500">Stok saat ini</span>
-            <span className="text-white font-black text-lg">{item.stock} <span className="text-gray-500 text-sm font-normal">{item.unit}</span></span>
-          </div>
-
-          {/* Tipe */}
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { id: 'add',    label: '+ Tambah Stok',  icon: MdAddCircle,    color: '#22C55E', bg: 'rgba(34,197,94,0.12)'  },
-              { id: 'reduce', label: '− Kurangi Stok', icon: MdRemoveCircle, color: '#EF4444', bg: 'rgba(239,68,68,0.1)'   },
-            ].map(t => (
-              <button key={t.id} type="button" onClick={() => setType(t.id)}
-                className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all"
-                style={type === t.id
-                  ? { background: t.bg, color: t.color, border: `1.5px solid ${t.color}40` }
-                  : { background: 'rgba(11,59,46,0.3)', color: '#4B5563', border: '1px solid rgba(34,197,94,0.08)' }}>
-                <t.icon size={15} /> {t.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Jumlah */}
-          <div>
-            <label className="block text-xs text-gray-400 mb-1.5">Jumlah ({item.unit})</label>
-            <input type="number" required min="1" value={qty} onChange={e => setQty(e.target.value)}
-              placeholder="0" className={inputCls} style={inputStyle} />
-          </div>
-
-          {/* Preview */}
-          {qty && parseInt(qty) > 0 && (
-            <div className="flex items-center justify-between p-3 rounded-xl"
-              style={{ background: type === 'add' ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)', border: `1px solid ${type === 'add' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}` }}>
-              <span className="text-xs text-gray-400">Stok setelah</span>
-              <span className="font-black" style={{ color: type === 'add' ? '#22C55E' : preview < 0 ? '#EF4444' : '#FBBF24' }}>
-                {Math.max(0, preview)} {item.unit}
-              </span>
-            </div>
-          )}
-
-          {/* Catatan */}
-          <div>
-            <label className="block text-xs text-gray-400 mb-1.5">Catatan</label>
-            <input value={note} onChange={e => setNote(e.target.value)}
-              placeholder={type === 'add' ? 'Restock dari supplier...' : 'Digunakan untuk order #...'}
-              className={inputCls} style={inputStyle} />
-          </div>
-
-          <div className="flex gap-3 pt-1">
-            <button type="button" onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all"
-              style={{ border: '1px solid rgba(34,197,94,0.12)' }}>Batal</button>
-            <button type="submit"
-              className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90 flex items-center justify-center gap-2"
-              style={{ background: type === 'add' ? 'linear-gradient(90deg,#22C55E,#16a34a)' : 'linear-gradient(90deg,#ef4444,#dc2626)', color: '#fff' }}>
-              <MdCheck size={15} /> Simpan
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
-
-// ─── History Drawer ───────────────────────────────────────────────────
-function HistoryDrawer({ item, history, onClose }) {
-  const itemHistory = history.filter(h => h.itemId === item.id).reverse()
-  return (
-    <div className="fixed inset-0 z-50 flex justify-end"
-      style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }}
-      onClick={onClose}>
-      <div className="w-full max-w-sm h-full overflow-y-auto"
-        style={{ background: 'linear-gradient(160deg,#061a14,#082b1e)', borderLeft: '1px solid rgba(34,197,94,0.2)', boxShadow: '-20px 0 60px rgba(0,0,0,0.5)' }}
-        onClick={e => e.stopPropagation()}>
-        <div className="h-0.5" style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }} />
-
-        <div className="flex items-center gap-3 px-5 py-4">
-          <button onClick={onClose}
-            className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:scale-110 transition-all"
-            style={{ background: 'rgba(255,255,255,0.06)' }}>
-            <MdArrowBack size={18} />
-          </button>
-          <div>
-            <h3 className="text-white font-bold">Riwayat Stok</h3>
-            <p className="text-xs text-gray-500 truncate max-w-[200px]">{item.name}</p>
-          </div>
-        </div>
-
-        {/* Stok sekarang */}
-        <div className="mx-5 mb-5 rounded-2xl p-4 text-center"
-          style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)' }}>
-          <p className="text-xs text-gray-500 mb-1">Stok Sekarang</p>
-          <p className="text-4xl font-black text-white">{item.stock}</p>
-          <p className="text-gray-500 text-sm">{item.unit}</p>
-        </div>
-
-        {/* History list */}
-        <div className="px-5 pb-8">
-          <p className="text-xs text-gray-600 uppercase tracking-wider mb-3">Riwayat Perubahan</p>
-          {itemHistory.length === 0 ? (
-            <div className="text-center py-8 text-gray-600 text-sm">Belum ada riwayat</div>
-          ) : (
-            <div className="space-y-2">
-              {itemHistory.map((h, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-xl"
-                  style={{ background: 'rgba(11,59,46,0.3)', border: '1px solid rgba(34,197,94,0.07)' }}>
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={h.delta > 0
-                      ? { background: 'rgba(34,197,94,0.12)', color: '#22C55E' }
-                      : { background: 'rgba(239,68,68,0.1)', color: '#EF4444' }}>
-                    {h.delta > 0 ? <MdTrendingUp size={16} /> : <MdTrendingDown size={16} />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-300 font-medium">{h.note}</p>
-                    <p className="text-xs text-gray-600 mt-0.5">{h.date} · Stok: {h.before} → {h.after}</p>
-                  </div>
-                  <span className="text-sm font-black flex-shrink-0" style={{ color: h.delta > 0 ? '#22C55E' : '#EF4444' }}>
-                    {h.delta > 0 ? '+' : ''}{h.delta}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── Form Modal ───────────────────────────────────────────────────────
-function ItemModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
-  if (!isOpen) return null
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}
-      onClick={onClose}>
-      <div className="w-full max-w-lg rounded-2xl overflow-hidden"
-        style={{ background: 'linear-gradient(160deg,#061a14,#0a2e1e)', border: '1px solid rgba(34,197,94,0.2)', boxShadow: '0 25px 60px rgba(0,0,0,0.5)' }}
-        onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4"
-          style={{ borderBottom: '1px solid rgba(34,197,94,0.1)' }}>
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(34,197,94,0.15)' }}>
-              <MdInventory2 size={15} className="text-green-400" />
-            </div>
-            <h3 className="text-white font-bold">{editId ? 'Edit Barang' : 'Tambah Barang'}</h3>
-          </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5">
-            <MdClose size={18} />
-          </button>
-        </div>
-
-        <form onSubmit={onSubmit} className="px-5 py-4 space-y-4 max-h-[65vh] overflow-y-auto">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-gray-400 mb-1.5">Kode Barang</label>
-              <input required value={form.code} onChange={e => setForm(f => ({...f, code: e.target.value}))}
-                placeholder="OL-001" className={inputCls} style={inputStyle} />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-400 mb-1.5">Kategori</label>
-              <select value={form.category} onChange={e => setForm(f => ({...f, category: e.target.value}))}
-                className={inputCls} style={inputStyle}>
-                {['Oli','Ban','Aki','Filter','Rem','Lainnya'].map(c => <option key={c}>{c}</option>)}
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-400 mb-1.5">Nama Barang</label>
-            <input required value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))}
-              placeholder="Oli Mesin Shell 10W-40" className={inputCls} style={inputStyle} />
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-xs text-gray-400 mb-1.5">Stok Awal</label>
-              <input type="number" min="0" required value={form.stock} onChange={e => setForm(f => ({...f, stock: e.target.value}))}
-                placeholder="50" className={inputCls} style={inputStyle} />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-400 mb-1.5">Satuan</label>
-              <select value={form.unit} onChange={e => setForm(f => ({...f, unit: e.target.value}))}
-                className={inputCls} style={inputStyle}>
-                {['pcs','liter','set','buah','roll'].map(u => <option key={u}>{u}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-400 mb-1.5">Min. Stok</label>
-              <input type="number" min="0" required value={form.minStock} onChange={e => setForm(f => ({...f, minStock: e.target.value}))}
-                placeholder="5" className={inputCls} style={inputStyle} />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-gray-400 mb-1.5">Harga Beli (Rp)</label>
-              <input type="number" min="0" required value={form.buyPrice} onChange={e => setForm(f => ({...f, buyPrice: e.target.value}))}
-                placeholder="45000" className={inputCls} style={inputStyle} />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-400 mb-1.5">Harga Jual (Rp)</label>
-              <input type="number" min="0" required value={form.sellPrice} onChange={e => setForm(f => ({...f, sellPrice: e.target.value}))}
-                placeholder="65000" className={inputCls} style={inputStyle} />
-            </div>
-          </div>
-        </form>
-
-        <div className="flex gap-3 px-5 py-4" style={{ borderTop: '1px solid rgba(34,197,94,0.1)' }}>
-          <button type="button" onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all"
-            style={{ border: '1px solid rgba(34,197,94,0.12)' }}>Batal</button>
-          <button type="submit" form="form-item"
-            className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90"
-            style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }}>
-            {editId ? 'Simpan' : 'Tambah'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── Halaman Utama ────────────────────────────────────────────────────
-// FIX (terkait isu localStorage #1): jika localStorage('garage_inventory')
-// sudah pernah ter-set dengan data lama (6 item versi sebelumnya), maka
-// item baru dari inventoryData.json (79 item, 16 kategori) TIDAK akan
-// muncul karena localStorage selalu diprioritaskan dan menimpa seluruhnya.
-// Solusi: merge by id — data localStorage tetap menang untuk item yang
-// sudah ada (preserve stok yang sudah diubah admin), tapi item baru dari
-// JSON yang belum pernah ada di localStorage akan ditambahkan otomatis.
+// ─── Load data dengan merge ──────────────────────────────────────────
 function loadInventory() {
   let stored = []
   try {
@@ -305,6 +90,375 @@ function loadInventory() {
   return [...stored, ...newOnes]
 }
 
+// ─── Restock Modal ────────────────────────────────────────────────────
+function RestockModal({ item, onClose, onConfirm }) {
+  const [qty, setQty] = useState('')
+  const [type, setType] = useState('add')
+  const [note, setNote] = useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const n = parseInt(qty)
+    if (!n || n <= 0) return
+    onConfirm(item.id, type === 'add' ? n : -n, note || (type === 'add' ? 'Restock' : 'Pengeluaran'))
+  }
+
+  const preview = type === 'add' ? item.stock + (parseInt(qty) || 0) : item.stock - (parseInt(qty) || 0)
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)' }}
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+          className="w-full max-w-sm rounded-2xl overflow-hidden"
+          style={{ background: 'linear-gradient(160deg,#061a14,#0a2e1e)', border: '1px solid rgba(34,197,94,0.2)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
+            <div>
+              <h3 className="text-white font-bold">Ubah Stok</h3>
+              <p className="text-xs text-gray-500 mt-0.5 truncate max-w-[220px]">{item.name}</p>
+            </div>
+            <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5 transition-all">
+              <MdClose size={18} />
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="p-5 space-y-4">
+            <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'rgba(11,59,46,0.4)', border: '1px solid rgba(34,197,94,0.1)' }}>
+              <span className="text-xs text-gray-500">Stok saat ini</span>
+              <span className="text-white font-black text-lg">{item.stock} <span className="text-gray-500 text-sm font-normal">{item.unit}</span></span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { id: 'add',    label: '+ Tambah',  icon: MdAddCircle,    color: '#22C55E', bg: 'rgba(34,197,94,0.12)'  },
+                { id: 'reduce', label: '− Kurangi', icon: MdRemoveCircle, color: '#EF4444', bg: 'rgba(239,68,68,0.1)'   },
+              ].map(t => (
+                <button key={t.id} type="button" onClick={() => setType(t.id)}
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all"
+                  style={type === t.id
+                    ? { background: t.bg, color: t.color, border: `1.5px solid ${t.color}40` }
+                    : { background: 'rgba(11,59,46,0.3)', color: '#4B5563', border: '1px solid rgba(34,197,94,0.08)' }}>
+                  <t.icon size={15} /> {t.label}
+                </button>
+              ))}
+            </div>
+
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5">Jumlah ({item.unit})</label>
+              <input type="number" required min="1" value={qty} onChange={e => setQty(e.target.value)}
+                placeholder="0" className={inputCls} style={inputStyle} />
+            </div>
+
+            {qty && parseInt(qty) > 0 && (
+              <div className="flex items-center justify-between p-3 rounded-xl"
+                style={{ background: type === 'add' ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)', border: `1px solid ${type === 'add' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}` }}>
+                <span className="text-xs text-gray-400">Stok setelah</span>
+                <span className="font-black" style={{ color: type === 'add' ? '#22C55E' : preview < 0 ? '#EF4444' : '#FBBF24' }}>
+                  {Math.max(0, preview)} {item.unit}
+                </span>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5">Catatan</label>
+              <input value={note} onChange={e => setNote(e.target.value)}
+                placeholder={type === 'add' ? 'Restock dari supplier...' : 'Digunakan untuk order...'}
+                className={inputCls} style={inputStyle} />
+            </div>
+
+            <div className="flex gap-3 pt-1">
+              <button type="button" onClick={onClose}
+                className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all"
+                style={{ border: '1px solid rgba(34,197,94,0.12)' }}>Batal</button>
+              <button type="submit"
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 flex items-center justify-center gap-2"
+                style={{ background: type === 'add' ? 'linear-gradient(135deg,#22C55E,#16a34a)' : 'linear-gradient(135deg,#ef4444,#dc2626)' }}>
+                <MdCheck size={15} /> Simpan
+              </button>
+            </div>
+          </form>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
+// ─── History Drawer ───────────────────────────────────────────────────
+function HistoryDrawer({ item, history, onClose }) {
+  const itemHistory = history.filter(h => h.itemId === item.id).reverse()
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex justify-end"
+        style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }}
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+          transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+          className="w-full max-w-sm h-full overflow-y-auto"
+          style={{ background: 'linear-gradient(160deg,#061a14,#082b1e)', borderLeft: '1px solid rgba(34,197,94,0.15)', boxShadow: '-30px 0 80px rgba(0,0,0,0.6)' }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="h-0.5" style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }} />
+
+          <div className="flex items-center gap-3 px-5 py-4">
+            <button onClick={onClose}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:scale-110 transition-all"
+              style={{ background: 'rgba(255,255,255,0.06)' }}>
+              <MdArrowBack size={18} />
+            </button>
+            <div>
+              <h3 className="text-white font-bold">Riwayat Stok</h3>
+              <p className="text-xs text-gray-500 truncate max-w-[200px]">{item.name}</p>
+            </div>
+          </div>
+
+          <div className="mx-5 mb-5 rounded-2xl p-4 text-center" style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)' }}>
+            <p className="text-xs text-gray-500 mb-1">Stok Sekarang</p>
+            <p className="text-4xl font-black text-white">{item.stock}</p>
+            <p className="text-gray-500 text-sm">{item.unit}</p>
+          </div>
+
+          <div className="px-5 pb-8">
+            <p className="text-xs text-gray-600 uppercase tracking-wider mb-3">Riwayat Perubahan</p>
+            {itemHistory.length === 0 ? (
+              <div className="text-center py-8 text-gray-600 text-sm">Belum ada riwayat</div>
+            ) : (
+              <div className="space-y-2">
+                {itemHistory.map((h, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl"
+                    style={{ background: 'rgba(11,59,46,0.3)', border: '1px solid rgba(34,197,94,0.07)' }}>
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                      style={h.delta > 0
+                        ? { background: 'rgba(34,197,94,0.12)', color: '#22C55E' }
+                        : { background: 'rgba(239,68,68,0.1)', color: '#EF4444' }}>
+                      {h.delta > 0 ? <MdTrendingUp size={16} /> : <MdTrendingDown size={16} />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-300 font-medium">{h.note}</p>
+                      <p className="text-xs text-gray-600 mt-0.5">{h.date} · Stok: {h.before} → {h.after}</p>
+                    </div>
+                    <span className="text-sm font-black flex-shrink-0" style={{ color: h.delta > 0 ? '#22C55E' : '#EF4444' }}>
+                      {h.delta > 0 ? '+' : ''}{h.delta}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
+// ─── Detail Drawer ────────────────────────────────────────────────────
+function DetailDrawer({ item, onClose, onEdit, onRestock, onAddToOrder }) {
+  if (!item) return null
+  const st = getStockStatus(item.stock, item.minStock)
+  const color = getCategoryColor(item.category)
+  const Icon = getCategoryIcon(item.category)
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex justify-end"
+        style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }}
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+          transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+          className="w-full max-w-sm h-full overflow-y-auto"
+          style={{ background: 'linear-gradient(160deg,#061a14,#082b1e)', borderLeft: '1px solid rgba(34,197,94,0.15)', boxShadow: '-30px 0 80px rgba(0,0,0,0.6)' }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="h-1" style={{ background: `linear-gradient(90deg, ${color}, ${color}80)` }} />
+
+          <div className="flex items-center justify-between px-5 py-4">
+            <button onClick={onClose}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-white hover:scale-110 transition-all"
+              style={{ background: 'rgba(255,255,255,0.06)' }}>
+              <MdArrowBack size={18} />
+            </button>
+            <div className="flex gap-1">
+              <button onClick={() => { onClose(); onEdit(item) }}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-yellow-400 hover:scale-110 transition-all"
+                style={{ background: 'rgba(255,255,255,0.06)' }}>
+                <MdEdit size={16} />
+              </button>
+              <button onClick={() => { onClose(); onRestock(item) }}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-green-400 hover:scale-110 transition-all"
+                style={{ background: 'rgba(255,255,255,0.06)' }}>
+                <MdAddCircle size={16} />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center px-5 pb-6">
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-4"
+              style={{ background: `${color}15`, border: `2px solid ${color}25`, color }}>
+              {Icon}
+            </div>
+            <h2 className="text-xl font-black text-white text-center">{item.name}</h2>
+            <p className="text-sm text-gray-400 mt-0.5">{item.code}</p>
+            <span className="text-xs px-3 py-1 rounded-full font-semibold mt-2"
+              style={{ background: st.bg, color: st.cls.replace('text-',''), border: `1px solid ${st.border}` }}>
+              {st.label}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mx-5 mb-5">
+            {[
+              { label: 'Stok', value: `${item.stock} ${item.unit}`, color: '#22C55E' },
+              { label: 'Min. Stok', value: `${item.minStock} ${item.unit}`, color: '#FBBF24' },
+              { label: 'Harga Beli', value: fmt(item.buyPrice), color: '#60A5FA' },
+              { label: 'Harga Jual', value: fmt(item.sellPrice), color: '#A78BFA' },
+            ].map(s => (
+              <div key={s.label} className="rounded-xl p-3 text-center"
+                style={{ background: 'rgba(11,59,46,0.3)', border: '1px solid rgba(34,197,94,0.08)' }}>
+                <p className="text-[10px] text-gray-500">{s.label}</p>
+                <p className="text-lg font-black" style={{ color: s.color }}>{s.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mx-5 mb-5 rounded-xl p-3 flex items-center gap-3"
+            style={{ background: 'rgba(11,59,46,0.2)', border: '1px solid rgba(34,197,94,0.08)' }}>
+            <span className="text-xs text-gray-500">Kategori</span>
+            <span className="text-sm text-white font-medium flex items-center gap-1.5">
+              <span style={{ color }}>{getCategoryIcon(item.category)}</span>
+              {item.category}
+            </span>
+          </div>
+
+          <div className="px-5 pb-8 flex flex-col gap-2">
+            <button onClick={() => { onClose(); onRestock(item) }}
+              className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 flex items-center justify-center gap-2"
+              style={{ background: 'linear-gradient(135deg, #22C55E, #16a34a)', boxShadow: '0 8px 24px rgba(34,197,94,0.25)' }}>
+              <MdAddCircle size={16} /> Restock / Ubah Stok
+            </button>
+            <button onClick={() => { onClose(); onAddToOrder(item) }}
+              className="w-full py-3 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90 flex items-center justify-center gap-2"
+              style={{ background: 'linear-gradient(135deg, #FBBF24, #F59E0B)', boxShadow: '0 8px 24px rgba(251,191,36,0.25)' }}>
+              <MdShoppingCart size={16} /> Tambah ke Order
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
+// ─── Form Modal ───────────────────────────────────────────────────────
+function ItemModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
+  if (!isOpen) return null
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+          className="w-full max-w-lg rounded-2xl overflow-hidden"
+          style={{ background: 'linear-gradient(160deg,#061a14,#0a2e1e)', border: '1px solid rgba(34,197,94,0.2)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(34,197,94,0.12)' }}>
+                <MdInventory2 size={15} className="text-green-400" />
+              </div>
+              <h3 className="text-white font-bold">{editId ? 'Edit Barang' : 'Tambah Barang'}</h3>
+            </div>
+            <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5 transition-all">
+              <MdClose size={18} />
+            </button>
+          </div>
+
+          <form onSubmit={onSubmit} className="px-5 py-4 space-y-4 max-h-[65vh] overflow-y-auto">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5">Kode Barang</label>
+                <input required value={form.code} onChange={e => setForm(f => ({...f, code: e.target.value}))}
+                  placeholder="OL-001" className={inputCls} style={inputStyle} />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5">Kategori</label>
+                <select value={form.category} onChange={e => setForm(f => ({...f, category: e.target.value}))}
+                  className={inputCls} style={inputStyle}>
+                  {CATEGORIES.filter(c => c !== 'Semua').map(c => <option key={c}>{c}</option>)}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5">Nama Barang</label>
+              <input required value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))}
+                placeholder="Oli Mesin Shell 10W-40" className={inputCls} style={inputStyle} />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5">Stok Awal</label>
+                <input type="number" min="0" required value={form.stock} onChange={e => setForm(f => ({...f, stock: e.target.value}))}
+                  placeholder="50" className={inputCls} style={inputStyle} />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5">Satuan</label>
+                <select value={form.unit} onChange={e => setForm(f => ({...f, unit: e.target.value}))}
+                  className={inputCls} style={inputStyle}>
+                  {['pcs','liter','set','buah','roll'].map(u => <option key={u}>{u}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5">Min. Stok</label>
+                <input type="number" min="0" required value={form.minStock} onChange={e => setForm(f => ({...f, minStock: e.target.value}))}
+                  placeholder="5" className={inputCls} style={inputStyle} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5">Harga Beli (Rp)</label>
+                <input type="number" min="0" required value={form.buyPrice} onChange={e => setForm(f => ({...f, buyPrice: e.target.value}))}
+                  placeholder="45000" className={inputCls} style={inputStyle} />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5">Harga Jual (Rp)</label>
+                <input type="number" min="0" required value={form.sellPrice} onChange={e => setForm(f => ({...f, sellPrice: e.target.value}))}
+                  placeholder="65000" className={inputCls} style={inputStyle} />
+              </div>
+            </div>
+          </form>
+
+          <div className="flex gap-3 px-5 py-4" style={{ borderTop: '1px solid rgba(34,197,94,0.08)' }}>
+            <button type="button" onClick={onClose}
+              className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all"
+              style={{ border: '1px solid rgba(34,197,94,0.12)' }}>Batal</button>
+            <button type="submit" form="form-item"
+              className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90"
+              style={{ background: 'linear-gradient(135deg,#22C55E,#16a34a)' }}>
+              {editId ? 'Simpan' : 'Tambah'}
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
+// ─── Halaman Utama ────────────────────────────────────────────────────
 export default function Inventory() {
   const [items, setItems] = useState(() => loadInventory())
   const [history, setHistory] = useState(() => {
@@ -326,6 +480,7 @@ export default function Inventory() {
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [restockTarget, setRestockTarget] = useState(null)
   const [historyTarget, setHistoryTarget] = useState(null)
+  const [detailTarget, setDetailTarget]   = useState(null)
 
   const filtered = items.filter(it => {
     const q = search.toLowerCase()
@@ -372,174 +527,209 @@ export default function Inventory() {
     setDeleteTarget(null)
   }
 
+  const handleAddToOrder = (item) => {
+    alert(`🛒 Menambahkan ${item.name} ke order. (Simulasi)`)
+    setDetailTarget(null)
+  }
+
   return (
-    <div className="page-animate">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Stok Spare Part</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{totalSKU} SKU terdaftar</p>
-        </div>
-        <button onClick={openAdd}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-black transition-all hover:opacity-90 hover:scale-105"
-          style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)', boxShadow: '0 4px 18px rgba(34,197,94,0.35)' }}>
-          <MdAdd size={18} /> Tambah Barang
-        </button>
-      </div>
-
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        {[
-          { label: 'Total SKU',         value: totalSKU,                                    color: '#22C55E', bg: 'rgba(34,197,94,0.08)'   },
-          { label: 'Nilai Total Stok',  value: `Rp ${(totalValue/1000000).toFixed(1)}jt`,  color: '#60A5FA', bg: 'rgba(96,165,250,0.08)'  },
-          { label: 'Stok Menipis',      value: lowStock,                                    color: '#FBBF24', bg: 'rgba(251,191,36,0.08)'  },
-          { label: 'Stok Habis',        value: outOfStock,                                  color: '#EF4444', bg: 'rgba(239,68,68,0.08)'   },
-        ].map(s => (
-          <div key={s.label} className="rounded-xl px-4 py-3 transition-all hover:scale-[1.02]"
-            style={{ background: s.bg, border: `1px solid ${s.color}20` }}>
-            <p className="text-xs text-gray-500 mb-1">{s.label}</p>
-            <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
+    <div className="min-h-screen" style={{ background: 'radial-gradient(circle at 10% 20%, #072e1f, #03120c)' }}>
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight flex items-center gap-3">
+              <span className="bg-gradient-to-r from-green-300 to-emerald-500 bg-clip-text text-transparent">
+                Inventaris Spare Part
+              </span>
+              <span className="text-sm font-normal text-gray-500 bg-white/5 px-3 py-1 rounded-full">
+                {totalSKU} SKU
+              </span>
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Nilai stok: <span className="text-white font-medium">{fmt(totalValue)}</span>
+            </p>
           </div>
-        ))}
-      </div>
-
-      {/* Alert */}
-      {(lowStock > 0 || outOfStock > 0) && (
-        <div className="flex items-center gap-3 p-3.5 rounded-xl mb-5 text-sm text-yellow-400"
-          style={{ background: 'rgba(234,179,8,0.07)', border: '1px solid rgba(234,179,8,0.2)' }}>
-          <MdWarning size={18} className="flex-shrink-0" />
-          <span>
-            {outOfStock > 0 && <><strong>{outOfStock} barang habis</strong>. </>}
-            {lowStock > 0 && <><strong>{lowStock} barang menipis</strong> dan perlu restock.</>}
-            {' Klik tombol + untuk restock.'}
-          </span>
-        </div>
-      )}
-
-      {/* Table */}
-      <div className="rounded-2xl overflow-hidden"
-        style={{ background: 'rgba(6,28,20,0.8)', border: '1px solid rgba(34,197,94,0.1)', backdropFilter: 'blur(6px)' }}>
-
-        {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row gap-3 p-4"
-          style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
-          <div className="relative flex-1">
-            <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" size={16} />
-            <input value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Cari nama atau kode barang..."
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-gray-300 outline-none focus:ring-2 focus:ring-green-500/20 transition-all"
-              style={{ background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.12)' }} />
-          </div>
-          <div className="flex gap-1.5 flex-wrap">
-            {CATEGORIES.map(cat => (
-              <button key={cat} onClick={() => setCategory(cat)}
-                className="px-3 py-2 rounded-xl text-xs font-medium transition-all"
-                style={category === cat
-                  ? { background: 'rgba(34,197,94,0.2)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.3)' }
-                  : { background: 'rgba(11,59,46,0.3)', color: '#6B7280', border: '1px solid rgba(34,197,94,0.08)' }}>
-                {cat}
-              </button>
-            ))}
-          </div>
+          <button onClick={openAdd}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-black transition-all hover:scale-105 active:scale-95"
+            style={{ background: 'linear-gradient(135deg, #22C55E, #16a34a)', boxShadow: '0 8px 24px rgba(34,197,94,0.35)' }}>
+            <MdAdd size={18} /> Tambah Barang
+          </button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full" style={{ minWidth: 800 }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
-                {['Kode','Nama Barang','Kategori','Stok','Min. Stok','Harga Beli','Harga Jual','Status','Aksi'].map(h => (
-                  <th key={h} className="text-left py-3 px-3 text-xs text-gray-600 font-semibold uppercase tracking-wider whitespace-nowrap">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((it) => {
-                const st = getStockStatus(it.stock, it.minStock)
-                const pct = it.minStock > 0 ? Math.min(100, (it.stock / (it.minStock * 3)) * 100) : 100
-                return (
-                  <tr key={it.id} className="transition-colors hover:bg-green-500/[0.03]"
-                    style={{ borderBottom: '1px solid rgba(34,197,94,0.05)' }}>
-                    <td className="py-3 px-3 text-xs text-green-400 font-mono whitespace-nowrap">{it.code}</td>
-                    <td className="py-3 px-3">
-                      <p className="text-sm text-white font-medium whitespace-nowrap">{it.name}</p>
-                    </td>
-                    <td className="py-3 px-3">
-                      <span className="text-xs px-2 py-1 rounded-lg text-gray-400"
-                        style={{ background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.1)' }}>
-                        {it.category}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3">
-                      <div>
-                        <span className={`text-sm font-black ${it.stock === 0 ? 'text-red-400' : it.stock <= it.minStock ? 'text-yellow-400' : 'text-white'}`}>
-                          {it.stock}
-                        </span>
-                        <span className="text-gray-600 text-xs ml-1">{it.unit}</span>
-                        {/* mini progress bar */}
-                        <div className="mt-1 h-1 rounded-full overflow-hidden" style={{ width: 48, background: 'rgba(255,255,255,0.06)' }}>
-                          <div className="h-full rounded-full transition-all"
-                            style={{ width: `${pct}%`, background: it.stock === 0 ? '#EF4444' : it.stock <= it.minStock ? '#FBBF24' : '#22C55E' }} />
+        {/* Stat cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {[
+            { label: 'Total SKU', value: totalSKU, icon: <MdInventory2 size={18}/>, color: '#22C55E', bg: 'rgba(34,197,94,0.06)' },
+            { label: 'Nilai Stok', value: `Rp ${(totalValue/1000000).toFixed(1)}jt`, icon: <MdTrendingUp size={18}/>, color: '#60A5FA', bg: 'rgba(96,165,250,0.06)' },
+            { label: 'Menipis', value: lowStock, icon: <MdWarning size={18}/>, color: '#FBBF24', bg: 'rgba(251,191,36,0.06)' },
+            { label: 'Habis', value: outOfStock, icon: <MdRemoveCircle size={18}/>, color: '#EF4444', bg: 'rgba(239,68,68,0.06)' },
+          ].map(s => (
+            <motion.div key={s.label} whileHover={{ scale: 1.02 }} className="rounded-2xl px-4 py-3 transition-all"
+              style={{ background: s.bg, border: `1px solid ${s.color}15` }}>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-gray-500">{s.label}</p>
+                <span style={{ color: s.color, opacity: 0.6 }}>{s.icon}</span>
+              </div>
+              <p className="text-2xl font-black mt-1" style={{ color: s.color }}>{s.value}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Alert */}
+        {(lowStock > 0 || outOfStock > 0) && (
+          <div className="flex items-center gap-3 p-3.5 rounded-xl mb-6 text-sm text-yellow-400"
+            style={{ background: 'rgba(234,179,8,0.07)', border: '1px solid rgba(234,179,8,0.2)' }}>
+            <MdWarning size={18} className="flex-shrink-0" />
+            <span>
+              {outOfStock > 0 && <><strong>{outOfStock} barang habis</strong>. </>}
+              {lowStock > 0 && <><strong>{lowStock} barang menipis</strong> dan perlu restock.</>}
+              {' Klik tombol + untuk restock.'}
+            </span>
+          </div>
+        )}
+
+        {/* Filter & Search */}
+        <div className="rounded-2xl p-4 mb-6"
+          style={{ background: 'rgba(6,28,20,0.7)', border: '1px solid rgba(34,197,94,0.1)', backdropFilter: 'blur(8px)' }}>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" size={16} />
+              <input value={search} onChange={e => setSearch(e.target.value)}
+                placeholder="Cari nama atau kode barang..."
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-gray-300 outline-none focus:ring-2 focus:ring-green-500/20 transition-all"
+                style={{ background: 'rgba(11,59,46,0.4)', border: '1px solid rgba(34,197,94,0.12)' }} />
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {CATEGORIES.map(cat => (
+                <button key={cat} onClick={() => setCategory(cat)}
+                  className="px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap"
+                  style={category === cat
+                    ? { background: 'rgba(34,197,94,0.2)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.3)' }
+                    : { background: 'rgba(11,59,46,0.3)', color: '#6B7280', border: '1px solid rgba(34,197,94,0.08)' }}>
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Grid Cards */}
+        <AnimatePresence>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {filtered.map((it) => {
+              const st = getStockStatus(it.stock, it.minStock)
+              const color = getCategoryColor(it.category)
+              const Icon = getCategoryIcon(it.category)
+              const pct = it.minStock > 0 ? Math.min(100, (it.stock / (it.minStock * 3)) * 100) : 100
+
+              return (
+                <motion.div
+                  key={it.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  whileHover={{ y: -4, boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}
+                  className="group relative rounded-2xl overflow-hidden cursor-pointer"
+                  style={{
+                    background: 'linear-gradient(160deg, rgba(8,44,34,0.95) 0%, rgba(4,26,20,0.9) 100%)',
+                    border: '1px solid rgba(34,197,94,0.1)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                  }}
+                  onClick={() => setDetailTarget(it)}
+                >
+                  <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, ${color}, ${color}60)` }} />
+
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                          style={{ background: `${color}15`, border: `1px solid ${color}20`, color }}>
+                          {Icon}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs text-gray-500 font-mono">{it.code}</p>
+                          <p className="text-sm text-white font-bold truncate">{it.name}</p>
                         </div>
                       </div>
-                    </td>
-                    <td className="py-3 px-3 text-xs text-gray-500 whitespace-nowrap">{it.minStock} {it.unit}</td>
-                    <td className="py-3 px-3 text-sm text-gray-400 whitespace-nowrap">{fmt(it.buyPrice)}</td>
-                    <td className="py-3 px-3 text-sm text-white font-semibold whitespace-nowrap">{fmt(it.sellPrice)}</td>
-                    <td className="py-3 px-3">
-                      <span className="text-xs px-2.5 py-1 rounded-full font-semibold"
-                        style={{ background: st.bg, color: st.cls.replace('text-','').replace('-400',''), border: `1px solid ${st.border}` }}
-                        style2={{ color: it.stock === 0 ? '#EF4444' : it.stock <= it.minStock ? '#FBBF24' : '#22C55E' }}>
-                        <span style={{ color: it.stock === 0 ? '#EF4444' : it.stock <= it.minStock ? '#FBBF24' : '#22C55E' }}>{st.label}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold flex-shrink-0"
+                        style={{ background: st.bg, color: st.cls.replace('text-',''), border: `1px solid ${st.border}` }}>
+                        {st.label}
                       </span>
-                    </td>
-                    <td className="py-3 px-3">
-                      <div className="flex items-center gap-1">
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(11,59,46,0.3)' }}>
+                        <p className="text-[10px] text-gray-500">Stok</p>
+                        <p className={`text-lg font-black ${it.stock === 0 ? 'text-red-400' : it.stock <= it.minStock ? 'text-yellow-400' : 'text-white'}`}>
+                          {it.stock}
+                          <span className="text-xs text-gray-500 font-normal ml-1">{it.unit}</span>
+                        </p>
+                      </div>
+                      <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(11,59,46,0.3)' }}>
+                        <p className="text-[10px] text-gray-500">Harga Jual</p>
+                        <p className="text-sm font-black text-green-400">{fmt(it.sellPrice)}</p>
+                      </div>
+                    </div>
+
+                    <div className="h-1 rounded-full overflow-hidden mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      <div className="h-full rounded-full transition-all"
+                        style={{ width: `${pct}%`, background: it.stock === 0 ? '#EF4444' : it.stock <= it.minStock ? '#FBBF24' : '#22C55E' }} />
+                    </div>
+
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[10px] text-gray-500 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />
+                        {it.category}
+                      </span>
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                         <button onClick={() => setRestockTarget(it)} title="Restock"
-                          className="w-7 h-7 rounded-lg flex items-center justify-center text-green-400 transition-all hover:bg-green-500/15 hover:scale-110"
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-green-400 hover:bg-green-500/15 hover:scale-110 transition-all"
                           style={{ background: 'rgba(34,197,94,0.08)' }}>
-                          <MdAddCircle size={15} />
+                          <MdAddCircle size={14} />
                         </button>
                         <button onClick={() => setHistoryTarget(it)} title="Riwayat"
-                          className="w-7 h-7 rounded-lg flex items-center justify-center text-blue-400 transition-all hover:bg-blue-500/15">
-                          <MdHistory size={15} />
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-blue-400 hover:bg-blue-500/15 transition-all">
+                          <MdHistory size={14} />
                         </button>
-                        <button onClick={() => openEdit(it)} title="Edit"
-                          className="w-7 h-7 rounded-lg flex items-center justify-center text-yellow-400 transition-all hover:bg-yellow-500/15">
-                          <MdEdit size={15} />
+                        <button onClick={() => { setDetailTarget(null); openEdit(it) }} title="Edit"
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-yellow-400 hover:bg-yellow-500/15 transition-all">
+                          <MdEdit size={14} />
                         </button>
                         <button onClick={() => setDeleteTarget(it)} title="Hapus"
-                          className="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 transition-all hover:bg-red-500/15">
-                          <MdDelete size={15} />
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-500/15 transition-all">
+                          <MdDelete size={14} />
                         </button>
                       </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-          {filtered.length === 0 && (
-            <div className="text-center py-14 text-gray-600 text-sm flex flex-col items-center gap-2">
-              <MdInventory2 size={40} className="opacity-20" />
-              Tidak ada barang ditemukan
-            </div>
-          )}
-        </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        </AnimatePresence>
 
-        <div className="px-4 py-3" style={{ borderTop: '1px solid rgba(34,197,94,0.06)' }}>
-          <p className="text-xs text-gray-600">Menampilkan {filtered.length} dari {items.length} barang</p>
+        {filtered.length === 0 && (
+          <div className="text-center py-20">
+            <div className="text-6xl mb-4 opacity-20">📦</div>
+            <p className="text-gray-500 text-sm">Tidak ada barang ditemukan</p>
+          </div>
+        )}
+
+        <div className="mt-4 text-center text-xs text-gray-600">
+          Menampilkan {filtered.length} dari {items.length} barang
         </div>
       </div>
 
-      {/* Modals */}
+      {/* Modals & Drawers */}
       <ItemModal
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={() => { setShowModal(false); setForm(initialForm); setEditId(null) }}
         onSubmit={handleSubmit}
         form={form} setForm={setForm}
         editId={editId}
       />
-      {/* hidden form id for submit */}
       {showModal && <form id="form-item" onSubmit={handleSubmit} className="hidden" />}
 
       {restockTarget && (
@@ -550,32 +740,51 @@ export default function Inventory() {
         <HistoryDrawer item={historyTarget} history={history} onClose={() => setHistoryTarget(null)} />
       )}
 
-      {deleteTarget && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}
-          onClick={() => setDeleteTarget(null)}>
-          <div className="w-full max-w-xs rounded-2xl p-6 text-center"
-            style={{ background: '#06281F', border: '1px solid rgba(239,68,68,0.3)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}
-            onClick={e => e.stopPropagation()}>
-            <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{ background: 'rgba(239,68,68,0.1)', border: '2px solid rgba(239,68,68,0.2)' }}>
-              <MdDelete size={26} className="text-red-500" />
-            </div>
-            <h3 className="text-white font-bold text-lg mb-2">Hapus Barang?</h3>
-            <p className="text-gray-400 text-sm mb-6">
-              <span className="text-green-400 font-bold">{deleteTarget.name}</span> akan dihapus permanen.
-            </p>
-            <div className="flex gap-3">
-              <button onClick={() => setDeleteTarget(null)}
-                className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:bg-white/5 transition-all"
-                style={{ border: '1px solid rgba(255,255,255,0.08)' }}>Batal</button>
-              <button onClick={handleDelete}
-                className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
-                style={{ background: 'linear-gradient(90deg,#ef4444,#dc2626)' }}>Hapus</button>
-            </div>
-          </div>
-        </div>
+      {detailTarget && (
+        <DetailDrawer
+          item={detailTarget}
+          onClose={() => setDetailTarget(null)}
+          onEdit={openEdit}
+          onRestock={setRestockTarget}
+          onAddToOrder={handleAddToOrder}
+        />
       )}
+
+      {/* Delete Confirmation */}
+      <AnimatePresence>
+        {deleteTarget && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)' }}
+            onClick={() => setDeleteTarget(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+              className="w-full max-w-sm rounded-2xl p-6 text-center"
+              style={{ background: 'linear-gradient(160deg, #0a2a1f, #061a14)', border: '1px solid rgba(239,68,68,0.3)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                style={{ background: 'rgba(239,68,68,0.1)', border: '2px solid rgba(239,68,68,0.2)' }}>
+                <MdDelete size={28} className="text-red-500" />
+              </div>
+              <h3 className="text-white font-bold text-lg mb-2">Hapus Barang?</h3>
+              <p className="text-gray-400 text-sm mb-6">
+                <span className="text-green-400 font-bold">{deleteTarget.name}</span> akan dihapus permanen.
+              </p>
+              <div className="flex gap-3">
+                <button onClick={() => setDeleteTarget(null)}
+                  className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all"
+                  style={{ border: '1px solid rgba(255,255,255,0.06)' }}>Batal</button>
+                <button onClick={handleDelete}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
+                  style={{ background: 'linear-gradient(135deg, #EF4444, #DC2626)' }}>Hapus</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

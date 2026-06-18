@@ -15,7 +15,16 @@ import {
   MdWarning,
   MdCheck,
   MdRefresh,
+  MdCardGiftcard,
+  MdCalendarToday,
+  MdStar,
+  MdStarBorder,
+  MdPerson,
+  MdClose,
+  MdEdit,
+  MdDelete,
 } from "react-icons/md";
+import { motion, AnimatePresence } from "framer-motion";
 
 const fmt = (n) => "Rp " + Number(n).toLocaleString("id-ID");
 
@@ -155,7 +164,6 @@ const REMINDER_TEMPLATES = [
 ];
 
 function useAllCustomers() {
-  // Baca dari garage_customers (sumber yang sama dengan halaman Customers & Orders)
   const raw = useMemo(() => getAllCustomersFromStore(), []);
   return useMemo(
     () =>
@@ -169,9 +177,6 @@ function useAllCustomers() {
 
 // ── Customer of the Month ─────────────────────────────────────
 function CustomerOfTheMonth({ customers }) {
-  const thisMonth = new Date().getMonth();
-  const thisYear = new Date().getFullYear();
-
   const cotm = useMemo(() => {
     if (!customers.length) return null;
     return [...customers].sort((a, b) => (b.points || 0) - (a.points || 0))[0];
@@ -249,9 +254,10 @@ function CustomerOfTheMonth({ customers }) {
           const tier = calcTier(c.points || 0);
           const tierCfg = TIER_CONFIG[tier];
           return (
-            <div
+            <motion.div
               key={label}
-              className="p-5 rounded-2xl border hover:border-white/15 transition-all"
+              whileHover={{ y: -2, boxShadow: "0 8px 30px rgba(0,0,0,0.4)" }}
+              className="p-5 rounded-2xl border transition-all"
               style={{
                 background: "rgba(255,255,255,0.03)",
                 borderColor: "rgba(255,255,255,0.08)",
@@ -281,7 +287,7 @@ function CustomerOfTheMonth({ customers }) {
               <p className="font-extrabold text-base mt-0.5" style={{ color }}>
                 {value}
               </p>
-            </div>
+            </motion.div>
           );
         })}
       </div>
@@ -317,26 +323,33 @@ function SegmentationPanel({ customers }) {
         <h2 className="text-white font-bold">Customer Segmentation</h2>
       </div>
 
-      {/* Segment tabs */}
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-5">
         {segments.map((s) => (
-          <button
+          <motion.button
             key={s.key}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => setSelected(s.key)}
-            className={`p-3 rounded-xl border text-center transition-all ${selected === s.key ? "border-white/25 bg-white/8" : "border-white/6 bg-white/3 hover:bg-white/5"}`}
+            className={`p-3 rounded-xl border text-center transition-all ${
+              selected === s.key
+                ? "border-white/25 bg-white/8"
+                : "border-white/6 bg-white/3 hover:bg-white/5"
+            }`}
           >
             <div className="text-xl mb-1">{s.icon}</div>
             <div className="text-white font-bold text-lg">
               {s.customers.length}
             </div>
             <div className="text-gray-500 text-xs leading-tight">{s.label}</div>
-          </button>
+          </motion.button>
         ))}
       </div>
 
-      {/* Selected segment */}
       {current && (
-        <div
+        <motion.div
+          key={selected}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           className="rounded-2xl border p-5"
           style={{
             borderColor: "rgba(255,255,255,0.08)",
@@ -355,7 +368,11 @@ function SegmentationPanel({ customers }) {
             </div>
             <button
               onClick={() => handleSend(current.key)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${sentMap[current.key] ? "bg-green-500/20 text-green-400 border border-green-500/25" : "text-white border border-white/15 hover:bg-white/8"}`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                sentMap[current.key]
+                  ? "bg-green-500/20 text-green-400 border border-green-500/25"
+                  : "text-white border border-white/15 hover:bg-white/8"
+              }`}
               style={
                 sentMap[current.key]
                   ? {}
@@ -416,7 +433,7 @@ function SegmentationPanel({ customers }) {
               })}
             </div>
           )}
-        </div>
+        </motion.div>
       )}
     </div>
   );
@@ -455,8 +472,10 @@ function ReminderEngine({ customers }) {
       </div>
       <div className="space-y-3">
         {enriched.map((r) => (
-          <div
+          <motion.div
             key={r.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
             className="p-4 rounded-2xl border hover:border-white/15 transition-all"
             style={{
               background: "rgba(255,255,255,0.03)",
@@ -507,7 +526,7 @@ function ReminderEngine({ customers }) {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>
@@ -516,69 +535,71 @@ function ReminderEngine({ customers }) {
 
 // ── Dummy reviews seed ────────────────────────────────────────
 const DUMMY_REVIEWS = [
-  { id: "rv001", customerName: "Budi Santoso",     rating: 5, reviewText: "Servis berkala sangat memuaskan! Mekaniknya profesional dan tepat waktu.", mechanic: "Ahmad Supriyadi",  date: "2026-06-10", service: "Servis Berkala"    },
-  { id: "rv002", customerName: "Siti Rahayu",      rating: 5, reviewText: "Ganti oli cepat, tidak perlu antri lama. Harga sesuai estimasi.",          mechanic: "Eka Fitriani",    date: "2026-06-08", service: "Ganti Oli"         },
-  { id: "rv003", customerName: "Agus Purnomo",     rating: 4, reviewText: "Tune up hasilnya bagus, mobil terasa lebih responsif. Recommended!",       mechanic: "Budi Hartanto",   date: "2026-06-11", service: "Tune Up"           },
-  { id: "rv004", customerName: "Dewi Kartika",     rating: 5, reviewText: "AC mobil saya diperbaiki dengan cepat. Freon diisi ulang, sekarang dingin sekali!",   mechanic: "Dedi Kurniawan",  date: "2026-06-05", service: "Service AC"        },
-  { id: "rv005", customerName: "Rudi Hermawan",    rating: 4, reviewText: "Spooring dan balancing hasilnya sangat terasa, mobil sudah tidak goyang lagi.", mechanic: "Budi Hartanto",  date: "2026-05-29", service: "Spooring"          },
-  { id: "rv006", customerName: "Lia Permata",      rating: 5, reviewText: "Pelayanan ramah, bengkel bersih dan nyaman. Pasti balik lagi!",            mechanic: "Ahmad Supriyadi",  date: "2026-05-25", service: "Servis Berkala"    },
-  { id: "rv007", customerName: "Hendra Wijaya",    rating: 3, reviewText: "Servis oke, tapi waktu tunggu sedikit lama. Semoga bisa lebih cepat.",     mechanic: "Eka Fitriani",    date: "2026-05-20", service: "Service Mesin"     },
-  { id: "rv008", customerName: "Fitri Handayani",  rating: 5, reviewText: "Pelayanan terbaik! Mekanik menjelaskan setiap langkah dengan detail.",    mechanic: "Dedi Kurniawan",  date: "2026-05-18", service: "Ganti Oli"         },
-  { id: "rv009", customerName: "Doni Prasetyo",    rating: 4, reviewText: "Tune up dan servis kelistrikan selesai sesuai janji. Puas dengan hasilnya.", mechanic: "Ahmad Supriyadi", date: "2026-05-15", service: "Tune Up"           },
-  { id: "rv010", customerName: "Maya Sari",        rating: 5, reviewText: "Booking online mudah, servis cepat dan berkualitas. Sangat direkomendasikan!", mechanic: "Budi Hartanto",  date: "2026-05-10", service: "Balancing"         },
-  { id: "rv011", customerName: "Bagas Nugroho",    rating: 4, reviewText: "Hasil spooring memuaskan, harga transparan. Tidak ada biaya tersembunyi.", mechanic: "Dedi Kurniawan",  date: "2026-05-07", service: "Spooring"          },
-  { id: "rv012", customerName: "Yuni Astuti",      rating: 5, reviewText: "Servis berkala rutin di sini selalu puas. Mekaniknya berpengalaman.",     mechanic: "Eka Fitriani",    date: "2026-05-02", service: "Servis Berkala"    },
-  { id: "rv013", customerName: "Andi Kusuma",      rating: 3, reviewText: "Hasilnya bagus tapi estimasi harga awal berbeda dengan tagihan akhir.",   mechanic: "Ahmad Supriyadi",  date: "2026-04-28", service: "Service Mesin"     },
-  { id: "rv014", customerName: "Rizky Pratama",    rating: 5, reviewText: "Luar biasa! Masalah mesin yang sudah lama akhirnya bisa diperbaiki.",     mechanic: "Budi Hartanto",   date: "2026-04-22", service: "Service Mesin"     },
-  { id: "rv015", customerName: "Sari Dewi",        rating: 4, reviewText: "AC sudah normal kembali. Pengerjaan rapi dan tidak ada kebocoran freon.", mechanic: "Dedi Kurniawan",  date: "2026-04-18", service: "Service AC"        },
-]
+  { id: "rv001", customerName: "Budi Santoso", rating: 5, reviewText: "Servis berkala sangat memuaskan! Mekaniknya profesional dan tepat waktu.", mechanic: "Ahmad Supriyadi", date: "2026-06-10", service: "Servis Berkala" },
+  { id: "rv002", customerName: "Siti Rahayu", rating: 5, reviewText: "Ganti oli cepat, tidak perlu antri lama. Harga sesuai estimasi.", mechanic: "Eka Fitriani", date: "2026-06-08", service: "Ganti Oli" },
+  { id: "rv003", customerName: "Agus Purnomo", rating: 4, reviewText: "Tune up hasilnya bagus, mobil terasa lebih responsif. Recommended!", mechanic: "Budi Hartanto", date: "2026-06-11", service: "Tune Up" },
+  { id: "rv004", customerName: "Dewi Kartika", rating: 5, reviewText: "AC mobil saya diperbaiki dengan cepat. Freon diisi ulang, sekarang dingin sekali!", mechanic: "Dedi Kurniawan", date: "2026-06-05", service: "Service AC" },
+  { id: "rv005", customerName: "Rudi Hermawan", rating: 4, reviewText: "Spooring dan balancing hasilnya sangat terasa, mobil sudah tidak goyang lagi.", mechanic: "Budi Hartanto", date: "2026-05-29", service: "Spooring" },
+  { id: "rv006", customerName: "Lia Permata", rating: 5, reviewText: "Pelayanan ramah, bengkel bersih dan nyaman. Pasti balik lagi!", mechanic: "Ahmad Supriyadi", date: "2026-05-25", service: "Servis Berkala" },
+  { id: "rv007", customerName: "Hendra Wijaya", rating: 3, reviewText: "Servis oke, tapi waktu tunggu sedikit lama. Semoga bisa lebih cepat.", mechanic: "Eka Fitriani", date: "2026-05-20", service: "Service Mesin" },
+  { id: "rv008", customerName: "Fitri Handayani", rating: 5, reviewText: "Pelayanan terbaik! Mekanik menjelaskan setiap langkah dengan detail.", mechanic: "Dedi Kurniawan", date: "2026-05-18", service: "Ganti Oli" },
+  { id: "rv009", customerName: "Doni Prasetyo", rating: 4, reviewText: "Tune up dan servis kelistrikan selesai sesuai janji. Puas dengan hasilnya.", mechanic: "Ahmad Supriyadi", date: "2026-05-15", service: "Tune Up" },
+  { id: "rv010", customerName: "Maya Sari", rating: 5, reviewText: "Booking online mudah, servis cepat dan berkualitas. Sangat direkomendasikan!", mechanic: "Budi Hartanto", date: "2026-05-10", service: "Balancing" },
+  { id: "rv011", customerName: "Bagas Nugroho", rating: 4, reviewText: "Hasil spooring memuaskan, harga transparan. Tidak ada biaya tersembunyi.", mechanic: "Dedi Kurniawan", date: "2026-05-07", service: "Spooring" },
+  { id: "rv012", customerName: "Yuni Astuti", rating: 5, reviewText: "Servis berkala rutin di sini selalu puas. Mekaniknya berpengalaman.", mechanic: "Eka Fitriani", date: "2026-05-02", service: "Servis Berkala" },
+  { id: "rv013", customerName: "Andi Kusuma", rating: 3, reviewText: "Hasilnya bagus tapi estimasi harga awal berbeda dengan tagihan akhir.", mechanic: "Ahmad Supriyadi", date: "2026-04-28", service: "Service Mesin" },
+  { id: "rv014", customerName: "Rizky Pratama", rating: 5, reviewText: "Luar biasa! Masalah mesin yang sudah lama akhirnya bisa diperbaiki.", mechanic: "Budi Hartanto", date: "2026-04-22", service: "Service Mesin" },
+  { id: "rv015", customerName: "Sari Dewi", rating: 4, reviewText: "AC sudah normal kembali. Pengerjaan rapi dan tidak ada kebocoran freon.", mechanic: "Dedi Kurniawan", date: "2026-04-18", service: "Service AC" },
+];
 
 function initReviews() {
-  const existing = localStorage.getItem("garage_reviews")
+  const existing = localStorage.getItem("garage_reviews");
   if (!existing || JSON.parse(existing).length === 0) {
-    localStorage.setItem("garage_reviews", JSON.stringify(DUMMY_REVIEWS))
+    localStorage.setItem("garage_reviews", JSON.stringify(DUMMY_REVIEWS));
   }
 }
 
 // ── Reviews Summary ────────────────────────────────────────────
 function ReviewsSummary() {
-  const [reviews, setReviews] = useState([])
-  const [showAll, setShowAll] = useState(false)
-  const [filterStar, setFilterStar] = useState(0)
-  const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ customerName: "", service: "Servis Berkala", mechanic: "Ahmad Supriyadi", rating: 5, reviewText: "" })
-  const [formSaved, setFormSaved] = useState(false)
+  const [reviews, setReviews] = useState([]);
+  const [showAll, setShowAll] = useState(false);
+  const [filterStar, setFilterStar] = useState(0);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ customerName: "", service: "Servis Berkala", mechanic: "Ahmad Supriyadi", rating: 5, reviewText: "" });
+  const [formSaved, setFormSaved] = useState(false);
+  const customers = useAllCustomers();
 
   useEffect(() => {
-    initReviews()
-    setReviews(JSON.parse(localStorage.getItem("garage_reviews") || "[]"))
-  }, [])
+    initReviews();
+    setReviews(JSON.parse(localStorage.getItem("garage_reviews") || "[]"));
+  }, []);
 
   const save = useCallback(() => {
+    if (!form.customerName.trim()) return;
     const updated = [
       { ...form, id: "rv" + Date.now(), date: new Date().toISOString().slice(0, 10) },
       ...reviews,
-    ]
-    localStorage.setItem("garage_reviews", JSON.stringify(updated))
-    setReviews(updated)
-    setForm({ customerName: "", service: "Servis Berkala", mechanic: "Ahmad Supriyadi", rating: 5, reviewText: "" })
-    setShowForm(false)
-    setFormSaved(true)
-    setTimeout(() => setFormSaved(false), 3000)
-  }, [form, reviews])
+    ];
+    localStorage.setItem("garage_reviews", JSON.stringify(updated));
+    setReviews(updated);
+    setForm({ customerName: "", service: "Servis Berkala", mechanic: "Ahmad Supriyadi", rating: 5, reviewText: "" });
+    setShowForm(false);
+    setFormSaved(true);
+    setTimeout(() => setFormSaved(false), 3000);
+  }, [form, reviews]);
 
   const deleteReview = useCallback((id) => {
-    const updated = reviews.filter(r => r.id !== id)
-    localStorage.setItem("garage_reviews", JSON.stringify(updated))
-    setReviews(updated)
-  }, [reviews])
+    const updated = reviews.filter(r => r.id !== id);
+    localStorage.setItem("garage_reviews", JSON.stringify(updated));
+    setReviews(updated);
+  }, [reviews]);
 
-  const avgRating = reviews.length ? reviews.reduce((a, b) => a + (b.rating || 0), 0) / reviews.length : 0
-  const dist = [5, 4, 3, 2, 1].map(n => ({ star: n, count: reviews.filter(r => r.rating === n).length }))
-  const displayed = (filterStar ? reviews.filter(r => r.rating === filterStar) : reviews).slice(0, showAll ? 999 : 5)
+  const avgRating = reviews.length ? reviews.reduce((a, b) => a + (b.rating || 0), 0) / reviews.length : 0;
+  const dist = [5, 4, 3, 2, 1].map(n => ({ star: n, count: reviews.filter(r => r.rating === n).length }));
+  const displayed = (filterStar ? reviews.filter(r => r.rating === filterStar) : reviews).slice(0, showAll ? 999 : 5);
 
-  const SERVICES  = ["Servis Berkala", "Tune Up", "Ganti Oli", "Spooring", "Balancing", "Service AC", "Service Mesin", "Service Kelistrikan"]
-  const MECHANICS = ["Ahmad Supriyadi", "Eka Fitriani", "Budi Hartanto", "Dedi Kurniawan"]
+  const SERVICES = ["Servis Berkala", "Tune Up", "Ganti Oli", "Spooring", "Balancing", "Service AC", "Service Mesin", "Service Kelistrikan"];
+  const MECHANICS = ["Ahmad Supriyadi", "Eka Fitriani", "Budi Hartanto", "Dedi Kurniawan"];
 
   return (
     <div>
@@ -594,42 +615,56 @@ function ReviewsSummary() {
         </button>
       </div>
 
-      {/* Success toast */}
       {formSaved && (
-        <div className="mb-4 px-4 py-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 text-sm flex items-center gap-2">
-          ✓ Review berhasil ditambahkan!
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 px-4 py-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/25 text-emerald-400 text-sm flex items-center gap-2"
+        >
+          <MdCheck /> Review berhasil ditambahkan!
+        </motion.div>
       )}
 
-      {/* Add form */}
       {showForm && (
-        <div className="mb-5 rounded-2xl border p-5 space-y-3" style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(34,197,94,0.2)" }}>
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="mb-5 rounded-2xl border p-5 space-y-3 overflow-hidden"
+          style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(34,197,94,0.2)" }}
+        >
           <p className="text-white font-semibold text-sm mb-1">Tambah Review Manual</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-gray-500 text-xs mb-1 block">Nama Customer</label>
-              <input value={form.customerName} onChange={e => setForm(f => ({ ...f, customerName: e.target.value }))}
-                placeholder="Nama pelanggan"
-                className="w-full text-sm bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-gray-600 outline-none focus:border-green-500/40" />
+              <select
+                value={form.customerName}
+                onChange={e => setForm(f => ({ ...f, customerName: e.target.value }))}
+                className="w-full text-sm bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-green-500/40"
+              >
+                <option value="">Pilih customer...</option>
+                {customers.map(c => (
+                  <option key={c.id} value={c.name}>{c.name}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="text-gray-500 text-xs mb-1 block">Layanan</label>
               <select value={form.service} onChange={e => setForm(f => ({ ...f, service: e.target.value }))}
-                className="w-full text-sm bg-[#0a1a12] border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-green-500/40">
+                className="w-full text-sm bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-green-500/40">
                 {SERVICES.map(s => <option key={s}>{s}</option>)}
               </select>
             </div>
             <div>
               <label className="text-gray-500 text-xs mb-1 block">Mekanik</label>
               <select value={form.mechanic} onChange={e => setForm(f => ({ ...f, mechanic: e.target.value }))}
-                className="w-full text-sm bg-[#0a1a12] border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-green-500/40">
+                className="w-full text-sm bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-green-500/40">
                 {MECHANICS.map(m => <option key={m}>{m}</option>)}
               </select>
             </div>
             <div>
               <label className="text-gray-500 text-xs mb-1 block">Rating</label>
               <div className="flex items-center gap-1 mt-1">
-                {[1,2,3,4,5].map(n => (
+                {[1, 2, 3, 4, 5].map(n => (
                   <button key={n} onClick={() => setForm(f => ({ ...f, rating: n }))}
                     className={`text-2xl transition-transform hover:scale-110 ${n <= form.rating ? "text-yellow-400" : "text-gray-700"}`}>★</button>
                 ))}
@@ -645,31 +680,31 @@ function ReviewsSummary() {
               className="w-full text-sm bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-gray-600 outline-none focus:border-green-500/40 resize-none" />
           </div>
           <div className="flex gap-2 justify-end">
-            <button onClick={() => setShowForm(false)} className="text-xs px-4 py-2 rounded-xl text-gray-400 hover:text-white border border-white/10 hover:bg-white/5 transition-all">Batal</button>
+            <button onClick={() => setShowForm(false)}
+              className="text-xs px-4 py-2 rounded-xl text-gray-400 hover:text-white border border-white/10 hover:bg-white/5 transition-all">Batal</button>
             <button onClick={save} disabled={!form.customerName.trim()}
               className="text-xs px-4 py-2 rounded-xl font-semibold bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
               Simpan Review
             </button>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Stats row */}
       <div className="rounded-2xl border p-5 grid grid-cols-1 sm:grid-cols-2 gap-6 mb-5"
         style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.08)" }}>
-        {/* Average */}
         <div className="text-center">
           <p className="text-6xl font-extrabold text-yellow-400">{avgRating.toFixed(1)}</p>
           <div className="flex justify-center gap-0.5 my-2">
-            {[1,2,3,4,5].map(s => (
+            {[1, 2, 3, 4, 5].map(s => (
               <span key={s} className={`text-xl ${s <= Math.round(avgRating) ? "text-yellow-400" : "text-gray-600"}`}>★</span>
             ))}
           </div>
           <p className="text-gray-400 text-sm">{reviews.length} total review</p>
           <div className="grid grid-cols-3 gap-2 mt-4 text-center">
-            {[5,4,3].map(n => {
-              const cnt = reviews.filter(r => r.rating === n).length
-              const pct = reviews.length ? Math.round(cnt / reviews.length * 100) : 0
+            {[5, 4, 3].map(n => {
+              const cnt = reviews.filter(r => r.rating === n).length;
+              const pct = reviews.length ? Math.round(cnt / reviews.length * 100) : 0;
               return (
                 <button key={n} onClick={() => setFilterStar(filterStar === n ? 0 : n)}
                   className={`rounded-xl py-2 transition-all border text-xs ${filterStar === n ? "bg-yellow-500/20 border-yellow-500/40 text-yellow-400" : "bg-white/3 border-white/8 text-gray-400 hover:text-white"}`}>
@@ -677,14 +712,13 @@ function ReviewsSummary() {
                   <p>{'★'.repeat(n)}</p>
                   <p className="text-[10px] opacity-70">{pct}%</p>
                 </button>
-              )
+              );
             })}
           </div>
         </div>
-        {/* Distribution bars */}
         <div className="space-y-2.5">
           {dist.map(({ star, count }) => {
-            const pct = reviews.length ? (count / reviews.length) * 100 : 0
+            const pct = reviews.length ? (count / reviews.length) * 100 : 0;
             return (
               <button key={star} onClick={() => setFilterStar(filterStar === star ? 0 : star)}
                 className={`w-full flex items-center gap-2 group transition-all rounded-lg px-1 py-0.5 ${filterStar === star ? "bg-yellow-500/10" : "hover:bg-white/3"}`}>
@@ -695,7 +729,7 @@ function ReviewsSummary() {
                 </div>
                 <span className="text-xs text-gray-500 w-8 text-right">{count}</span>
               </button>
-            )
+            );
           })}
           <div className="pt-2 border-t border-white/5 text-xs text-gray-600">
             {filterStar > 0 && <span className="text-yellow-400">Filter: {filterStar}★ · </span>}
@@ -709,8 +743,13 @@ function ReviewsSummary() {
         {displayed.length === 0 ? (
           <div className="text-center py-8 text-gray-600 text-sm">Belum ada review untuk bintang ini.</div>
         ) : displayed.map((r) => (
-          <div key={r.id} className="p-4 rounded-xl border group hover:border-white/15 transition-all"
-            style={{ background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.06)" }}>
+          <motion.div
+            key={r.id}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 rounded-xl border group hover:border-white/15 transition-all"
+            style={{ background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.06)" }}
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3 flex-1 min-w-0">
                 <div className="w-9 h-9 rounded-xl bg-yellow-500/15 flex items-center justify-center font-bold text-yellow-400 text-sm flex-shrink-0">
@@ -720,7 +759,7 @@ function ReviewsSummary() {
                   <div className="flex items-center justify-between gap-2 mb-0.5">
                     <p className="text-white font-semibold text-sm">{r.customerName}</p>
                     <div className="flex gap-0.5 flex-shrink-0">
-                      {[1,2,3,4,5].map(s => (
+                      {[1, 2, 3, 4, 5].map(s => (
                         <span key={s} className={`text-sm ${s <= r.rating ? "text-yellow-400" : "text-gray-700"}`}>★</span>
                       ))}
                     </div>
@@ -738,11 +777,10 @@ function ReviewsSummary() {
               <button onClick={() => deleteReview(r.id)}
                 className="opacity-0 group-hover:opacity-100 text-gray-700 hover:text-red-400 transition-all flex-shrink-0 text-xs p-1">✕</button>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
-      {/* Show more */}
       {reviews.length > 5 && (
         <div className="text-center mt-4">
           <button onClick={() => setShowAll(v => !v)}
@@ -752,9 +790,10 @@ function ReviewsSummary() {
         </div>
       )}
     </div>
-  )
+  );
 }
-// ── Panduan CRM Accordion (DaisyUI) ───────────────────────────
+
+// ── Panduan CRM ────────────────────────────────────────────────
 function PanduanCRM() {
   const items = [
     {
@@ -827,6 +866,7 @@ function PanduanCRM() {
     </div>
   );
 }
+
 // ── Main Page ──────────────────────────────────────────────────
 export default function CRMAutomation() {
   const [tab, setTab] = useState("cotm");
@@ -836,57 +876,60 @@ export default function CRMAutomation() {
     { key: "cotm", label: "Customer of the Month", icon: MdEmojiEvents },
     { key: "segment", label: "Segmentasi", icon: MdPeople },
     { key: "reminder", label: "Reminder & Broadcast", icon: MdNotifications },
-    { key: "review", label: "Rating & Review", icon: null, emoji: "⭐" },
-    { key: "panduan", label: "Panduan CRM", icon: null, emoji: "📖" }, // ← tambah ini
+    { key: "review", label: "Rating & Review", emoji: "⭐" },
+    { key: "panduan", label: "Panduan CRM", emoji: "📖" },
   ];
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <span className="text-green-400">🤖</span> CRM Automation
-        </h1>
-        <p className="text-gray-400 text-sm mt-1">
-          Kelola customer segmentation, reminder otomatis, dan monitoring
-          loyalitas.
-          <span className="ml-2 text-green-400 font-medium">
-            {customers.length} customer terdaftar
-          </span>
-        </p>
-      </div>
+    <div className="min-h-screen" style={{ background: 'radial-gradient(circle at 10% 20%, #072e1f, #03120c)' }}>
+      <div className="max-w-6xl mx-auto p-6">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-black tracking-tight flex items-center gap-3">
+            <span className="bg-gradient-to-r from-green-300 to-emerald-500 bg-clip-text text-transparent">
+              CRM Automation
+            </span>
+            <span className="text-sm font-normal text-gray-500 bg-white/5 px-3 py-1 rounded-full">
+              {customers.length} customer
+            </span>
+          </h1>
+          <p className="text-gray-400 text-sm mt-1 flex items-center gap-2">
+            <span>🤖</span> Kelola segmentasi, reminder otomatis, dan monitoring loyalitas pelanggan.
+          </p>
+        </div>
 
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {tabs.map(({ key, label, icon: Icon, emoji }) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-              tab === key
-                ? "bg-green-500/20 text-green-400 border border-green-500/25"
-                : "text-gray-400 hover:text-white border border-white/8 hover:bg-white/5"
-            }`}
-          >
-            {Icon ? <Icon className="text-base" /> : <span>{emoji}</span>}
-            {label}
-          </button>
-        ))}
-      </div>
+        {/* Tabs */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {tabs.map(({ key, label, icon: Icon, emoji }) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                tab === key
+                  ? "bg-green-500/20 text-green-400 border border-green-500/25"
+                  : "text-gray-400 hover:text-white border border-white/8 hover:bg-white/5"
+              }`}
+            >
+              {Icon ? <Icon className="text-base" /> : <span>{emoji}</span>}
+              {label}
+            </button>
+          ))}
+        </div>
 
-      {/* Content */}
-      <div
-        className="rounded-2xl border p-6"
-        style={{
-          background: "rgba(4,28,21,0.6)",
-          borderColor: "rgba(34,197,94,0.12)",
-        }}
-      >
-        {tab === "cotm" && <CustomerOfTheMonth customers={customers} />}
-        {tab === "segment" && <SegmentationPanel customers={customers} />}
-        {tab === "reminder" && <ReminderEngine customers={customers} />}
-        {tab === "review" && <ReviewsSummary />}
-        {tab === 'panduan'  && <PanduanCRM />}   {/* ← tambah ini */}
+        {/* Content */}
+        <div
+          className="rounded-2xl border p-6"
+          style={{
+            background: "rgba(4,28,21,0.6)",
+            borderColor: "rgba(34,197,94,0.12)",
+          }}
+        >
+          {tab === "cotm" && <CustomerOfTheMonth customers={customers} />}
+          {tab === "segment" && <SegmentationPanel customers={customers} />}
+          {tab === "reminder" && <ReminderEngine customers={customers} />}
+          {tab === "review" && <ReviewsSummary />}
+          {tab === "panduan" && <PanduanCRM />}
+        </div>
       </div>
     </div>
   );
