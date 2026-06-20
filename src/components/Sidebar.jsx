@@ -60,7 +60,7 @@ export default function Sidebar({ onClose }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("user_profile");
+    const saved = sessionStorage.getItem("user_profile");
     if (saved) return JSON.parse(saved);
     return {
       name: "Febby Fahrezyyy",
@@ -72,7 +72,7 @@ export default function Sidebar({ onClose }) {
   });
 
   useEffect(() => {
-    localStorage.setItem("user_profile", JSON.stringify(user));
+    sessionStorage.setItem("user_profile", JSON.stringify(user));
   }, [user]);
 
   useEffect(() => {
@@ -86,8 +86,8 @@ export default function Sidebar({ onClose }) {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("eg_token");
-    localStorage.removeItem("eg_user");
+    sessionStorage.removeItem("eg_token");
+    sessionStorage.removeItem("eg_user");
     navigate("/login");
   };
 
@@ -108,7 +108,7 @@ export default function Sidebar({ onClose }) {
       return;
     }
 
-    // Untuk upload ke public, kita tetap simpan sebagai base64 di localStorage
+    // Untuk upload ke public, kita tetap simpan sebagai base64 di sessionStorage
     // tapi Anda bisa juga mengirim ke server untuk disimpan di folder public
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -116,7 +116,7 @@ export default function Sidebar({ onClose }) {
       const updatedUser = { ...user, avatar: avatarData };
       setUser(updatedUser);
 
-      localStorage.setItem("user_profile", JSON.stringify(updatedUser));
+      sessionStorage.setItem("user_profile", JSON.stringify(updatedUser));
       window.dispatchEvent(
         new CustomEvent("userProfileUpdated", { detail: updatedUser }),
       );
@@ -132,7 +132,7 @@ export default function Sidebar({ onClose }) {
   const setAvatarFromPublic = (path) => {
     const updatedUser = { ...user, avatar: path };
     setUser(updatedUser);
-    localStorage.setItem("user_profile", JSON.stringify(updatedUser));
+    sessionStorage.setItem("user_profile", JSON.stringify(updatedUser));
     window.dispatchEvent(
       new CustomEvent("userProfileUpdated", { detail: updatedUser }),
     );
@@ -142,7 +142,7 @@ export default function Sidebar({ onClose }) {
     if (window.confirm("Apakah Anda yakin ingin menghapus foto profil?")) {
       const updatedUser = { ...user, avatar: "" };
       setUser(updatedUser);
-      localStorage.setItem("user_profile", JSON.stringify(updatedUser));
+      sessionStorage.setItem("user_profile", JSON.stringify(updatedUser));
       window.dispatchEvent(
         new CustomEvent("userProfileUpdated", { detail: updatedUser }),
       );

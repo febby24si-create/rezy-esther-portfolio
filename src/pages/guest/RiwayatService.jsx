@@ -285,9 +285,9 @@ export default function RiwayatService() {
   const [refresh, setRefresh] = useState(0)
   const { customer } = useCustomerAuth()
 
-  // Gabungkan static history + orders dari localStorage yang milik customer ini
+  // Gabungkan static history + orders dari sessionStorage yang milik customer ini
   const allHistory = useMemo(() => {
-    const fromStorage = JSON.parse(localStorage.getItem('garage_orders') || '[]')
+    const fromStorage = JSON.parse(sessionStorage.getItem('garage_orders') || '[]')
       .filter(o => o.customer === customer?.name && o.status === 'Selesai')
       .map(o => ({
         id:           o.id,

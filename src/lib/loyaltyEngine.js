@@ -13,7 +13,7 @@
 //
 // Fix: ekstrak logic addPoints/tier-voucher/after-service-voucher
 // menjadi fungsi PURE (non-hook) yang operate langsung pada
-// localStorage('eg_customers') by customerId. Fungsi ini bisa
+// sessionStorage('eg_customers') by customerId. Fungsi ini bisa
 // dipanggil dari:
 //   - subscriber ORDER_COMPLETED yang didaftarkan di Orders.jsx
 //     (admin mengubah status order)
@@ -35,14 +35,14 @@ const LS_KEY_CUSTOMERS = 'eg_customers'
 
 function loadCustomers() {
   try {
-    const raw = localStorage.getItem(LS_KEY_CUSTOMERS)
+    const raw = sessionStorage.getItem(LS_KEY_CUSTOMERS)
     return raw ? JSON.parse(raw) : []
   } catch { return [] }
 }
 
 function saveCustomers(list) {
   try {
-    localStorage.setItem(LS_KEY_CUSTOMERS, JSON.stringify(list))
+    sessionStorage.setItem(LS_KEY_CUSTOMERS, JSON.stringify(list))
   } catch { /* ignore */ }
 }
 

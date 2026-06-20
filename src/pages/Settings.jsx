@@ -15,7 +15,7 @@ export default function Settings() {
 
   // Data user (sama dengan yang dipakai di Header)
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("user_profile");
+    const saved = sessionStorage.getItem("user_profile");
     if (saved) {
       return JSON.parse(saved);
     }
@@ -29,7 +29,7 @@ export default function Settings() {
   });
 
   const [business, setBusiness] = useState(() => {
-    const saved = localStorage.getItem("eg_business");
+    const saved = sessionStorage.getItem("eg_business");
     if (saved) {
       return JSON.parse(saved);
     }
@@ -47,7 +47,7 @@ export default function Settings() {
   });
 
   const [notifications, setNotifications] = useState(() => {
-    const saved = localStorage.getItem("eg_notifications");
+    const saved = sessionStorage.getItem("eg_notifications");
     if (saved) {
       return JSON.parse(saved);
     }
@@ -71,19 +71,19 @@ export default function Settings() {
     window.dispatchEvent(new CustomEvent("userProfileUpdated", { detail: user }));
   }, [user]);
 
-  // Simpan user ke localStorage setiap berubah
+  // Simpan user ke sessionStorage setiap berubah
   useEffect(() => {
-    localStorage.setItem("user_profile", JSON.stringify(user));
+    sessionStorage.setItem("user_profile", JSON.stringify(user));
   }, [user]);
 
   // Simpan business
   useEffect(() => {
-    localStorage.setItem("eg_business", JSON.stringify(business));
+    sessionStorage.setItem("eg_business", JSON.stringify(business));
   }, [business]);
 
   // Simpan notifikasi
   useEffect(() => {
-    localStorage.setItem("eg_notifications", JSON.stringify(notifications));
+    sessionStorage.setItem("eg_notifications", JSON.stringify(notifications));
   }, [notifications]);
 
   const tabs = [

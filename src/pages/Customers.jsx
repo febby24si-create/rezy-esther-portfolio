@@ -62,7 +62,7 @@ import {
 
 // ─── Storage helpers ──────────────────────────────────────────────────
 const getOrdersFromStorage = () => {
-  const stored = localStorage.getItem("garage_orders");
+  const stored = sessionStorage.getItem("garage_orders");
   return stored ? JSON.parse(stored) : [];
 };
 

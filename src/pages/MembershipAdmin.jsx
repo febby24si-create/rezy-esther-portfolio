@@ -337,7 +337,7 @@ export default function MembershipAdmin() {
         ...(customers[idx].pointHistory || []),
       ],
     }
-    localStorage.setItem('eg_customers', JSON.stringify(customers))
+    sessionStorage.setItem('eg_customers', JSON.stringify(customers))
     setRefreshKey(k => k + 1)
     showToast(`Poin berhasil ${isPositive ? 'ditambahkan' : 'dikurangi'} untuk ${customers[idx].name}`)
   }
@@ -361,7 +361,7 @@ export default function MembershipAdmin() {
       ...customers[idx],
       vouchers: [newVoucher, ...(customers[idx].vouchers || [])],
     }
-    localStorage.setItem('eg_customers', JSON.stringify(customers))
+    sessionStorage.setItem('eg_customers', JSON.stringify(customers))
     setRefreshKey(k => k + 1)
     showToast(`Voucher berhasil dibuat untuk ${customers[idx].name}`)
   }

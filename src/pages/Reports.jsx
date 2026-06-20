@@ -115,7 +115,7 @@ function StatCard({ label, value, sub, trend }) {
 export default function Reports() {
   const [orders, setOrders] = useState(() => {
     try {
-      const stored = localStorage.getItem('garage_orders')
+      const stored = sessionStorage.getItem('garage_orders')
       return stored ? JSON.parse(stored) : ordersData
     } catch {
       return ordersData
@@ -124,7 +124,7 @@ export default function Reports() {
 
   const [mechanics, setMechanics] = useState(() => {
     try {
-      const stored = localStorage.getItem('garage_mechanics')
+      const stored = sessionStorage.getItem('garage_mechanics')
       return stored ? JSON.parse(stored) : mechanicsData
     } catch {
       return mechanicsData
@@ -134,9 +134,9 @@ export default function Reports() {
   useEffect(() => {
     const handleStorage = () => {
       try {
-        const s = localStorage.getItem('garage_orders')
+        const s = sessionStorage.getItem('garage_orders')
         if (s) setOrders(JSON.parse(s))
-        const m = localStorage.getItem('garage_mechanics')
+        const m = sessionStorage.getItem('garage_mechanics')
         if (m) setMechanics(JSON.parse(m))
       } catch {}
     }
@@ -232,7 +232,7 @@ export default function Reports() {
         </div>
         {orders.length === 0 && (
           <span className="ml-auto text-xs text-yellow-500 flex items-center gap-1.5">
-            <MdRefresh size={13} /> Data dari localStorage kosong — tambahkan order dulu
+            <MdRefresh size={13} /> Data dari sessionStorage kosong — tambahkan order dulu
           </span>
         )}
       </div>

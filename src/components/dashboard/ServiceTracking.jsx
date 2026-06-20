@@ -5,8 +5,8 @@ import { MdCheckCircle, MdGpsFixed, MdArrowForward } from 'react-icons/md'
 const steps = ['Booking', 'Check In', 'Inspection', 'Repair', 'Done']
 
 export default function ServiceTracking({ customer }) {
-  // Simulasi data tracking (ambil dari localStorage atau context)
-  const orders = JSON.parse(localStorage.getItem('garage_orders') || '[]')
+  // Simulasi data tracking (ambil dari sessionStorage atau context)
+  const orders = JSON.parse(sessionStorage.getItem('garage_orders') || '[]')
   const activeOrder = orders.find(o => o.customer === customer.name && o.status === 'Sedang Dikerjakan')
 
   if (!activeOrder) {

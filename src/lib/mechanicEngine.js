@@ -29,14 +29,14 @@ const LS_KEY_MECHANICS = 'garage_mechanics'
 
 function loadMechanics() {
   try {
-    const raw = localStorage.getItem(LS_KEY_MECHANICS)
+    const raw = sessionStorage.getItem(LS_KEY_MECHANICS)
     return raw ? JSON.parse(raw) : []
   } catch { return [] }
 }
 
 function saveMechanics(list) {
   try {
-    localStorage.setItem(LS_KEY_MECHANICS, JSON.stringify(list))
+    sessionStorage.setItem(LS_KEY_MECHANICS, JSON.stringify(list))
   } catch { /* ignore */ }
 }
 

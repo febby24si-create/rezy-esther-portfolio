@@ -182,7 +182,7 @@ export default function TrackingStatus() {
   const [notFound, setNotFound]         = useState(false)
 
   const myOrders = useMemo(() => {
-    const all = JSON.parse(localStorage.getItem('garage_orders') || '[]')
+    const all = JSON.parse(sessionStorage.getItem('garage_orders') || '[]')
     return all.filter(o => o.customer === customer?.name)
       .sort((a, b) => new Date(b.createdAt||b.date) - new Date(a.createdAt||a.date))
   }, [customer?.name])
@@ -193,7 +193,7 @@ export default function TrackingStatus() {
   const handleSearch = () => {
     setNotFound(false); setSearchResult(null)
     if (!searchId.trim()) return
-    const all  = JSON.parse(localStorage.getItem('garage_orders') || '[]')
+    const all  = JSON.parse(sessionStorage.getItem('garage_orders') || '[]')
     const found = all.find(o => o.id.toLowerCase() === searchId.trim().toLowerCase())
     found ? setSearchResult(found) : setNotFound(true)
   }

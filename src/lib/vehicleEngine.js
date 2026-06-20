@@ -39,7 +39,7 @@ function normalizePlate(plate) {
  */
 function loadAllVehicles() {
   try {
-    const raw = localStorage.getItem(LS_KEY_VEHICLES)
+    const raw = sessionStorage.getItem(LS_KEY_VEHICLES)
     if (raw) {
       const stored = JSON.parse(raw)
       const storedPlates = new Set(stored.map(v => normalizePlate(v.plate)))

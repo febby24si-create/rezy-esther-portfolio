@@ -74,7 +74,7 @@ import './index.css'
 import { registerOrderSubscribers } from './lib/orderSubscribers'
 import { seedLocalStorageIfEmpty } from './utils/seedLocalStorage'
 
-// ── Seed demo data ke localStorage saat pertama kali dibuka ──────────
+// ── Seed demo data ke sessionStorage saat pertama kali dibuka ──────────
 // Ini memastikan Dashboard tidak kosong waktu deploy / presentasi.
 // Data diambil dari src/data/*.json dan hanya di-load sekali.
 seedLocalStorageIfEmpty()

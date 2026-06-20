@@ -42,9 +42,9 @@ export default function Header({ onToggleSidebar }) {
   const profileRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Data user dari localStorage (sama dengan yang dipakai Settings)
+  // Data user dari sessionStorage (sama dengan yang dipakai Settings)
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("user_profile");
+    const saved = sessionStorage.getItem("user_profile");
     if (saved) {
       return JSON.parse(saved);
     }
@@ -57,9 +57,9 @@ export default function Header({ onToggleSidebar }) {
     };
   });
 
-  // Simpan user ke localStorage setiap ada perubahan
+  // Simpan user ke sessionStorage setiap ada perubahan
   useEffect(() => {
-    localStorage.setItem("user_profile", JSON.stringify(user));
+    sessionStorage.setItem("user_profile", JSON.stringify(user));
   }, [user]);
 
   // Dengarkan event dari halaman Settings (update real-time)
@@ -93,7 +93,7 @@ export default function Header({ onToggleSidebar }) {
   });
 
   const handleLogout = () => {
-    localStorage.removeItem("eg_token");
+    sessionStorage.removeItem("eg_token");
     navigate("/login");
   };
 

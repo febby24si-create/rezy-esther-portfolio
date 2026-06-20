@@ -58,27 +58,27 @@ const SERVICE_PARTS_MAP = {
 
 function loadInventory() {
   try {
-    const raw = localStorage.getItem(LS_KEY_INVENTORY)
+    const raw = sessionStorage.getItem(LS_KEY_INVENTORY)
     return raw ? JSON.parse(raw) : null
   } catch { return null }
 }
 
 function saveInventory(list) {
   try {
-    localStorage.setItem(LS_KEY_INVENTORY, JSON.stringify(list))
+    sessionStorage.setItem(LS_KEY_INVENTORY, JSON.stringify(list))
   } catch { /* ignore */ }
 }
 
 function loadHistory() {
   try {
-    const raw = localStorage.getItem(LS_KEY_HISTORY)
+    const raw = sessionStorage.getItem(LS_KEY_HISTORY)
     return raw ? JSON.parse(raw) : []
   } catch { return [] }
 }
 
 function saveHistory(list) {
   try {
-    localStorage.setItem(LS_KEY_HISTORY, JSON.stringify(list))
+    sessionStorage.setItem(LS_KEY_HISTORY, JSON.stringify(list))
   } catch { /* ignore */ }
 }
 
@@ -90,10 +90,10 @@ function saveHistory(list) {
  * mencatat setiap deduksi ke garage_inventory_history.
  *
  * Jika Inventory.jsx belum pernah dibuka (garage_inventory belum
- * ada di localStorage), fungsi ini SKIP secara aman -- inventory
+ * ada di sessionStorage), fungsi ini SKIP secara aman -- inventory
  * akan terinisialisasi dengan data seed saat halaman Inventory
  * pertama kali dibuka, dan deduksi untuk order-order sebelumnya
- * tidak bisa direkonstruksi mundur (limitasi localStorage-only,
+ * tidak bisa direkonstruksi mundur (limitasi sessionStorage-only,
  * dicatat sebagai known limitation untuk Phase 4 / backend).
  *
  * @param {object} order - order yang baru COMPLETED

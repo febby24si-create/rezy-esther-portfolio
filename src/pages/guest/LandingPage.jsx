@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GuestNavbar from '../../components/guest/GuestNavbar';
+import { CARD_THEME, CardPattern, ChipIcon } from '../../components/member/MemberCardComponents';
 import {
   MdWhatsapp,
   MdArrowUpward,
@@ -42,6 +43,83 @@ const IMAGES = {
 
 // ─── AVATAR ──────────────────────────────────────────────────────
 const getAvatar = (id) => `https://i.pravatar.cc/150?img=${id}`;
+
+// ─── MEMBERSHIP — data & komponen kartu untuk Landing Page ───
+// Reuse CARD_THEME dari MemberCardComponents, urutan tertinggi → terendah
+const MEMBERSHIP_TIERS = ['Platinum', 'Gold', 'Silver', 'Bronze'];
+
+// Alias lokal agar tidak bentrok dengan nama lain di file ini
+const CARD_THEME_LANDING = CARD_THEME;
+
+// Preview sisi depan kartu — versi sederhana tanpa state, tanpa props customer.
+// Identik dengan CardFront di KartuMember, tapi tanpa data member (placeholder).
+function CardFrontLanding({ theme }) {
+  return (
+    <div
+      className="relative w-full h-full rounded-2xl overflow-hidden select-none"
+      style={{
+        background: theme.gradient,
+        border: theme.border,
+        boxShadow: `0 16px 40px ${theme.accentGlow}, 0 4px 16px rgba(0,0,0,0.8)`,
+      }}
+    >
+      <CardPattern pattern={theme.pattern} accent={theme.accent} />
+      <div className="absolute inset-0 pointer-events-none" style={{ background: theme.shimmer }} />
+      <div
+        className="absolute top-0 right-0 w-48 h-48 rounded-full pointer-events-none"
+        style={{ background: `radial-gradient(circle, ${theme.accentGlow} 0%, transparent 65%)`, transform: 'translate(30%, -30%)' }}
+      />
+      <div className="relative z-10 flex flex-col h-full p-5">
+        {/* Row 1: Logo + Level */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div
+              className="w-7 h-7 rounded-lg flex items-center justify-center"
+              style={{ background: `${theme.accent}20`, border: `1px solid ${theme.accent}40` }}
+            >
+              <span className="text-xs">🚗</span>
+            </div>
+            <div>
+              <p className="text-white font-extrabold text-xs tracking-tight leading-none">Esther Garage</p>
+              <p className="text-[8px] font-semibold tracking-widest uppercase leading-none mt-0.5"
+                style={{ color: `${theme.accentLight}80` }}>Member Card</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="font-extrabold text-base tracking-wide" style={{ color: theme.textColor }}>{theme.label}</p>
+            <p className="text-[9px] font-medium tracking-wider" style={{ color: `${theme.accentLight}70` }}>{theme.sublabel}</p>
+          </div>
+        </div>
+        {/* Chip */}
+        <div className="mb-3">
+          <ChipIcon color={theme.chipColor} />
+        </div>
+        {/* Card number */}
+        <div className="mb-3">
+          <p className="font-mono text-sm tracking-[0.2em] font-bold"
+            style={{ color: theme.textColor, textShadow: `0 0 10px ${theme.accentGlow}` }}>
+            •••• •••• •••• ••••
+          </p>
+        </div>
+        {/* Name + poin */}
+        <div className="flex items-end justify-between mt-auto">
+          <div>
+            <p className="text-[8px] uppercase tracking-widest mb-0.5" style={{ color: `${theme.accentLight}60` }}>Nama Member</p>
+            <p className="text-white font-bold text-xs tracking-wide uppercase">NAMA MEMBER</p>
+            <p className="text-[8px] mt-0.5" style={{ color: `${theme.accentLight}70` }}>Berlaku sejak: —</p>
+          </div>
+          <div className="text-right">
+            <span className="text-base">{theme.icon}</span>
+            <p className="font-extrabold text-sm" style={{ color: theme.accentLight }}>0</p>
+            <p className="text-[8px]" style={{ color: `${theme.accentLight}60` }}>poin</p>
+          </div>
+        </div>
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 h-0.5"
+        style={{ background: `linear-gradient(90deg, transparent, ${theme.accent}, transparent)` }} />
+    </div>
+  );
+}
 
 // ─── COMPONENT: Reveal on scroll ─────────────────────────────
 const Reveal = ({ children, delay = 0, direction = 'up', distance = 10 }) => {
@@ -911,7 +989,6 @@ export default function LandingPage() {
 
       {/* ─── MEMBERSHIP ─── */}
       <section id="membership" className="py-24 px-6 sm:px-10 lg:px-16 bg-[#0F1A2E] relative overflow-hidden">
-        {/* Ambient blobs konsisten dengan section lain */}
         <div className="absolute top-0 left-0 w-80 h-80 bg-purple-600/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -924,205 +1001,106 @@ export default function LandingPage() {
                 Pilihan Membership <span className="bg-gradient-to-r from-amber-400 to-yellow-300 bg-clip-text text-transparent">Eksklusif</span>
               </h2>
               <p className="text-gray-400 text-sm max-w-lg mx-auto mt-3 leading-relaxed">
-                Bergabung sebagai member dan nikmati berbagai keistimewaan — dari diskon servis hingga layanan antar-jemput kendaraan. Pilih tier sesuai kebutuhan Anda.
+                Bergabung sebagai member dan nikmati berbagai keistimewaan — dari diskon servis hingga layanan
+                antar-jemput kendaraan. Kumpulkan poin dari setiap servis untuk naik tier.
               </p>
             </Reveal>
           </div>
 
-          {/* Cards — urutan dari tier tertinggi ke terendah */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
-            {[
-              {
-                key: 'VIP',
-                label: 'VIP',
-                sublabel: 'Platinum Member',
-                icon: '👑',
-                accent: '#D4AF37',
-                accentLight: '#F5D76E',
-                accentGlow: 'rgba(212,175,55,0.20)',
-                cardBg: 'linear-gradient(160deg, #0f0c00 0%, #1c1600 50%, #0a0a00 100%)',
-                border: 'rgba(212,175,55,0.40)',
-                desc: 'Pengalaman premium tertinggi dengan semua keistimewaan eksklusif.',
-                minPoin: '3.000 poin',
-                harga: 'Gratis — Kumpulkan Poin',
-                benefits: ['Diskon 15% setiap servis', 'Layanan antar-jemput kendaraan', 'Dedicated service advisor', 'Voucher eksklusif VIP', 'Prioritas booking & antrian'],
-                highlight: true,
-              },
-              {
-                key: 'Platinum',
-                label: 'Platinum',
-                sublabel: 'Gold Member',
-                icon: '💎',
-                accent: '#A855F7',
-                accentLight: '#D8B4FE',
-                accentGlow: 'rgba(168,85,247,0.18)',
-                cardBg: 'linear-gradient(160deg, #0c0a18 0%, #160f2a 50%, #0c0a18 100%)',
-                border: 'rgba(168,85,247,0.38)',
-                desc: 'Layanan premium dengan akses prioritas dan diskon spesial.',
-                minPoin: '1.500 poin',
-                harga: 'Gratis — Kumpulkan Poin',
-                benefits: ['Diskon 10% setiap servis', 'Prioritas booking jadwal', 'Early access promo spesial', 'Voucher bulanan eksklusif', 'Prioritas antrian servis'],
-                highlight: false,
-              },
-              {
-                key: 'Gold',
-                label: 'Gold',
-                sublabel: 'Silver Member',
-                icon: '🥇',
-                accent: '#FBBF24',
-                accentLight: '#FDE68A',
-                accentGlow: 'rgba(251,191,36,0.18)',
-                cardBg: 'linear-gradient(160deg, #120e00 0%, #1e1800 50%, #120e00 100%)',
-                border: 'rgba(251,191,36,0.38)',
-                desc: 'Nikmati diskon lebih besar dan akses fitur eksklusif member Gold.',
-                minPoin: '500 poin',
-                harga: 'Gratis — Kumpulkan Poin',
-                benefits: ['Diskon 5% setiap servis', 'Voucher bulanan eksklusif', 'Prioritas antrian servis', 'Booking online 24/7', 'Notifikasi jadwal service'],
-                highlight: false,
-              },
-              {
-                key: 'Silver',
-                label: 'Silver',
-                sublabel: 'Bronze Member',
-                icon: '🥈',
-                accent: '#94A3B8',
-                accentLight: '#CBD5E1',
-                accentGlow: 'rgba(148,163,184,0.15)',
-                cardBg: 'linear-gradient(160deg, #0a0d12 0%, #111820 50%, #0a0d12 100%)',
-                border: 'rgba(148,163,184,0.35)',
-                desc: 'Akses fitur dasar member dengan bonus voucher setiap transaksi.',
-                minPoin: '0 poin',
-                harga: 'Gratis — Daftar Sekarang',
-                benefits: ['Booking online 24/7', 'Voucher setelah setiap servis', 'Promo umum & diskon seasonal', 'Notifikasi jadwal service'],
-                highlight: false,
-              },
-              {
-                key: 'Bronze',
-                label: 'Bronze',
-                sublabel: 'Starter Member',
-                icon: '🥉',
-                accent: '#F97316',
-                accentLight: '#FDBA74',
-                accentGlow: 'rgba(249,115,22,0.15)',
-                cardBg: 'linear-gradient(160deg, #0f0800 0%, #1a1000 50%, #0f0800 100%)',
-                border: 'rgba(249,115,22,0.32)',
-                desc: 'Mulai perjalanan membership Anda dan kumpulkan poin dari setiap servis.',
-                minPoin: '0 poin',
-                harga: 'Gratis — Daftar Sekarang',
-                benefits: ['Booking online 24/7', 'Kumpulkan poin setiap servis', 'Akses promo member', 'Notifikasi berkala'],
-                highlight: false,
-              },
-            ].map((tier, idx) => (
-              <Reveal key={tier.key} delay={idx * 80} direction="up" distance={24}>
-                <div
-                  className="relative flex flex-col rounded-2xl overflow-hidden h-full transition-all duration-500 hover:-translate-y-2 group"
-                  style={{
-                    background: tier.cardBg,
-                    border: `1.5px solid ${tier.highlight ? tier.border : tier.border}`,
-                    boxShadow: tier.highlight
-                      ? `0 0 0 1px ${tier.accent}50, 0 24px 48px ${tier.accentGlow}`
-                      : `0 8px 32px rgba(0,0,0,0.4)`,
-                  }}
-                >
-                  {/* Popular badge */}
-                  {tier.highlight && (
-                    <div className="absolute top-0 left-0 right-0 flex justify-center z-10 -translate-y-px">
-                      <span
-                        className="text-[10px] font-extrabold uppercase tracking-widest px-4 py-1 rounded-b-xl"
-                        style={{ background: `linear-gradient(90deg, ${tier.accent}dd, ${tier.accentLight}cc)`, color: '#000' }}
-                      >
-                        ✦ Paling Eksklusif
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Shimmer overlay */}
-                  <div
-                    className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                    style={{ background: `linear-gradient(105deg, transparent 30%, ${tier.accentGlow} 50%, transparent 70%)` }}
-                  />
-
-                  {/* Card content */}
-                  <div className="relative z-10 flex flex-col flex-1 p-6">
-                    {/* Icon + label */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <div
-                          className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-3 transition-transform duration-300 group-hover:scale-110"
-                          style={{ background: `${tier.accent}18`, border: `1px solid ${tier.accent}30` }}
-                        >
-                          {tier.icon}
-                        </div>
-                        <h3 className="text-white font-extrabold text-xl leading-none">{tier.label}</h3>
-                        <p className="text-xs font-medium mt-0.5" style={{ color: `${tier.accentLight}80` }}>{tier.sublabel}</p>
-                      </div>
+          {/* Cards — preview kartu digital, urutan tier tertinggi ke terendah */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {MEMBERSHIP_TIERS.map((tierKey, idx) => {
+              const theme = CARD_THEME_LANDING[tierKey]
+              return (
+                <Reveal key={tierKey} delay={idx * 80} direction="up" distance={24}>
+                  <div className="flex flex-col gap-4">
+                    {/* ── Preview kartu digital (reuse CardFront) ── */}
+                    <div
+                      className="w-full group transition-transform duration-500 hover:-translate-y-1"
+                      style={{ aspectRatio: '1.586/1', position: 'relative' }}
+                    >
+                      {/* Glow di belakang kartu */}
                       <div
-                        className="px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider"
-                        style={{ background: `${tier.accent}18`, color: tier.accentLight, border: `1px solid ${tier.accent}30` }}
-                      >
-                        {tier.minPoin}
+                        className="absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500"
+                        style={{ background: theme.accentGlow, transform: 'scale(0.95) translateY(8px)' }}
+                      />
+                      <div className="relative w-full h-full">
+                        <CardFrontLanding theme={theme} />
                       </div>
                     </div>
 
-                    {/* Desc */}
-                    <p className="text-gray-400 text-xs leading-relaxed mb-5">{tier.desc}</p>
-
-                    {/* Divider */}
-                    <div className="h-px mb-5" style={{ background: `linear-gradient(90deg, transparent, ${tier.accent}40, transparent)` }} />
-
-                    {/* Benefits */}
-                    <ul className="space-y-2 flex-1 mb-6">
-                      {tier.benefits.map((b) => (
-                        <li key={b} className="flex items-start gap-2">
-                          <div
-                            className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                            style={{ background: `${tier.accent}22` }}
-                          >
-                            <MdCheckCircle size={10} style={{ color: tier.accent }} />
-                          </div>
-                          <span className="text-gray-300 text-xs leading-relaxed">{b}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    {/* Harga placeholder */}
-                    <div className="mb-4 text-center">
-                      <p className="text-[10px] uppercase tracking-widest mb-0.5" style={{ color: `${tier.accentLight}60` }}>Cara Mendapatkan</p>
-                      <p className="font-bold text-sm" style={{ color: tier.accentLight }}>{tier.harga}</p>
-                    </div>
-
-                    {/* CTA Button */}
-                    <button
-                      onClick={() => navigate('/guest/register')}
-                      className="w-full py-2.5 rounded-xl text-sm font-bold transition-all duration-300 group-hover:gap-3 flex items-center justify-center gap-2"
+                    {/* ── Info tier + benefit ── */}
+                    <div
+                      className="rounded-2xl p-4 flex flex-col gap-3"
                       style={{
-                        background: tier.highlight
-                          ? `linear-gradient(135deg, ${tier.accent}cc, ${tier.accentLight}99)`
-                          : `${tier.accent}18`,
-                        color: tier.highlight ? '#000' : tier.accentLight,
-                        border: `1px solid ${tier.accent}${tier.highlight ? 'cc' : '40'}`,
-                        boxShadow: tier.highlight ? `0 4px 16px ${tier.accentGlow}` : 'none',
+                        background: `${theme.accent}08`,
+                        border: `1px solid ${theme.accent}25`,
                       }}
                     >
-                      Daftar Gratis
-                      <MdArrowForward size={16} />
-                    </button>
-                  </div>
+                      {/* Tier name + min poin */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{theme.icon}</span>
+                          <div>
+                            <p className="text-white font-extrabold text-sm leading-none">{theme.label}</p>
+                            <p className="text-[10px] mt-0.5" style={{ color: `${theme.accentLight}70` }}>{theme.sublabel}</p>
+                          </div>
+                        </div>
+                        <span
+                          className="text-[9px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider"
+                          style={{ background: `${theme.accent}18`, color: theme.accentLight, border: `1px solid ${theme.accent}30` }}
+                        >
+                          {theme.minPoin}
+                        </span>
+                      </div>
 
-                  {/* Bottom accent bar */}
-                  <div
-                    className="h-0.5 w-full"
-                    style={{ background: `linear-gradient(90deg, transparent, ${tier.accent}, transparent)` }}
-                  />
-                </div>
-              </Reveal>
-            ))}
+                      {/* Ringkasan benefit */}
+                      <ul className="space-y-1.5">
+                        {theme.benefits.slice(0, 3).map((b) => (
+                          <li key={b} className="flex items-start gap-1.5">
+                            <div
+                              className="w-3.5 h-3.5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                              style={{ background: `${theme.accent}22` }}
+                            >
+                              <MdCheckCircle size={9} style={{ color: theme.accent }} />
+                            </div>
+                            <span className="text-gray-400 text-[11px] leading-relaxed">{b}</span>
+                          </li>
+                        ))}
+                        {theme.benefits.length > 3 && (
+                          <li className="text-[10px] font-medium" style={{ color: `${theme.accentLight}70` }}>
+                            +{theme.benefits.length - 3} benefit lainnya...
+                          </li>
+                        )}
+                      </ul>
+
+                      {/* Tombol */}
+                      <button
+                        onClick={() => navigate('/guest/register')}
+                        className="w-full py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center justify-center gap-1.5 mt-1"
+                        style={{
+                          background: tierKey === 'Platinum'
+                            ? `linear-gradient(135deg, ${theme.accent}cc, ${theme.accentLight}99)`
+                            : `${theme.accent}18`,
+                          color: tierKey === 'Platinum' ? '#000' : theme.accentLight,
+                          border: `1px solid ${theme.accent}${tierKey === 'Platinum' ? 'cc' : '35'}`,
+                        }}
+                      >
+                        Daftar Sekarang <MdArrowForward size={13} />
+                      </button>
+                    </div>
+                  </div>
+                </Reveal>
+              )
+            })}
           </div>
 
           {/* CTA bawah */}
           <div className="text-center mt-12">
             <Reveal delay={200}>
-              <p className="text-gray-500 text-sm mb-4">Sudah punya akun? Cek tier keanggotaan Anda sekarang.</p>
+              <p className="text-gray-500 text-sm mb-4">
+                Sudah punya akun? Cek tier keanggotaan Anda sekarang.
+              </p>
               <div className="flex items-center justify-center gap-3 flex-wrap">
                 <button
                   onClick={() => navigate('/guest/login')}

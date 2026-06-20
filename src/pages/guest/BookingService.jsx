@@ -502,8 +502,8 @@ export default function BookingService() {
     setLoading(true)
     const id = genOrderId(); setOrderId(id)
     setTimeout(() => {
-      const orders = JSON.parse(localStorage.getItem('garage_orders') || '[]')
-      localStorage.setItem('garage_orders', JSON.stringify([{
+      const orders = JSON.parse(sessionStorage.getItem('garage_orders') || '[]')
+      sessionStorage.setItem('garage_orders', JSON.stringify([{
         id, customer: customer.name, customerId: customer.id,
         customerPhone: customer.phone || customer.whatsapp || '',
         vehicle: `${form.vehicle.brand} ${form.vehicle.model} - ${form.vehicle.plate}`,

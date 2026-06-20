@@ -10,7 +10,7 @@
 //   - eg_customers     (via CustomerAuthContext, basis: portal
 //                        register/login/booking, struktur loyalty-centric)
 //
-// menjadi SATU store baru: `customers` (localStorage key: 'customers').
+// menjadi SATU store baru: `customers` (sessionStorage key: 'customers').
 //
 // STRATEGI MATCHING (sesuai spesifikasi):
 //   1. Match by phone (normalized: hapus spasi/dash, bandingkan digit)
@@ -39,7 +39,7 @@
 //
 // Migrasi bersifat ADDITIVE & IDEMPOTEN:
 //   - Memanggil runCustomerMigration() berkali-kali aman -- jika
-//     'customers' sudah ada di localStorage, fungsi akan
+//     'customers' sudah ada di sessionStorage, fungsi akan
 //     mengembalikan data existing tanpa menulis ulang, KECUALI
 //     dipanggil dengan { force: true }.
 // ============================================================
@@ -54,14 +54,14 @@ import { calcTier } from './loyaltyConstants'
 
 function loadJSON(key, fallback) {
   try {
-    const raw = localStorage.getItem(key)
+    const raw = sessionStorage.getItem(key)
     return raw ? JSON.parse(raw) : fallback
   } catch { return fallback }
 }
 
 function saveJSON(key, value) {
   try {
-    localStorage.setItem(key, JSON.stringify(value))
+    sessionStorage.setItem(key, JSON.stringify(value))
   } catch { /* ignore */ }
 }
 
@@ -292,12 +292,12 @@ function mergeCustomerRecord(garageRecord, egRecord, matchType) {
  */
 function markLegacyStoresDeprecated() {
   try {
-    localStorage.setItem('garage_customers__deprecated', JSON.stringify({
+    sessionStorage.setItem('garage_customers__deprecated', JSON.stringify({
       deprecatedAt: new Date().toISOString(),
       replacedBy: LS_KEY_UNIFIED,
       note: 'Gunakan hooks/useCustomerStore.js (sudah diarahkan ke `customers`). Jangan menulis ke garage_customers secara langsung.',
     }))
-    localStorage.setItem('eg_customers__deprecated', JSON.stringify({
+    sessionStorage.setItem('eg_customers__deprecated', JSON.stringify({
       deprecatedAt: new Date().toISOString(),
       replacedBy: LS_KEY_UNIFIED,
       note: 'Gunakan lib/loyaltyEngine.js / lib/customerMigration.js. Jangan menulis ke eg_customers secara langsung untuk customer baru.',

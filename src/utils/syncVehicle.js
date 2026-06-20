@@ -8,13 +8,13 @@ const LS_KEY = 'garage_vehicles'
 
 function loadAdminVehicles() {
   try {
-    const raw = localStorage.getItem(LS_KEY)
+    const raw = sessionStorage.getItem(LS_KEY)
     return raw ? JSON.parse(raw) : []
   } catch { return [] }
 }
 
 function saveAdminVehicles(list) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(list)) } catch {}
+  try { sessionStorage.setItem(LS_KEY, JSON.stringify(list)) } catch {}
 }
 
 /**

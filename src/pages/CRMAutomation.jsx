@@ -552,9 +552,9 @@ const DUMMY_REVIEWS = [
 ];
 
 function initReviews() {
-  const existing = localStorage.getItem("garage_reviews");
+  const existing = sessionStorage.getItem("garage_reviews");
   if (!existing || JSON.parse(existing).length === 0) {
-    localStorage.setItem("garage_reviews", JSON.stringify(DUMMY_REVIEWS));
+    sessionStorage.setItem("garage_reviews", JSON.stringify(DUMMY_REVIEWS));
   }
 }
 
@@ -575,7 +575,7 @@ function ReviewsSummary() {
 
   useEffect(() => {
     initReviews();
-    setReviews(JSON.parse(localStorage.getItem("garage_reviews") || "[]"));
+    setReviews(JSON.parse(sessionStorage.getItem("garage_reviews") || "[]"));
   }, []);
 
   const save = useCallback(() => {
@@ -583,7 +583,7 @@ function ReviewsSummary() {
       { ...form, id: "rv" + Date.now(), date: new Date().toISOString().slice(0, 10) },
       ...reviews,
     ];
-    localStorage.setItem("garage_reviews", JSON.stringify(updated));
+    sessionStorage.setItem("garage_reviews", JSON.stringify(updated));
     setReviews(updated);
     setForm({ customerName: "", service: "Servis Berkala", mechanic: "Ahmad Supriyadi", rating: 5, reviewText: "" });
     setShowForm(false);
@@ -594,7 +594,7 @@ function ReviewsSummary() {
   const deleteReview = useCallback(
     (id) => {
       const updated = reviews.filter((r) => r.id !== id);
-      localStorage.setItem("garage_reviews", JSON.stringify(updated));
+      sessionStorage.setItem("garage_reviews", JSON.stringify(updated));
       setReviews(updated);
     },
     [reviews]

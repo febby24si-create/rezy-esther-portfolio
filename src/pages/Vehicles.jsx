@@ -52,7 +52,7 @@ const LS_KEY_VEHICLES = 'garage_vehicles'
 
 function loadVehicles() {
   try {
-    const raw = localStorage.getItem(LS_KEY_VEHICLES)
+    const raw = sessionStorage.getItem(LS_KEY_VEHICLES)
     if (raw) {
       const stored = JSON.parse(raw)
       const storedPlates = new Set(stored.map(v => (v.plate || '').trim().toLowerCase()))
@@ -511,7 +511,7 @@ export default function Vehicles() {
   const [vehicles, setVehicles] = useState(loadVehicles)
   const [mechanics] = useState(() => {
     try {
-      const s = localStorage.getItem('garage_mechanics')
+      const s = sessionStorage.getItem('garage_mechanics')
       return s ? JSON.parse(s) : defaultMechanics
     } catch { return defaultMechanics }
   })
@@ -534,16 +534,16 @@ export default function Vehicles() {
   const [currentPage,  setCurrentPage]  = useState(1)
   const itemsPerPage = 30
 
-  // Refresh data (merge dengan localStorage)
+  // Refresh data (merge dengan sessionStorage)
   const handleRefresh = () => {
     setVehicles(loadVehicles())
     // notifikasi sederhana
     alert('Data kendaraan telah diperbarui dari penyimpanan.')
   }
 
-  // Simpan ke localStorage setiap kali vehicles berubah
+  // Simpan ke sessionStorage setiap kali vehicles berubah
   useEffect(() => {
-    try { localStorage.setItem(LS_KEY_VEHICLES, JSON.stringify(vehicles)) } catch {}
+    try { sessionStorage.setItem(LS_KEY_VEHICLES, JSON.stringify(vehicles)) } catch {}
   }, [vehicles])
 
   // Reset halaman saat filter berubah

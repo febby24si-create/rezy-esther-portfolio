@@ -12,17 +12,17 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Restore session from localStorage
+    // Restore session from sessionStorage
     try {
-      const stored = localStorage.getItem('eg_user')
+      const stored = sessionStorage.getItem('eg_user')
       if (stored) {
         const parsed = JSON.parse(stored)
         // Also support old dummyjson token flow
-        const token = localStorage.getItem('eg_token')
+        const token = sessionStorage.getItem('eg_token')
         if (parsed || token) setUser(parsed || { name: 'User', role: 'Administrator' })
       }
     } catch {
-      localStorage.removeItem('eg_user')
+      sessionStorage.removeItem('eg_user')
     } finally {
       setLoading(false)
     }
@@ -34,8 +34,8 @@ export function AuthProvider({ children }) {
     if (found) {
       const userData = { name: found.name, email: found.email, role: found.role }
       setUser(userData)
-      localStorage.setItem('eg_user', JSON.stringify(userData))
-      localStorage.setItem('eg_token', 'local_' + Date.now())
+      sessionStorage.setItem('eg_user', JSON.stringify(userData))
+      sessionStorage.setItem('eg_token', 'local_' + Date.now())
       return { success: true }
     }
     return { success: false, message: 'Email atau password salah.' }
@@ -44,13 +44,13 @@ export function AuthProvider({ children }) {
   const loginWithToken = (token, userData) => {
     // Called after dummyjson API login
     setUser(userData)
-    localStorage.setItem('eg_user', JSON.stringify(userData))
+    sessionStorage.setItem('eg_user', JSON.stringify(userData))
   }
 
   const logout = () => {
     setUser(null)
-    localStorage.removeItem('eg_user')
-    localStorage.removeItem('eg_token')
+    sessionStorage.removeItem('eg_user')
+    sessionStorage.removeItem('eg_token')
   }
 
   return (

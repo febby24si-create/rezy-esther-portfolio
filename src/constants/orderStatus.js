@@ -1,104 +1,98 @@
 // ============================================================
-// constants/orderStatus.js
+// lib/vehicleEngine.js
 //
-// PHASE 1 FIX — Status "Antrian" tidak terbaca oleh admin
+// PHASE 3 — Resolusi order.vehicle (string) -> vehicleId
 //
-// Sebelumnya, 4 modul memakai vocabulary status berbeda untuk
-// konsep "order/servis" yang sama:
-//   - Orders.jsx        : Menunggu | Sedang Dikerjakan | Selesai
-//   - BookingService.jsx: Antrian
-//   - TrackingStatus.jsx: Menunggu Konfirmasi | Dikonfirmasi |
-//                         Sedang Dikerjakan | Selesai
-//   - Vehicles.jsx      : Menunggu | Servis | Selesai
+// Sebelumnya, order.vehicle disimpan sebagai string gabungan
+// "{brand} {model} - {plate}" (lihat BookingService.jsx,
+// Orders.jsx FormModal). Setiap fitur yang ingin tahu "kendaraan
+// apa ini" harus split(' - ') dan mengasumsikan format ini stabil
+// -- rapuh terhadap perubahan format/brand yang mengandung ' - '.
 //
-// Akibatnya, order baru dari customer (status: 'Antrian') tidak match
-// key STATUS apapun di Orders.jsx -> tersembunyi dari filter dropdown
-// "Status = Menunggu" dan tidak terhitung di counter ringkasan.
+// Fix (additive): tambahkan field order.vehicleId yang merujuk ke
+// entitas Vehicle di garage_vehicles (yang sejak Phase 1 fix sudah
+// berisi MERGE dari vehiclesData.json seed + sync booking, dedup
+// by plate -- lihat pages/Vehicles.jsx loadVehicles()).
 //
-// PENDEKATAN (additive, tidak menghapus data lama):
-// File ini TIDAK mengubah nilai status yang sudah tersimpan di
-// localStorage/JSON. Sebaliknya, ia menyediakan:
-//   1. CANONICAL_STATUS      - 3 status kanonik untuk tampilan admin
-//   2. normalizeOrderStatus  - mapping semua varian lama -> kanonik,
-//                              dipakai di titik BACA (filter, counter,
-//                              badge), bukan menulis ulang data.
+// Resolusi dilakukan dengan extract plate dari string
+// "{brand} {model} - {plate}" (asumsi plate selalu di posisi
+// terakhir setelah ' - ', sesuai format yang ditulis BookingService
+// & Orders.jsx FormModal saat ini), lalu match by normalized plate.
 //
-// Field status asli ('Antrian', dll) tetap tersimpan apa adanya.
-// Phase 2 akan memperkenalkan state machine penuh
-// (PENDING/CONFIRMED/IN_PROGRESS/COMPLETED/CANCELLED) yang akan
-// menggantikan file ini secara bertahap.
+// order.vehicle (string) TETAP DIPERTAHANKAN sebagai
+// `vehicleDisplay` fallback -- additive migration, tidak menghapus
+// field lama (sesuai instruksi RELATION MIGRATION).
 // ============================================================
 
-/**
- * 3 status kanonik yang dipakai untuk filter, counter, dan badge
- * di halaman Orders (admin). Ini adalah "tampilan ringkas" dari
- * status asli yang lebih granular.
- */
-export const CANONICAL_STATUS = {
-  MENUNGGU: 'Menunggu',
-  SEDANG_DIKERJAKAN: 'Sedang Dikerjakan',
-  SELESAI: 'Selesai',
-}
+import vehiclesDataSeed from '../data/vehiclesData.json'
 
-export const CANONICAL_STATUS_LIST = [
-  CANONICAL_STATUS.MENUNGGU,
-  CANONICAL_STATUS.SEDANG_DIKERJAKAN,
-  CANONICAL_STATUS.SELESAI,
-]
+const LS_KEY_VEHICLES = 'garage_vehicles'
 
-/**
- * Mapping dari SEMUA varian status yang pernah ditulis oleh modul
- * manapun (Orders, BookingService, TrackingStatus, Vehicles) ke
- * salah satu CANONICAL_STATUS.
- *
- * Key dibuat lowercase + trim agar tahan terhadap variasi kapitalisasi
- * kecil (mis. "selesai" vs "Selesai").
- */
-const STATUS_ALIAS_MAP = {
-  // Orders.jsx (kanonik, identity mapping)
-  'menunggu': CANONICAL_STATUS.MENUNGGU,
-  'sedang dikerjakan': CANONICAL_STATUS.SEDANG_DIKERJAKAN,
-  'selesai': CANONICAL_STATUS.SELESAI,
-
-  // BookingService.jsx — order baru dari customer
-  'antrian': CANONICAL_STATUS.MENUNGGU,
-
-  // TrackingStatus.jsx vocabulary
-  'menunggu konfirmasi': CANONICAL_STATUS.MENUNGGU,
-  'dikonfirmasi': CANONICAL_STATUS.MENUNGGU,
-
-  // Vehicles.jsx vocabulary
-  'servis': CANONICAL_STATUS.SEDANG_DIKERJAKAN,
+function normalizePlate(plate) {
+  return (plate || '').toUpperCase().replace(/\s+/g, ' ').trim()
 }
 
 /**
- * Normalisasi status apapun (dari sumber manapun) menjadi salah satu
- * dari CANONICAL_STATUS. Dipakai untuk:
- *   - filter dropdown "Status" di Orders.jsx
- *   - counter ringkasan (counts.menunggu, counts.proses, counts.selesai)
- *   - StatusBadge fallback styling
- *
- * Tidak mengubah data tersimpan — hanya transformasi saat membaca/render.
- *
- * @param {string} rawStatus - status asli dari order (mis. 'Antrian')
- * @returns {string} salah satu dari CANONICAL_STATUS, default MENUNGGU
+ * Baca daftar vehicle gabungan (seed + garage_vehicles), mengikuti
+ * pola merge-by-plate yang sama dengan pages/Vehicles.jsx
+ * loadVehicles() (Phase 1 fix).
  */
-export function normalizeOrderStatus(rawStatus) {
-  if (!rawStatus) return CANONICAL_STATUS.MENUNGGU
-  const key = String(rawStatus).trim().toLowerCase()
-  return STATUS_ALIAS_MAP[key] || CANONICAL_STATUS.MENUNGGU
+function loadAllVehicles() {
+  try {
+    const raw = sessionStorage.getItem(LS_KEY_VEHICLES)
+    if (raw) {
+      const stored = JSON.parse(raw)
+      const storedPlates = new Set(stored.map(v => normalizePlate(v.plate)))
+      const seedRemaining = vehiclesDataSeed.filter(
+        v => !storedPlates.has(normalizePlate(v.plate))
+      )
+      return [...seedRemaining, ...stored]
+    }
+  } catch { /* ignore */ }
+  return vehiclesDataSeed
 }
 
 /**
- * Helper untuk filter array order berdasarkan status kanonik yang dipilih
- * di dropdown, sambil tetap mendukung order dengan status mentah yang
- * bervariasi (mis. 'Antrian', 'Dikonfirmasi', dll).
+ * Extract plate dari string order.vehicle, format
+ * "{brand} {model} - {plate}".
  *
- * @param {Array} orders - daftar order
- * @param {string} canonicalStatus - salah satu CANONICAL_STATUS, atau '' (semua)
- * @returns {Array} order yang ter-filter
+ * Mengambil bagian SETELAH ' - ' TERAKHIR -- lebih aman daripada
+ * split(' - ')[1] jika brand/model mengandung ' - ' (meski tidak
+ * terjadi di data saat ini, ini lebih robust).
+ *
+ * @param {string} vehicleDisplay
+ * @returns {string|null}
  */
-export function filterByCanonicalStatus(orders, canonicalStatus) {
-  if (!canonicalStatus) return orders
-  return orders.filter(o => normalizeOrderStatus(o.status) === canonicalStatus)
+export function extractPlateFromDisplay(vehicleDisplay) {
+  if (!vehicleDisplay) return null
+  const idx = vehicleDisplay.lastIndexOf(' - ')
+  if (idx === -1) return null
+  return vehicleDisplay.slice(idx + 3).trim()
+}
+
+/**
+ * Resolve order.vehicle (string display) -> vehicleId.
+ *
+ * @param {object} orderData - order yang punya field `vehicle` (string)
+ *                              dan/atau `vehicleId` (jika sudah ada)
+ * @returns {string|null} vehicleId, atau null jika tidak match
+ */
+export function resolveVehicleId(orderData) {
+  if (orderData.vehicleId) return orderData.vehicleId
+
+  const plate = extractPlateFromDisplay(orderData.vehicle)
+  if (!plate) return null
+
+  const vehicles = loadAllVehicles()
+  const match = vehicles.find(v => normalizePlate(v.plate) === normalizePlate(plate))
+  return match ? match.id : null
+}
+
+/**
+ * Baca semua vehicle (read-only helper untuk modul lain yang butuh
+ * lookup vehicleId -> detail kendaraan, mis. Reports/CustomerDetail
+ * di Phase 4).
+ */
+export function getAllVehicles() {
+  return loadAllVehicles()
 }

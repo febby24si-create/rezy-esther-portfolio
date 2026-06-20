@@ -578,10 +578,10 @@ const SortIcon = ({ column, sortColumn, sortDirection }) => {
 // ─── Halaman Utama ────────────────────────────────────────────────────
 export default function Orders() {
   const [orders, setOrders] = useState(() => {
-    try { const s = localStorage.getItem('garage_orders'); return s ? JSON.parse(s) : ordersData } catch { return ordersData }
+    try { const s = sessionStorage.getItem('garage_orders'); return s ? JSON.parse(s) : ordersData } catch { return ordersData }
   })
   useEffect(() => {
-    try { localStorage.setItem('garage_orders', JSON.stringify(orders)) } catch {}
+    try { sessionStorage.setItem('garage_orders', JSON.stringify(orders)) } catch {}
   }, [orders])
 
   const [customersList, setCustomersList] = useState([])
@@ -596,7 +596,7 @@ export default function Orders() {
   }, [])
 
   useEffect(() => {
-    const storedMechanics = localStorage.getItem('garage_mechanics')
+    const storedMechanics = sessionStorage.getItem('garage_mechanics')
     if (storedMechanics) {
       setMechanicsList(JSON.parse(storedMechanics))
     } else {

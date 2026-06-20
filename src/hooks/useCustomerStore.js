@@ -4,12 +4,12 @@
 // PHASE 3 — Diarahkan ke unified `customers` store
 //
 // Sebelumnya hook ini membaca/menulis langsung ke
-// localStorage('garage_customers'), terpisah dari
-// localStorage('eg_customers') yang dipakai portal customer
+// sessionStorage('garage_customers'), terpisah dari
+// sessionStorage('eg_customers') yang dipakai portal customer
 // (CustomerAuthContext). Ini adalah AKAR dari masalah dualisme
 // customer store.
 //
-// Fix: hook ini sekarang membaca/menulis ke localStorage('customers')
+// Fix: hook ini sekarang membaca/menulis ke sessionStorage('customers')
 // -- hasil merge garage_customers + eg_customers oleh
 // lib/customerMigration.js (runCustomerMigration, dipanggil
 // idempoten via loadUnifiedCustomers).

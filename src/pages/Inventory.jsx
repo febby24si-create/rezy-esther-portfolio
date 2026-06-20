@@ -78,7 +78,7 @@ const inputStyle = { background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(3
 function loadInventory() {
   let stored = []
   try {
-    const raw = localStorage.getItem('garage_inventory')
+    const raw = sessionStorage.getItem('garage_inventory')
     stored = raw ? JSON.parse(raw) : []
   } catch { stored = [] }
 
@@ -462,14 +462,14 @@ function ItemModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
 export default function Inventory() {
   const [items, setItems] = useState(() => loadInventory())
   const [history, setHistory] = useState(() => {
-    try { const s = localStorage.getItem('garage_inventory_history'); return s ? JSON.parse(s) : [] } catch { return [] }
+    try { const s = sessionStorage.getItem('garage_inventory_history'); return s ? JSON.parse(s) : [] } catch { return [] }
   })
 
   useEffect(() => {
-    try { localStorage.setItem('garage_inventory', JSON.stringify(items)) } catch {}
+    try { sessionStorage.setItem('garage_inventory', JSON.stringify(items)) } catch {}
   }, [items])
   useEffect(() => {
-    try { localStorage.setItem('garage_inventory_history', JSON.stringify(history)) } catch {}
+    try { sessionStorage.setItem('garage_inventory_history', JSON.stringify(history)) } catch {}
   }, [history])
 
   const [search, setSearch]           = useState('')

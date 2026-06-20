@@ -65,7 +65,7 @@ function AnimatedNumber({ value, duration = 800, format = (v) => v }) {
   return <>{format(display)}</>;
 }
 
-// ─── Ambil data dari localStorage ────────────────────────────────────
+// ─── Ambil data dari sessionStorage ────────────────────────────────────
 function useStorageData() {
   const [orders, setOrders] = useState([]);
   const [inventory, setInventory] = useState([]);
@@ -74,13 +74,13 @@ function useStorageData() {
 
   const load = () => {
     try {
-      const o = localStorage.getItem("garage_orders");
+      const o = sessionStorage.getItem("garage_orders");
       if (o) setOrders(JSON.parse(o));
-      const i = localStorage.getItem("garage_vehicles");
+      const i = sessionStorage.getItem("garage_vehicles");
       if (i) setVehicles(JSON.parse(i));
-      const m = localStorage.getItem("garage_mechanics");
+      const m = sessionStorage.getItem("garage_mechanics");
       if (m) setMechanics(JSON.parse(m));
-      const inv = localStorage.getItem("garage_inventory");
+      const inv = sessionStorage.getItem("garage_inventory");
       if (inv) setInventory(JSON.parse(inv));
     } catch {}
   };

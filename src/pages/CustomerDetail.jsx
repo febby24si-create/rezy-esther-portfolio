@@ -181,7 +181,7 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
 
   // Orders for this customer
   const customerOrders = useMemo(() => {
-    const stored = localStorage.getItem('garage_orders')
+    const stored = sessionStorage.getItem('garage_orders')
     const allOrders = stored ? JSON.parse(stored) : ordersData
     return allOrders
       .filter(o => o.customer === customer?.name)
@@ -363,15 +363,15 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
                   onClick={() => {
                     const amt = parseInt(prompt(`Tambah poin untuk ${customer.name}?\nMasukkan jumlah poin:`))
                     if (!amt || isNaN(amt)) return
-                    const customers = JSON.parse(localStorage.getItem('eg_customers') || '[]')
+                    const customers = JSON.parse(sessionStorage.getItem('eg_customers') || '[]')
                     const idx = customers.findIndex(c => c.id === customer.id || c.name === customer.name)
-                    if (idx === -1) { alert('Customer tidak ditemukan di localStorage.'); return }
+                    if (idx === -1) { alert('Customer tidak ditemukan di sessionStorage.'); return }
                     customers[idx].points = (customers[idx].points || 0) + amt
                     customers[idx].pointHistory = [
                       { id: 'LP-ADM-'+Date.now(), type:'in', desc:'Penambahan poin oleh Admin (dari Customer Detail)', points: amt, date: new Date().toISOString().slice(0,10), createdBy:'admin' },
                       ...(customers[idx].pointHistory || []),
                     ]
-                    localStorage.setItem('eg_customers', JSON.stringify(customers))
+                    sessionStorage.setItem('eg_customers', JSON.stringify(customers))
                     alert(`✅ +${amt} poin berhasil ditambahkan ke ${customer.name}`)
                   }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
@@ -382,15 +382,15 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
                   onClick={() => {
                     const amt = parseInt(prompt(`Kurangi poin dari ${customer.name}?\nMasukkan jumlah poin:`))
                     if (!amt || isNaN(amt)) return
-                    const customers = JSON.parse(localStorage.getItem('eg_customers') || '[]')
+                    const customers = JSON.parse(sessionStorage.getItem('eg_customers') || '[]')
                     const idx = customers.findIndex(c => c.id === customer.id || c.name === customer.name)
-                    if (idx === -1) { alert('Customer tidak ditemukan di localStorage.'); return }
+                    if (idx === -1) { alert('Customer tidak ditemukan di sessionStorage.'); return }
                     customers[idx].points = Math.max(0, (customers[idx].points || 0) - amt)
                     customers[idx].pointHistory = [
                       { id: 'LP-ADM-'+Date.now(), type:'out', desc:'Pengurangan poin oleh Admin (dari Customer Detail)', points: -amt, date: new Date().toISOString().slice(0,10), createdBy:'admin' },
                       ...(customers[idx].pointHistory || []),
                     ]
-                    localStorage.setItem('eg_customers', JSON.stringify(customers))
+                    sessionStorage.setItem('eg_customers', JSON.stringify(customers))
                     alert(`✅ −${amt} poin berhasil dikurangi dari ${customer.name}`)
                   }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
@@ -521,7 +521,7 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
 
           <SectionCard title="Feedback & Review" icon={MdThumbUp} iconColor="#FBBF24">
             {(() => {
-              const reviews = JSON.parse(localStorage.getItem('garage_reviews') || '[]')
+              const reviews = JSON.parse(sessionStorage.getItem('garage_reviews') || '[]')
                 .filter(r => r.customerId === customer.id || r.customerName === customer.name)
               return reviews.length === 0 ? (
                 <EmptyState message="Belum ada review." />

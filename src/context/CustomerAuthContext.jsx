@@ -87,18 +87,18 @@ const LS_KEY_SESSION   = 'eg_customer_session'
 
 function loadCustomers() {
   try {
-    const raw = localStorage.getItem(LS_KEY_CUSTOMERS)
+    const raw = sessionStorage.getItem(LS_KEY_CUSTOMERS)
     return raw ? JSON.parse(raw) : []
   } catch { return [] }
 }
 
 function saveCustomers(list) {
-  localStorage.setItem(LS_KEY_CUSTOMERS, JSON.stringify(list))
+  sessionStorage.setItem(LS_KEY_CUSTOMERS, JSON.stringify(list))
 }
 
 function loadSession() {
   try {
-    const raw = localStorage.getItem(LS_KEY_SESSION)
+    const raw = sessionStorage.getItem(LS_KEY_SESSION)
     return raw ? JSON.parse(raw) : null
   } catch { return null }
 }
@@ -205,7 +205,7 @@ export function CustomerAuthProvider({ children }) {
     const updated = [...customers, newCustomer]
     saveCustomers(updated)
     setCustomer(newCustomer)
-    localStorage.setItem(LS_KEY_SESSION, JSON.stringify({ id: newCustomer.id }))
+    sessionStorage.setItem(LS_KEY_SESSION, JSON.stringify({ id: newCustomer.id }))
     return { success: true }
   }, [])
 
@@ -215,17 +215,17 @@ export function CustomerAuthProvider({ children }) {
     const found = customers.find(c => c.email === email && c.password === password)
     if (!found) return { success: false, message: 'Email atau password salah.' }
     setCustomer(found)
-    localStorage.setItem(LS_KEY_SESSION, JSON.stringify({ id: found.id }))
+    sessionStorage.setItem(LS_KEY_SESSION, JSON.stringify({ id: found.id }))
     return { success: true }
   }, [])
 
   // ── Logout ────────────────────────────────────────────────
   const logout = useCallback(() => {
     setCustomer(null)
-    localStorage.removeItem(LS_KEY_SESSION)
+    sessionStorage.removeItem(LS_KEY_SESSION)
   }, [])
 
-  // ── Update customer di state + localStorage ───────────────
+  // ── Update customer di state + sessionStorage ───────────────
   const updateCustomer = useCallback((updatedData) => {
     const customers = loadCustomers()
     const idx = customers.findIndex(c => c.id === updatedData.id)
@@ -384,13 +384,13 @@ export function CustomerAuthProvider({ children }) {
     customers[idx] = updated
 
     // Simpan juga review ke garage_reviews untuk dibaca admin
-    const allReviews = JSON.parse(localStorage.getItem('garage_reviews') || '[]')
+    const allReviews = JSON.parse(sessionStorage.getItem('garage_reviews') || '[]')
     allReviews.unshift({
       ...newReview,
       customerName: customer.name,
       customerId:   customer.id,
     })
-    localStorage.setItem('garage_reviews', JSON.stringify(allReviews))
+    sessionStorage.setItem('garage_reviews', JSON.stringify(allReviews))
 
     saveCustomers(customers)
     setCustomer(updated)
@@ -606,9 +606,9 @@ export function useCustomerAuth() {
 }
 
 // ── Fungsi publik untuk admin (tanpa context) ─────────────────
-// FIX: Merge localStorage (eg_customers) dengan customersData.json
+// FIX: Merge sessionStorage (eg_customers) dengan customersData.json
 // sehingga seluruh 50 data customer terbaca di MembershipAdmin.
-// Prioritas: data localStorage menang (preserves admin edits & loyalty),
+// Prioritas: data sessionStorage menang (preserves admin edits & loyalty),
 // tapi customer dari JSON yang belum ada di LS tetap ikut tampil.
 export function getAllCustomers() {
   let lsCustomers = []
@@ -649,7 +649,7 @@ export function getCustomerById(id) {
   return customers.find(c => c.id === id) || null
 }
 
-// Fungsi untuk admin trigger addPoints langsung ke localStorage
+// Fungsi untuk admin trigger addPoints langsung ke sessionStorage
 // Dipanggil dari Orders.jsx saat status diubah ke "Selesai"
 export function adminAddPointsToCustomer(customerName, orderId, total, serviceLabel) {
   const customers = loadCustomers()
@@ -722,7 +722,7 @@ export function adminAddPointsToCustomer(customerName, orderId, total, serviceLa
   ]
 
   customers[idx] = updatedCustomer
-  localStorage.setItem('eg_customers', JSON.stringify(customers))
+  sessionStorage.setItem('eg_customers', JSON.stringify(customers))
 
   return { success: true, earned, newTier, tierUpgraded: oldTier !== newTier, customerId: currentCustomer.id }
 }

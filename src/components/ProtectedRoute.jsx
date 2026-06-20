@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 export default function ProtectedRoute() {
   const { isLoggedIn, loading } = useAuth()
 
-  // Show nothing while checking localStorage
+  // Show nothing while checking sessionStorage
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen" style={{ background: '#041C15' }}>

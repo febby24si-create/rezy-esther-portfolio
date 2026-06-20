@@ -530,7 +530,7 @@ export default function MechanicSchedule() {
   const weekDates = useMemo(() => getWeekDates(currentWeekBase), [currentWeekBase])
 
   const [schedules, setSchedules] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEY)
+    const saved = sessionStorage.getItem(STORAGE_KEY)
     if (saved) {
       try {
         const parsed = JSON.parse(saved)
@@ -543,7 +543,7 @@ export default function MechanicSchedule() {
   })
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
       weekKey: currentWeekBase,
       data: schedules
     }))
