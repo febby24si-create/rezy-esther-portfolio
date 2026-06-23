@@ -4,6 +4,7 @@ import { MdSearch, MdDirectionsCar, MdBuild, MdPerson, MdAccessTime, MdCheckCirc
 import { Link } from 'react-router-dom'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { AnimatedPage, ScrollReveal, GlowDot } from '../../components/AnimatedPage'
+import { getBookingsByCustomer, BOOKING_STATUS, BOOKING_STATUS_CONFIG } from '../../lib/bookingEngine'
 
 const STATUS_STEPS = {
   'Menunggu Konfirmasi': [
@@ -187,6 +188,19 @@ export default function TrackingStatus() {
       .sort((a, b) => new Date(b.createdAt||b.date) - new Date(a.createdAt||a.date))
   }, [customer?.name])
 
+  // Booking terpisah dari order — dibaca dari garage_bookings
+  const myBookings = useMemo(() => {
+    if (!customer?.id) return []
+    return getBookingsByCustomer(customer.id)
+      .filter(b => ![
+        BOOKING_STATUS.CHECKED_IN,
+        BOOKING_STATUS.CANCELLED_BY_CUSTOMER,
+        BOOKING_STATUS.REJECTED,
+        BOOKING_STATUS.EXPIRED,
+      ].includes(b.status))
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  }, [customer?.id])
+
   const activeOrders = myOrders.filter(o => o.status !== 'Selesai')
   const doneOrders   = myOrders.filter(o => o.status === 'Selesai')
 
@@ -238,6 +252,74 @@ export default function TrackingStatus() {
           </AnimatePresence>
 
           {searchResult && <OrderCard order={searchResult} />}
+
+          {/* ── BOOKING AKTIF (belum check-in) ── */}
+          {!searchResult && myBookings.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-4">
+                <GlowDot color="#60A5FA" size={8} />
+                <h2 className="text-white font-bold text-sm">Booking Aktif ({myBookings.length})</h2>
+              </div>
+              {myBookings.map(bk => {
+                const cfg = BOOKING_STATUS_CONFIG[bk.status] || BOOKING_STATUS_CONFIG[BOOKING_STATUS.WAITING_CONFIRMATION]
+                return (
+                  <motion.div key={bk.id}
+                    initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                    className="mb-4 rounded-2xl p-5 border"
+                    style={{ background: 'rgba(96,165,250,0.04)', borderColor: 'rgba(96,165,250,0.12)' }}>
+                    <div className="flex items-start justify-between mb-3 gap-3">
+                      <div>
+                        <p className="text-blue-400 font-bold text-sm font-mono">{bk.id}</p>
+                        <p className="text-gray-400 text-xs mt-0.5">
+                          {bk.date ? new Date(bk.date + 'T00:00:00').toLocaleDateString('id-ID', {
+                            weekday: 'long', day: 'numeric', month: 'long'
+                          }) : '—'} · {bk.time}
+                        </p>
+                      </div>
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-full border flex items-center gap-1.5 flex-shrink-0"
+                        style={{ background: cfg.bg, color: cfg.color, borderColor: cfg.border }}>
+                        {cfg.pulse
+                          ? <GlowDot color={cfg.dot} size={6} />
+                          : <span className="w-1.5 h-1.5 rounded-full" style={{ background: cfg.dot }} />
+                        }
+                        {cfg.label}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { icon: MdDirectionsCar, label: 'Kendaraan', value: bk.vehicleDisplay?.split(' - ')[0] || '—' },
+                        { icon: MdBuild, label: 'Layanan', value: bk.serviceName || '—' },
+                      ].map(({ icon: Icon, label, value }) => (
+                        <div key={label} className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                          <Icon className="text-blue-400 text-base mb-1" />
+                          <p className="text-gray-500 text-xs">{label}</p>
+                          <p className="text-white text-xs font-semibold truncate mt-0.5">{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                    {bk.status === BOOKING_STATUS.WAITING_CONFIRMATION && (
+                      <div className="mt-3 p-3 rounded-xl text-xs text-blue-300 border"
+                        style={{ background: 'rgba(96,165,250,0.06)', borderColor: 'rgba(96,165,250,0.15)' }}>
+                        🕐 Booking Anda sedang menunggu konfirmasi dari bengkel. Kami akan segera mengkonfirmasi.
+                      </div>
+                    )}
+                    {bk.status === BOOKING_STATUS.CONFIRMED && (
+                      <div className="mt-3 p-3 rounded-xl text-xs text-purple-300 border"
+                        style={{ background: 'rgba(167,139,250,0.06)', borderColor: 'rgba(167,139,250,0.15)' }}>
+                        ✅ Booking dikonfirmasi! Hadir pada jadwal yang telah ditentukan.
+                      </div>
+                    )}
+                    {bk.status === BOOKING_STATUS.RESCHEDULED && (
+                      <div className="mt-3 p-3 rounded-xl text-xs text-yellow-300 border"
+                        style={{ background: 'rgba(245,158,11,0.06)', borderColor: 'rgba(245,158,11,0.2)' }}>
+                        🔄 Jadwal Anda telah diubah. Hadir sesuai jadwal baru di atas.
+                      </div>
+                    )}
+                  </motion.div>
+                )
+              })}
+            </div>
+          )}
 
           {!searchResult && activeOrders.length > 0 && (
             <div className="mb-8">

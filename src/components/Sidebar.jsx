@@ -16,17 +16,22 @@ import {
   MdAutoAwesome,
   MdCardMembership,
   MdPhotoCamera,
+  MdBookOnline,
+  MdLogin,
 } from "react-icons/md";
+import { getBookingStats } from "../lib/bookingEngine";
 
 const navItems = [
-  { path: "/dashboard", icon: MdDashboard, label: "Dashboard" },
-  { path: "/orders", icon: MdBuild, label: "Order Servis" },
-  { path: "/customers", icon: MdPeople, label: "Pelanggan" },
-  { path: "/vehicles", icon: MdDirectionsCar, label: "Kendaraan" },
-  { path: "/mechanics", icon: MdEngineering, label: "Mekanik" },
-  { path: "/schedule", icon: MdCalendarMonth, label: "Jadwal Mekanik" },
-  { path: "/reports", icon: MdBarChart, label: "Laporan" },
-  { path: "/inventory", icon: MdInventory2, label: "Stok Barang" },
+  { path: "/dashboard", icon: MdDashboard,    label: "Dashboard" },
+  { path: "/bookings",  icon: MdBookOnline,   label: "Booking",       badgeKey: "pendingConfirmation" },
+  { path: "/checkin",   icon: MdLogin,        label: "Check In" },
+  { path: "/orders",    icon: MdBuild,        label: "Order Servis" },
+  { path: "/customers", icon: MdPeople,       label: "Pelanggan" },
+  { path: "/vehicles",  icon: MdDirectionsCar,label: "Kendaraan" },
+  { path: "/mechanics", icon: MdEngineering,  label: "Mekanik" },
+  { path: "/schedule",  icon: MdCalendarMonth,label: "Jadwal Mekanik" },
+  { path: "/reports",   icon: MdBarChart,     label: "Laporan" },
+  { path: "/inventory", icon: MdInventory2,   label: "Stok Barang" },
 ];
 
 const crmItems = [
@@ -59,6 +64,7 @@ function getInitials(name) {
 export default function Sidebar({ onClose }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const [bookingStats, setBookingStats] = useState({});
   const [user, setUser] = useState(() => {
     const saved = sessionStorage.getItem("user_profile");
     if (saved) return JSON.parse(saved);
@@ -70,6 +76,15 @@ export default function Sidebar({ onClose }) {
       avatar: "minjuu.jpg", // PATH DEFAULT DARI PUBLIC
     };
   });
+
+  useEffect(() => {
+    const loadStats = () => {
+      try { setBookingStats(getBookingStats()) } catch {}
+    };
+    loadStats();
+    const iv = setInterval(loadStats, 5000);
+    return () => clearInterval(iv);
+  }, []);
 
   useEffect(() => {
     sessionStorage.setItem("user_profile", JSON.stringify(user));
@@ -203,18 +218,36 @@ export default function Sidebar({ onClose }) {
 
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
         {/* Main nav */}
-        {navItems.map(({ path, icon: Icon, label }) => (
-          <NavLink
-            key={path}
-            to={path}
-            end={path === "/"}
-            className={linkClass}
-            onClick={onClose}
-          >
-            <Icon size={18} />
-            <span>{label}</span>
-          </NavLink>
-        ))}
+        {navItems.map(({ path, icon: Icon, label, badgeKey }) => {
+          const badgeCount = badgeKey ? (bookingStats[badgeKey] || 0) : 0;
+          return (
+            <NavLink
+              key={path}
+              to={path}
+              end={path === "/"}
+              className={linkClass}
+              onClick={onClose}
+            >
+              <Icon size={18} />
+              <span className="flex-1">{label}</span>
+              {badgeCount > 0 && (
+                <span
+                  className="text-xs px-1.5 py-0.5 rounded-full font-bold animate-pulse"
+                  style={{
+                    background: "rgba(96,165,250,0.2)",
+                    color: "#60A5FA",
+                    border: "1px solid rgba(96,165,250,0.3)",
+                    fontSize: "9px",
+                    minWidth: "16px",
+                    textAlign: "center",
+                  }}
+                >
+                  {badgeCount}
+                </span>
+              )}
+            </NavLink>
+          );
+        })}
 
         {/* CRM Section */}
         <SectionLabel label="CRM" />

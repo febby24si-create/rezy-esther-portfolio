@@ -5,6 +5,7 @@ import { layanan, availableTimeSlots } from '../../data/guestData'
 import { searchCatalog } from '../../data/vehicleCatalog'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { syncCustomerVehicle } from '../../utils/syncVehicle'
+import { submitBooking } from '../../lib/bookingEngine'
 import {
   MdArrowBack, MdArrowForward, MdCheckCircle,
   MdDirectionsCar, MdBuild, MdCalendarMonth, MdSend,
@@ -19,8 +20,6 @@ function getNextDates(n = 14) {
     const d = new Date(); d.setDate(d.getDate() + i + 1); return d
   })
 }
-function genOrderId() { return '#ORD-' + Math.random().toString(36).slice(2, 10).toUpperCase() }
-
 // ── Catalog Search Autocomplete ───────────────────────────────────────
 function CatalogSearch({ onSelect }) {
   const [query, setQuery]       = useState('')
@@ -464,7 +463,7 @@ function VehicleStep({ customer, form, setForm, updateCustomer }) {
 // ── Main ──────────────────────────────────────────────────────────────
 export default function BookingService() {
   const navigate = useNavigate()
-  const { customer, addPoints, updateCustomer, validateVoucher, useVoucher } = useCustomerAuth()
+  const { customer, updateCustomer, validateVoucher, useVoucher } = useCustomerAuth()
   const [step, setStep]         = useState(0)
   const [loading, setLoading]   = useState(false)
   const [done, setDone]         = useState(false)
@@ -500,32 +499,44 @@ export default function BookingService() {
 
   const handleSubmit = () => {
     setLoading(true)
-    const id = genOrderId(); setOrderId(id)
+    const vehiclePlate = form.vehicle.plate || ''
+    const dateStr      = form.date.toISOString().slice(0, 10)
+
     setTimeout(() => {
-      const orders = JSON.parse(sessionStorage.getItem('garage_orders') || '[]')
-      sessionStorage.setItem('garage_orders', JSON.stringify([{
-        id, customer: customer.name, customerId: customer.id,
-        customerPhone: customer.phone || customer.whatsapp || '',
-        vehicle: `${form.vehicle.brand} ${form.vehicle.model} - ${form.vehicle.plate}`,
-        vehiclePlate: form.vehicle.plate,
-        service: form.service.name, status: 'Antrian',
-        total: finalTotal, date: form.date.toISOString().slice(0, 10),
-        time: form.time, mechanic: '—', keluhan: form.keluhan,
-        voucherUsed: appliedVoucher?.code || null,
-        discountApplied: discountAmt,
-        pointsAwarded: false,
-        createdAt: new Date().toISOString(),
-        // FIX: tandai asal order agar Orders.jsx tahu data ini sudah lengkap
-        // dari booking online — admin tinggal assign mekanik, tanpa input ulang.
-        source: 'online-booking',
-        needsMechanicAssignment: true,
-      }, ...orders]))
-      // Gunakan voucher jika ada
-      if (appliedVoucher) {
-        useVoucher(appliedVoucher.code, id)
+      // Tulis ke garage_bookings via bookingEngine — BUKAN garage_orders.
+      // Order dibuat saat Check In (Sprint 3), bukan saat booking dibuat.
+      const result = submitBooking({
+        customerId:        customer?.id ?? null,
+        customerName:      customer?.name ?? '',
+        customerPhone:     customer?.phone || customer?.whatsapp || '',
+        vehicleDisplay:    `${form.vehicle.brand} ${form.vehicle.model} - ${form.vehicle.plate}`,
+        vehiclePlate,
+        vehicleId:         form.vehicle.id ?? null,
+        serviceId:         form.service.id ?? null,
+        serviceName:       form.service.name,
+        estimatedPrice:    finalTotal,
+        estimatedDuration: form.service.durasi ?? '',
+        date:              dateStr,
+        time:              form.time,
+        notes:             form.keluhan,
+        voucherCode:       appliedVoucher?.code ?? null,
+        discountApplied:   discountAmt,
+        source:            'online',
+      })
+
+      if (result.success) {
+        // Voucher hanya dikonsumsi jika booking berhasil dibuat
+        if (appliedVoucher) {
+          useVoucher(appliedVoucher.code, result.booking.id)
+        }
+        setOrderId(result.booking.id)
+        setDone(true)
+      } else {
+        alert(result.error || 'Booking gagal. Silakan coba lagi.')
       }
-      setLoading(false); setDone(true)
-    }, 1800)
+
+      setLoading(false)
+    }, 1200)
   }
 
   // ── Success screen ─────────────────────────────────────────
@@ -542,10 +553,10 @@ export default function BookingService() {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <h2 className="text-2xl font-extrabold text-white mb-2">Booking Berhasil!</h2>
             <p className="text-gray-400 text-sm mb-1">No. booking: <span className="text-green-400 font-bold font-mono">{orderId}</span></p>
-            <p className="text-gray-500 text-xs mb-5">Konfirmasi dikirim via WhatsApp ke nomor terdaftar.</p>
-            <div className="inline-flex items-center gap-2 text-sm text-yellow-400 px-4 py-2 rounded-xl mb-5"
-              style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.2)' }}>
-              ⭐ +{Math.floor(totalEstimate / 1000)} poin loyalty ditambahkan!
+            <p className="text-gray-500 text-xs mb-5">Kami akan segera mengkonfirmasi jadwal Anda.</p>
+            <div className="inline-flex items-center gap-2 text-sm text-blue-400 px-4 py-2 rounded-xl mb-5"
+              style={{ background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.2)' }}>
+              🕐 Menunggu konfirmasi dari bengkel
             </div>
             <div className="rounded-xl p-4 mb-6 text-left space-y-2.5"
               style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.12)' }}>

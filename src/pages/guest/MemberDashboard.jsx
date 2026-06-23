@@ -1,7 +1,6 @@
 // ============================================================
 // MemberDashboard.jsx — /guest/member
 // Halaman Member Dashboard — terintegrasi dengan data Admin
-// Menampilkan data real dari sessionStorage (dikelola admin)
 // ============================================================
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,6 +42,9 @@ import {
   MdBarChart,
   MdChevronRight,
 } from "react-icons/md";
+
+// ─── Import komponen kartu member ─────────────────────────────
+import { CardFront, CARD_THEME } from "../../components/member/MemberCardComponents";
 
 // ─── Tier styling ─────────────────────────────────────────────
 const TIER_GRADIENT = {
@@ -88,20 +90,20 @@ function StatCard({ icon: Icon, label, value, sub, color, delay = 0 }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className="rounded-2xl p-5 bg-white/[0.03] border border-white/8"
+      className="group rounded-2xl p-5 bg-white/[0.03] border border-white/8 hover:border-white/20 hover:bg-white/[0.06] transition-all"
     >
       <div className="flex items-center justify-between mb-3">
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center"
+          className="w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
           style={{ background: `${color}1A` }}
         >
-          <Icon size={20} style={{ color }} />
+          <Icon size={24} style={{ color }} />
         </div>
       </div>
-      <p className="text-white font-extrabold text-2xl">{value}</p>
-      <p className="text-gray-400 text-xs mt-0.5">{label}</p>
+      <p className="text-white font-extrabold text-2xl md:text-3xl">{value}</p>
+      <p className="text-gray-400 text-xs mt-0.5 font-medium uppercase tracking-wider">{label}</p>
       {sub && (
-        <p className="text-xs mt-1 font-medium" style={{ color }}>
+        <p className="text-xs mt-1 font-semibold" style={{ color }}>
           {sub}
         </p>
       )}
@@ -113,7 +115,7 @@ function StatCard({ icon: Icon, label, value, sub, color, delay = 0 }) {
 function SectionTitle({ children, sub }) {
   return (
     <div className="mb-5">
-      <h2 className="text-white font-bold text-lg">{children}</h2>
+      <h2 className="text-white font-bold text-xl md:text-2xl">{children}</h2>
       {sub && <p className="text-gray-500 text-sm mt-0.5">{sub}</p>}
     </div>
   );
@@ -125,7 +127,7 @@ function OverviewTab({ customer, orders, loyalty, tierCfg }) {
   const disc = { Bronze: 0, Silver: 5, Gold: 10, Platinum: 15 };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Stat grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <StatCard
@@ -195,7 +197,7 @@ function OverviewTab({ customer, orders, loyalty, tierCfg }) {
               className="rounded-2xl p-4 text-center bg-white/[0.03] border border-white/8 hover:border-white/20 hover:bg-white/[0.06] transition-all group"
             >
               <div
-                className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center"
+                className="w-14 h-14 rounded-xl mx-auto mb-3 flex items-center justify-center group-hover:scale-110 transition-transform"
                 style={{
                   background: `${color}1A`,
                   border: `1px solid ${color}30`,
@@ -215,9 +217,9 @@ function OverviewTab({ customer, orders, loyalty, tierCfg }) {
           <SectionTitle>Riwayat Terakhir</SectionTitle>
           <button
             onClick={() => {}}
-            className="text-blue-400 text-xs hover:underline"
+            className="text-blue-400 text-xs hover:underline font-medium"
           >
-            Lihat Semua
+            Lihat Semua →
           </button>
         </div>
         <div className="space-y-3">
@@ -228,7 +230,7 @@ function OverviewTab({ customer, orders, loyalty, tierCfg }) {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.07 }}
-                className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/8"
+                className="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.03] border border-white/8 hover:border-white/15 transition-all"
               >
                 <div className="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center flex-shrink-0">
                   <MdBuild className="text-blue-400" />
@@ -355,7 +357,7 @@ function LoyaltyTab({ customer, loyalty, tierCfg }) {
   const history = customer.pointHistory || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Progress card */}
       <div
         className={`rounded-2xl p-6 bg-gradient-to-r ${TIER_GRADIENT[loyalty.tier]} border ${TIER_BORDER[loyalty.tier]} shadow-xl ${TIER_GLOW[loyalty.tier]}`}
@@ -387,7 +389,7 @@ function LoyaltyTab({ customer, loyalty, tierCfg }) {
                 {loyalty.pointsToNext} poin lagi ke {loyalty.nextTier}
               </span>
             </div>
-            <div className="h-2.5 rounded-full bg-black/30">
+            <div className="h-3 rounded-full bg-black/30">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${loyalty.progress}%` }}
@@ -632,7 +634,6 @@ export default function MemberDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [toast, setToast] = useState(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Load orders synced with admin (sessionStorage + JSON)
   const orders = useMemo(() => {
@@ -656,6 +657,9 @@ export default function MemberDashboard() {
 
   const loyalty = customer ? calcLoyaltyProgress(customer.points || 0) : null;
   const tierCfg = loyalty ? TIER_CONFIG[loyalty.tier] : TIER_CONFIG.Bronze;
+
+  // Ambil tema kartu berdasarkan tier
+  const cardTheme = loyalty ? CARD_THEME[loyalty.tier] : CARD_THEME.Bronze;
 
   useEffect(() => {
     if (toast) {
@@ -694,102 +698,119 @@ export default function MemberDashboard() {
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`rounded-3xl p-6 mb-6 bg-gradient-to-r ${TIER_GRADIENT[loyalty.tier]} border ${TIER_BORDER[loyalty.tier]} shadow-2xl ${TIER_GLOW[loyalty.tier]}`}
+          className="relative rounded-3xl overflow-hidden mb-4 shadow-2xl"
+          style={{ height: '220px' }}
         >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              {/* Avatar */}
-              <div
-                className="relative w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 border-2"
-                style={{ borderColor: tierCfg.color }}
-              >
-                <div
-                  className="w-full h-full flex items-center justify-center text-2xl font-extrabold text-white"
-                  style={{ background: `${tierCfg.color}30` }}
-                >
-                  {customer.name?.charAt(0).toUpperCase()}
-                </div>
-              </div>
-              <div>
-                <p className="text-gray-300 text-xs">Member Dashboard</p>
-                <h1 className="text-white font-extrabold text-xl leading-tight">
-                  {customer.name}
-                </h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <span
-                    className="text-xs font-bold px-2 py-0.5 rounded-full"
-                    style={{
-                      background: `${tierCfg.color}25`,
-                      color: tierCfg.color,
-                      border: `1px solid ${tierCfg.color}40`,
-                    }}
-                  >
-                    {tierCfg.icon} {loyalty.tier}
-                  </span>
-                  {customer.membershipId && (
-                    <span className="text-gray-500 text-[10px] font-mono">
-                      {customer.membershipId}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
+          {/* Background image dari Unsplash */}
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1200')`,
+            }}
+          />
+          
+          {/* Overlay gradien untuk keterbacaan teks */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
+
+          {/* Konten info member */}
+          <div className="relative z-10 flex flex-col justify-between h-full p-6 text-white">
+            {/* Baris atas: tombol aksi */}
+            <div className="flex justify-end gap-2">
               <button
                 onClick={handleRefresh}
-                className={`p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all ${isRefreshing ? "animate-spin" : ""}`}
+                className={`p-2 rounded-xl bg-black/30 backdrop-blur-sm hover:bg-black/50 transition ${isRefreshing ? "animate-spin" : ""}`}
+                aria-label="Refresh"
               >
                 <MdRefresh size={18} />
               </button>
               <Link
                 to="/member/profil"
-                className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all"
+                className="p-2 rounded-xl bg-black/30 backdrop-blur-sm hover:bg-black/50 transition"
+                aria-label="Profil"
               >
                 <MdPerson size={18} />
               </Link>
               <button
                 onClick={handleLogout}
-                className="p-2.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-all"
+                className="p-2 rounded-xl bg-red-500/30 backdrop-blur-sm hover:bg-red-500/50 transition"
+                aria-label="Logout"
               >
                 <MdLogout size={18} />
               </button>
             </div>
-          </div>
 
-          {/* Loyalty progress bar */}
-          {loyalty.nextTier && (
-            <div className="mt-5">
-              <div className="flex justify-between text-xs text-gray-400 mb-1.5">
-                <span>
-                  {(customer.points || 0).toLocaleString("id-ID")} poin
+            {/* Info member di kiri bawah */}
+            <div>
+              <p className="text-xs uppercase tracking-wider text-gray-300">
+                Member Dashboard
+              </p>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold mt-1">
+                {customer.name}
+              </h1>
+              <div className="flex flex-wrap items-center gap-3 mt-2">
+                <span
+                  className="text-xs font-bold px-3 py-1 rounded-full bg-black/30 backdrop-blur-sm border border-white/30"
+                  style={{ color: tierCfg.color }}
+                >
+                  {tierCfg.icon} {loyalty.tier}
                 </span>
-                <span>
-                  {loyalty.pointsToNext} poin lagi ke {loyalty.nextTier}{" "}
-                  {TIER_CONFIG[loyalty.nextTier]?.icon}
+                {customer.membershipId && (
+                  <span className="text-sm font-mono bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full text-gray-200">
+                    {customer.membershipId}
+                  </span>
+                )}
+                {customer.memberSince && (
+                  <span className="text-xs bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full text-gray-300">
+                    Bergabung {customer.memberSince}
+                  </span>
+                )}
+              </div>
+              <p className="mt-3 text-sm text-gray-200">
+                Total Poin:{" "}
+                <span
+                  className="text-2xl md:text-3xl font-bold"
+                  style={{ color: tierCfg.color }}
+                >
+                  {(customer.points || 0).toLocaleString("id-ID")}
                 </span>
-              </div>
-              <div className="h-2 rounded-full bg-black/30">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${loyalty.progress}%` }}
-                  transition={{ duration: 1.2, ease: "easeOut" }}
-                  className="h-full rounded-full"
-                  style={{
-                    background: `linear-gradient(90deg, ${tierCfg.color}90, ${tierCfg.color})`,
-                  }}
-                />
-              </div>
+              </p>
             </div>
-          )}
-          {!loyalty.nextTier && (
-            <div
-              className="mt-4 text-center text-sm font-semibold"
-              style={{ color: tierCfg.color }}
-            >
-              🏆 Platinum — Tier Tertinggi! Nikmati semua benefit eksklusif.
-            </div>
-          )}
+          </div>
         </motion.div>
+
+        {/* ─── Progress Bar ke Tier Berikutnya ── */}
+        {loyalty.nextTier && (
+          <div className="mb-6">
+            <div className="flex justify-between text-xs text-gray-400 mb-1.5">
+              <span className="font-medium">
+                {(customer.points || 0).toLocaleString("id-ID")} poin
+              </span>
+              <span className="font-medium">
+                {loyalty.pointsToNext} poin lagi ke {loyalty.nextTier}{" "}
+                {TIER_CONFIG[loyalty.nextTier]?.icon}
+              </span>
+            </div>
+            <div className="h-3 rounded-full bg-black/30 overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${loyalty.progress}%` }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+                className="h-full rounded-full"
+                style={{
+                  background: `linear-gradient(90deg, ${tierCfg.color}80, ${tierCfg.color})`,
+                }}
+              />
+            </div>
+          </div>
+        )}
+        {!loyalty.nextTier && (
+          <div
+            className="mb-6 text-center text-sm font-semibold"
+            style={{ color: tierCfg.color }}
+          >
+            🏆 Platinum — Tier Tertinggi! Nikmati semua benefit eksklusif.
+          </div>
+        )}
 
         {/* ─── TAB NAV ─────────────────────────────────────────── */}
         <div className="flex gap-1 mb-6 bg-white/[0.03] border border-white/8 rounded-2xl p-1 overflow-x-auto">
@@ -868,6 +889,7 @@ export default function MemberDashboard() {
         target="_blank"
         rel="noreferrer"
         className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full flex items-center justify-center shadow-lg bg-green-500 hover:scale-110 transition-transform"
+        aria-label="WhatsApp"
       >
         <MdWhatsapp className="text-white text-2xl" />
       </a>

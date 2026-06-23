@@ -12,7 +12,10 @@ import Loading from "./components/Loading";
 
 // ─── Admin Pages ─────────────────────────────────────────────
 const Dashboard      = React.lazy(() => import("./pages/Dashboard"));
+const Bookings       = React.lazy(() => import("./pages/Bookings"));
+const CheckInPage    = React.lazy(() => import("./pages/CheckIn"));
 const Orders         = React.lazy(() => import("./pages/Orders"));
+const OrderDetail    = React.lazy(() => import("./pages/OrderDetail"));
 const Customers      = React.lazy(() => import("./pages/Customers"));
 const Vehicles       = React.lazy(() => import("./pages/Vehicles"));
 const Mechanics      = React.lazy(() => import("./pages/Mechanics"));
@@ -72,7 +75,10 @@ export default function App() {
             <Route element={<ProtectedRoute />}>
               <Route element={<MainLayout />}>
                 <Route path="/dashboard"       element={<Dashboard />}         />
+                <Route path="/bookings"        element={<Bookings />}          />
+                <Route path="/checkin"         element={<CheckInPage />}       />
                 <Route path="/orders"          element={<Orders />}            />
+                <Route path="/orders/:id"      element={<OrderDetail />}       />
                 <Route path="/customers"       element={<Customers />}         />
                 <Route path="/vehicles"        element={<Vehicles />}          />
                 <Route path="/mechanics"       element={<Mechanics />}         />

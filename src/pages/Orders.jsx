@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   MdAdd, MdSearch, MdClose, MdEdit, MdDelete, MdFilterList,
   MdUnfoldMore, MdExpandLess, MdExpandMore, MdDownload,
@@ -6,7 +7,7 @@ import {
   MdSchedule, MdPending, MdCalendarToday, MdArrowBack,
   MdDirectionsCar, MdPerson, MdBuild,
   MdGridView, MdTableRows, MdContentCopy, MdCheck,
-  MdStar, MdStars
+  MdStar, MdStars, MdOpenInNew
 } from 'react-icons/md'
 import Pagination from '../components/Pagination'
 import ordersData from '../data/ordersData.json'
@@ -121,6 +122,7 @@ function Avatar({ name, size = 32 }) {
 // ─── Detail Drawer ────────────────────────────────────────────────────
 function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
   const [copied, setCopied] = useState(false)
+  const navigate = useNavigate()
   if (!order) return null
   const cfg = STATUS[order.status] || STATUS.Menunggu
   const statusOrder = ['Menunggu', 'Sedang Dikerjakan', 'Selesai']
@@ -153,6 +155,14 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
             <MdArrowBack size={18} />
           </button>
           <div className="flex gap-2">
+            {/* Workflow Detail button — buka /orders/:id */}
+            <button
+              onClick={() => { onClose(); navigate(`/orders/${encodeURIComponent(order.id)}`) }}
+              className="flex items-center gap-1.5 px-3 h-9 rounded-full text-green-400 text-xs font-semibold hover:scale-105 transition-all duration-300"
+              style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)' }}
+              title="Buka Workflow Detail">
+              <MdOpenInNew size={14} /> Workflow
+            </button>
             <button onClick={() => { onClose(); onEdit(order) }}
               className="w-9 h-9 rounded-full flex items-center justify-center text-yellow-400 hover:scale-110 transition-all duration-300 hover:rotate-12"
               style={{ background: 'rgba(255,255,255,0.04)' }}>

@@ -72,6 +72,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import './index.css'
 import { registerOrderSubscribers } from './lib/orderSubscribers'
+import { registerBookingSubscribers } from './lib/bookingSubscribers'
 import { seedLocalStorageIfEmpty } from './utils/seedLocalStorage'
 
 // ── Seed demo data ke sessionStorage saat pertama kali dibuka ──────────
@@ -79,10 +80,14 @@ import { seedLocalStorageIfEmpty } from './utils/seedLocalStorage'
 // Data diambil dari src/data/*.json dan hanya di-load sekali.
 seedLocalStorageIfEmpty()
 
-// PHASE 2 — daftarkan semua side-effect Order (Loyalty, Voucher,
-// Mechanic) sebagai subscriber terhadap ORDER_* events, sekali
-// di bootstrap. Lihat lib/orderSubscribers.js untuk detail.
+// ── Daftarkan semua event subscribers sekali di bootstrap ──────────────
+// Urutan registrasi tidak berpengaruh karena kedua subscriber
+// beroperasi pada storage key yang berbeda dan tidak saling bergantung.
+//
+// Order subscribers  : ORDER_EVENTS → loyalty, voucher, mechanic stats
+// Booking subscribers: BOOKING_EVENTS → admin notif, customer notif, calendar (Sprint 2)
 registerOrderSubscribers()
+registerBookingSubscribers()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

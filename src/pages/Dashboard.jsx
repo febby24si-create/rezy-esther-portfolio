@@ -37,6 +37,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { getAllCustomers, calcTier, TIER_CONFIG } from "../context/CustomerAuthContext";
+import { getBookingStats } from "../lib/bookingEngine";
 
 const fmt = (n) => "Rp " + Number(n).toLocaleString("id-ID");
 const fmtShort = (n) =>
@@ -67,10 +68,11 @@ function AnimatedNumber({ value, duration = 800, format = (v) => v }) {
 
 // ─── Ambil data dari sessionStorage ────────────────────────────────────
 function useStorageData() {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders]       = useState([]);
   const [inventory, setInventory] = useState([]);
   const [mechanics, setMechanics] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
+  const [vehicles, setVehicles]   = useState([]);
+  const [bookingStats, setBookingStats] = useState({});
 
   const load = () => {
     try {
@@ -82,6 +84,8 @@ function useStorageData() {
       if (m) setMechanics(JSON.parse(m));
       const inv = sessionStorage.getItem("garage_inventory");
       if (inv) setInventory(JSON.parse(inv));
+      // Booking stats — baca dari bookingEngine agar konsisten
+      try { setBookingStats(getBookingStats()); } catch {}
     } catch {}
   };
 
@@ -95,7 +99,7 @@ function useStorageData() {
     };
   }, []);
 
-  return { orders, inventory, mechanics, vehicles };
+  return { orders, inventory, mechanics, vehicles, bookingStats };
 }
 
 // ─── Membership stats ──────────────────────────────────────────────────
@@ -692,7 +696,7 @@ function MemberListWidget({ membership }) {
 
 // ─── MAIN DASHBOARD ───────────────────────────────────────────────────
 export default function Dashboard() {
-  const { orders, inventory, mechanics, vehicles } = useStorageData();
+  const { orders, inventory, mechanics, vehicles, bookingStats } = useStorageData();
   const membership = useMembershipStats();
 
   // State untuk filter waktu di grafik revenue
@@ -1209,7 +1213,53 @@ export default function Dashboard() {
                 </span>
               </Link>
             )}
-            {outOfStock === 0 && orderProses === 0 && orderMenunggu === 0 && (
+            {/* Booking Pending Confirmation alert */}
+            {(bookingStats.pendingConfirmation || 0) > 0 && (
+              <Link
+                to="/bookings"
+                className="flex items-center justify-between p-3 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/5 animate-slideInLeft"
+                style={{ background: "rgba(96,165,250,0.06)", border: "1px solid rgba(96,165,250,0.2)", animationDelay: "300ms" }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
+                    <Calendar size={12} className="text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-blue-400 text-xs font-semibold">Booking Menunggu Konfirmasi</p>
+                    <p className="text-gray-500 text-xs">
+                      {bookingStats.pendingConfirmation} booking baru perlu dikonfirmasi
+                    </p>
+                  </div>
+                </div>
+                <span className="text-blue-400 text-xs flex items-center gap-0.5 group">
+                  Kelola <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform duration-300" />
+                </span>
+              </Link>
+            )}
+            {/* Booking Hari Ini alert */}
+            {(bookingStats.today || 0) > 0 && (
+              <Link
+                to="/bookings"
+                className="flex items-center justify-between p-3 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-green-500/5 animate-slideInLeft"
+                style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)", animationDelay: "350ms" }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                    <Calendar size={12} className="text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-green-400 text-xs font-semibold">Jadwal Hari Ini</p>
+                    <p className="text-gray-500 text-xs">
+                      {bookingStats.today} booking dijadwalkan hari ini
+                    </p>
+                  </div>
+                </div>
+                <span className="text-green-400 text-xs flex items-center gap-0.5 group">
+                  Lihat <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform duration-300" />
+                </span>
+              </Link>
+            )}
+            {outOfStock === 0 && orderProses === 0 && orderMenunggu === 0 && bookingStats.needsAction === 0 && (
               <div className="py-6 text-center text-gray-600 text-sm flex flex-col items-center gap-2 animate-fadeIn">
                 <CheckCircle2 size={24} className="text-green-500/40 animate-pulse" />
                 Semua dalam kondisi baik
