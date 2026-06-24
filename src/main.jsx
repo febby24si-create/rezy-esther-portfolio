@@ -74,6 +74,8 @@ import './index.css'
 import { registerOrderSubscribers } from './lib/orderSubscribers'
 import { registerBookingSubscribers } from './lib/bookingSubscribers'
 import { seedLocalStorageIfEmpty } from './utils/seedLocalStorage'
+// src/main.jsx — tambah baris ini paling atas
+import './bookingSeedData.js'
 
 // ── Seed demo data ke sessionStorage saat pertama kali dibuka ──────────
 // Ini memastikan Dashboard tidak kosong waktu deploy / presentasi.

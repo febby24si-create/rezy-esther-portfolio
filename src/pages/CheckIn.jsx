@@ -349,7 +349,7 @@ export default function CheckInPage() {
   const pendingToday     = todayBookings.filter(b => b.status !== BOOKING_STATUS.CHECKED_IN)
 
   return (
-    <AnimatedPage>
+    <div>
       <PageHeader title="Check In Kendaraan" breadcrumb={['Operations', 'Check In']} />
 
       {/* Toast */}
@@ -483,6 +483,6 @@ export default function CheckInPage() {
           />
         )}
       </AnimatePresence>
-    </AnimatedPage>
+    </div>
   )
 }

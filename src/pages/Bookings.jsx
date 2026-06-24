@@ -494,7 +494,7 @@ export default function Bookings() {
   ]
 
   return (
-    <AnimatedPage>
+    <div>
       <PageHeader title="Booking Management" breadcrumb={['Operations', 'Booking Management']} />
 
       {/* KPI STATS */}
@@ -602,6 +602,6 @@ export default function Bookings() {
           <BookingDrawer booking={selected} onClose={() => setSelected(null)} onRefresh={handleRefresh} />
         )}
       </AnimatePresence>
-    </AnimatedPage>
+    </div>
   )
 }
