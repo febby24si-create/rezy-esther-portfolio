@@ -18,6 +18,7 @@ import {
   MdPhotoCamera,
   MdBookOnline,
   MdLogin,
+  MdManageAccounts,
 } from "react-icons/md";
 import { getBookingStats } from "../lib/bookingEngine";
 
@@ -40,6 +41,12 @@ const crmItems = [
     path: "/membership",
     icon: MdCardMembership,
     label: "Membership",
+    badge: "NEW",
+  },
+  {
+    path: "/users",
+    icon: MdManageAccounts,
+    label: "Manajemen User",
     badge: "NEW",
   },
 ];

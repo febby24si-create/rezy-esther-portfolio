@@ -35,6 +35,10 @@ import {
   Activity,
   Zap,
   Calendar,
+  Crown,
+  Sparkles,
+  Award,
+  Gift,
 } from "lucide-react";
 import { getAllCustomers, calcTier, TIER_CONFIG } from "../context/CustomerAuthContext";
 import { getBookingStats } from "../lib/bookingEngine";
@@ -84,7 +88,6 @@ function useStorageData() {
       if (m) setMechanics(JSON.parse(m));
       const inv = sessionStorage.getItem("garage_inventory");
       if (inv) setInventory(JSON.parse(inv));
-      // Booking stats — baca dari bookingEngine agar konsisten
       try { setBookingStats(getBookingStats()); } catch {}
     } catch {}
   };
@@ -157,7 +160,7 @@ function useMembershipStats() {
   }, [customers]);
 }
 
-// ─── Build revenue chart berdasarkan rentang waktu ──────────────────
+// ─── Build revenue chart ──────────────────────────────────────────────
 function buildRevenueChart(orders, range) {
   const now = new Date();
   let days = 18;
@@ -173,7 +176,6 @@ function buildRevenueChart(orders, range) {
     days = 30;
     startDate.setDate(now.getDate() - 29);
   } else if (range === "bulanini") {
-    // dari awal bulan sampai hari ini
     startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     const diff = Math.floor((now - startDate) / (1000 * 60 * 60 * 24)) + 1;
     days = diff;
@@ -217,28 +219,32 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
     <div
-      className="rounded-xl px-3 py-2.5 animate-fadeIn"
-      style={{ background: "#0d1f17", border: "1px solid rgba(34,197,94,0.25)" }}
+      className="rounded-xl px-4 py-3 animate-fadeIn"
+      style={{
+        background: "rgba(10, 26, 18, 0.95)",
+        backdropFilter: "blur(12px)",
+        border: "1px solid rgba(52, 211, 153, 0.25)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+      }}
     >
       <p className="text-xs text-gray-400 mb-1">{label}</p>
-      <p className="text-green-400 font-bold text-sm">
+      <p className="text-emerald-400 font-bold text-sm">
         {fmtShort(payload[0].value)}
       </p>
-      <p className="text-gray-500 text-xs">{payload[0].payload.count} order</p>
+      <p className="text-gray-500 text-xs mt-1">{payload[0].payload.count} order</p>
     </div>
   );
 };
 
 // ─── Mini Sparkline ───────────────────────────────────────────────────
-function MiniSparkline({ data, color = "#22C55E" }) {
-  // FIX: Bungkus ResponsiveContainer dengan div berukuran tetap
+function MiniSparkline({ data, color = "#34D399" }) {
   return (
     <div style={{ width: "100%", height: 48, minHeight: 48 }}>
       <ResponsiveContainer width="100%" height={48}>
         <AreaChart data={data} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id={`spark-${color.replace("#", "")}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={color} stopOpacity={0.3} />
+              <stop offset="5%" stopColor={color} stopOpacity={0.4} />
               <stop offset="95%" stopColor={color} stopOpacity={0.02} />
             </linearGradient>
           </defs>
@@ -246,7 +252,7 @@ function MiniSparkline({ data, color = "#22C55E" }) {
             type="monotone"
             dataKey="v"
             stroke={color}
-            strokeWidth={2}
+            strokeWidth={2.5}
             fill={`url(#spark-${color.replace("#", "")})`}
             dot={false}
             isAnimationActive={true}
@@ -274,64 +280,66 @@ function TopStatCard({
 }) {
   return (
     <div
-      className="relative rounded-2xl p-4 flex flex-col justify-between overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-green-500/5 group animate-fadeInUp"
+      className="relative rounded-2xl p-5 flex flex-col justify-between overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-emerald-500/10 group animate-fadeInUp"
       style={{
-        background: "linear-gradient(135deg, #0d1f17 0%, #091a12 100%)",
-        border: "1px solid rgba(34,197,94,0.12)",
-        minHeight: 140,
+        background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
+        border: "1px solid rgba(52, 211, 153, 0.12)",
+        backdropFilter: "blur(8px)",
+        minHeight: 150,
         animationDelay: `${delay}ms`,
         animationFillMode: "both",
       }}
     >
       <div className="flex items-start justify-between mb-2">
         <div>
-          <p className="text-gray-500 text-xs mb-0.5">{label}</p>
-          <p className="text-white text-2xl font-black leading-tight">
+          <p className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-1">{label}</p>
+          <p className="text-white text-2xl font-black leading-tight tracking-tight">
             <AnimatedNumber value={value} format={format} duration={900} />
           </p>
           {change !== undefined && (
             <span
-              className={`inline-flex items-center gap-0.5 text-xs font-semibold mt-1 ${
-                positive ? "text-green-400" : "text-red-400"
+              className={`inline-flex items-center gap-1 text-xs font-semibold mt-1.5 ${
+                positive ? "text-emerald-400" : "text-red-400"
               }`}
             >
               {positive ? (
-                <TrendingUp size={11} className="animate-bounce-soft" />
+                <TrendingUp size={12} className="animate-bounce-soft" />
               ) : (
-                <TrendingDown size={11} className="animate-bounce-soft" />
+                <TrendingDown size={12} className="animate-bounce-soft" />
               )}
               {change}
             </span>
           )}
         </div>
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110"
+          className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-500 group-hover:rotate-12 group-hover:scale-110"
           style={{ background: iconBg }}
         >
-          <Icon size={19} className="text-white" />
+          <Icon size={20} className="text-white" />
         </div>
       </div>
-      <div className="-mx-1">
+      <div className="-mx-2">
         <MiniSparkline data={sparkData} color={sparkColor} />
       </div>
-      <div className="absolute top-2 right-2 w-20 h-20 bg-green-500/5 rounded-full blur-2xl -z-10 group-hover:bg-green-500/10 transition-all duration-700"></div>
+      <div className="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl -z-10 group-hover:bg-emerald-500/15 transition-all duration-700"></div>
     </div>
   );
 }
 
 // ─── Status Badge ─────────────────────────────────────────────────────
 const STATUS_CFG = {
-  Selesai: { bg: "rgba(34,197,94,0.12)", color: "#22C55E", label: "Completed" },
-  "Sedang Dikerjakan": { bg: "rgba(251,191,36,0.12)", color: "#FBBF24", label: "In Progress" },
+  Selesai: { bg: "rgba(52,211,153,0.15)", color: "#34D399", label: "Completed" },
+  "Sedang Dikerjakan": { bg: "rgba(251,191,36,0.15)", color: "#FBBF24", label: "In Progress" },
   Menunggu: { bg: "rgba(148,163,184,0.1)", color: "#94A3B8", label: "Waiting" },
+  Dibatalkan: { bg: "rgba(239,68,68,0.12)", color: "#EF4444", label: "Cancelled" },
 };
 
 function StatusBadge({ status }) {
   const s = STATUS_CFG[status] || STATUS_CFG["Menunggu"];
   return (
     <span
-      className="inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full font-semibold animate-pulse-ring"
-      style={{ background: s.bg, color: s.color }}
+      className="inline-flex items-center gap-1.5 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider animate-pulse-ring"
+      style={{ background: s.bg, color: s.color, border: `1px solid ${s.color}25` }}
     >
       <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: s.color }} />
       {s.label}
@@ -345,7 +353,7 @@ function stringToHue(str = "") {
   return Math.abs(h) % 360;
 }
 
-// ─── Donut Chart dengan animasi tambahan ─────────────────────────────
+// ─── Donut Chart ──────────────────────────────────────────────────────
 function DonutChart({ data, total, centerSub, size = 140 }) {
   const [hoverIndex, setHoverIndex] = useState(null);
 
@@ -376,26 +384,22 @@ function DonutChart({ data, total, centerSub, size = 140 }) {
               onMouseEnter={() => setHoverIndex(index)}
               style={{
                 cursor: "pointer",
-                transition: "transform 0.3s ease, filter 0.3s ease",
-                transform:
-                  hoverIndex === index ? "scale(1.08)" : "scale(1)",
-                filter:
-                  hoverIndex === index
-                    ? "drop-shadow(0 0 12px rgba(34,197,94,0.5))"
-                    : "none",
+                transition: "transform 0.3s ease, filter 0.4s ease",
+                transform: hoverIndex === index ? "scale(1.08)" : "scale(1)",
+                filter: hoverIndex === index
+                  ? "drop-shadow(0 0 16px rgba(52,211,153,0.5))"
+                  : "none",
                 transformOrigin: "center",
               }}
             />
           ))}
         </Pie>
       </PieChart>
-      <div
-        className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
-      >
-        <p className="text-white text-xl font-black leading-none">
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        <p className="text-white text-2xl font-black leading-none">
           <AnimatedNumber value={total} format={(v) => Math.round(v)} duration={1200} />
         </p>
-        <p className="text-gray-500 text-xs mt-0.5">{centerSub}</p>
+        <p className="text-gray-400 text-[10px] uppercase tracking-wider mt-0.5">{centerSub}</p>
       </div>
     </div>
   );
@@ -445,33 +449,34 @@ function ChatbotModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
       <div
-        className="w-full max-w-md rounded-2xl flex flex-col animate-slideUp"
+        className="w-full max-w-md rounded-3xl flex flex-col animate-slideUp"
         style={{
-          height: 500,
-          background: "#0a1e15",
-          border: "1px solid rgba(34,197,94,0.2)",
+          height: 520,
+          background: "linear-gradient(145deg, #0a1e15, #05120b)",
+          border: "1px solid rgba(52,211,153,0.2)",
+          boxShadow: "0 24px 80px rgba(0,0,0,0.8)",
         }}
       >
-        <div className="flex items-center justify-between p-4 border-b border-green-500/10">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-green-500/20 flex items-center justify-center animate-pulse">
-              <Bot size={16} className="text-green-400" />
+        <div className="flex items-center justify-between p-5 border-b border-emerald-500/10">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center animate-pulse">
+              <Bot size={18} className="text-emerald-400" />
             </div>
             <div>
               <h3 className="text-white font-bold text-sm">AI Assistant</h3>
-              <p className="text-green-400 text-xs">Online</p>
+              <p className="text-emerald-400 text-[10px] uppercase tracking-wider">Online</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-white transition-colors rotate-0 hover:rotate-90 duration-300"
+            className="text-gray-500 hover:text-white transition-all duration-300 hover:rotate-90"
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+        <div className="flex-1 overflow-y-auto p-5 space-y-3">
           {messages.map((msg, idx) => (
             <div
               key={idx}
@@ -479,10 +484,10 @@ function ChatbotModal({ isOpen, onClose }) {
               style={{ animationDelay: `${idx * 50}ms` }}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${
+                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
                   msg.role === "user"
-                    ? "bg-green-600/25 text-white rounded-br-none"
-                    : "bg-white/5 text-gray-200 rounded-bl-none"
+                    ? "bg-emerald-600/30 text-white rounded-br-none border border-emerald-500/20"
+                    : "bg-white/5 text-gray-200 rounded-bl-none border border-white/5"
                 }`}
               >
                 {msg.text}
@@ -491,27 +496,27 @@ function ChatbotModal({ isOpen, onClose }) {
           ))}
           {isTyping && (
             <div className="flex justify-start animate-fadeIn">
-              <div className="bg-white/5 rounded-2xl px-3 py-2 text-sm text-gray-400">
+              <div className="bg-white/5 rounded-2xl px-4 py-2.5 text-sm text-gray-400 border border-white/5">
                 <span className="animate-pulse">···</span>
               </div>
             </div>
           )}
           <div ref={chatEndRef} />
         </div>
-        <div className="p-4 border-t border-green-500/10 flex gap-2">
+        <div className="p-4 border-t border-emerald-500/10 flex gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && handleSend()}
             placeholder="Tanyakan sesuatu..."
-            className="flex-1 bg-white/5 border border-green-500/15 rounded-xl px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-green-500/40 transition-all duration-300"
+            className="flex-1 bg-white/5 border border-emerald-500/15 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-400/40 transition-all duration-300"
           />
           <button
             onClick={handleSend}
-            className="w-9 h-9 rounded-xl bg-green-600 hover:bg-green-500 flex items-center justify-center text-white transition-all duration-300 hover:scale-110 active:scale-95"
+            className="w-10 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-500 flex items-center justify-center text-white transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg shadow-emerald-500/20"
           >
-            <Send size={14} />
+            <Send size={16} />
           </button>
         </div>
       </div>
@@ -541,31 +546,44 @@ function FloatingCRMMenu() {
                 setShowChatbot(true);
                 setIsOpen(false);
               }}
-              className="flex items-center gap-2 rounded-full px-4 py-2 shadow-lg transition-all w-36 border animate-fadeInUp"
-              style={{ background: "#0a1e15", color: "#22C55E", borderColor: "rgba(34,197,94,0.3)" }}
+              className="flex items-center gap-3 rounded-full px-5 py-2.5 shadow-xl transition-all w-44 border animate-fadeInUp"
+              style={{
+                background: "rgba(10, 26, 18, 0.95)",
+                backdropFilter: "blur(12px)",
+                color: "#34D399",
+                borderColor: "rgba(52,211,153,0.3)",
+              }}
             >
-              <Bot size={16} className="animate-spin-slow" />
+              <Bot size={18} className="animate-spin-slow" />
               <span className="text-sm font-medium">AI Chatbot</span>
             </button>
             <button
               onClick={handleWhatsApp}
-              className="flex items-center gap-2 rounded-full px-4 py-2 shadow-lg transition-all w-36 border animate-fadeInUp"
-              style={{ background: "#0a1e15", color: "#22C55E", borderColor: "rgba(34,197,94,0.3)" }}
+              className="flex items-center gap-3 rounded-full px-5 py-2.5 shadow-xl transition-all w-44 border animate-fadeInUp"
+              style={{
+                background: "rgba(10, 26, 18, 0.95)",
+                backdropFilter: "blur(12px)",
+                color: "#34D399",
+                borderColor: "rgba(52,211,153,0.3)",
+              }}
             >
-              <MessageCircle size={16} />
+              <MessageCircle size={18} />
               <span className="text-sm font-medium">WhatsApp</span>
             </button>
           </div>
         )}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-13 h-13 rounded-full flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 animate-pulse-ring"
-          style={{ background: "#16a34a", boxShadow: "0 0 20px rgba(34,197,94,0.4)", width: 52, height: 52 }}
+          className="w-14 h-14 rounded-full flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 animate-pulse-ring shadow-2xl shadow-emerald-500/30"
+          style={{
+            background: "linear-gradient(135deg, #059669, #10B981)",
+            boxShadow: "0 0 40px rgba(52,211,153,0.3)",
+          }}
         >
           {isOpen ? (
-            <X size={22} className="rotate-90 transition-transform duration-300" />
+            <X size={24} className="rotate-90 transition-transform duration-300" />
           ) : (
-            <MessageSquare size={22} className="transition-transform duration-300" />
+            <MessageSquare size={24} className="transition-transform duration-300" />
           )}
         </button>
       </div>
@@ -574,7 +592,7 @@ function FloatingCRMMenu() {
   );
 }
 
-// ─── Member List Widget ─────────────────────────────────────────
+// ─── Member List Widget ──────────────────────────────────────────────
 function MemberListWidget({ membership }) {
   const [search, setSearch] = useState("")
   const [filterTier, setFilterTier] = useState("Semua")
@@ -582,6 +600,7 @@ function MemberListWidget({ membership }) {
   const members = allCustomers.filter(c => c.membershipStatus === "active")
 
   const tierColors = { Bronze: "#F97316", Silver: "#94A3B8", Gold: "#FBBF24", Platinum: "#A855F7" }
+  const tierIcons = { Bronze: <Award size={12} />, Silver: <Gift size={12} />, Gold: <Crown size={12} />, Platinum: <Sparkles size={12} /> }
   const tiers = ["Semua", "Platinum", "Gold", "Silver", "Bronze"]
 
   const filtered = members.filter(c => {
@@ -591,89 +610,112 @@ function MemberListWidget({ membership }) {
   }).sort((a, b) => (b.points || 0) - (a.points || 0))
 
   return (
-    <div className="rounded-2xl p-5 animate-fadeInUp" style={{ background: "#0a1a12", border: "1px solid rgba(34,197,94,0.1)", animationDelay: "900ms", animationFillMode: "both" }}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-        <div className="flex items-center gap-2">
-          <Users size={15} className="text-green-400" />
+    <div
+      className="rounded-2xl p-6 animate-fadeInUp"
+      style={{
+        background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
+        border: "1px solid rgba(52,211,153,0.1)",
+        animationDelay: "900ms",
+        animationFillMode: "both",
+      }}
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+            <Users size={16} className="text-emerald-400" />
+          </div>
           <p className="text-white text-sm font-bold">Daftar Member Aktif</p>
-          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-green-500/15 text-green-400">{members.length}</span>
+          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">
+            {members.length}
+          </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Cari member..."
-            className="text-xs bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white placeholder-gray-600 outline-none focus:border-green-500/40 w-40"
+            className="text-xs bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-white placeholder-gray-500 outline-none focus:border-emerald-400/40 transition-all duration-300 w-44"
           />
-          <Link to="/membership" className="text-xs text-green-400 hover:text-green-300 flex items-center gap-1 group transition-all">
-            Kelola <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
+          <Link
+            to="/membership"
+            className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 group transition-all duration-300 font-medium"
+          >
+            Kelola <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
           </Link>
         </div>
       </div>
 
       {/* Tier filter */}
-      <div className="flex flex-wrap gap-1.5 mb-4">
+      <div className="flex flex-wrap gap-1.5 mb-5">
         {tiers.map(t => (
-          <button key={t} onClick={() => setFilterTier(t)}
-            className={`px-3 py-1 rounded-lg text-xs font-medium transition-all border ${
+          <button
+            key={t}
+            onClick={() => setFilterTier(t)}
+            className={`px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-300 border ${
               filterTier === t
-                ? "bg-green-500/20 text-green-400 border-green-500/30"
-                : "bg-white/3 text-gray-500 border-white/8 hover:text-white hover:bg-white/8"
+                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30 shadow-lg shadow-emerald-500/5"
+                : "bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10"
             }`}
-          >{t}</button>
+          >
+            {t}
+          </button>
         ))}
       </div>
 
       {/* Member table */}
       {filtered.length === 0 ? (
-        <div className="text-center py-8 text-gray-600 text-sm">
+        <div className="text-center py-10 text-gray-500 text-sm">
           {members.length === 0 ? "Belum ada member aktif." : "Tidak ada member yang cocok."}
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="text-gray-600 uppercase tracking-wider border-b border-white/5">
-                <th className="text-left pb-2 font-medium">Member</th>
-                <th className="text-left pb-2 font-medium">Tier</th>
-                <th className="text-right pb-2 font-medium">Poin</th>
-                <th className="text-right pb-2 font-medium">Servis</th>
-                <th className="text-right pb-2 font-medium">Total Belanja</th>
-                <th className="text-right pb-2 font-medium">Bergabung</th>
+              <tr className="text-gray-500 uppercase tracking-wider border-b border-white/5">
+                <th className="text-left pb-3 font-semibold">Member</th>
+                <th className="text-left pb-3 font-semibold">Tier</th>
+                <th className="text-right pb-3 font-semibold">Poin</th>
+                <th className="text-right pb-3 font-semibold">Servis</th>
+                <th className="text-right pb-3 font-semibold">Total Belanja</th>
+                <th className="text-right pb-3 font-semibold">Bergabung</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/4">
+            <tbody className="divide-y divide-white/5">
               {filtered.slice(0, 8).map((c, i) => {
                 const tier = calcTier(c.points || 0)
                 const cfg = TIER_CONFIG[tier]
                 return (
-                  <tr key={c.id || i} className="hover:bg-white/3 transition-colors group">
-                    <td className="py-2.5 pr-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
-                          style={{ background: `${cfg?.color}20`, color: cfg?.color }}>
+                  <tr key={c.id || i} className="hover:bg-white/5 transition-colors group">
+                    <td className="py-3 pr-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0 transition-transform group-hover:scale-110"
+                          style={{ background: `${cfg?.color}25`, color: cfg?.color }}
+                        >
                           {c.name?.charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-white font-semibold truncate max-w-[120px]">{c.name}</p>
-                          <p className="text-gray-600 truncate max-w-[120px]">{c.email}</p>
+                          <p className="text-white font-semibold truncate max-w-[140px]">{c.name}</p>
+                          <p className="text-gray-500 truncate max-w-[140px] text-[10px]">{c.email}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-2.5 pr-3">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold border"
-                        style={{ background: `${cfg?.color}15`, color: cfg?.color, borderColor: `${cfg?.color}30` }}>
-                        {cfg?.icon} {tier}
+                    <td className="py-3 pr-3">
+                      <span
+                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border"
+                        style={{ background: `${cfg?.color}15`, color: cfg?.color, borderColor: `${cfg?.color}30` }}
+                      >
+                        {tierIcons[tier]} {tier}
                       </span>
                     </td>
-                    <td className="py-2.5 text-right font-bold" style={{ color: cfg?.color }}>
+                    <td className="py-3 text-right font-bold" style={{ color: cfg?.color }}>
                       {(c.points || 0).toLocaleString("id-ID")}
                     </td>
-                    <td className="py-2.5 text-right text-gray-400">{c.totalOrders || 0}x</td>
-                    <td className="py-2.5 text-right text-gray-300">
+                    <td className="py-3 text-right text-gray-400">{c.totalOrders || 0}x</td>
+                    <td className="py-3 text-right text-gray-300">
                       Rp{((c.totalSpent || 0) / 1000000).toFixed(1)}jt
                     </td>
-                    <td className="py-2.5 text-right text-gray-600">
+                    <td className="py-3 text-right text-gray-500 text-[10px]">
                       {c.memberSince ? c.memberSince.slice(0, 7) : "-"}
                     </td>
                   </tr>
@@ -682,8 +724,11 @@ function MemberListWidget({ membership }) {
             </tbody>
           </table>
           {filtered.length > 8 && (
-            <div className="text-center mt-3">
-              <Link to="/membership" className="text-xs text-green-400 hover:text-green-300 transition-colors">
+            <div className="text-center mt-4">
+              <Link
+                to="/membership"
+                className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium"
+              >
                 + {filtered.length - 8} member lainnya → Lihat semua
               </Link>
             </div>
@@ -699,27 +744,37 @@ export default function Dashboard() {
   const { orders, inventory, mechanics, vehicles, bookingStats } = useStorageData();
   const membership = useMembershipStats();
 
-  // State untuk filter waktu di grafik revenue
+  const loggedInUser = useMemo(() => {
+    try {
+      const raw = sessionStorage.getItem('eg_user')
+      return raw ? JSON.parse(raw) : null
+    } catch { return null }
+  }, [])
+
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours()
+    if (hour < 11) return 'Selamat Pagi'
+    if (hour < 15) return 'Selamat Siang'
+    if (hour < 18) return 'Selamat Sore'
+    return 'Selamat Malam'
+  }, [])
+
   const [timeRange, setTimeRange] = useState("bulanini");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Data chart berdasarkan filter
   const revenueChart = useMemo(
     () => buildRevenueChart(orders, timeRange),
     [orders, timeRange]
   );
 
-  // Total pendapatan pada rentang yang dipilih
   const totalRevenue = useMemo(() => {
     return revenueChart.reduce((sum, day) => sum + day.revenue, 0);
   }, [revenueChart]);
 
-  // Sparkline data
   const sparkAll = useMemo(() => buildMiniChart(orders, null), [orders]);
   const sparkWip = useMemo(() => buildMiniChart(orders, "Sedang Dikerjakan"), [orders]);
   const sparkDone = useMemo(() => buildMiniChart(orders, "Selesai"), [orders]);
 
-  // Statistik
   const totalOrders = orders.length;
   const orderSelesai = orders.filter((o) => o.status === "Selesai").length;
   const orderProses = orders.filter((o) => o.status === "Sedang Dikerjakan").length;
@@ -731,7 +786,6 @@ export default function Dashboard() {
   const goodStock = inventory.filter((i) => i.stock > (i.minStock || 0)).length;
   const totalInv = inventory.length;
 
-  // Perbandingan minggu lalu
   const now = new Date();
   const weekAgo = new Date(now);
   weekAgo.setDate(now.getDate() - 7);
@@ -751,9 +805,8 @@ export default function Dashboard() {
     .reduce((s, o) => s + Number(o.total), 0);
   const revChange = lastWeekRev > 0 ? Math.round(((thisWeekRev - lastWeekRev) / lastWeekRev) * 100) : null;
 
-  // Data untuk donut
   const jobDonutData = [
-    { name: "Selesai", value: orderSelesai || 1, color: "#22C55E" },
+    { name: "Selesai", value: orderSelesai || 1, color: "#34D399" },
     { name: "In Progress", value: orderProses || 0, color: "#FBBF24" },
     { name: "Menunggu", value: orderMenunggu || 0, color: "#818CF8" },
     { name: "Dibatalkan", value: orderCancelled || 0, color: "#4B5563" },
@@ -767,20 +820,18 @@ export default function Dashboard() {
   const invDonutData = [
     { name: "Low Stock", value: outOfStock, color: "#EF4444" },
     { name: "Reorder Soon", value: reorderSoon, color: "#F59E0B" },
-    { name: "Good", value: goodStock || 1, color: "#22C55E" },
+    { name: "Good", value: goodStock || 1, color: "#34D399" },
   ].filter((d) => d.value > 0);
 
   const jadwal = orders
     .filter((o) => o.status === "Menunggu" || o.status === "Sedang Dikerjakan")
     .slice(0, 6);
 
-  // Spark mekanik
   const sparkMech = useMemo(
     () => Array.from({ length: 7 }, (_, i) => ({ v: mechAvail > 0 ? mechAvail - (i % 2) : 0 })),
     [mechAvail]
   );
 
-  // Handler dropdown
   const rangeLabels = {
     hariini: "Hari Ini",
     "7hari": "7 Hari",
@@ -789,26 +840,63 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="page-animate space-y-5" style={{ background: "#060f0a", minHeight: "100vh" }}>
+    <div className="page-animate space-y-6" style={{ background: "#060f0a", minHeight: "100vh", paddingBottom: "2rem" }}>
+      {/* ── GREETING ── */}
+      {loggedInUser && (
+        <div
+          className="rounded-2xl px-7 py-5 flex items-center justify-between animate-fadeInUp"
+          style={{
+            background: "linear-gradient(135deg, rgba(52,211,153,0.08) 0%, rgba(4,28,21,0.6) 100%)",
+            border: "1px solid rgba(52,211,153,0.12)",
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <div>
+            <p className="text-gray-400 text-sm font-medium">{greeting},</p>
+            <p className="text-white text-2xl font-bold mt-0.5 tracking-tight">
+              {loggedInUser.name}
+              <span className="ml-3 text-sm font-normal text-emerald-400 align-middle">
+                ({loggedInUser.email})
+              </span>
+            </p>
+          </div>
+          <div className="flex flex-col items-end gap-1.5">
+            <span
+              className="px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+              style={{
+                background: "rgba(52,211,153,0.15)",
+                color: "#6EE7B7",
+                border: "1px solid rgba(52,211,153,0.25)",
+              }}
+            >
+              {loggedInUser.role}
+            </span>
+            <p className="text-gray-500 text-xs">
+              {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ── TOP STAT CARDS ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <TopStatCard
           icon={Wrench}
-          iconBg="rgba(34,197,94,0.25)"
-          label="Total Orders Today"
+          iconBg="rgba(52,211,153,0.25)"
+          label="Total Orders"
           value={totalOrders}
           change={`+${Math.max(0, Math.round(totalOrders * 0.12))}% vs yesterday`}
           positive
           sparkData={sparkAll}
-          sparkColor="#22C55E"
+          sparkColor="#34D399"
           delay={0}
         />
         <TopStatCard
           icon={DollarSign}
           iconBg="rgba(96,165,250,0.25)"
-          label="Revenue Today"
+          label="Revenue (7d)"
           value={thisWeekRev}
-          format={fmt} // ← format Rupiah penuh
+          format={fmt}
           change={revChange !== null ? `${revChange > 0 ? "+" : ""}${revChange}% vs last week` : undefined}
           positive={revChange === null || revChange >= 0}
           sparkData={sparkDone}
@@ -840,25 +928,30 @@ export default function Dashboard() {
       </div>
 
       {/* ── REVENUE CHART + JOB STATUS ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Revenue Overview */}
         <div
-          className="lg:col-span-2 rounded-2xl p-5 animate-fadeInUp"
-          style={{ background: "#0a1a12", border: "1px solid rgba(34,197,94,0.1)", animationDelay: "200ms", animationFillMode: "both" }}
+          className="lg:col-span-2 rounded-2xl p-6 animate-fadeInUp"
+          style={{
+            background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
+            border: "1px solid rgba(52,211,153,0.1)",
+            animationDelay: "200ms",
+            animationFillMode: "both",
+          }}
         >
-          <div className="flex items-start justify-between mb-1">
+          <div className="flex items-start justify-between mb-2">
             <div>
-              <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">Revenue Overview</p>
-              <p className="text-white text-2xl font-black mt-1">
+              <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Revenue Overview</p>
+              <p className="text-white text-3xl font-black mt-1 tracking-tight">
                 <AnimatedNumber value={totalRevenue} format={fmt} duration={1200} />
               </p>
               {revChange !== null && (
                 <span
-                  className={`inline-flex items-center gap-1 text-xs font-semibold mt-0.5 ${
-                    revChange >= 0 ? "text-green-400" : "text-red-400"
+                  className={`inline-flex items-center gap-1.5 text-xs font-semibold mt-1 ${
+                    revChange >= 0 ? "text-emerald-400" : "text-red-400"
                   }`}
                 >
-                  <TrendingUp size={11} className="animate-bounce-soft" />
+                  <TrendingUp size={12} className="animate-bounce-soft" />
                   {revChange > 0 ? "+" : ""}{revChange}% vs last week
                 </span>
               )}
@@ -868,19 +961,23 @@ export default function Dashboard() {
             <div className="relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="text-xs px-3 py-1.5 rounded-xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-green-500/10 flex items-center gap-1"
+                className="text-xs px-4 py-2 rounded-xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/10 flex items-center gap-1.5"
                 style={{
-                  background: "rgba(34,197,94,0.1)",
-                  color: "#22C55E",
-                  border: "1px solid rgba(34,197,94,0.15)",
+                  background: "rgba(52,211,153,0.1)",
+                  color: "#34D399",
+                  border: "1px solid rgba(52,211,153,0.15)",
                 }}
               >
-                {rangeLabels[timeRange]} ▾
+                {rangeLabels[timeRange]} <ChevronRight size={14} className={`transition-transform duration-300 ${isDropdownOpen ? "rotate-90" : ""}`} />
               </button>
               {isDropdownOpen && (
                 <div
-                  className="absolute right-0 mt-1 w-36 rounded-xl shadow-lg z-10 animate-fadeInUp"
-                  style={{ background: "#0a1a12", border: "1px solid rgba(34,197,94,0.15)" }}
+                  className="absolute right-0 mt-2 w-40 rounded-xl shadow-2xl z-10 animate-fadeInUp"
+                  style={{
+                    background: "rgba(10, 26, 18, 0.98)",
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(52,211,153,0.15)",
+                  }}
                 >
                   {Object.entries(rangeLabels).map(([key, label]) => (
                     <button
@@ -889,8 +986,8 @@ export default function Dashboard() {
                         setTimeRange(key);
                         setIsDropdownOpen(false);
                       }}
-                      className={`block w-full text-left px-3 py-2 text-xs transition-colors hover:bg-green-500/10 ${
-                        timeRange === key ? "text-green-400" : "text-gray-400"
+                      className={`block w-full text-left px-4 py-2.5 text-xs transition-all duration-200 hover:bg-emerald-500/10 ${
+                        timeRange === key ? "text-emerald-400 font-semibold" : "text-gray-400"
                       }`}
                     >
                       {label}
@@ -902,18 +999,18 @@ export default function Dashboard() {
           </div>
 
           {orders.length === 0 ? (
-            <div className="h-52 flex items-center justify-center text-gray-600 text-sm">Belum ada data order</div>
+            <div className="h-56 flex items-center justify-center text-gray-500 text-sm">Belum ada data order</div>
           ) : (
-            <div style={{ width: "100%", height: 220, minHeight: 220 }}>
-              <ResponsiveContainer width="100%" height={220}>
+            <div style={{ width: "100%", height: 230, minHeight: 230 }}>
+              <ResponsiveContainer width="100%" height={230}>
                 <AreaChart data={revenueChart} margin={{ top: 10, right: 5, left: 5, bottom: 0 }}>
                   <defs>
                     <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#22C55E" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#22C55E" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#34D399" stopOpacity={0.35} />
+                      <stop offset="95%" stopColor="#34D399" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                  <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
                   <XAxis
                     dataKey="date"
                     tick={{ fill: "#4b5563", fontSize: 10 }}
@@ -931,11 +1028,11 @@ export default function Dashboard() {
                   <Area
                     type="monotone"
                     dataKey="revenue"
-                    stroke="#22C55E"
-                    strokeWidth={2.5}
+                    stroke="#34D399"
+                    strokeWidth={3}
                     fill="url(#revGrad)"
                     dot={false}
-                    activeDot={{ r: 5, fill: "#22C55E", stroke: "#060f0a", strokeWidth: 2 }}
+                    activeDot={{ r: 6, fill: "#34D399", stroke: "#060f0a", strokeWidth: 3 }}
                     isAnimationActive={true}
                     animationDuration={1500}
                     animationEasing="ease-out"
@@ -948,16 +1045,21 @@ export default function Dashboard() {
 
         {/* Job Status Overview */}
         <div
-          className="rounded-2xl p-5 animate-fadeInUp"
-          style={{ background: "#0a1a12", border: "1px solid rgba(34,197,94,0.1)", animationDelay: "300ms", animationFillMode: "both" }}
+          className="rounded-2xl p-6 animate-fadeInUp"
+          style={{
+            background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
+            border: "1px solid rgba(52,211,153,0.1)",
+            animationDelay: "300ms",
+            animationFillMode: "both",
+          }}
         >
-          <p className="text-gray-500 text-xs font-medium uppercase tracking-wider mb-4">Job Status Overview</p>
-          <div className="flex justify-center mb-4">
+          <p className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-4">Job Status</p>
+          <div className="flex justify-center mb-5">
             <DonutChart data={jobDonutData} total={totalOrders} centerSub="Total Jobs" size={150} />
           </div>
-          <div className="space-y-2.5 mt-2">
+          <div className="space-y-3">
             {[
-              { label: "Completed", value: orderSelesai, color: "#22C55E", pct: totalOrders > 0 ? Math.round((orderSelesai / totalOrders) * 100) : 0 },
+              { label: "Completed", value: orderSelesai, color: "#34D399", pct: totalOrders > 0 ? Math.round((orderSelesai / totalOrders) * 100) : 0 },
               { label: "In Progress", value: orderProses, color: "#FBBF24", pct: totalOrders > 0 ? Math.round((orderProses / totalOrders) * 100) : 0 },
               { label: "Waiting", value: orderMenunggu, color: "#818CF8", pct: totalOrders > 0 ? Math.round((orderMenunggu / totalOrders) * 100) : 0 },
               { label: "Cancelled", value: orderCancelled, color: "#4B5563", pct: totalOrders > 0 ? Math.round((orderCancelled / totalOrders) * 100) : 0 },
@@ -965,17 +1067,17 @@ export default function Dashboard() {
               <div
                 key={item.label}
                 className="flex items-center justify-between animate-fadeInUp"
-                style={{ animationDelay: `${400 + idx * 100}ms`, animationFillMode: "both" }}
+                style={{ animationDelay: `${400 + idx * 80}ms`, animationFillMode: "both" }}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
-                  <span className="text-gray-400 text-xs">{item.label}</span>
+                  <span className="text-gray-300 text-xs font-medium">{item.label}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-white text-xs font-bold">
                     <AnimatedNumber value={item.value} format={(v) => Math.round(v)} duration={600} />
                   </span>
-                  <span className="text-gray-600 text-xs">({item.pct}%)</span>
+                  <span className="text-gray-500 text-[10px]">({item.pct}%)</span>
                 </div>
               </div>
             ))}
@@ -985,42 +1087,50 @@ export default function Dashboard() {
 
       {/* ── TODAY'S JOB QUEUE ── */}
       <div
-        className="rounded-2xl p-5 animate-fadeInUp"
-        style={{ background: "#0a1a12", border: "1px solid rgba(34,197,94,0.1)", animationDelay: "400ms", animationFillMode: "both" }}
+        className="rounded-2xl p-6 animate-fadeInUp"
+        style={{
+          background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
+          border: "1px solid rgba(52,211,153,0.1)",
+          animationDelay: "400ms",
+          animationFillMode: "both",
+        }}
       >
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">Today's Job Queue</p>
-          <Link to="/orders" className="text-xs text-green-400 hover:text-green-300 flex items-center gap-1 group transition-all duration-300">
-            View All <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform duration-300" />
+        <div className="flex items-center justify-between mb-5">
+          <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Today's Job Queue</p>
+          <Link
+            to="/orders"
+            className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 group transition-all duration-300 font-medium"
+          >
+            View All <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
           </Link>
         </div>
         {jadwal.length === 0 ? (
-          <div className="py-8 text-center text-gray-600 text-sm">Tidak ada antrian aktif</div>
+          <div className="py-10 text-center text-gray-500 text-sm">Tidak ada antrian aktif</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {jadwal.map((o, i) => {
               const hue = stringToHue(o.customer);
               return (
                 <div
                   key={i}
-                  className="flex items-center gap-3 p-3 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-green-500/5 animate-fadeInUp"
+                  className="flex items-center gap-4 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-500/5 animate-fadeInUp"
                   style={{
                     background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.06)",
                     animationDelay: `${500 + i * 80}ms`,
                     animationFillMode: "both",
                   }}
                 >
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm transition-transform duration-300 group-hover:rotate-12"
-                    style={{ background: `hsl(${hue},50%,15%)`, color: `hsl(${hue},70%,60%)` }}
+                    className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm transition-transform duration-300 group-hover:rotate-12"
+                    style={{ background: `hsla(${hue},60%,15%,0.8)`, color: `hsl(${hue},70%,60%)` }}
                   >
-                    <Car size={16} style={{ color: `hsl(${hue},70%,60%)` }} />
+                    <Car size={18} style={{ color: `hsl(${hue},70%,60%)` }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white text-xs font-semibold truncate">{o.customer}</p>
-                    <p className="text-gray-500 text-xs truncate">{o.service}</p>
-                    {o.id && <p className="text-gray-700 text-xs font-mono">#{o.id}</p>}
+                    <p className="text-white text-sm font-semibold truncate">{o.customer}</p>
+                    <p className="text-gray-400 text-xs truncate">{o.service}</p>
+                    {o.id && <p className="text-gray-600 text-[10px] font-mono">#{o.id}</p>}
                   </div>
                   <StatusBadge status={o.status} />
                 </div>
@@ -1031,26 +1141,34 @@ export default function Dashboard() {
       </div>
 
       {/* ── MEMBERSHIP TIER + INVENTORY STATUS ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Membership Tier */}
         <div
-          className="rounded-2xl p-5 animate-fadeInUp"
-          style={{ background: "#0a1a12", border: "1px solid rgba(34,197,94,0.1)", animationDelay: "500ms", animationFillMode: "both" }}
+          className="rounded-2xl p-6 animate-fadeInUp"
+          style={{
+            background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
+            border: "1px solid rgba(52,211,153,0.1)",
+            animationDelay: "500ms",
+            animationFillMode: "both",
+          }}
         >
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">Membership Tier</p>
-            <Link to="/membership" className="text-xs text-green-400 hover:text-green-300 flex items-center gap-1 group transition-all duration-300">
-              Detail <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform duration-300" />
+          <div className="flex items-center justify-between mb-5">
+            <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Membership Tier</p>
+            <Link
+              to="/membership"
+              className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 group transition-all duration-300 font-medium"
+            >
+              Detail <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
             </Link>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-8">
             <DonutChart
               data={memberDonutData.length > 0 ? memberDonutData : [{ name: "empty", value: 1, color: "#1f2937" }]}
               total={membership.total}
               centerSub="Members"
-              size={130}
+              size={140}
             />
-            <div className="flex-1 space-y-2.5">
+            <div className="flex-1 space-y-3">
               {Object.entries(membership.byTier).map(([tier, count], idx) => {
                 const pct = membership.totalActive > 0 ? Math.round((count / membership.totalActive) * 100) : 0;
                 const cfg = TIER_CONFIG[tier];
@@ -1058,12 +1176,12 @@ export default function Dashboard() {
                   <div
                     key={tier}
                     className="animate-fadeInUp"
-                    style={{ animationDelay: `${600 + idx * 100}ms`, animationFillMode: "both" }}
+                    style={{ animationDelay: `${600 + idx * 80}ms`, animationFillMode: "both" }}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs">{cfg?.icon}</span>
-                        <span className="text-xs font-semibold" style={{ color: tierColors[tier] }}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{cfg?.icon}</span>
+                        <span className="text-xs font-bold" style={{ color: tierColors[tier] }}>
                           {tier}
                         </span>
                       </div>
@@ -1071,10 +1189,10 @@ export default function Dashboard() {
                         <span className="text-white text-xs font-bold">
                           <AnimatedNumber value={count} format={(v) => Math.round(v)} duration={600} />
                         </span>
-                        <span className="text-gray-600 text-xs">({pct}%)</span>
+                        <span className="text-gray-500 text-[10px]">({pct}%)</span>
                       </div>
                     </div>
-                    <div className="h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
                       <div
                         className="h-full rounded-full transition-all duration-1000 ease-out"
                         style={{ width: `${pct}%`, background: tierColors[tier] }}
@@ -1089,46 +1207,54 @@ export default function Dashboard() {
 
         {/* Inventory Status */}
         <div
-          className="rounded-2xl p-5 animate-fadeInUp"
-          style={{ background: "#0a1a12", border: "1px solid rgba(34,197,94,0.1)", animationDelay: "600ms", animationFillMode: "both" }}
+          className="rounded-2xl p-6 animate-fadeInUp"
+          style={{
+            background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
+            border: "1px solid rgba(52,211,153,0.1)",
+            animationDelay: "600ms",
+            animationFillMode: "both",
+          }}
         >
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-gray-500 text-xs font-medium uppercase tracking-wider">Inventory Status</p>
-            <Link to="/inventory" className="text-xs text-green-400 hover:text-green-300 flex items-center gap-1 group transition-all duration-300">
-              Detail <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform duration-300" />
+          <div className="flex items-center justify-between mb-5">
+            <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Inventory Status</p>
+            <Link
+              to="/inventory"
+              className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 group transition-all duration-300 font-medium"
+            >
+              Detail <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
             </Link>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-8">
             <DonutChart
               data={invDonutData.length > 0 ? invDonutData : [{ name: "empty", value: 1, color: "#1f2937" }]}
               total={totalInv}
               centerSub="Total Items"
-              size={130}
+              size={140}
             />
             <div className="flex-1 space-y-3">
               {[
                 { label: "Low Stock", value: outOfStock, color: "#EF4444", pct: totalInv > 0 ? Math.round((outOfStock / totalInv) * 100) : 0 },
                 { label: "Reorder Soon", value: reorderSoon, color: "#F59E0B", pct: totalInv > 0 ? Math.round((reorderSoon / totalInv) * 100) : 0 },
-                { label: "Good", value: goodStock, color: "#22C55E", pct: totalInv > 0 ? Math.round((goodStock / totalInv) * 100) : 0 },
+                { label: "Good", value: goodStock, color: "#34D399", pct: totalInv > 0 ? Math.round((goodStock / totalInv) * 100) : 0 },
               ].map((item, idx) => (
                 <div
                   key={item.label}
                   className="animate-fadeInUp"
-                  style={{ animationDelay: `${700 + idx * 100}ms`, animationFillMode: "both" }}
+                  style={{ animationDelay: `${700 + idx * 80}ms`, animationFillMode: "both" }}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full" style={{ background: item.color }} />
-                      <span className="text-xs text-gray-400">{item.label}</span>
+                      <span className="text-xs text-gray-300 font-medium">{item.label}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-white text-xs font-bold">
                         <AnimatedNumber value={item.value} format={(v) => Math.round(v)} duration={600} />
                       </span>
-                      <span className="text-gray-600 text-xs">({item.pct}%)</span>
+                      <span className="text-gray-500 text-[10px]">({item.pct}%)</span>
                     </div>
                   </div>
-                  <div className="h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
                     <div
                       className="h-full rounded-full transition-all duration-1000 ease-out"
                       style={{ width: `${item.pct}%`, background: item.color }}
@@ -1142,126 +1268,127 @@ export default function Dashboard() {
       </div>
 
       {/* ── CRITICAL ALERTS + QUICK ACTIONS ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Critical Alerts */}
         <div
-          className="rounded-2xl p-5 animate-fadeInUp"
-          style={{ background: "#0a1a12", border: "1px solid rgba(34,197,94,0.1)", animationDelay: "700ms", animationFillMode: "both" }}
+          className="rounded-2xl p-6 animate-fadeInUp"
+          style={{
+            background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
+            border: "1px solid rgba(52,211,153,0.1)",
+            animationDelay: "700ms",
+            animationFillMode: "both",
+          }}
         >
-          <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle size={15} className="text-red-400 animate-pulse" />
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-7 h-7 rounded-xl bg-red-500/15 flex items-center justify-center">
+              <AlertTriangle size={16} className="text-red-400 animate-pulse" />
+            </div>
             <p className="text-white text-sm font-bold">Critical Alerts</p>
           </div>
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {outOfStock > 0 && (
               <Link
                 to="/inventory"
-                className="flex items-center justify-between p-3 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-red-500/5 animate-slideInLeft"
+                className="flex items-center justify-between p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-red-500/5 animate-slideInLeft"
                 style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)" }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-red-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
-                    <Package size={12} className="text-red-400" />
+                  <div className="w-7 h-7 rounded-lg bg-red-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
+                    <Package size={14} className="text-red-400" />
                   </div>
                   <div>
-                    <p className="text-red-400 text-xs font-semibold">Low Stock</p>
-                    <p className="text-gray-500 text-xs">{outOfStock} items are running low</p>
+                    <p className="text-red-400 text-xs font-bold">Low Stock</p>
+                    <p className="text-gray-400 text-xs">{outOfStock} items are running low</p>
                   </div>
                 </div>
-                <span className="text-red-400 text-xs flex items-center gap-0.5 group">
-                  View Inventory <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform duration-300" />
+                <span className="text-red-400 text-xs flex items-center gap-1 group font-medium">
+                  View <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               </Link>
             )}
             {orderProses > 0 && (
               <Link
                 to="/orders"
-                className="flex items-center justify-between p-3 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-yellow-500/5 animate-slideInLeft"
+                className="flex items-center justify-between p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-500/5 animate-slideInLeft"
                 style={{ background: "rgba(251,191,36,0.06)", border: "1px solid rgba(251,191,36,0.15)", animationDelay: "100ms" }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-yellow-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
-                    <Clock size={12} className="text-yellow-400" />
+                  <div className="w-7 h-7 rounded-lg bg-yellow-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
+                    <Clock size={14} className="text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-yellow-400 text-xs font-semibold">Delayed Jobs</p>
-                    <p className="text-gray-500 text-xs">{orderProses} jobs are in progress</p>
+                    <p className="text-yellow-400 text-xs font-bold">Delayed Jobs</p>
+                    <p className="text-gray-400 text-xs">{orderProses} jobs are in progress</p>
                   </div>
                 </div>
-                <span className="text-yellow-400 text-xs flex items-center gap-0.5 group">
-                  View Jobs <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform duration-300" />
+                <span className="text-yellow-400 text-xs flex items-center gap-1 group font-medium">
+                  View <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               </Link>
             )}
             {orderMenunggu > 0 && (
               <Link
                 to="/orders"
-                className="flex items-center justify-between p-3 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/5 animate-slideInLeft"
+                className="flex items-center justify-between p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/5 animate-slideInLeft"
                 style={{ background: "rgba(96,165,250,0.06)", border: "1px solid rgba(96,165,250,0.15)", animationDelay: "200ms" }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
-                    <Calendar size={12} className="text-blue-400" />
+                  <div className="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
+                    <Calendar size={14} className="text-blue-400" />
                   </div>
                   <div>
-                    <p className="text-blue-400 text-xs font-semibold">Upcoming Service</p>
-                    <p className="text-gray-500 text-xs">{orderMenunggu} vehicles need service</p>
+                    <p className="text-blue-400 text-xs font-bold">Upcoming Service</p>
+                    <p className="text-gray-400 text-xs">{orderMenunggu} vehicles need service</p>
                   </div>
                 </div>
-                <span className="text-blue-400 text-xs flex items-center gap-0.5 group">
-                  View Schedule <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform duration-300" />
+                <span className="text-blue-400 text-xs flex items-center gap-1 group font-medium">
+                  View <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               </Link>
             )}
-            {/* Booking Pending Confirmation alert */}
             {(bookingStats.pendingConfirmation || 0) > 0 && (
               <Link
                 to="/bookings"
-                className="flex items-center justify-between p-3 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/5 animate-slideInLeft"
+                className="flex items-center justify-between p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/5 animate-slideInLeft"
                 style={{ background: "rgba(96,165,250,0.06)", border: "1px solid rgba(96,165,250,0.2)", animationDelay: "300ms" }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
-                    <Calendar size={12} className="text-blue-400" />
+                  <div className="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
+                    <Calendar size={14} className="text-blue-400" />
                   </div>
                   <div>
-                    <p className="text-blue-400 text-xs font-semibold">Booking Menunggu Konfirmasi</p>
-                    <p className="text-gray-500 text-xs">
-                      {bookingStats.pendingConfirmation} booking baru perlu dikonfirmasi
-                    </p>
+                    <p className="text-blue-400 text-xs font-bold">Booking Menunggu Konfirmasi</p>
+                    <p className="text-gray-400 text-xs">{bookingStats.pendingConfirmation} booking baru</p>
                   </div>
                 </div>
-                <span className="text-blue-400 text-xs flex items-center gap-0.5 group">
-                  Kelola <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform duration-300" />
+                <span className="text-blue-400 text-xs flex items-center gap-1 group font-medium">
+                  Kelola <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               </Link>
             )}
-            {/* Booking Hari Ini alert */}
             {(bookingStats.today || 0) > 0 && (
               <Link
                 to="/bookings"
-                className="flex items-center justify-between p-3 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-green-500/5 animate-slideInLeft"
-                style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)", animationDelay: "350ms" }}
+                className="flex items-center justify-between p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-500/5 animate-slideInLeft"
+                style={{ background: "rgba(52,211,153,0.06)", border: "1px solid rgba(52,211,153,0.15)", animationDelay: "350ms" }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                    <Calendar size={12} className="text-green-400" />
+                  <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <Calendar size={14} className="text-emerald-400" />
                   </div>
                   <div>
-                    <p className="text-green-400 text-xs font-semibold">Jadwal Hari Ini</p>
-                    <p className="text-gray-500 text-xs">
-                      {bookingStats.today} booking dijadwalkan hari ini
-                    </p>
+                    <p className="text-emerald-400 text-xs font-bold">Jadwal Hari Ini</p>
+                    <p className="text-gray-400 text-xs">{bookingStats.today} booking dijadwalkan</p>
                   </div>
                 </div>
-                <span className="text-green-400 text-xs flex items-center gap-0.5 group">
-                  Lihat <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform duration-300" />
+                <span className="text-emerald-400 text-xs flex items-center gap-1 group font-medium">
+                  Lihat <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
               </Link>
             )}
             {outOfStock === 0 && orderProses === 0 && orderMenunggu === 0 && bookingStats.needsAction === 0 && (
-              <div className="py-6 text-center text-gray-600 text-sm flex flex-col items-center gap-2 animate-fadeIn">
-                <CheckCircle2 size={24} className="text-green-500/40 animate-pulse" />
+              <div className="py-8 text-center text-gray-500 text-sm flex flex-col items-center gap-3 animate-fadeIn">
+                <CheckCircle2 size={32} className="text-emerald-500/40 animate-pulse" />
                 Semua dalam kondisi baik
               </div>
             )}
@@ -1270,16 +1397,23 @@ export default function Dashboard() {
 
         {/* Quick Actions */}
         <div
-          className="rounded-2xl p-5 animate-fadeInUp"
-          style={{ background: "#0a1a12", border: "1px solid rgba(34,197,94,0.1)", animationDelay: "800ms", animationFillMode: "both" }}
+          className="rounded-2xl p-6 animate-fadeInUp"
+          style={{
+            background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
+            border: "1px solid rgba(52,211,153,0.1)",
+            animationDelay: "800ms",
+            animationFillMode: "both",
+          }}
         >
-          <div className="flex items-center gap-2 mb-4">
-            <Zap size={15} className="text-green-400 animate-pulse" />
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-7 h-7 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+              <Zap size={16} className="text-emerald-400 animate-pulse" />
+            </div>
             <p className="text-white text-sm font-bold">Quick Actions</p>
           </div>
           <div className="grid grid-cols-5 gap-3">
             {[
-              { icon: Plus, label: "New Order", to: "/orders", color: "#22C55E", bg: "rgba(34,197,94,0.15)" },
+              { icon: Plus, label: "New Order", to: "/orders", color: "#34D399", bg: "rgba(52,211,153,0.15)" },
               { icon: Users, label: "Add Customer", to: "/customers", color: "#60A5FA", bg: "rgba(96,165,250,0.15)" },
               { icon: Car, label: "Add Vehicle", to: "/vehicles", color: "#818CF8", bg: "rgba(129,140,248,0.15)" },
               { icon: Package, label: "Inventory", to: "/inventory", color: "#F59E0B", bg: "rgba(245,158,11,0.15)" },
@@ -1288,7 +1422,7 @@ export default function Dashboard() {
               <Link
                 key={label}
                 to={to}
-                className="flex flex-col items-center gap-2 p-3 rounded-xl text-center transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-green-500/10 group animate-fadeInUp"
+                className="flex flex-col items-center gap-2.5 p-4 rounded-xl text-center transition-all duration-300 hover:scale-110 hover:shadow-xl hover:shadow-emerald-500/10 group animate-fadeInUp"
                 style={{
                   background: "rgba(255,255,255,0.03)",
                   border: "1px solid rgba(255,255,255,0.06)",
@@ -1297,12 +1431,12 @@ export default function Dashboard() {
                 }}
               >
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:rotate-12"
+                  className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
                   style={{ background: bg }}
                 >
-                  <Icon size={18} style={{ color }} className="transition-transform duration-300 group-hover:scale-110" />
+                  <Icon size={20} style={{ color }} className="transition-transform duration-300 group-hover:scale-110" />
                 </div>
-                <span className="text-gray-400 text-xs leading-tight font-medium group-hover:text-white transition-colors duration-300">
+                <span className="text-gray-300 text-[10px] font-medium leading-tight group-hover:text-white transition-colors duration-300">
                   {label}
                 </span>
               </Link>
@@ -1320,7 +1454,7 @@ export default function Dashboard() {
       {/* ─── GLOBAL ANIMATION STYLES ─── */}
       <style>{`
         @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
+          from { opacity: 0; transform: translateY(24px); }
           to { opacity: 1; transform: translateY(0); }
         }
         @keyframes fadeIn {
@@ -1328,7 +1462,7 @@ export default function Dashboard() {
           to { opacity: 1; }
         }
         @keyframes slideUp {
-          from { opacity: 0; transform: translateY(40px) scale(0.95); }
+          from { opacity: 0; transform: translateY(40px) scale(0.96); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes slideInLeft {
@@ -1336,20 +1470,20 @@ export default function Dashboard() {
           to { opacity: 1; transform: translateX(0); }
         }
         @keyframes pulse-ring {
-          0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
-          70% { box-shadow: 0 0 0 12px rgba(34,197,94,0); }
-          100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+          0% { box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
+          70% { box-shadow: 0 0 0 14px rgba(52,211,153,0); }
+          100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
         }
         @keyframes bounce-soft {
           0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
+          50% { transform: translateY(-5px); }
         }
         @keyframes spin-slow {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
         .animate-fadeInUp {
-          animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+          animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
         .animate-fadeIn {
           animation: fadeIn 0.5s ease both;

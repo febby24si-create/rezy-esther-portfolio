@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { MdEmail, MdLock, MdVisibility, MdVisibilityOff } from 'react-icons/md'
 import { useAuth } from '../../context/AuthContext'
+import { authAPI } from '../../services/authAPI'
 import { motion } from 'framer-motion'
+import AlertBox from '../../components/AlertBox'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { loginWithToken } = useAuth()
   const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -17,16 +19,24 @@ export default function Login() {
     setLoading(true)
     setError('')
 
-    // Smooth artificial delay for premium dashboard feel
-    await new Promise(r => setTimeout(r, 800))
+    try {
+      const result = await authAPI.loginUser(form.email, form.password)
 
-    const result = login(form.email, form.password)
-    if (result.success) {
+      if (result.length === 0) {
+        setError('Email atau password salah.')
+        return
+      }
+
+      const found = result[0]
+      const userData = { name: found.name, email: found.email, role: found.role, id: found.id }
+
+      loginWithToken('supabase_' + Date.now(), userData)
       navigate('/dashboard')
-    } else {
-      setError(result.message || 'Email atau password salah.')
+    } catch (err) {
+      setError(`Terjadi kesalahan: ${err.message}`)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
@@ -38,14 +48,7 @@ export default function Login() {
       <p className="text-gray-400 text-sm mb-6">Selamat datang kembali di portal manajemen</p>
 
       {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-5 p-3.5 rounded-xl text-sm text-red-400 flex items-center gap-2 border border-red-500/25 bg-red-500/10"
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
-          {error}
-        </motion.div>
+        <AlertBox type="error">{error}</AlertBox>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -60,7 +63,8 @@ export default function Login() {
               value={form.email}
               onChange={e => setForm({ ...form, email: e.target.value })}
               placeholder="admin@esthergarage.id"
-              className="w-full pl-11 pr-4 py-3 bg-garage-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-gray-600 outline-none transition-all focus:border-garage-400/50 focus:ring-1 focus:ring-garage-400/30"
+              disabled={loading}
+              className="w-full pl-11 pr-4 py-3 bg-garage-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-gray-600 outline-none transition-all focus:border-garage-400/50 focus:ring-1 focus:ring-garage-400/30 disabled:opacity-60"
             />
           </div>
         </div>
@@ -76,7 +80,8 @@ export default function Login() {
               value={form.password}
               onChange={e => setForm({ ...form, password: e.target.value })}
               placeholder="••••••••"
-              className="w-full pl-11 pr-11 py-3 bg-garage-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-gray-600 outline-none transition-all focus:border-garage-400/50 focus:ring-1 focus:ring-garage-400/30"
+              disabled={loading}
+              className="w-full pl-11 pr-11 py-3 bg-garage-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-gray-600 outline-none transition-all focus:border-garage-400/50 focus:ring-1 focus:ring-garage-400/30 disabled:opacity-60"
             />
             <button
               type="button"
@@ -88,15 +93,8 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Remember Me & Forgot Password */}
-        <div className="flex items-center justify-between text-xs sm:text-sm">
-          <label className="flex items-center gap-2 text-gray-400 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              className="w-4 h-4 rounded border-white/10 bg-garage-950 text-garage-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
-            />
-            <span>Ingat saya</span>
-          </label>
+        {/* Forgot Password */}
+        <div className="flex justify-end text-xs sm:text-sm">
           <Link to="/forgot" className="text-garage-300 hover:text-garage-200 transition-colors font-medium">
             Lupa Password?
           </Link>
@@ -113,7 +111,7 @@ export default function Login() {
           {loading ? (
             <span className="flex items-center gap-2">
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Menghubungkan ke Sistem...
+              Menghubungkan ke Supabase...
             </span>
           ) : (
             'Masuk ke Dashboard'
@@ -121,31 +119,13 @@ export default function Login() {
         </motion.button>
       </form>
 
-      {/* Alternative Auth Navigation */}
+      {/* Navigate to Register */}
       <p className="text-center text-xs sm:text-sm text-gray-400 mt-6">
         Belum punya akun?{' '}
         <Link to="/register" className="text-garage-300 hover:text-garage-200 font-semibold transition-colors">
           Daftar Sekarang
         </Link>
       </p>
-
-      {/* Demo Credentials Box */}
-      <div className="mt-5 p-4 rounded-2xl bg-garage-400/5 border border-garage-400/10 space-y-1.5">
-        <div className="flex items-center gap-1.5 text-xs text-garage-300 font-bold">
-          <span className="w-1.5 h-1.5 rounded-full bg-garage-400 animate-pulse" />
-          <span>Informasi Demo Login</span>
-        </div>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div>
-            <p className="text-gray-500">Email</p>
-            <p className="text-garage-300 font-mono">admin@esthergarage.id</p>
-          </div>
-          <div>
-            <p className="text-gray-500">Password</p>
-            <p className="text-garage-300 font-mono">admin123</p>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
