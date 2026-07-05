@@ -460,14 +460,28 @@ function ItemModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
 
 // ─── Halaman Utama ────────────────────────────────────────────────────
 export default function Inventory() {
-  const [items, setItems] = useState(() => loadInventory())
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(true)
   const [history, setHistory] = useState(() => {
     try { const s = sessionStorage.getItem('garage_inventory_history'); return s ? JSON.parse(s) : [] } catch { return [] }
   })
 
+  // Load dari Supabase
   useEffect(() => {
-    try { sessionStorage.setItem('garage_inventory', JSON.stringify(items)) } catch {}
-  }, [items])
+    const load = async () => {
+      try {
+        const { productAPI } = await import('../services/productAPI')
+        const data = await productAPI.fetchAll()
+        setItems(data)
+      } catch (err) {
+        console.error('Gagal load inventory:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
   useEffect(() => {
     try { sessionStorage.setItem('garage_inventory_history', JSON.stringify(history)) } catch {}
   }, [history])
@@ -499,30 +513,36 @@ export default function Inventory() {
     setEditId(it.id); setShowModal(true)
   }
 
-  const handleSubmit = (ev) => {
+  const handleSubmit = async (ev) => {
     ev.preventDefault()
-    const parsed = { ...form, stock: parseInt(form.stock)||0, minStock: parseInt(form.minStock)||5, buyPrice: parseInt(form.buyPrice)||0, sellPrice: parseInt(form.sellPrice)||0 }
+    const parsed = { ...form, stock: parseInt(form.stock)||0, min_stock: parseInt(form.minStock)||5, buy_price: parseInt(form.buyPrice)||0, sell_price: parseInt(form.sellPrice)||0 }
+    const { productAPI } = await import('../services/productAPI')
     if (editId) {
-      setItems(prev => prev.map(it => it.id === editId ? { ...it, ...parsed } : it))
+      const updated = await productAPI.update(editId, parsed)
+      if (updated) setItems(prev => prev.map(it => it.id === editId ? { ...it, ...updated } : it))
     } else {
-      setItems(prev => [{ ...parsed, id: `INV-${Date.now()}` }, ...prev])
+      const created = await productAPI.create({ ...parsed, is_active: true })
+      if (created) setItems(prev => [created, ...prev])
     }
     setShowModal(false)
   }
 
-  const handleRestock = (itemId, delta, note) => {
-    setItems(prev => prev.map(it => {
-      if (it.id !== itemId) return it
-      const before = it.stock
-      const after = Math.max(0, before + delta)
-      const entry = { itemId, delta, before, after, note, date: new Date().toISOString().slice(0,10) + ' ' + new Date().toTimeString().slice(0,5) }
-      setHistory(h => [entry, ...h])
-      return { ...it, stock: after }
-    }))
+  const handleRestock = async (itemId, delta, note) => {
+    const item = items.find(it => it.id === itemId)
+    if (!item) return
+    const before = item.stock
+    const after  = Math.max(0, before + delta)
+    const entry  = { itemId, delta, before, after, note, date: new Date().toISOString().slice(0,10) + ' ' + new Date().toTimeString().slice(0,5) }
+    setHistory(h => [entry, ...h])
+    const { productAPI } = await import('../services/productAPI')
+    await productAPI.update(itemId, { stock: after })
+    setItems(prev => prev.map(it => it.id === itemId ? { ...it, stock: after } : it))
     setRestockTarget(null)
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    const { productAPI } = await import('../services/productAPI')
+    await productAPI.delete(deleteTarget.id)
     setItems(prev => prev.filter(it => it.id !== deleteTarget.id))
     setDeleteTarget(null)
   }

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MdSearch, MdDirectionsCar, MdBuild, MdPerson, MdAccessTime, MdCheckCircle, MdHourglassEmpty } from 'react-icons/md'
 import { Link } from 'react-router-dom'
@@ -178,28 +178,28 @@ function OrderCard({ order }) {
 
 export default function TrackingStatus() {
   const { customer } = useCustomerAuth()
-  const [searchId, setSearchId]       = useState('')
+  const [searchId, setSearchId]         = useState('')
   const [searchResult, setSearchResult] = useState(null)
   const [notFound, setNotFound]         = useState(false)
+  const [myOrders, setMyOrders]         = useState([])
 
-  const myOrders = useMemo(() => {
-    const all = JSON.parse(sessionStorage.getItem('garage_orders') || '[]')
-    return all.filter(o => o.customer === customer?.name)
-      .sort((a, b) => new Date(b.createdAt||b.date) - new Date(a.createdAt||a.date))
-  }, [customer?.name])
-
-  // Booking terpisah dari order — dibaca dari garage_bookings
-  const myBookings = useMemo(() => {
-    if (!customer?.id) return []
-    return getBookingsByCustomer(customer.id)
-      .filter(b => ![
-        BOOKING_STATUS.CHECKED_IN,
-        BOOKING_STATUS.CANCELLED_BY_CUSTOMER,
-        BOOKING_STATUS.REJECTED,
-        BOOKING_STATUS.EXPIRED,
-      ].includes(b.status))
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  // Load orders dari Supabase
+  useEffect(() => {
+    if (!customer?.id) return
+    import('../../services/orderAPI').then(({ orderAPI }) => {
+      orderAPI.fetchByCustomer(customer.id).then(data => {
+        setMyOrders(data.map(o => ({
+          ...o,
+          customer: o.customer_name,
+          vehicle:  o.vehicle_display,
+          date:     o.order_date,
+        })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)))
+      }).catch(() => {})
+    })
   }, [customer?.id])
+
+  // Booking — sementara kosong, akan diisi Fase 4
+  const myBookings = []
 
   const activeOrders = myOrders.filter(o => o.status !== 'Selesai')
   const doneOrders   = myOrders.filter(o => o.status === 'Selesai')
@@ -207,8 +207,9 @@ export default function TrackingStatus() {
   const handleSearch = () => {
     setNotFound(false); setSearchResult(null)
     if (!searchId.trim()) return
-    const all  = JSON.parse(sessionStorage.getItem('garage_orders') || '[]')
-    const found = all.find(o => o.id.toLowerCase() === searchId.trim().toLowerCase())
+    const found = myOrders.find(o =>
+      (o.order_number || o.id)?.toLowerCase() === searchId.trim().toLowerCase()
+    )
     found ? setSearchResult(found) : setNotFound(true)
   }
 

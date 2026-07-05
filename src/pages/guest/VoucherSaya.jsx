@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MdContentCopy, MdCheck, MdCardGiftcard } from 'react-icons/md'
 import { Link } from 'react-router-dom'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
@@ -103,12 +103,21 @@ function VoucherCard({ voucher }) {
 }
 
 export default function VoucherSaya() {
-  const [tab, setTab] = useState('active')
-  const { customer }  = useCustomerAuth()
+  const [tab, setTab]           = useState('active')
+  const [vouchers, setVouchers] = useState([])
+  const { customer }            = useCustomerAuth()
+
+  // Load voucher dari Supabase
+  useEffect(() => {
+    if (!customer?.id) return
+    import('../../services/voucherAPI').then(({ voucherAPI }) => {
+      voucherAPI.fetchByCustomer(customer.id).then(setVouchers).catch(() => {})
+    })
+  }, [customer?.id])
 
   if (!customer) return null
 
-  const allVouchers = customer.vouchers || []
+  const allVouchers = vouchers
 
   // Normalisasi status berdasarkan tanggal kadaluarsa
   const normalized = allVouchers.map(v => ({

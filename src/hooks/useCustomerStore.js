@@ -1,73 +1,74 @@
 // ============================================================
-// useCustomerStore.js
-//
-// PHASE 3 — Diarahkan ke unified `customers` store
-//
-// Sebelumnya hook ini membaca/menulis langsung ke
-// sessionStorage('garage_customers'), terpisah dari
-// sessionStorage('eg_customers') yang dipakai portal customer
-// (CustomerAuthContext). Ini adalah AKAR dari masalah dualisme
-// customer store.
-//
-// Fix: hook ini sekarang membaca/menulis ke sessionStorage('customers')
-// -- hasil merge garage_customers + eg_customers oleh
-// lib/customerMigration.js (runCustomerMigration, dipanggil
-// idempoten via loadUnifiedCustomers).
-//
-// PENTING -- API hook ini TIDAK BERUBAH:
-//   { customers, setCustomers, addCustomer, updateCustomer,
-//     deleteCustomer, getCustomerById, getCustomerByName }
-// dan getAllCustomersFromStore() tetap punya signature yang sama.
-//
-// Ini berarti SEMUA consumer existing (Customers.jsx,
-// CustomerDetail.jsx, CRMAutomation.jsx, Vehicles.jsx, Orders.jsx)
-// TIDAK PERLU DIUBAH SAMA SEKALI -- mereka sekarang membaca data
-// gabungan tanpa perlu tahu bahwa sumbernya sudah berubah.
-//
-// garage_customers & eg_customers TETAP ADA (ditandai deprecated
-// oleh customerMigration.js), tidak dihapus -- additive migration.
+// useCustomerStore.js — Fase 2
+// Data customer sekarang dari Supabase via customerAPI
+// API hook tetap sama agar semua consumer tidak perlu diubah
 // ============================================================
 
 import { useState, useEffect, useCallback } from 'react'
-import { loadUnifiedCustomers, saveUnifiedCustomers } from '../lib/customerMigration'
+import { customerAPI } from '../services/customerAPI'
 
-// ─── Hook ─────────────────────────────────────────────────────
 export function useCustomerStore() {
-  const [customers, setCustomersState] = useState(loadUnifiedCustomers)
+  const [customers, setCustomersState] = useState([])
+  const [loadingCustomers, setLoadingCustomers] = useState(true)
 
-  // Persist setiap kali data berubah
+  // Load dari Supabase saat mount
   useEffect(() => {
-    saveUnifiedCustomers(customers)
-  }, [customers])
-
-  const setCustomers = useCallback((updater) => {
-    setCustomersState(prev => {
-      const next = typeof updater === 'function' ? updater(prev) : updater
-      saveUnifiedCustomers(next)
-      return next
-    })
+    const load = async () => {
+      try {
+        const data = await customerAPI.fetchAll()
+        setCustomersState(data)
+      } catch (err) {
+        console.error('Gagal load customers:', err)
+      } finally {
+        setLoadingCustomers(false)
+      }
+    }
+    load()
   }, [])
 
-  const addCustomer = useCallback((customer) => {
-    setCustomers(prev => [...prev, customer])
-  }, [setCustomers])
+  const setCustomers = useCallback((updater) => {
+    setCustomersState(prev => typeof updater === 'function' ? updater(prev) : updater)
+  }, [])
 
-  const updateCustomer = useCallback((id, patch) => {
-    setCustomers(prev =>
-      prev.map(c => c.id === id ? { ...c, ...patch } : c)
-    )
-  }, [setCustomers])
+  const addCustomer = useCallback(async (customer) => {
+    try {
+      const created = await customerAPI.registerCustomer(customer)
+      if (created) setCustomersState(prev => [created, ...prev])
+      return created
+    } catch (err) {
+      console.error('Gagal tambah customer:', err)
+      return null
+    }
+  }, [])
 
-  const deleteCustomer = useCallback((id) => {
-    setCustomers(prev => prev.filter(c => c.id !== id))
-  }, [setCustomers])
+  const updateCustomer = useCallback(async (id, patch) => {
+    try {
+      const updated = await customerAPI.update(id, patch)
+      if (updated) {
+        setCustomersState(prev => prev.map(c => c.id === id ? { ...c, ...updated } : c))
+      }
+      return updated
+    } catch (err) {
+      console.error('Gagal update customer:', err)
+      return null
+    }
+  }, [])
+
+  const deleteCustomer = useCallback(async (id) => {
+    try {
+      await customerAPI.delete(id)
+      setCustomersState(prev => prev.filter(c => c.id !== id))
+    } catch (err) {
+      console.error('Gagal hapus customer:', err)
+    }
+  }, [])
 
   const getCustomerById = useCallback((id) => {
     return customers.find(c => c.id === id) || null
   }, [customers])
 
   const getCustomerByName = useCallback((name) => {
-    return customers.find(c => c.name === name) || null
+    return customers.find(c => c.name?.toLowerCase() === name?.toLowerCase()) || null
   }, [customers])
 
   return {
@@ -78,10 +79,15 @@ export function useCustomerStore() {
     deleteCustomer,
     getCustomerById,
     getCustomerByName,
+    loadingCustomers,
   }
 }
 
-// ─── Fungsi non-hook untuk dibaca modul non-React (CRM, Orders, dll) ─
-export function getAllCustomersFromStore() {
-  return loadUnifiedCustomers()
+// Fungsi publik untuk modul non-React (Orders, CRM, dll)
+export async function getAllCustomersFromStore() {
+  try {
+    return await customerAPI.fetchAll()
+  } catch {
+    return []
+  }
 }

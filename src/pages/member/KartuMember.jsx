@@ -116,9 +116,10 @@ export default function KartuMember() {
   const { customer } = useCustomerAuth()
 
   const myTier       = customer ? calcTier(customer.points || 0) : 'Bronze'
-  const membershipId = customer?.membershipId || 'MBR-000000'
-  const memberSince  = customer?.memberSince  || '—'
-  const totalPoints  = customer?.points       || 0
+  // Support both camelCase (old) and snake_case (Supabase)
+  const membershipId = customer?.membership_id  || customer?.membershipId  || 'MBR-000000'
+  const memberSince  = customer?.member_since   || customer?.memberSince   || '—'
+  const totalPoints  = customer?.points || 0
   const loyalty      = customer ? calcLoyaltyProgress(totalPoints) : null
 
   // selectedTier: tier yang sedang ditampilkan kartunya (bisa beda dari myTier)

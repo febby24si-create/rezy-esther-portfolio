@@ -133,8 +133,7 @@ function OverviewTab({ customer, orders, loyalty, tierCfg }) {
         <StatCard
           icon={MdHistory}
           label="Total Servis"
-          value={customer.totalOrders || 0}
-          color="#60A5FA"
+value={customer.total_orders ?? customer.totalOrders ?? 0}          color="#60A5FA"
           delay={0}
         />
         <StatCard
@@ -147,8 +146,7 @@ function OverviewTab({ customer, orders, loyalty, tierCfg }) {
         <StatCard
           icon={MdAttachMoney}
           label="Total Belanja"
-          value={`Rp${((customer.totalSpent || 0) / 1000000).toFixed(1)}jt`}
-          color="#34D399"
+value={`Rp${(((customer.total_spent ?? customer.totalSpent ?? 0) / 1000000)).toFixed(1)}jt`}          color="#34D399"
           delay={0.1}
         />
         <StatCard
@@ -629,31 +627,27 @@ function AchievementTab({ customer }) {
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────
 export default function MemberDashboard() {
-  const { customer, logout } = useCustomerAuth();
+  const { customer, logout, refreshCustomer } = useCustomerAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [toast, setToast] = useState(null);
+  const [orders, setOrders] = useState([]);
 
-  // Load orders synced with admin (sessionStorage + JSON)
-  const orders = useMemo(() => {
-    if (!customer) return [];
-    const lsKey = "eg_orders";
-    let lsOrders = [];
-    try {
-      lsOrders = JSON.parse(sessionStorage.getItem(lsKey) || "[]");
-    } catch {
-      lsOrders = [];
-    }
-    const allOrders = lsOrders.length > 0 ? lsOrders : ordersDataJson;
-    return allOrders
-      .filter(
-        (o) =>
-          o.customer?.toLowerCase().trim() ===
-          customer.name?.toLowerCase().trim(),
-      )
-      .sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [customer]);
+  // Load orders dari Supabase by customer_id
+  useEffect(() => {
+    if (!customer?.id) return;
+    import('../../services/orderAPI').then(({ orderAPI }) => {
+      orderAPI.fetchByCustomer(customer.id).then(data => {
+        setOrders(data.map(o => ({
+          ...o,
+          customer: o.customer_name,
+          vehicle:  o.vehicle_display,
+          date:     o.order_date,
+        })).sort((a, b) => new Date(b.date) - new Date(a.date)));
+      }).catch(() => {});
+    });
+  }, [customer?.id]);
 
   const loyalty = customer ? calcLoyaltyProgress(customer.points || 0) : null;
   const tierCfg = loyalty ? TIER_CONFIG[loyalty.tier] : TIER_CONFIG.Bronze;
@@ -670,7 +664,12 @@ export default function MemberDashboard() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await new Promise((r) => setTimeout(r, 800));
+    await refreshCustomer();
+    if (customer?.id) {
+      const { orderAPI } = await import('../../services/orderAPI');
+      const data = await orderAPI.fetchByCustomer(customer.id);
+      setOrders(data.map(o => ({ ...o, customer: o.customer_name, vehicle: o.vehicle_display, date: o.order_date })));
+    }
     setIsRefreshing(false);
     setToast({ msg: "Data diperbarui!", type: "success" });
   };

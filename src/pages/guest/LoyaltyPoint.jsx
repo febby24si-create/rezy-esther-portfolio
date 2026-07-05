@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MdStar, MdArrowUpward, MdArrowDownward, MdCheckCircle,
@@ -73,20 +73,74 @@ function Stars({ count = 5, filled = 5, color = '#FBBF24', size = 12 }) {
 export default function LoyaltyPoint() {
   const [tab, setTab]             = useState('riwayat')
   const [redeemMsg, setRedeemMsg] = useState(null)
-  const { customer, redeemReward } = useCustomerAuth()
+  const [history, setHistory]     = useState([])
+  const { customer, refreshCustomer } = useCustomerAuth()
+
+  // Load riwayat poin dari Supabase
+  useEffect(() => {
+    if (!customer?.id) return
+    import('../../services/pointAPI').then(({ pointAPI }) => {
+      pointAPI.fetchByCustomer(customer.id).then(setHistory).catch(() => {})
+    })
+  }, [customer?.id])
+
   if (!customer) return null
 
   const loyalty  = calcLoyaltyProgress(customer.points || 0)
   const tierCfg  = TIER_CONFIG[loyalty.tier]
   const tierMeta = TIER_META[loyalty.tier]
-  const history  = customer.pointHistory || []
   const totalIn  = history.filter(h => h.type === 'in').reduce((a, b) => a + b.points, 0)
   const totalOut = Math.abs(history.filter(h => h.type === 'out').reduce((a, b) => a + b.points, 0))
 
-  const handleRedeem = (reward) => {
-    const result = redeemReward(reward)
-    setRedeemMsg({ ok: result.success, text: result.success ? '✓ Berhasil ditukar! Cek Voucher Saya.' : result.message })
-    setTimeout(() => setRedeemMsg(null), 3500)
+  const handleRedeem = async (reward) => {
+    if ((customer.points || 0) < reward.points) {
+      setRedeemMsg({ ok: false, text: 'Poin tidak cukup untuk redeem reward ini.' })
+      setTimeout(() => setRedeemMsg(null), 3500)
+      return
+    }
+    try {
+      const { customerAPI } = await import('../../services/customerAPI')
+      const { pointAPI }    = await import('../../services/pointAPI')
+      const { voucherAPI }  = await import('../../services/voucherAPI')
+
+      // Kurangi poin
+      const newPoints = (customer.points || 0) - reward.points
+      await customerAPI.update(customer.id, { points: newPoints })
+
+      // Catat riwayat poin keluar
+      await pointAPI.addPoint({
+        customer_id:  customer.id,
+        type:         'out',
+        points:       -reward.points,
+        description:  `Redeem: ${reward.name}`,
+        created_by:   'system',
+      })
+
+      // Buat voucher reward
+      await voucherAPI.create({
+        customer_id:  customer.id,
+        code:         'RWD' + Math.random().toString(36).slice(2, 8).toUpperCase(),
+        title:        reward.name,
+        discount_pct: reward.discount || 10,
+        status:       'active',
+        type:         'loyalty',
+        valid_until:  new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
+        created_by:   'system',
+      })
+
+      await refreshCustomer()
+
+      // Refresh history
+      const { pointAPI: pAPI } = await import('../../services/pointAPI')
+      const updated = await pAPI.fetchByCustomer(customer.id)
+      setHistory(updated)
+
+      setRedeemMsg({ ok: true, text: '✓ Berhasil ditukar! Cek Voucher Saya.' })
+      setTimeout(() => setRedeemMsg(null), 3500)
+    } catch (err) {
+      setRedeemMsg({ ok: false, text: `Gagal redeem: ${err.message}` })
+      setTimeout(() => setRedeemMsg(null), 3500)
+    }
   }
 
   const TABS = [

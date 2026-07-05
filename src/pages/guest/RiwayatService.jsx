@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { MdDirectionsCar, MdBuild, MdPerson, MdCalendarToday, MdStar, MdExpandMore, MdExpandLess, MdRateReview } from 'react-icons/md'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { serviceHistory as staticHistory } from '../../data/guestData'
@@ -282,34 +282,44 @@ function RiwayatCard({ order, onReview }) {
 // ── Main Page ──────────────────────────────────────────────────
 export default function RiwayatService() {
   const [search, setSearch] = useState('')
-  const [refresh, setRefresh] = useState(0)
+  const [allHistory, setAllHistory] = useState([])
+  const [loadingHistory, setLoadingHistory] = useState(true)
   const { customer } = useCustomerAuth()
 
-  // Gabungkan static history + orders dari sessionStorage yang milik customer ini
-  const allHistory = useMemo(() => {
-    const fromStorage = JSON.parse(sessionStorage.getItem('garage_orders') || '[]')
-      .filter(o => o.customer === customer?.name && o.status === 'Selesai')
-      .map(o => ({
-        id:           o.id,
-        vehicle:      o.vehicle?.split(' - ')[0] || o.vehicle,
-        plate:        o.vehicle?.split(' - ')[1] || '',
-        date:         o.date,
-        mechanic:     o.mechanic || '—',
-        service:      o.service,
-        status:       o.status,
-        total:        o.total,
-        duration:     o.duration || '—',
-        parts:        o.parts    || [],
-        jasa:         o.jasa     || [],
-        notes:        o.notes    || '',
-        pointsEarned: Math.floor(o.total / 1000),
-      }))
-
-    // Gabung static + storage, hindari duplikat
-    const storageIds = new Set(fromStorage.map(o => o.id))
-    const staticFiltered = staticHistory.filter(o => !storageIds.has(o.id))
-    return [...fromStorage, ...staticFiltered].sort((a, b) => new Date(b.date) - new Date(a.date))
-  }, [customer?.name, refresh])
+  // Load riwayat servis dari Supabase
+  useEffect(() => {
+    if (!customer?.id) return
+    const load = async () => {
+      try {
+        const { orderAPI } = await import('../../services/orderAPI')
+        const data = await orderAPI.fetchByCustomer(customer.id)
+        const selesai = data
+          .filter(o => o.status === 'Selesai')
+          .map(o => ({
+            id:           o.order_number || o.id,
+            vehicle:      o.vehicle_display?.split(' - ')[0] || o.vehicle_display || '',
+            plate:        o.vehicle_display?.split(' - ')[1] || '',
+            date:         o.order_date,
+            mechanic:     o.mechanic_name || '—',
+            service:      o.service,
+            status:       o.status,
+            total:        o.total,
+            duration:     '—',
+            parts:        [],
+            jasa:         [],
+            notes:        o.notes || '',
+            pointsEarned: Math.floor((o.total || 0) / 1000),
+          }))
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+        setAllHistory(selesai)
+      } catch (err) {
+        console.error('Gagal load riwayat:', err)
+      } finally {
+        setLoadingHistory(false)
+      }
+    }
+    load()
+  }, [customer?.id])
 
   const filtered = allHistory.filter(o =>
     o.service.toLowerCase().includes(search.toLowerCase()) ||

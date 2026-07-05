@@ -4,7 +4,7 @@ import {
   TIER_CONFIG,
   calcLoyaltyProgress,
 } from "../context/CustomerAuthContext";
-import { getAllCustomersFromStore } from "../hooks/useCustomerStore";
+// Customer data sekarang dari Supabase via customerAPI + orderAPI (lihat useAllCustomers)
 import {
   MdSend,
   MdNotifications,
@@ -154,32 +154,57 @@ const REMINDER_TEMPLATES = [
   },
 ];
 
-// ─── FIX: Deduplikasi customer berdasarkan ID ───────────────────
+// ─── Load customer dari Supabase + enrich dengan lastOrderDate ──
 function useAllCustomers() {
-  const raw = useMemo(() => {
-    try {
-      return getAllCustomersFromStore();
-    } catch {
-      return [];
-    }
-  }, []);
+  const [customers, setCustomers] = useState([])
 
-  return useMemo(() => {
-    // DEDUPLIKASI: gunakan Map untuk memastikan ID unik
-    const map = new Map();
-    raw.forEach((c) => {
-      if (!map.has(c.id)) {
-        map.set(c.id, {
-          ...c,
-          lastOrderDate: c.lastOrderDate || c.joinDate || new Date().toISOString().slice(0, 10),
-          points: c.points || 0,
-          totalOrders: c.totalOrders || 0,
-          totalSpent: c.totalSpent || 0,
-        });
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const { customerAPI } = await import('../services/customerAPI')
+        const { orderAPI }    = await import('../services/orderAPI')
+
+        const [custs, orders] = await Promise.all([
+          customerAPI.fetchAll(),
+          orderAPI.fetchAll(),
+        ])
+
+        // Hitung lastOrderDate per customer dari orders yang sudah Selesai
+        const lastOrderMap = {}
+        orders
+          .filter(o => o.status === 'Selesai' && o.customer_id)
+          .forEach(o => {
+            const prev = lastOrderMap[o.customer_id]
+            const curr = o.order_date || o.completed_at?.slice(0, 10) || ''
+            if (!prev || curr > prev) lastOrderMap[o.customer_id] = curr
+          })
+
+        // Deduplikasi & enrich
+        const map = new Map()
+        custs.forEach(c => {
+          if (!map.has(c.id)) {
+            map.set(c.id, {
+              ...c,
+              // Support both snake_case (Supabase) dan camelCase (lama)
+              lastOrderDate:    lastOrderMap[c.id] || c.join_date || c.joinDate || new Date().toISOString().slice(0, 10),
+              birthDate:        c.birth_date   || c.birthDate   || null,
+              memberSince:      c.member_since || c.memberSince || null,
+              joinDate:         c.join_date    || c.joinDate    || null,
+              membershipStatus: c.membership_status || c.membershipStatus || 'non-member',
+              points:           c.points || 0,
+              total_orders:     c.total_orders || c.totalOrders || 0,
+            })
+          }
+        })
+        setCustomers([...map.values()])
+      } catch (err) {
+        console.error('CRM: Gagal load customers:', err)
       }
-    });
-    return Array.from(map.values());
-  }, [raw]);
+    }
+    load()
+  }, [])
+
+  return customers
 }
 
 // ── Customer of the Month ─────────────────────────────────────
@@ -317,7 +342,20 @@ function SegmentationPanel({ customers }) {
 
   const current = segments.find((s) => s.key === selected);
 
-  const handleSend = (segKey) => {
+  const handleSend = async (segKey) => {
+    const seg = segments.find(s => s.key === segKey)
+    try {
+      const { crmAPI } = await import('../services/crmAPI')
+      await crmAPI.logReminder({
+        templateId:    'segment_' + segKey,
+        templateTitle: `Broadcast Segmen: ${seg?.label || segKey}`,
+        segment:       segKey,
+        targetCount:   seg?.customers.length || 0,
+        sentBy:        'Admin',
+      })
+    } catch (err) {
+      console.error('Gagal kirim broadcast:', err)
+    }
     setSentMap((m) => ({ ...m, [segKey]: true }));
     setTimeout(() => setSentMap((m) => ({ ...m, [segKey]: false })), 3000);
   };
@@ -443,19 +481,7 @@ function SegmentationPanel({ customers }) {
 // ── Reminder Engine ────────────────────────────────────────────
 function ReminderEngine({ customers }) {
   const [sentSet, setSentSet] = useState(new Set());
-
-  const handleSend = (id) => {
-    setSentSet((s) => new Set([...s, id]));
-    setTimeout(
-      () =>
-        setSentSet((s) => {
-          const n = new Set(s);
-          n.delete(id);
-          return n;
-        }),
-      3000,
-    );
-  };
+  const [sending, setSending] = useState(null);
 
   const enriched = useMemo(() => {
     return REMINDER_TEMPLATES.map((tmpl) => {
@@ -464,6 +490,34 @@ function ReminderEngine({ customers }) {
       return { ...tmpl, targets };
     });
   }, [customers]);
+
+  const handleSend = async (tmpl) => {
+    setSending(tmpl.id);
+    try {
+      const { crmAPI } = await import('../services/crmAPI');
+      await crmAPI.logReminder({
+        templateId:    tmpl.id,
+        templateTitle: tmpl.title,
+        segment:       tmpl.segment,
+        targetCount:   tmpl.targets.length,
+        sentBy:        'Admin',
+      });
+      setSentSet((s) => new Set([...s, tmpl.id]));
+      setTimeout(
+        () =>
+          setSentSet((s) => {
+            const n = new Set(s);
+            n.delete(tmpl.id);
+            return n;
+          }),
+        3000,
+      );
+    } catch (err) {
+      console.error('Gagal kirim reminder:', err);
+    } finally {
+      setSending(null);
+    }
+  };
 
   return (
     <div>
@@ -502,8 +556,8 @@ function ReminderEngine({ customers }) {
                     📱 WhatsApp · ✉️ Email
                   </span>
                   <button
-                    onClick={() => handleSend(r.id)}
-                    disabled={r.targets.length === 0 || sentSet.has(r.id)}
+                    onClick={() => handleSend(r)}
+                    disabled={r.targets.length === 0 || sentSet.has(r.id) || sending === r.id}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       sentSet.has(r.id)
                         ? "bg-green-500/20 text-green-400 border border-green-500/25"
@@ -516,6 +570,8 @@ function ReminderEngine({ customers }) {
                       <>
                         <MdCheck className="text-sm" /> Terkirim!
                       </>
+                    ) : sending === r.id ? (
+                      <>Mengirim...</>
                     ) : (
                       <>
                         <MdSend className="text-sm" /> Kirim Sekarang
@@ -551,12 +607,7 @@ const DUMMY_REVIEWS = [
   { id: "rv015", customerName: "Sari Dewi",        rating: 4, reviewText: "AC sudah normal kembali. Pengerjaan rapi dan tidak ada kebocoran freon.", mechanic: "Dedi Kurniawan",  date: "2026-04-18", service: "Service AC"        },
 ];
 
-function initReviews() {
-  const existing = sessionStorage.getItem("garage_reviews");
-  if (!existing || JSON.parse(existing).length === 0) {
-    sessionStorage.setItem("garage_reviews", JSON.stringify(DUMMY_REVIEWS));
-  }
-}
+// initReviews() lama (sessionStorage) digantikan oleh crmAPI.fetchReviews() di Supabase
 
 // ── Reviews Summary ────────────────────────────────────────────
 function ReviewsSummary() {
@@ -574,30 +625,73 @@ function ReviewsSummary() {
   const [formSaved, setFormSaved] = useState(false);
 
   useEffect(() => {
-    initReviews();
-    setReviews(JSON.parse(sessionStorage.getItem("garage_reviews") || "[]"));
+    const load = async () => {
+      try {
+        const { crmAPI } = await import('../services/crmAPI')
+        let data = await crmAPI.fetchReviews()
+        // Seed dummy reviews jika tabel masih kosong (sekali saja)
+        if (data.length === 0) {
+          for (const r of DUMMY_REVIEWS) {
+            await crmAPI.createReview({
+              customerName: r.customerName,
+              service:      r.service,
+              mechanic:     r.mechanic,
+              rating:       r.rating,
+              reviewText:   r.reviewText,
+            })
+          }
+          data = await crmAPI.fetchReviews()
+        }
+        setReviews(data.map(r => ({
+          id:           r.id,
+          customerName: r.customer_name,
+          service:      r.service,
+          mechanic:     r.mechanic,
+          rating:       r.rating,
+          reviewText:   r.review_text,
+          date:         r.date,
+        })))
+      } catch (err) {
+        console.error('Gagal load reviews:', err)
+      }
+    }
+    load()
   }, []);
 
-  const save = useCallback(() => {
-    const updated = [
-      { ...form, id: "rv" + Date.now(), date: new Date().toISOString().slice(0, 10) },
-      ...reviews,
-    ];
-    sessionStorage.setItem("garage_reviews", JSON.stringify(updated));
-    setReviews(updated);
-    setForm({ customerName: "", service: "Servis Berkala", mechanic: "Ahmad Supriyadi", rating: 5, reviewText: "" });
-    setShowForm(false);
-    setFormSaved(true);
-    setTimeout(() => setFormSaved(false), 3000);
-  }, [form, reviews]);
+  const save = useCallback(async () => {
+    try {
+      const { crmAPI } = await import('../services/crmAPI')
+      await crmAPI.createReview(form)
+      const data = await crmAPI.fetchReviews()
+      setReviews(data.map(r => ({
+        id:           r.id,
+        customerName: r.customer_name,
+        service:      r.service,
+        mechanic:     r.mechanic,
+        rating:       r.rating,
+        reviewText:   r.review_text,
+        date:         r.date,
+      })))
+      setForm({ customerName: "", service: "Servis Berkala", mechanic: "Ahmad Supriyadi", rating: 5, reviewText: "" });
+      setShowForm(false);
+      setFormSaved(true);
+      setTimeout(() => setFormSaved(false), 3000);
+    } catch (err) {
+      console.error('Gagal simpan review:', err)
+    }
+  }, [form]);
 
   const deleteReview = useCallback(
-    (id) => {
-      const updated = reviews.filter((r) => r.id !== id);
-      sessionStorage.setItem("garage_reviews", JSON.stringify(updated));
-      setReviews(updated);
+    async (id) => {
+      try {
+        const { crmAPI } = await import('../services/crmAPI')
+        await crmAPI.deleteReview(id)
+        setReviews((prev) => prev.filter((r) => r.id !== id));
+      } catch (err) {
+        console.error('Gagal hapus review:', err)
+      }
     },
-    [reviews]
+    []
   );
 
   const avgRating = reviews.length

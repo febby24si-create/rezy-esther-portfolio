@@ -31,8 +31,7 @@ export default function LoginCustomer() {
     e.preventDefault()
     setLoading(true)
     setError('')
-    await new Promise(r => setTimeout(r, 800))
-    const result = login(form.email, form.password)
+    const result = await login(form.email, form.password)
     if (result.success) {
       navigate(redirectTo)
     } else {
@@ -188,7 +187,7 @@ export default function LoginCustomer() {
                   required
                   value={form.email}
                   onChange={e => setForm({ ...form, email: e.target.value })}
-                  placeholder="budi@esthergarage.id"
+                  placeholder="vip@esthergarage.id"
                   className="w-full pl-11 pr-4 py-3 bg-garage-950/60 border border-white/5 rounded-xl text-sm text-white placeholder-gray-600 outline-none transition-all focus:border-garage-400/50 focus:ring-1 focus:ring-garage-400/30"
                 />
               </div>
@@ -253,11 +252,11 @@ export default function LoginCustomer() {
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
                 <p className="text-gray-500">Email</p>
-                <p className="text-garage-300 font-mono">budi@esthergarage.id</p>
+                <p className="text-garage-300 font-mono">vip@esthergarage.id</p>
               </div>
               <div>
                 <p className="text-gray-500">Password</p>
-                <p className="text-garage-300 font-mono">budi123</p>
+                <p className="text-garage-300 font-mono">vip123</p>
               </div>
             </div>
           </div>

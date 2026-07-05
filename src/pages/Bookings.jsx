@@ -11,11 +11,7 @@ import {
 } from 'lucide-react'
 import { AnimatedPage } from '../components/AnimatedPage'
 import PageHeader from '../components/PageHeader'
-import {
-  getAllBookings, getBookingStats,
-  confirmBooking, rejectBooking, rescheduleBooking, markNoShow,
-  BOOKING_STATUS, BOOKING_STATUS_CONFIG,
-} from '../lib/bookingEngine'
+import { BOOKING_STATUS, BOOKING_STATUS_CONFIG } from '../lib/bookingEngine'
 import { availableTimeSlots } from '../data/guestData'
 
 // ─── HELPERS ──────────────────────────────────────────────────
@@ -112,27 +108,45 @@ function BookingDrawer({ booking, onClose, onRefresh }) {
     setTimeout(() => setToast(null), 3000)
   }
 
-  function act(fn, ...args) {
+  async function act(apiFn) {
     setLoading(true)
-    const result = fn(...args)
-    setLoading(false)
-    if (result.success) { showToast('Berhasil!'); onRefresh() }
-    else showToast(result.error || 'Gagal.', 'error')
-    return result.success
+    try {
+      await apiFn()
+      showToast('Berhasil!')
+      onRefresh()
+    } catch (err) {
+      showToast(err.message || 'Gagal.', 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleConfirm    = () => act(confirmBooking, booking.id, { confirmedBy: 'Admin' })
+  const handleConfirm    = () => act(async () => {
+    const { bookingAPI } = await import('../services/bookingAPI')
+    await bookingAPI.confirm(booking.id)
+  })
   const handleReject     = () => {
     if (!rejectReason.trim()) { showToast('Alasan wajib diisi.', 'error'); return }
-    if (act(rejectBooking, booking.id, { rejectedReason: rejectReason })) setShowRejectForm(false)
+    act(async () => {
+      const { bookingAPI } = await import('../services/bookingAPI')
+      await bookingAPI.reject(booking.id, rejectReason)
+      setShowRejectForm(false)
+    })
   }
   const handleReschedule = () => {
     if (!newDate || !newTime) { showToast('Tanggal dan jam wajib dipilih.', 'error'); return }
-    if (act(rescheduleBooking, booking.id, { newDate, newTime, rescheduledBy: 'Admin' })) setShowReschedForm(false)
+    act(async () => {
+      const { bookingAPI } = await import('../services/bookingAPI')
+      await bookingAPI.reschedule(booking.id, newDate, newTime)
+      setShowReschedForm(false)
+    })
   }
-  const handleNoShow     = () => {
-    if (window.confirm(`Tandai ${booking.customerName} sebagai No Show?`))
-      act(markNoShow, booking.id, { markedBy: 'Admin' })
+  const handleNoShow = () => {
+    if (window.confirm(`Tandai ${booking.customer_name || booking.customerName} sebagai No Show?`))
+      act(async () => {
+        const { bookingAPI } = await import('../services/bookingAPI')
+        await bookingAPI.markNoShow(booking.id)
+      })
   }
 
   const canConfirm    = booking.status === BOOKING_STATUS.WAITING_CONFIRMATION
@@ -166,7 +180,7 @@ function BookingDrawer({ booking, onClose, onRefresh }) {
               <span className="font-mono text-xs text-green-400">{booking.id}</span>
               <BookingStatusBadge status={booking.status} size="sm" />
             </div>
-            <p className="text-white font-bold text-base">{booking.customerName}</p>
+            <p className="text-white font-bold text-base">{booking.customer_name || booking.customerName}</p>
             <p className="text-gray-500 text-xs">{booking.customerPhone}</p>
           </div>
           <button onClick={onClose}
@@ -297,7 +311,7 @@ function BookingDrawer({ booking, onClose, onRefresh }) {
               <Wrench size={13} className="text-green-400" />
               <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider">Layanan</span>
             </div>
-            <p className="text-white font-semibold text-sm">{booking.serviceName}</p>
+            <p className="text-white font-semibold text-sm">{booking.service || booking.serviceName}</p>
             {booking.estimatedDuration && (
               <p className="text-gray-500 text-xs">Estimasi {booking.estimatedDuration}</p>
             )}
@@ -312,8 +326,8 @@ function BookingDrawer({ booking, onClose, onRefresh }) {
               <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider">Jadwal</span>
             </div>
             <div className="flex items-center justify-between">
-              <p className="text-white text-sm font-semibold">{formatDate(booking.date)}</p>
-              <span className="text-blue-400 font-mono text-sm font-bold">{booking.time}</span>
+              <p className="text-white text-sm font-semibold">{formatDate(booking.booking_date || booking.date)}</p>
+              <span className="text-blue-400 font-mono text-sm font-bold">{booking.booking_time || booking.time}</span>
             </div>
             {booking.rescheduledFrom && (
               <p className="text-gray-600 text-xs">
@@ -327,7 +341,7 @@ function BookingDrawer({ booking, onClose, onRefresh }) {
               <Car size={13} className="text-purple-400" />
               <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider">Kendaraan</span>
             </div>
-            <p className="text-white text-sm">{booking.vehicleDisplay}</p>
+            <p className="text-white text-sm">{booking.vehicle_display || booking.vehicleDisplay}</p>
             {booking.vehiclePlate && (
               <span className="inline-block font-mono text-xs px-2 py-0.5 rounded"
                 style={{ background: 'rgba(167,139,250,0.1)', color: '#A78BFA', border: '1px solid rgba(167,139,250,0.2)' }}>
@@ -404,16 +418,16 @@ function BookingRow({ booking, onSelect }) {
         </div>
       </td>
       <td className="px-4 py-3">
-        <p className="text-white text-sm font-medium">{booking.customerName}</p>
+        <p className="text-white text-sm font-medium">{booking.customer_name || booking.customerName}</p>
         <p className="text-gray-600 text-xs">{booking.customerPhone}</p>
       </td>
       <td className="px-4 py-3">
-        <p className="text-gray-300 text-sm">{booking.serviceName}</p>
-        <p className="text-gray-600 text-xs">{booking.vehicleDisplay?.split(' - ')[0]}</p>
+        <p className="text-gray-300 text-sm">{booking.service || booking.serviceName}</p>
+        <p className="text-gray-600 text-xs">{(booking.vehicle_display || booking.vehicleDisplay)?.split(' - ')[0]}</p>
       </td>
       <td className="px-4 py-3">
-        <p className="text-white text-sm font-medium">{formatDate(booking.date)}</p>
-        <p className="text-blue-400 font-mono text-xs">{booking.time}</p>
+        <p className="text-white text-sm font-medium">{formatDate(booking.booking_date || booking.date)}</p>
+        <p className="text-blue-400 font-mono text-xs">{booking.booking_time || booking.time}</p>
       </td>
       <td className="px-4 py-3">
         <BookingStatusBadge status={booking.status} size="sm" />
@@ -442,41 +456,44 @@ export default function Bookings() {
   const [dateFilter, setDateFilter]     = useState('')
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  const load = useCallback(() => {
+  const load = useCallback(async () => {
     try {
-      setBookings(getAllBookings())
-      setStats(getBookingStats())
-    } catch {}
+      const { bookingAPI } = await import('../services/bookingAPI')
+      const data = await bookingAPI.fetchAll()
+      setBookings(data)
+      setStats(bookingAPI.calcStats(data))
+    } catch (err) {
+      console.error('Gagal load bookings:', err)
+    }
   }, [])
 
   useEffect(() => {
     load()
-    const iv = setInterval(load, 3000)
-    window.addEventListener('storage', load)
-    return () => { clearInterval(iv); window.removeEventListener('storage', load) }
   }, [load])
 
-  const handleRefresh = useCallback(() => {
-    load()
+  const handleRefresh = useCallback(async () => {
+    await load()
     if (selected) {
-      const fresh = getAllBookings().find(b => b.id === selected.id)
+      const { bookingAPI } = await import('../services/bookingAPI')
+      const fresh = await bookingAPI.fetchById(selected.id)
       setSelected(fresh || null)
     }
   }, [load, selected])
 
-  const handleManualRefresh = () => {
-    setIsRefreshing(true); load()
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true)
+    await load()
     setTimeout(() => setIsRefreshing(false), 600)
   }
 
   const filtered = useMemo(() => bookings.filter(b => {
     const matchSearch = !search ||
-      b.customerName?.toLowerCase().includes(search.toLowerCase()) ||
-      b.id?.toLowerCase().includes(search.toLowerCase()) ||
-      b.vehiclePlate?.toLowerCase().includes(search.toLowerCase()) ||
-      b.serviceName?.toLowerCase().includes(search.toLowerCase())
+      b.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
+      b.id?.toString().toLowerCase().includes(search.toLowerCase()) ||
+      b.vehicle_display?.toLowerCase().includes(search.toLowerCase()) ||
+      b.service?.toLowerCase().includes(search.toLowerCase())
     const matchStatus = statusFilter === 'all' || b.status === statusFilter
-    const matchDate   = !dateFilter || b.date === dateFilter
+    const matchDate   = !dateFilter || b.booking_date === dateFilter
     return matchSearch && matchStatus && matchDate
   }), [bookings, search, statusFilter, dateFilter])
 

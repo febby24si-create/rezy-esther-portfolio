@@ -5,7 +5,7 @@ import { layanan, availableTimeSlots } from '../../data/guestData'
 import { searchCatalog } from '../../data/vehicleCatalog'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { syncCustomerVehicle } from '../../utils/syncVehicle'
-import { submitBooking } from '../../lib/bookingEngine'
+// bookingEngine digantikan oleh bookingAPI (Supabase) — Fase 4
 import {
   MdArrowBack, MdArrowForward, MdCheckCircle,
   MdDirectionsCar, MdBuild, MdCalendarMonth, MdSend,
@@ -497,46 +497,50 @@ export default function BookingService() {
     return true
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setLoading(true)
-    const vehiclePlate = form.vehicle.plate || ''
-    const dateStr      = form.date.toISOString().slice(0, 10)
+    const dateStr = form.date.toISOString().slice(0, 10)
 
-    setTimeout(() => {
-      // Tulis ke garage_bookings via bookingEngine — BUKAN garage_orders.
-      // Order dibuat saat Check In (Sprint 3), bukan saat booking dibuat.
-      const result = submitBooking({
-        customerId:        customer?.id ?? null,
-        customerName:      customer?.name ?? '',
-        customerPhone:     customer?.phone || customer?.whatsapp || '',
-        vehicleDisplay:    `${form.vehicle.brand} ${form.vehicle.model} - ${form.vehicle.plate}`,
-        vehiclePlate,
-        vehicleId:         form.vehicle.id ?? null,
-        serviceId:         form.service.id ?? null,
-        serviceName:       form.service.name,
-        estimatedPrice:    finalTotal,
-        estimatedDuration: form.service.durasi ?? '',
-        date:              dateStr,
-        time:              form.time,
-        notes:             form.keluhan,
-        voucherCode:       appliedVoucher?.code ?? null,
-        discountApplied:   discountAmt,
-        source:            'online',
+    try {
+      const { bookingAPI } = await import('../../services/bookingAPI')
+      const result = await bookingAPI.create({
+        customerId:     customer?.id ?? null,
+        customerName:   customer?.name ?? '',
+        vehicleDisplay: `${form.vehicle.brand} ${form.vehicle.model} - ${form.vehicle.plate}`,
+        serviceName:    form.service.name,
+        date:           dateStr,
+        time:           form.time,
+        notes:          form.keluhan,
+        source:         'online',
       })
 
-      if (result.success) {
-        // Voucher hanya dikonsumsi jika booking berhasil dibuat
-        if (appliedVoucher) {
-          useVoucher(appliedVoucher.code, result.booking.id)
-        }
-        setOrderId(result.booking.id)
+      if (result) {
+        setOrderId(result.id)
         setDone(true)
+        // Kirim notifikasi ke customer & admin
+        try {
+          const { notificationAPI } = await import('../../services/notificationAPI')
+          const dateStr = form.date.toISOString().slice(0, 10)
+          await notificationAPI.notifyBookingSuccess(
+            customer?.name || 'Customer',
+            form.service?.name || '',
+            dateStr,
+            customer?.id || null
+          )
+          await notificationAPI.notifyNewBooking(
+            customer?.name || 'Customer',
+            form.service?.name || '',
+            dateStr
+          )
+        } catch {}
       } else {
-        alert(result.error || 'Booking gagal. Silakan coba lagi.')
+        alert('Booking gagal. Silakan coba lagi.')
       }
-
+    } catch (err) {
+      alert(`Terjadi kesalahan: ${err.message}`)
+    } finally {
       setLoading(false)
-    }, 1200)
+    }
   }
 
   // ── Success screen ─────────────────────────────────────────

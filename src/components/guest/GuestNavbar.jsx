@@ -8,6 +8,7 @@ import {
   MdCardMembership, MdOpenInNew, MdChevronRight,
 } from 'react-icons/md'
 import { useCustomerAuth, calcTier, TIER_CONFIG } from '../../context/CustomerAuthContext'
+import NotificationBell from '../NotificationBell'
 import { getCustomerAvatar } from '../../utils/randomAvatar'
 
 // ─── Nav links (halaman Guest yang boleh diakses siapa saja) ──
@@ -147,22 +148,8 @@ export default function GuestNavbar() {
 
               {isLoggedIn ? (
                 <>
-                  {/* Notification bell */}
-                  <Link to="/member/dashboard">
-                    <motion.div
-                      whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
-                      className="relative w-9 h-9 flex items-center justify-center rounded-xl text-gray-300 hover:text-white transition-all cursor-pointer"
-                      style={{ background: 'rgba(255,255,255,0.05)' }}>
-                      <MdNotifications className="text-lg" />
-                      {(customer?.vouchers?.filter(v => v.status === 'active').length || 0) > 0 && (
-                        <motion.span
-                          initial={{ scale: 0 }} animate={{ scale: 1 }}
-                          transition={{ type: 'spring', stiffness: 300 }}
-                          className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border border-[#020f09]"
-                        />
-                      )}
-                    </motion.div>
-                  </Link>
+                  {/* Notification bell — real-time dari Supabase */}
+                  <NotificationBell customerId={customer?.id} />
 
                   {/* Avatar + Dropdown */}
                   <div className="relative">

@@ -10,8 +10,8 @@ import {
   MdStar, MdStars, MdOpenInNew
 } from 'react-icons/md'
 import Pagination from '../components/Pagination'
-import ordersData from '../data/ordersData.json'
-import { adminAddPointsToCustomer } from '../context/CustomerAuthContext'
+import ordersData from '../data/ordersData.json' // fallback sementara
+// adminAddPoints sekarang ditangani langsung di handleSubmit via orderAPI
 
 // ─── Animated Number ──────────────────────────────────────────────────
 function AnimatedNumber({ value, duration = 800, format = (v) => v, prefix = '' }) {
@@ -587,31 +587,45 @@ const SortIcon = ({ column, sortColumn, sortDirection }) => {
 
 // ─── Halaman Utama ────────────────────────────────────────────────────
 export default function Orders() {
-  const [orders, setOrders] = useState(() => {
-    try { const s = sessionStorage.getItem('garage_orders'); return s ? JSON.parse(s) : ordersData } catch { return ordersData }
-  })
+  const [orders, setOrders] = useState([])
+  const [loadingOrders, setLoadingOrders] = useState(true)
+
+  // Load orders dari Supabase
   useEffect(() => {
-    try { sessionStorage.setItem('garage_orders', JSON.stringify(orders)) } catch {}
-  }, [orders])
+    const load = async () => {
+      try {
+        const { orderAPI } = await import('../services/orderAPI')
+        const data = await orderAPI.fetchAll()
+        // Normalisasi field agar kompatibel dengan UI yang ada
+        const normalized = data.map(o => ({
+          ...o,
+          customer: o.customer_name,
+          vehicle:  o.vehicle_display,
+          date:     o.order_date,
+        }))
+        setOrders(normalized)
+      } catch (err) {
+        console.error('Gagal load orders:', err)
+      } finally {
+        setLoadingOrders(false)
+      }
+    }
+    load()
+  }, [])
 
   const [customersList, setCustomersList] = useState([])
   const [mechanicsList, setMechanicsList] = useState([])
 
   useEffect(() => {
-    import('../hooks/useCustomerStore').then(({ getAllCustomersFromStore }) => {
-      setCustomersList(getAllCustomersFromStore())
-    }).catch(() => {
-      import('../data/customersData.json').then(module => setCustomersList(module.default)).catch(() => {})
+    import('../services/customerAPI').then(({ customerAPI }) => {
+      customerAPI.fetchAll().then(setCustomersList).catch(() => {})
     })
   }, [])
 
   useEffect(() => {
-    const storedMechanics = sessionStorage.getItem('garage_mechanics')
-    if (storedMechanics) {
-      setMechanicsList(JSON.parse(storedMechanics))
-    } else {
-      import('../data/mechanicsData.json').then(module => setMechanicsList(module.default)).catch(() => {})
-    }
+    import('../services/mechanicAPI').then(({ mechanicAPI }) => {
+      mechanicAPI.fetchAll().then(setMechanicsList).catch(() => {})
+    })
   }, [])
 
   const [search, setSearch] = useState('')
@@ -672,34 +686,90 @@ export default function Orders() {
   const [pointToast, setPointToast] = useState(null)
 
   const handleEdit = (order) => { setEditId(order.id); setShowForm(true) }
-  const handleSubmit = useCallback((data) => {
+  const handleSubmit = useCallback(async (data) => {
     const cleanedData = { ...data }
     if (cleanedData.mechanic && cleanedData.mechanic !== '—') {
       cleanedData.needsMechanicAssignment = false
     }
+    const { orderAPI } = await import('../services/orderAPI')
 
     if (editId) {
       const prevOrder = orders.find(o => o.id === editId)
       const isNewlySelesai = prevOrder?.status !== 'Selesai' && cleanedData.status === 'Selesai'
       const alreadyAwarded = prevOrder?.pointsAwarded === true
 
+      // Update ke Supabase
+      await orderAPI.update(editId, {
+        customer_name:   cleanedData.customer,
+        vehicle_display: cleanedData.vehicle,
+        service:         cleanedData.service,
+        status:          cleanedData.status,
+        total:           cleanedData.total,
+        mechanic_name:   cleanedData.mechanic,
+        notes:           cleanedData.notes,
+        order_date:      cleanedData.date,
+        ...(cleanedData.status === 'Selesai' ? { completed_at: new Date().toISOString() } : {}),
+      })
+
       if (isNewlySelesai && !alreadyAwarded && cleanedData.customer && cleanedData.total) {
-        const result = adminAddPointsToCustomer(cleanedData.customer, editId, cleanedData.total, cleanedData.service)
-        if (result.success) {
-          setPointToast({
-            name: cleanedData.customer,
-            earned: result.earned,
-            tierUpgraded: result.tierUpgraded,
-            newTier: result.newTier,
-          })
-          setTimeout(() => setPointToast(null), 4000)
+        // Tambah poin ke customer di Supabase
+        try {
+          const { customerAPI } = await import('../services/customerAPI')
+          const { pointAPI }    = await import('../services/pointAPI')
+          const custs = await customerAPI.fetchAll()
+          const found = custs.find(c => c.name?.toLowerCase() === cleanedData.customer?.toLowerCase())
+          if (found) {
+            const earned = Math.floor(Number(cleanedData.total) / 1000)
+            if (earned > 0) {
+              await pointAPI.addPoint({
+                customer_id:  found.id,
+                type:         'in',
+                points:       earned,
+                description:  `${cleanedData.service} — ${editId}`,
+                order_id:     editId,
+                created_by:   'system',
+              })
+              await customerAPI.update(found.id, {
+                points:       (found.points || 0) + earned,
+                total_orders: (found.total_orders || 0) + 1,
+                total_spent:  (found.total_spent  || 0) + Number(cleanedData.total),
+                membership_status: 'active',
+                member_since: found.member_since || new Date().toISOString().slice(0, 10),
+              })
+              setPointToast({ name: cleanedData.customer, earned })
+              setTimeout(() => setPointToast(null), 4000)
+              // Kirim notifikasi ke customer & catat servis selesai
+              try {
+                const { notificationAPI } = await import('../services/notificationAPI')
+                await notificationAPI.notifyServiceDone(cleanedData.customer, cleanedData.service, editId, found.id)
+                await notificationAPI.notifyPointsEarned(found.id, earned, cleanedData.service)
+              } catch {}
+            }
+          }
+        } catch (err) {
+          console.error('Gagal tambah poin:', err)
         }
-        setOrders(prev => prev.map(o => o.id === editId ? { ...o, ...cleanedData, pointsAwarded: true } : o))
+        setOrders(prev => prev.map(o => o.id === editId ? { ...o, ...cleanedData, customer: cleanedData.customer, vehicle: cleanedData.vehicle, date: cleanedData.date, pointsAwarded: true } : o))
       } else {
-        setOrders(prev => prev.map(o => o.id === editId ? { ...o, ...cleanedData } : o))
+        setOrders(prev => prev.map(o => o.id === editId ? { ...o, ...cleanedData, customer: cleanedData.customer, vehicle: cleanedData.vehicle, date: cleanedData.date } : o))
       }
     } else {
-      setOrders(prev => [{ ...cleanedData, id: generateId(), pointsAwarded: false }, ...prev])
+      // Buat order baru di Supabase
+      const newOrderNumber = generateId()
+      const created = await orderAPI.create({
+        order_number:    newOrderNumber,
+        customer_name:   cleanedData.customer,
+        vehicle_display: cleanedData.vehicle || '',
+        service:         cleanedData.service,
+        status:          cleanedData.status || 'Inspection',
+        total:           cleanedData.total || 0,
+        mechanic_name:   cleanedData.mechanic || null,
+        notes:           cleanedData.notes || null,
+        order_date:      cleanedData.date || new Date().toISOString().slice(0, 10),
+      })
+      if (created) {
+        setOrders(prev => [{ ...created, customer: created.customer_name, vehicle: created.vehicle_display, date: created.order_date, pointsAwarded: false }, ...prev])
+      }
     }
     setShowForm(false); setEditId(null)
   }, [editId, orders])
@@ -711,7 +781,9 @@ export default function Orders() {
     ))
     setQuickAssignTarget(null)
   }, [])
-  const handleDelete = useCallback(() => {
+  const handleDelete = useCallback(async () => {
+    const { orderAPI } = await import('../services/orderAPI')
+    await orderAPI.delete(deleteTarget.id)
     setOrders(prev => prev.filter(o => o.id !== deleteTarget.id))
     setDeleteTarget(null)
   }, [deleteTarget])

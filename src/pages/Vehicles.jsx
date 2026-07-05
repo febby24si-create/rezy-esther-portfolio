@@ -516,7 +516,12 @@ export default function Vehicles() {
     } catch { return defaultMechanics }
   })
 
-  const customers = useMemo(() => getAllCustomersFromStore(), [])
+  const [customers, setCustomers] = useState([])
+  useEffect(() => {
+    import('../services/customerAPI').then(({ customerAPI }) => {
+      customerAPI.fetchAll().then(setCustomers).catch(() => {})
+    })
+  }, [])
 
   // State filter & sort
   const [search,       setSearch]       = useState('')

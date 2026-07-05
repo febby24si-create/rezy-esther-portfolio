@@ -40,8 +40,8 @@ import {
   Award,
   Gift,
 } from "lucide-react";
-import { getAllCustomers, calcTier, TIER_CONFIG } from "../context/CustomerAuthContext";
-import { getBookingStats } from "../lib/bookingEngine";
+import { calcTier, TIER_CONFIG } from "../context/CustomerAuthContext";
+// getBookingStats digantikan bookingAPI.calcStats() via useStorageData
 
 const fmt = (n) => "Rp " + Number(n).toLocaleString("id-ID");
 const fmtShort = (n) =>
@@ -70,39 +70,57 @@ function AnimatedNumber({ value, duration = 800, format = (v) => v }) {
   return <>{format(display)}</>;
 }
 
-// ─── Ambil data dari sessionStorage ────────────────────────────────────
+// ─── Ambil data dari Supabase ──────────────────────────────────────────
 function useStorageData() {
   const [orders, setOrders]       = useState([]);
   const [inventory, setInventory] = useState([]);
   const [mechanics, setMechanics] = useState([]);
   const [vehicles, setVehicles]   = useState([]);
   const [bookingStats, setBookingStats] = useState({});
-
-  const load = () => {
-    try {
-      const o = sessionStorage.getItem("garage_orders");
-      if (o) setOrders(JSON.parse(o));
-      const i = sessionStorage.getItem("garage_vehicles");
-      if (i) setVehicles(JSON.parse(i));
-      const m = sessionStorage.getItem("garage_mechanics");
-      if (m) setMechanics(JSON.parse(m));
-      const inv = sessionStorage.getItem("garage_inventory");
-      if (inv) setInventory(JSON.parse(inv));
-      try { setBookingStats(getBookingStats()); } catch {}
-    } catch {}
-  };
+  const [loading, setLoading]     = useState(true);
 
   useEffect(() => {
-    load();
-    const iv = setInterval(load, 3000);
-    window.addEventListener("storage", load);
-    return () => {
-      clearInterval(iv);
-      window.removeEventListener("storage", load);
+    const load = async () => {
+      try {
+        const [
+          { orderAPI },
+          { productAPI },
+          { mechanicAPI },
+          { bookingAPI },
+        ] = await Promise.all([
+          import("../services/orderAPI"),
+          import("../services/productAPI"),
+          import("../services/mechanicAPI"),
+          import("../services/bookingAPI"),
+        ]);
+        const [ordersData, productsData, mechanicsData, bookingsData] =
+          await Promise.all([
+            orderAPI.fetchAll(),
+            productAPI.fetchAll(),
+            mechanicAPI.fetchAll(),
+            bookingAPI.fetchAll(),
+          ]);
+        const normalizedOrders = ordersData.map((o) => ({
+          ...o,
+          date:     o.order_date || o.date,
+          customer: o.customer_name || o.customer,
+          vehicle:  o.vehicle_display || o.vehicle,
+          mechanic: o.mechanic_name || o.mechanic,
+        }));
+        setOrders(normalizedOrders);
+        setInventory(productsData.map((p) => ({ ...p, minStock: p.min_stock ?? p.minStock ?? 5 })));
+        setMechanics(mechanicsData);
+        setBookingStats(bookingAPI.calcStats(bookingsData));
+      } catch (err) {
+        console.error("Dashboard: Gagal load data Supabase:", err);
+      } finally {
+        setLoading(false);
+      }
     };
+    load();
   }, []);
 
-  return { orders, inventory, mechanics, vehicles, bookingStats };
+  return { orders, inventory, mechanics, vehicles, bookingStats, loading };
 }
 
 // ─── Membership stats ──────────────────────────────────────────────────
@@ -110,55 +128,110 @@ function useMembershipStats() {
   const [customers, setCustomers] = useState([]);
 
   useEffect(() => {
-    const load = () => {
-      try {
-        setCustomers(getAllCustomers());
-      } catch {
-        setCustomers([]);
-      }
-    };
-    load();
-    const iv = setInterval(load, 3000);
-    window.addEventListener("storage", load);
-    return () => {
-      clearInterval(iv);
-      window.removeEventListener("storage", load);
-    };
+    import("../services/customerAPI").then(({ customerAPI }) => {
+      customerAPI.fetchAll().then(setCustomers).catch(() => setCustomers([]));
+    });
   }, []);
 
   return useMemo(() => {
     const total = customers.length;
-    const active = customers.filter((c) => c.membershipStatus === "active");
+    const active = customers.filter(
+      (c) => (c.membership_status || c.membershipStatus) === "active"
+    );
     const totalActive = active.length;
-
     const now = new Date();
     const thisMonthKey = now.toISOString().slice(0, 7);
     const lastMonthDate = new Date(now);
     lastMonthDate.setMonth(lastMonthDate.getMonth() - 1);
     const lastMonthKey = lastMonthDate.toISOString().slice(0, 7);
-
     const newThisMonth = customers.filter((c) =>
-      (c.memberSince || c.joinDate || "").startsWith(thisMonthKey)
+      (c.member_since || c.memberSince || c.join_date || c.joinDate || "").startsWith(thisMonthKey)
     ).length;
     const newLastMonth = customers.filter((c) =>
-      (c.memberSince || c.joinDate || "").startsWith(lastMonthKey)
+      (c.member_since || c.memberSince || c.join_date || c.joinDate || "").startsWith(lastMonthKey)
     ).length;
-
     const growthRate =
       newLastMonth > 0
         ? Math.round(((newThisMonth - newLastMonth) / newLastMonth) * 100)
-        : newThisMonth > 0
-          ? 100
-          : 0;
-
+        : newThisMonth > 0 ? 100 : 0;
     const byTier = { Bronze: 0, Silver: 0, Gold: 0, Platinum: 0 };
-    active.forEach((c) => {
-      byTier[calcTier(c.points || 0)]++;
-    });
-
+    active.forEach((c) => { byTier[calcTier(c.points || 0)]++; });
     return { total, totalActive, newThisMonth, growthRate, byTier };
   }, [customers]);
 }
+
+// ─── Analytics hook (data dari orders Supabase) ───────────────────────
+function useAnalytics(orders) {
+  return useMemo(() => {
+    const done = orders.filter((o) => o.status === "Selesai");
+    const now = new Date();
+
+    // Pendapatan per bulan (6 bulan terakhir)
+    const monthlyRevenue = Array.from({ length: 6 }, (_, i) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+      const key = d.toISOString().slice(0, 7);
+      const label = d.toLocaleString("id-ID", { month: "short", year: "2-digit" });
+      const revenue = done
+        .filter((o) => (o.date || "").startsWith(key))
+        .reduce((s, o) => s + Number(o.total || 0), 0);
+      const count = done.filter((o) => (o.date || "").startsWith(key)).length;
+      return { label, revenue, count };
+    });
+
+    // Kendaraan paling sering servis
+    const vehicleCount = {};
+    done.forEach((o) => {
+      const v = (o.vehicle || o.vehicle_display || "Unknown").split(" - ")[0].trim();
+      vehicleCount[v] = (vehicleCount[v] || 0) + 1;
+    });
+    const topVehicles = Object.entries(vehicleCount)
+      .sort((a, b) => b[1] - a[1]).slice(0, 5)
+      .map(([name, count]) => ({ name, count }));
+
+    // Mekanik paling produktif
+    const mechCount = {};
+    const mechRevenue = {};
+    done.forEach((o) => {
+      const m = o.mechanic || o.mechanic_name || null;
+      if (m && m !== "—") {
+        mechCount[m]   = (mechCount[m] || 0) + 1;
+        mechRevenue[m] = (mechRevenue[m] || 0) + Number(o.total || 0);
+      }
+    });
+    const topMechanics = Object.entries(mechCount)
+      .sort((a, b) => b[1] - a[1]).slice(0, 5)
+      .map(([name, jobs]) => ({ name, jobs, revenue: mechRevenue[name] || 0 }));
+
+    // Jenis servis paling laris
+    const serviceCount = {};
+    done.forEach((o) => {
+      const s = o.service || "Lainnya";
+      serviceCount[s] = (serviceCount[s] || 0) + 1;
+    });
+    const topServices = Object.entries(serviceCount)
+      .sort((a, b) => b[1] - a[1]).slice(0, 5)
+      .map(([name, count]) => ({ name, count }));
+
+    // Revenue bulan ini vs bulan lalu
+    const thisMonth = now.toISOString().slice(0, 7);
+    const lastMonthD = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonth = lastMonthD.toISOString().slice(0, 7);
+    const revenueThisMonth = done
+      .filter((o) => (o.date || "").startsWith(thisMonth))
+      .reduce((s, o) => s + Number(o.total || 0), 0);
+    const revenueLastMonth = done
+      .filter((o) => (o.date || "").startsWith(lastMonth))
+      .reduce((s, o) => s + Number(o.total || 0), 0);
+    const revenueGrowth =
+      revenueLastMonth > 0
+        ? Math.round(((revenueThisMonth - revenueLastMonth) / revenueLastMonth) * 100)
+        : revenueThisMonth > 0 ? 100 : 0;
+
+    return { monthlyRevenue, topVehicles, topMechanics, topServices, revenueThisMonth, revenueLastMonth, revenueGrowth };
+  }, [orders]);
+}
+
+
 
 // ─── Build revenue chart ──────────────────────────────────────────────
 function buildRevenueChart(orders, range) {
@@ -596,8 +669,17 @@ function FloatingCRMMenu() {
 function MemberListWidget({ membership }) {
   const [search, setSearch] = useState("")
   const [filterTier, setFilterTier] = useState("Semua")
-  const allCustomers = getAllCustomers()
-  const members = allCustomers.filter(c => c.membershipStatus === "active")
+  const [allCustomers, setAllCustomers] = useState([])
+
+  useEffect(() => {
+    import("../services/customerAPI").then(({ customerAPI }) => {
+      customerAPI.fetchAll().then(setAllCustomers).catch(() => {})
+    })
+  }, [])
+
+  const members = allCustomers.filter(c =>
+    (c.membership_status || c.membershipStatus) === "active"
+  )
 
   const tierColors = { Bronze: "#F97316", Silver: "#94A3B8", Gold: "#FBBF24", Platinum: "#A855F7" }
   const tierIcons = { Bronze: <Award size={12} />, Silver: <Gift size={12} />, Gold: <Crown size={12} />, Platinum: <Sparkles size={12} /> }
@@ -606,7 +688,8 @@ function MemberListWidget({ membership }) {
   const filtered = members.filter(c => {
     const matchSearch = !search || c.name?.toLowerCase().includes(search.toLowerCase()) || c.email?.toLowerCase().includes(search.toLowerCase())
     const matchTier = filterTier === "Semua" || calcTier(c.points || 0) === filterTier
-    return matchSearch && matchTier
+    const matchStatus = (c.membership_status || c.membershipStatus) === "active"
+    return matchSearch && matchTier && matchStatus
   }).sort((a, b) => (b.points || 0) - (a.points || 0))
 
   return (
@@ -741,8 +824,9 @@ function MemberListWidget({ membership }) {
 
 // ─── MAIN DASHBOARD ───────────────────────────────────────────────────
 export default function Dashboard() {
-  const { orders, inventory, mechanics, vehicles, bookingStats } = useStorageData();
+  const { orders, inventory, mechanics, vehicles, bookingStats, loading } = useStorageData();
   const membership = useMembershipStats();
+  const analytics  = useAnalytics(orders);
 
   const loggedInUser = useMemo(() => {
     try {
@@ -1450,6 +1534,201 @@ export default function Dashboard() {
 
       {/* Floating CRM Menu */}
       <FloatingCRMMenu />
+
+      {/* ─── ANALYTICS SECTION ─── */}
+      <div className="mt-8 space-y-6 animate-fadeInUp" style={{ animationDelay: "0.3s" }}>
+
+        {/* Header Analytics */}
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-1 h-7 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" />
+          <h2 className="text-lg font-bold text-white tracking-wide">Dashboard Analytics</h2>
+          <span className="ml-auto text-xs text-gray-500 bg-white/5 px-3 py-1 rounded-full border border-white/10">
+            Data real-time dari Supabase
+          </span>
+        </div>
+
+        {/* Row 1 — Revenue Growth Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            {
+              label: "Revenue Bulan Ini",
+              value: `Rp ${(analytics.revenueThisMonth || 0).toLocaleString("id-ID")}`,
+              sub:   `${analytics.revenueGrowth >= 0 ? "+" : ""}${analytics.revenueGrowth || 0}% vs bulan lalu`,
+              color: analytics.revenueGrowth >= 0 ? "from-emerald-500/20 to-teal-600/10" : "from-red-500/20 to-rose-600/10",
+              badge: analytics.revenueGrowth >= 0 ? "↑" : "↓",
+              badgeColor: analytics.revenueGrowth >= 0 ? "text-emerald-400" : "text-red-400",
+            },
+            {
+              label: "Revenue Bulan Lalu",
+              value: `Rp ${(analytics.revenueLastMonth || 0).toLocaleString("id-ID")}`,
+              sub:   "Periode sebelumnya",
+              color: "from-blue-500/20 to-indigo-600/10",
+              badge: "📅",
+              badgeColor: "text-blue-400",
+            },
+            {
+              label: "Order Selesai Bulan Ini",
+              value: `${(analytics.monthlyRevenue?.[5]?.count || 0)} Order`,
+              sub:   `dari ${orders.length} total order`,
+              color: "from-violet-500/20 to-purple-600/10",
+              badge: "✓",
+              badgeColor: "text-violet-400",
+            },
+          ].map((card, i) => (
+            <div
+              key={i}
+              className={`rounded-2xl border border-white/10 bg-gradient-to-br ${card.color} p-5 backdrop-blur-sm`}
+            >
+              <p className="text-xs text-gray-400 mb-1">{card.label}</p>
+              <p className="text-xl font-bold text-white">{card.value}</p>
+              <p className={`text-xs mt-1 font-medium ${card.badgeColor}`}>
+                {card.badge} {card.sub}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Row 2 — Grafik Revenue 6 Bulan */}
+        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
+          <h3 className="text-sm font-semibold text-gray-300 mb-4">
+            Pendapatan 6 Bulan Terakhir
+          </h3>
+          {analytics.monthlyRevenue && analytics.monthlyRevenue.length > 0 ? (
+            <div className="flex items-end gap-2 h-36">
+              {analytics.monthlyRevenue.map((m, i) => {
+                const maxRev = Math.max(...analytics.monthlyRevenue.map((x) => x.revenue), 1);
+                const heightPct = maxRev > 0 ? Math.round((m.revenue / maxRev) * 100) : 0;
+                const isLast = i === analytics.monthlyRevenue.length - 1;
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1 group">
+                    <span className="text-[10px] text-gray-500 group-hover:text-emerald-400 transition-colors">
+                      {m.revenue > 0 ? `${Math.round(m.revenue / 1000)}k` : "—"}
+                    </span>
+                    <div className="w-full flex flex-col justify-end" style={{ height: "96px" }}>
+                      <div
+                        className={`w-full rounded-t-lg transition-all duration-500 ${
+                          isLast
+                            ? "bg-gradient-to-t from-emerald-600 to-emerald-400"
+                            : "bg-gradient-to-t from-teal-700/60 to-teal-500/40 group-hover:from-teal-600/80 group-hover:to-teal-400/60"
+                        }`}
+                        style={{ height: `${Math.max(heightPct, 4)}%` }}
+                        title={`${m.label}: Rp ${m.revenue.toLocaleString("id-ID")}`}
+                      />
+                    </div>
+                    <span className="text-[10px] text-gray-500">{m.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="h-36 flex items-center justify-center text-gray-600 text-sm">
+              Belum ada data order selesai
+            </div>
+          )}
+        </div>
+
+        {/* Row 3 — Top Mekanik + Kendaraan + Servis */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+          {/* Top Mekanik */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+              🔧 Mekanik Produktif
+            </h3>
+            {analytics.topMechanics && analytics.topMechanics.length > 0 ? (
+              <div className="space-y-2">
+                {analytics.topMechanics.map((m, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                      i === 0 ? "bg-yellow-400/20 text-yellow-400" :
+                      i === 1 ? "bg-gray-400/20 text-gray-400" :
+                      i === 2 ? "bg-orange-400/20 text-orange-400" :
+                      "bg-white/10 text-gray-500"
+                    }`}>{i + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-white truncate">{m.name}</p>
+                      <div className="w-full bg-white/10 rounded-full h-1 mt-0.5">
+                        <div
+                          className="bg-emerald-500 h-1 rounded-full"
+                          style={{ width: `${Math.round((m.jobs / (analytics.topMechanics[0]?.jobs || 1)) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-xs text-emerald-400 font-bold flex-shrink-0">{m.jobs}x</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-600">Belum ada data</p>
+            )}
+          </div>
+
+          {/* Kendaraan Paling Sering */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+              🚗 Kendaraan Terbanyak
+            </h3>
+            {analytics.topVehicles && analytics.topVehicles.length > 0 ? (
+              <div className="space-y-2">
+                {analytics.topVehicles.map((v, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                      i === 0 ? "bg-blue-400/20 text-blue-400" :
+                      i === 1 ? "bg-indigo-400/20 text-indigo-400" :
+                      "bg-white/10 text-gray-500"
+                    }`}>{i + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-white truncate">{v.name}</p>
+                      <div className="w-full bg-white/10 rounded-full h-1 mt-0.5">
+                        <div
+                          className="bg-blue-500 h-1 rounded-full"
+                          style={{ width: `${Math.round((v.count / (analytics.topVehicles[0]?.count || 1)) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-xs text-blue-400 font-bold flex-shrink-0">{v.count}x</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-600">Belum ada data</p>
+            )}
+          </div>
+
+          {/* Jenis Servis Terlaris */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+              📋 Servis Terlaris
+            </h3>
+            {analytics.topServices && analytics.topServices.length > 0 ? (
+              <div className="space-y-2">
+                {analytics.topServices.map((s, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                      i === 0 ? "bg-violet-400/20 text-violet-400" :
+                      i === 1 ? "bg-purple-400/20 text-purple-400" :
+                      "bg-white/10 text-gray-500"
+                    }`}>{i + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-white truncate">{s.name}</p>
+                      <div className="w-full bg-white/10 rounded-full h-1 mt-0.5">
+                        <div
+                          className="bg-violet-500 h-1 rounded-full"
+                          style={{ width: `${Math.round((s.count / (analytics.topServices[0]?.count || 1)) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-xs text-violet-400 font-bold flex-shrink-0">{s.count}x</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-600">Belum ada data</p>
+            )}
+          </div>
+        </div>
+
+      </div>
 
       {/* ─── GLOBAL ANIMATION STYLES ─── */}
       <style>{`

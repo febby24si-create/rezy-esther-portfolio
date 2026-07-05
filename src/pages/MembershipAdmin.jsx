@@ -240,18 +240,12 @@ export default function MembershipAdmin() {
   const [toast, setToast]         = useState(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
-  // FIX: Load semua customer (merge LS + JSON) setiap refreshKey berubah
-  // dan juga saat storage event dari tab lain
+  // FIX: Load semua customer dari Supabase setiap refreshKey berubah
   useEffect(() => {
-    setCustomers(getAllCustomers())
+    import('../services/customerAPI').then(({ customerAPI }) => {
+      customerAPI.fetchAll().then(setCustomers).catch(() => {})
+    })
   }, [refreshKey])
-
-  useEffect(() => {
-    // Sync jika ada perubahan dari tab/window lain (eg_customers berubah)
-    const handleStorageSync = () => setCustomers(getAllCustomers())
-    window.addEventListener('storage', handleStorageSync)
-    return () => window.removeEventListener('storage', handleStorageSync)
-  }, [])
 
   const showToast = (msg) => {
     setToast(msg)
@@ -260,7 +254,7 @@ export default function MembershipAdmin() {
 
   // ── Stats ──────────────────────────────────────────────────
   const stats = useMemo(() => {
-    const active   = customers.filter(c => c.membershipStatus === 'active')
+    const active   = customers.filter(c => (c.membership_status || c.membershipStatus) === 'active')
     const byTier   = { Bronze: 0, Silver: 0, Gold: 0, Platinum: 0 }
     active.forEach(c => { byTier[calcTier(c.points || 0)]++ })
     const totalPts = active.reduce((s, c) => s + (c.points || 0), 0)

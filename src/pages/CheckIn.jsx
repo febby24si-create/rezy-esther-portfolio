@@ -26,12 +26,8 @@ import {
 } from 'lucide-react'
 import { AnimatedPage } from '../components/AnimatedPage'
 import PageHeader from '../components/PageHeader'
-import {
-  getAllBookings,
-  checkIn,
-  BOOKING_STATUS,
-  BOOKING_STATUS_CONFIG,
-} from '../lib/bookingEngine'
+import { BOOKING_STATUS, BOOKING_STATUS_CONFIG } from '../lib/bookingEngine'
+// bookingAPI menggantikan getAllBookings & checkIn dari bookingEngine
 
 // ─── HELPERS ──────────────────────────────────────────────────
 function formatDate(dateStr) {
@@ -107,10 +103,10 @@ function CheckInConfirmModal({ booking, onConfirm, onCancel, loading }) {
         <div className="rounded-xl p-4 space-y-2 mb-6"
           style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
           {[
-            { icon: User,     label: 'Customer',  value: booking.customerName },
-            { icon: Car,      label: 'Kendaraan', value: booking.vehicleDisplay?.split(' - ')[0] || '—' },
-            { icon: Wrench,   label: 'Layanan',   value: booking.serviceName },
-            { icon: Calendar, label: 'Jadwal',    value: `${formatDateShort(booking.date)} · ${booking.time}` },
+            { icon: User,     label: 'Customer',  value: booking.customer_name || booking.customerName },
+            { icon: Car,      label: 'Kendaraan', value: booking.vehicle_display || booking.vehicleDisplay?.split(' - ')[0] || '—' },
+            { icon: Wrench,   label: 'Layanan',   value: booking.service || booking.serviceName },
+            { icon: Calendar, label: 'Jadwal',    value: `${formatDateShort(booking.booking_date || booking.date)} · ${booking.booking_time || booking.time}` },
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-gray-500">
@@ -176,12 +172,12 @@ function BookingCard({ booking, onCheckIn, isToday }) {
             <span className="font-mono text-xs text-gray-600">{booking.id}</span>
             <StatusBadge status={booking.status} />
           </div>
-          <p className="text-white font-bold text-sm">{booking.customerName}</p>
+          <p className="text-white font-bold text-sm">{booking.customer_name || booking.customerName}</p>
           <p className="text-gray-500 text-xs">{booking.customerPhone}</p>
         </div>
         <div className="text-right flex-shrink-0">
-          <p className="text-blue-400 font-mono font-bold text-sm">{booking.time}</p>
-          <p className="text-gray-600 text-xs">{formatDateShort(booking.date)}</p>
+          <p className="text-blue-400 font-mono font-bold text-sm">{booking.booking_time || booking.time}</p>
+          <p className="text-gray-600 text-xs">{formatDateShort(booking.booking_date || booking.date)}</p>
         </div>
       </div>
 
@@ -193,7 +189,7 @@ function BookingCard({ booking, onCheckIn, isToday }) {
             <span className="text-gray-600 text-[10px]">Kendaraan</span>
           </div>
           <p className="text-gray-300 text-xs font-medium leading-tight truncate">
-            {booking.vehicleDisplay?.split(' - ')[0] || '—'}
+            {booking.vehicle_display || booking.vehicleDisplay?.split(' - ')[0] || '—'}
           </p>
           {booking.vehiclePlate && (
             <span className="font-mono text-[10px] mt-0.5 inline-block"
@@ -205,7 +201,7 @@ function BookingCard({ booking, onCheckIn, isToday }) {
             <Wrench size={11} className="text-green-400" />
             <span className="text-gray-600 text-[10px]">Layanan</span>
           </div>
-          <p className="text-gray-300 text-xs font-medium leading-tight truncate">{booking.serviceName}</p>
+          <p className="text-gray-300 text-xs font-medium leading-tight truncate">{booking.service || booking.serviceName}</p>
           {booking.estimatedDuration && (
             <p className="text-gray-600 text-[10px] mt-0.5">{booking.estimatedDuration}</p>
           )}
@@ -271,15 +267,18 @@ export default function CheckInPage() {
   const [toast, setToast]         = useState(null)
   const [search, setSearch]       = useState('')
 
-  const load = useCallback(() => {
-    try { setBookings(getAllBookings()) } catch {}
+  const load = useCallback(async () => {
+    try {
+      const { bookingAPI } = await import('../services/bookingAPI')
+      const data = await bookingAPI.fetchAll()
+      setBookings(data)
+    } catch (err) {
+      console.error('Gagal load bookings:', err)
+    }
   }, [])
 
   useEffect(() => {
     load()
-    const iv = setInterval(load, 3000)
-    window.addEventListener('storage', load)
-    return () => { clearInterval(iv); window.removeEventListener('storage', load) }
   }, [load])
 
   function showToast(msg, type = 'success') {
@@ -291,25 +290,28 @@ export default function CheckInPage() {
     setSelected(booking)
   }, [])
 
-  const handleConfirm = useCallback(() => {
+  const handleConfirm = useCallback(async () => {
     if (!selected) return
     setLoading(true)
 
-    setTimeout(() => {
-      const result = checkIn(selected.id, { checkedInBy: 'Admin' })
-      setLoading(false)
+    try {
+      const { bookingAPI } = await import('../services/bookingAPI')
+      const result = await bookingAPI.checkIn(selected.id, { checkedInBy: 'Admin' })
 
       if (result.success) {
-        showToast(`Check in berhasil! Order otomatis dibuat.`, 'success')
+        showToast(`Check in berhasil! Order ${result.orderId} otomatis dibuat.`, 'success')
         setSelected(null)
-        load()
-        // Redirect ke Orders setelah 2 detik agar admin bisa assign mekanik
+        await load()
         setTimeout(() => navigate('/orders'), 2000)
       } else {
         showToast(result.error || 'Check in gagal.', 'error')
         setSelected(null)
       }
-    }, 800)
+    } catch (err) {
+      showToast(`Terjadi kesalahan: ${err.message}`, 'error')
+    } finally {
+      setLoading(false)
+    }
   }, [selected, load, navigate])
 
   const todayStr    = today()
@@ -334,17 +336,17 @@ export default function CheckInPage() {
       }
       if (!s) return true
       return (
-        b.customerName?.toLowerCase().includes(s) ||
+        (b.customer_name || b.customerName)?.toLowerCase().includes(s) ||
         b.vehiclePlate?.toLowerCase().includes(s) ||
         b.id?.toLowerCase().includes(s) ||
-        b.serviceName?.toLowerCase().includes(s)
+        (b.service || b.serviceName)?.toLowerCase().includes(s)
       )
     })
   }, [bookings, search])
 
-  const todayBookings    = filtered.filter(b => b.date === todayStr)
-  const tomorrowBookings = filtered.filter(b => b.date === tomorrowStr)
-  const upcomingBookings = filtered.filter(b => b.date > tomorrowStr)
+  const todayBookings    = filtered.filter(b => ( b.booking_date || b.date) === todayStr)
+  const tomorrowBookings = filtered.filter(b => ( b.booking_date || b.date) === tomorrowStr)
+  const upcomingBookings = filtered.filter(b => ( b.booking_date || b.date) > tomorrowStr)
   const checkedInToday   = todayBookings.filter(b => b.status === BOOKING_STATUS.CHECKED_IN)
   const pendingToday     = todayBookings.filter(b => b.status !== BOOKING_STATUS.CHECKED_IN)
 

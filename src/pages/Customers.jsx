@@ -681,7 +681,7 @@ function DeleteConfirm({ target, onConfirm, onCancel }) {
 
 // ─── Halaman Utama ──────────────────────────────────────────────────
 export default function Customers() {
-  const { customers, setCustomers } = useCustomerStore();
+  const { customers, setCustomers, addCustomer, updateCustomer, deleteCustomer } = useCustomerStore();
   const [allOrders, setAllOrders] = useState(() => getOrdersFromStorage());
   const [profileTarget, setProfileTarget] = useState(null);
 
@@ -790,23 +790,29 @@ export default function Customers() {
   const handleAdd = () => { setEditId(null); setShowForm(true); };
   const handleEdit = (customer) => { setEditId(customer.id); setShowForm(true); };
   const handleSubmit = useCallback(
-    (data) => {
+    async (data) => {
       if (editId) {
-        setCustomers((prev) => prev.map((c) => (c.id === editId ? { ...c, ...data } : c)));
+        await updateCustomer(editId, data);
       } else {
-        const newId = `C-${String(customers.length + 1).padStart(3, "0")}`;
-        setCustomers((prev) => [{ ...data, id: newId, totalOrders: 0, joinDate: new Date().toISOString().slice(0, 10) }, ...prev]);
+        await addCustomer({
+          ...data,
+          total_orders: 0,
+          join_date: new Date().toISOString().slice(0, 10),
+          points: 0,
+          membership_status: 'non-member',
+          is_active: true,
+        });
       }
       setShowForm(false);
       setEditId(null);
     },
-    [editId, customers.length]
+    [editId, addCustomer, updateCustomer]
   );
 
-  const handleDelete = useCallback(() => {
-    setCustomers((prev) => prev.filter((c) => c.id !== deleteTarget.id));
+  const handleDelete = useCallback(async () => {
+    await deleteCustomer(deleteTarget.id);
     setDeleteTarget(null);
-  }, [deleteTarget]);
+  }, [deleteTarget, deleteCustomer]);
 
   const exportCSV = useCallback(() => {
     const rows = [

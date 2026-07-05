@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useAdminNotifications } from "../hooks/useNotifications";
 import { useNavigate } from "react-router-dom";
 import {
   MdNotifications,
@@ -18,11 +19,7 @@ import {
   MdDeleteOutline,
 } from "react-icons/md";
 
-const initialNotifs = [
-  { id: 1, type: "order", icon: MdAdd, title: "Order baru masuk", desc: "Rahmat Hidayat — Tune Up NMAX", time: "2 menit lalu", read: false },
-  { id: 2, type: "done", icon: MdCheckCircle, title: "Servis selesai", desc: "Andi Wijaya — Servis Berkala Avanza", time: "15 menit lalu", read: false },
-  { id: 3, type: "schedule", icon: MdSchedule, title: "Jadwal mendesak", desc: "Dewi Lestari jam 13:30 — Servis Rem", time: "1 jam lalu", read: false },
-];
+// Notifikasi sekarang dari Supabase via useAdminNotifications
 
 function getInitials(name) {
   return name
@@ -35,7 +32,10 @@ function getInitials(name) {
 
 export default function Header({ onToggleSidebar }) {
   const navigate = useNavigate();
-  const [notifs, setNotifs] = useState(initialNotifs);
+  const {
+    notifs, unreadCount, loading: notifLoading,
+    markRead, markAllRead, dismiss,
+  } = useAdminNotifications();
   const [showNotif, setShowNotif] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const notifRef = useRef(null);
@@ -82,11 +82,7 @@ export default function Header({ onToggleSidebar }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const unreadCount = notifs.filter((n) => !n.read).length;
-  const notifColors = { order: "#22C55E", done: "#16A34A", schedule: "#EAB308" };
-
-  const markAllRead = () => setNotifs((prev) => prev.map((n) => ({ ...n, read: true })));
-  const markRead = (id) => setNotifs((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  const notifColors = { booking_success: "#22C55E", service_done: "#16A34A", new_booking: "#EAB308", new_order: "#3B82F6", low_stock: "#EF4444" };
 
   const today = new Date().toLocaleDateString("id-ID", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
@@ -197,28 +193,50 @@ export default function Header({ onToggleSidebar }) {
                 </div>
               </div>
               <div className="max-h-72 overflow-y-auto">
-                {notifs.map((n) => {
-                  const Icon = n.icon;
-                  return (
+                {notifLoading ? (
+                  <div className="flex items-center justify-center py-8 text-gray-600 text-xs gap-2">
+                    <div className="w-4 h-4 border-2 border-green-500/40 border-t-green-400 rounded-full animate-spin" />
+                    Memuat notifikasi...
+                  </div>
+                ) : notifs.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-gray-600">
+                    <span className="text-3xl mb-2">🔔</span>
+                    <p className="text-xs">Tidak ada notifikasi</p>
+                  </div>
+                ) : (
+                  notifs.map((n) => (
                     <div
                       key={n.id}
-                      onClick={() => markRead(n.id)}
-                      className={`flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-green-500/5 ${n.read ? "opacity-50" : ""}`}
+                      onClick={() => { markRead(n.id); if (n.link) navigate(n.link); }}
+                      className={`flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-green-500/5 transition-colors group ${n.read ? "opacity-50" : ""}`}
                     >
-                      <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(34,197,94,0.12)" }}>
-                        <Icon size={15} style={{ color: notifColors[n.type] }} />
+                      <div
+                        className="w-8 h-8 rounded-xl flex items-center justify-center text-base flex-shrink-0"
+                        style={{ background: "rgba(34,197,94,0.12)" }}
+                      >
+                        {n.icon || "🔔"}
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="text-white text-xs font-semibold">{n.title}</p>
-                          {!n.read && <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#22C55E" }} />}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-1">
+                          <p className="text-white text-xs font-semibold leading-tight">{n.title}</p>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0" />}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); dismiss(n.id); }}
+                              className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-400 transition-all"
+                            >
+                              <MdClose size={12} />
+                            </button>
+                          </div>
                         </div>
-                        <p className="text-gray-500 text-xs">{n.desc}</p>
-                        <p className="text-gray-600 text-xs mt-1">{n.time}</p>
+                        <p className="text-gray-500 text-xs mt-0.5 line-clamp-2">{n.message}</p>
+                        <p className="text-gray-700 text-[10px] mt-1">
+                          {n.created_at ? new Date(n.created_at).toLocaleString("id-ID", { dateStyle: "short", timeStyle: "short" }) : ""}
+                        </p>
                       </div>
                     </div>
-                  );
-                })}
+                  ))
+                )}
               </div>
             </div>
           )}

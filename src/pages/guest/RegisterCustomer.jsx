@@ -38,8 +38,7 @@ export default function RegisterCustomer() {
       return
     }
     setLoading(true)
-    await new Promise(r => setTimeout(r, 800))
-    const result = register({ name: form.name, email: form.email, phone: form.phone, birthDate: form.birthDate, password: form.password })
+    const result = await register({ name: form.name, email: form.email, phone: form.phone, birthDate: form.birthDate, password: form.password })
     if (result.success) {
       navigate('/member/dashboard')
     } else {
