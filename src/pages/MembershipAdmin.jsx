@@ -22,7 +22,6 @@ import {
   calcTier,
   calcLoyaltyProgress,
   TIER_CONFIG,
-  adminAddPointsToCustomer,
 } from '../context/CustomerAuthContext'
 
 // ─── Palette ─────────────────────────────────────────────────
