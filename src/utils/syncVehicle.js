@@ -1,81 +1,67 @@
 // ============================================================
 // syncVehicle.js
-// Sinkronisasi kendaraan dari booking customer ke garage_vehicles
-// agar admin dapat melihatnya di halaman Vehicles.
+// Sinkronisasi kendaraan dari booking customer ke tabel `vehicles`
+// di Supabase, agar admin dapat melihatnya di halaman Vehicles.
+//
+// MIGRASI: sebelumnya menulis ke sessionStorage('garage_vehicles').
+// Sejak Vehicles.jsx (admin) pindah ke Supabase lewat vehicleAPI,
+// fungsi ini HARUS ikut pindah — kalau tidak, kendaraan yang
+// didaftarkan customer lewat form booking akan "menghilang" (tidak
+// pernah muncul di halaman admin), padahal sebelumnya (waktu
+// Vehicles.jsx masih sessionStorage) fungsi ini benar-benar berefek.
 // ============================================================
 
-const LS_KEY = 'garage_vehicles'
+import { vehicleAPI } from '../services/vehicleAPI'
 
-function loadAdminVehicles() {
-  try {
-    const raw = sessionStorage.getItem(LS_KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch { return [] }
-}
-
-function saveAdminVehicles(list) {
-  try { sessionStorage.setItem(LS_KEY, JSON.stringify(list)) } catch {}
+function normalizePlate(plate) {
+  return (plate || '').toUpperCase().replace(/\s+/g, ' ').trim()
 }
 
 /**
- * Tambahkan atau update kendaraan customer ke garage_vehicles.
- * @param {object} vehicle  — data kendaraan dari customer
- * @param {object} customer — data customer (name, id)
- * @returns {string} vehicleId yang tersimpan
+ * Tambahkan atau update kendaraan customer ke tabel `vehicles` Supabase.
+ * Dicocokkan berdasarkan plat nomor (dinormalisasi).
+ *
+ * @param {object} vehicle  — data kendaraan dari form booking (brand, model,
+ *                            year, plate, type, km, photo, dst)
+ * @param {object} customer — data customer (id, name)
+ * @returns {Promise<string|number|null>} id kendaraan yang tersimpan di Supabase
  */
-export function syncCustomerVehicle(vehicle, customer) {
-  const vehicles = loadAdminVehicles()
+export async function syncCustomerVehicle(vehicle, customer) {
+  const normalizedPlate = normalizePlate(vehicle.plate)
+  if (!normalizedPlate) return null
 
-  // Cek apakah sudah ada berdasarkan plate (nomor polisi)
-  const normalizedPlate = (vehicle.plate || '').toUpperCase().replace(/\s+/g, ' ').trim()
-  const existing = vehicles.find(v =>
-    (v.plate || '').toUpperCase().replace(/\s+/g, ' ').trim() === normalizedPlate
-  )
-
-  if (existing) {
-    // Update data yang mungkin baru (foto, km, dll) tapi jangan timpa status mekanik
-    const updated = vehicles.map(v =>
-      v.id === existing.id
-        ? {
-            ...v,
-            brand:      vehicle.brand      || v.brand,
-            model:      vehicle.model      || v.model,
-            year:       vehicle.year       || v.year,
-            type:       vehicle.type       || v.type,
-            photo:      vehicle.photo      || v.photo,
-            owner:      customer.name      || v.owner,
-            customerId: customer.id        || v.customerId,
-            mileage:    vehicle.km         || v.mileage,
-            // Tandai source
-            source: v.source || 'customer_upload',
-          }
-        : v
+  try {
+    const existingList = await vehicleAPI.fetchAll()
+    const existing = (existingList || []).find(
+      v => normalizePlate(v.plate) === normalizedPlate
     )
-    saveAdminVehicles(updated)
-    return existing.id
-  }
 
-  // Buat entry baru
-  const newId = 'VC-' + Date.now()
-  const newEntry = {
-    id:          newId,
-    plate:       normalizedPlate || '-',
-    brand:       vehicle.brand  || '',
-    model:       vehicle.model  || '',
-    year:        vehicle.year   || '',
-    type:        vehicle.type   === 'motor' ? 'Motor' : 'Mobil',
-    owner:       customer.name  || '',
-    customerId:  customer.id    || '',
-    photo:       vehicle.photo  || '',
-    mileage:     vehicle.km     || '',
-    lastService: new Date().toISOString().slice(0, 10),
-    status:      'Menunggu',
-    mechanicId:  '',
-    // Tandai sumber kendaraan
-    source:      vehicle.fromCatalog ? 'catalog' : 'customer_upload',
-    addedAt:     new Date().toISOString().slice(0, 10),
-  }
+    const payload = {
+      plate:        normalizedPlate,
+      brand:        vehicle.brand || undefined,
+      model:        vehicle.model || undefined,
+      year:         vehicle.year ? Number(vehicle.year) : undefined,
+      color:        vehicle.color || undefined,
+      type:         (vehicle.type || '').toLowerCase() === 'motor' ? 'Motor' : 'Mobil',
+      km:           vehicle.km ? Number(vehicle.km) : undefined,
+      photo_url:    vehicle.photo || undefined,
+      customer_id:  customer?.id || undefined,
+    }
+    // Buang key undefined biar tidak menimpa data existing dengan kosong
+    Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k])
 
-  saveAdminVehicles([newEntry, ...vehicles])
-  return newId
+    if (existing) {
+      const updated = await vehicleAPI.update(existing.id, payload)
+      return updated?.id ?? existing.id
+    }
+
+    const created = await vehicleAPI.create({
+      ...payload,
+      last_service: new Date().toISOString().slice(0, 10),
+    })
+    return created?.id ?? null
+  } catch (err) {
+    console.error('[syncVehicle] Gagal sinkronisasi kendaraan ke Supabase:', err)
+    return null
+  }
 }

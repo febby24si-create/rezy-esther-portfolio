@@ -11,6 +11,7 @@ import {
 } from 'react-icons/md'
 import Pagination from '../components/Pagination'
 import ordersData from '../data/ordersData.json' // fallback sementara
+import { PAYMENT_STATUS, PAYMENT_STATUS_LIST, PAYMENT_STATUS_CONFIG, resolvePaymentStatus, calcSisaTagihan } from '../constants/statusConstants'
 // adminAddPoints sekarang ditangani langsung di handleSubmit via orderAPI
 
 // ─── Animated Number ──────────────────────────────────────────────────
@@ -98,6 +99,19 @@ function StatusBadge({ status, size = 'md' }) {
     <span className={`inline-flex items-center gap-1.5 rounded-full font-semibold ${pad} animate-pulse-ring`}
       style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
       <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 animate-pulse" style={{ background: cfg.dot }} />
+      {cfg.label}
+    </span>
+  )
+}
+
+// ─── PaymentBadge ─────────────────────────────────────────────────────
+function PaymentBadge({ status, size = 'md' }) {
+  const cfg = PAYMENT_STATUS_CONFIG[status] || PAYMENT_STATUS_CONFIG[PAYMENT_STATUS.UNPAID]
+  const pad = size === 'sm' ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-1 text-xs'
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full font-semibold ${pad}`}
+      style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
+      <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dot }} />
       {cfg.label}
     </span>
   )
@@ -193,7 +207,10 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
               {copied ? <MdCheck size={13} className="animate-bounce-soft" /> : <MdContentCopy size={13} />}
             </button>
           </div>
-          <StatusBadge status={order.status} />
+          <div className="flex items-center gap-2 flex-wrap">
+            <StatusBadge status={order.status} />
+            <PaymentBadge status={order.paymentStatus} />
+          </div>
         </div>
 
         <div className="mx-5 mb-5 rounded-2xl p-4 flex-shrink-0 animate-fadeInUp"
@@ -202,6 +219,18 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
           <p className="text-3xl font-black text-white">
             <AnimatedNumber value={order.total} format={(v) => formatCurrency(Math.round(v))} duration={1000} />
           </p>
+          {order.paymentStatus === PAYMENT_STATUS.PARTIAL && (
+            <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: '1px solid rgba(34,197,94,0.1)' }}>
+              <span className="text-gray-500">Sudah dibayar (DP)</span>
+              <span className="text-amber-400 font-semibold">{formatCurrency(order.paidAmount)}</span>
+            </div>
+          )}
+          {order.paymentStatus === PAYMENT_STATUS.PARTIAL && (
+            <div className="flex items-center justify-between text-xs mt-1">
+              <span className="text-gray-500">Sisa tagihan</span>
+              <span className="text-red-400 font-semibold">{formatCurrency(calcSisaTagihan(order.total, order.paidAmount))}</span>
+            </div>
+          )}
         </div>
 
         <div className="mx-5 mb-5 rounded-2xl overflow-hidden flex-shrink-0 animate-fadeInUp"
@@ -332,7 +361,10 @@ function OrderCard({ order, onDetail, onEdit, onDelete, onInvoice, onQuickAssign
         </p>
         <div className="flex items-center justify-between pt-3"
           style={{ borderTop: '1px solid rgba(34,197,94,0.06)' }}>
-          <StatusBadge status={order.status} size="sm" />
+          <div className="flex flex-col gap-1.5">
+            <StatusBadge status={order.status} size="sm" />
+            <PaymentBadge status={order.paymentStatus} size="sm" />
+          </div>
           <div className="text-right">
             <p className="text-white font-black text-sm">{formatCurrency(order.total)}</p>
             <p className="text-gray-600 text-xs">{order.date}</p>
@@ -423,7 +455,16 @@ function FormModal({ isOpen, onClose, onSubmit, initialData, editId, customers, 
     e.preventDefault()
     const total = parseFloat(form.total)
     if (isNaN(total) || total <= 0) return
-    onSubmit({ ...form, total })
+
+    const paymentStatus = form.paymentStatus || PAYMENT_STATUS.UNPAID
+    let paidAmount = 0
+    if (paymentStatus === PAYMENT_STATUS.PAID) {
+      paidAmount = total
+    } else if (paymentStatus === PAYMENT_STATUS.PARTIAL) {
+      paidAmount = Math.min(Math.max(Number(form.paidAmount) || 0, 0), total)
+    }
+
+    onSubmit({ ...form, total, paymentStatus, paidAmount })
   }
 
   const isFromBooking = form.source === 'online-booking'
@@ -503,6 +544,42 @@ function FormModal({ isOpen, onClose, onSubmit, initialData, editId, customers, 
             <select value={form.status || 'Menunggu'} onChange={e => setForm(f => ({...f, status: e.target.value}))} className={inputCls} style={inputStyle}>
               {Object.keys(STATUS).map(s => <option key={s} value={s}>{s}</option>)}
             </select>
+          </div>
+          <div className="grid grid-cols-2 gap-3 animate-fadeInUp" style={{ animationDelay: '350ms', animationFillMode: 'both' }}>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5">Status Pembayaran</label>
+              <select
+                value={form.paymentStatus || PAYMENT_STATUS.UNPAID}
+                onChange={e => {
+                  const val = e.target.value
+                  setForm(f => ({
+                    ...f,
+                    paymentStatus: val,
+                    // Reset paidAmount otomatis biar tidak nyangkut nilai lama saat ganti pilihan
+                    paidAmount: val === PAYMENT_STATUS.PAID ? (f.total || 0) : (val === PAYMENT_STATUS.UNPAID ? 0 : f.paidAmount),
+                  }))
+                }}
+                className={inputCls}
+                style={inputStyle}>
+                {PAYMENT_STATUS_LIST.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            {form.paymentStatus === PAYMENT_STATUS.PARTIAL && (
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5">Jumlah DP (Rp)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  max={form.total || undefined}
+                  value={form.paidAmount || ''}
+                  onChange={e => setForm(f => ({...f, paidAmount: e.target.value}))}
+                  placeholder="150000"
+                  className={inputCls}
+                  style={inputStyle}
+                />
+              </div>
+            )}
           </div>
         </form>
         <div className="flex gap-3 px-5 py-4" style={{ borderTop: '1px solid rgba(34,197,94,0.08)' }}>
@@ -602,6 +679,10 @@ export default function Orders() {
           customer: o.customer_name,
           vehicle:  o.vehicle_display,
           date:     o.order_date,
+          paymentStatus: o.payment_status || PAYMENT_STATUS.UNPAID,
+          paidAmount:    Number(o.paid_amount) || 0,
+          mechanicId:    o.mechanic_id || null,
+          needsMechanicAssignment: o.needs_mechanic_assignment ?? (!o.mechanic_name || o.mechanic_name === '—'),
         }))
         setOrders(normalized)
       } catch (err) {
@@ -630,6 +711,7 @@ export default function Orders() {
 
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
+  const [filterPayment, setFilterPayment] = useState('')
   const [filterFrom, setFilterFrom] = useState('')
   const [filterTo, setFilterTo] = useState('')
   const [sortColumn, setSortColumn] = useState('date')
@@ -661,6 +743,7 @@ export default function Orders() {
     let r = [...orders]
     if (search) { const s = search.toLowerCase(); r = r.filter(o => [o.customer, o.id, o.service, o.vehicle].some(v => v?.toLowerCase().includes(s))) }
     if (filterStatus) r = r.filter(o => o.status === filterStatus)
+    if (filterPayment) r = r.filter(o => o.paymentStatus === filterPayment)
     if (filterFrom) r = r.filter(o => o.date >= filterFrom)
     if (filterTo) r = r.filter(o => o.date <= filterTo)
     if (sortColumn) r.sort((a, b) => {
@@ -669,18 +752,18 @@ export default function Orders() {
       return sortDir === 'asc' ? (av < bv ? -1 : av > bv ? 1 : 0) : (av > bv ? -1 : av < bv ? 1 : 0)
     })
     return r
-  }, [orders, search, filterStatus, filterFrom, filterTo, sortColumn, sortDir])
+  }, [orders, search, filterStatus, filterPayment, filterFrom, filterTo, sortColumn, sortDir])
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1
-  useEffect(() => { setCurrentPage(1) }, [search, filterStatus, filterFrom, filterTo])
+  useEffect(() => { setCurrentPage(1) }, [search, filterStatus, filterPayment, filterFrom, filterTo])
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage
     return filtered.slice(start, start + itemsPerPage)
   }, [filtered, currentPage, itemsPerPage])
 
-  const activeFilters = [filterStatus, filterFrom, filterTo].filter(Boolean).length
-  const resetFilters = () => { setFilterStatus(''); setFilterFrom(''); setFilterTo(''); setSearch('') }
+  const activeFilters = [filterStatus, filterPayment, filterFrom, filterTo].filter(Boolean).length
+  const resetFilters = () => { setFilterStatus(''); setFilterPayment(''); setFilterFrom(''); setFilterTo(''); setSearch('') }
 
   const handleAdd = () => { setEditId(null); setShowForm(true) }
   const [pointToast, setPointToast] = useState(null)
@@ -691,12 +774,20 @@ export default function Orders() {
     if (cleanedData.mechanic && cleanedData.mechanic !== '—') {
       cleanedData.needsMechanicAssignment = false
     }
+    // Cari mechanic_id dari nama yang dipilih/diketik — kalau nama tidak
+    // cocok dengan mekanik terdaftar (mis. diketik manual/freelance),
+    // mechanic_id tetap null dan itu memang benar (tidak semua "mekanik"
+    // di order harus terdaftar di Supabase).
+    const matchedMechanic = mechanicsList.find(m => m.name === cleanedData.mechanic)
+    const mechanicId = matchedMechanic?.id ?? null
+
     const { orderAPI } = await import('../services/orderAPI')
 
     if (editId) {
       const prevOrder = orders.find(o => o.id === editId)
       const isNewlySelesai = prevOrder?.status !== 'Selesai' && cleanedData.status === 'Selesai'
       const alreadyAwarded = prevOrder?.pointsAwarded === true
+      const isNewlyAssigned = mechanicId && prevOrder?.mechanicId !== mechanicId
 
       // Update ke Supabase
       await orderAPI.update(editId, {
@@ -706,10 +797,23 @@ export default function Orders() {
         status:          cleanedData.status,
         total:           cleanedData.total,
         mechanic_name:   cleanedData.mechanic,
+        mechanic_id:     mechanicId,
+        needs_mechanic_assignment: cleanedData.needsMechanicAssignment ?? false,
         notes:           cleanedData.notes,
         order_date:      cleanedData.date,
+        payment_status:  cleanedData.paymentStatus,
+        paid_amount:     cleanedData.paidAmount,
         ...(cleanedData.status === 'Selesai' ? { completed_at: new Date().toISOString() } : {}),
       })
+
+      if (isNewlyAssigned) {
+        try {
+          const { updateMechanicActiveOrders } = await import('../lib/mechanicEngine')
+          await updateMechanicActiveOrders(mechanicId, editId, 'add')
+        } catch (err) {
+          console.error('Gagal update status mekanik (assign):', err)
+        }
+      }
 
       if (isNewlySelesai && !alreadyAwarded && cleanedData.customer && cleanedData.total) {
         // Tambah poin ke customer di Supabase
@@ -764,23 +868,49 @@ export default function Orders() {
         status:          cleanedData.status || 'Inspection',
         total:           cleanedData.total || 0,
         mechanic_name:   cleanedData.mechanic || null,
+        mechanic_id:     mechanicId,
+        needs_mechanic_assignment: cleanedData.needsMechanicAssignment ?? (!cleanedData.mechanic || cleanedData.mechanic === '—'),
         notes:           cleanedData.notes || null,
         order_date:      cleanedData.date || new Date().toISOString().slice(0, 10),
+        payment_status:  cleanedData.paymentStatus || PAYMENT_STATUS.UNPAID,
+        paid_amount:     cleanedData.paidAmount || 0,
       })
       if (created) {
-        setOrders(prev => [{ ...created, customer: created.customer_name, vehicle: created.vehicle_display, date: created.order_date, pointsAwarded: false }, ...prev])
+        setOrders(prev => [{ ...created, customer: created.customer_name, vehicle: created.vehicle_display, date: created.order_date, paymentStatus: created.payment_status || PAYMENT_STATUS.UNPAID, paidAmount: Number(created.paid_amount) || 0, pointsAwarded: false }, ...prev])
       }
     }
     setShowForm(false); setEditId(null)
   }, [editId, orders])
 
-  const handleQuickAssign = useCallback((orderId, mechanicName) => {
+  const handleQuickAssign = useCallback(async (orderId, mechanicName) => {
+    const matchedMechanic = mechanicsList.find(m => m.name === mechanicName)
+    const mechanicId = matchedMechanic?.id ?? null
+
+    // Optimistic update di UI dulu...
     setOrders(prev => prev.map(o => o.id === orderId
       ? { ...o, mechanic: mechanicName, needsMechanicAssignment: false }
       : o
     ))
     setQuickAssignTarget(null)
-  }, [])
+
+    // ...lalu PERSIST ke Supabase. Sebelumnya fungsi ini cuma mengubah
+    // state React lokal — assignment mekanik hilang lagi begitu halaman
+    // di-refresh karena tidak pernah benar-benar disimpan.
+    try {
+      const { orderAPI } = await import('../services/orderAPI')
+      await orderAPI.update(orderId, {
+        mechanic_name: mechanicName,
+        mechanic_id: mechanicId,
+        needs_mechanic_assignment: false,
+      })
+      if (mechanicId) {
+        const { updateMechanicActiveOrders } = await import('../lib/mechanicEngine')
+        await updateMechanicActiveOrders(mechanicId, orderId, 'add')
+      }
+    } catch (err) {
+      console.error('Gagal menyimpan assignment mekanik:', err)
+    }
+  }, [mechanicsList])
   const handleDelete = useCallback(async () => {
     const { orderAPI } = await import('../services/orderAPI')
     await orderAPI.delete(deleteTarget.id)
@@ -892,6 +1022,13 @@ export default function Orders() {
                         {Object.keys(STATUS).map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
+                    <div className="animate-fadeInUp" style={{ animationDelay: '75ms', animationFillMode: 'both' }}>
+                      <label className="block text-xs text-gray-500 mb-1.5">Status Pembayaran</label>
+                      <select value={filterPayment} onChange={e => setFilterPayment(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none transition-all duration-300 focus:ring-2 focus:ring-green-500/20" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }}>
+                        <option value="">Semua Pembayaran</option>
+                        {PAYMENT_STATUS_LIST.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="animate-fadeInUp" style={{ animationDelay: '100ms', animationFillMode: 'both' }}>
                         <label className="block text-xs text-gray-500 mb-1.5">Dari</label>
@@ -940,6 +1077,7 @@ export default function Orders() {
                     { key: 'vehicle', label: 'Kendaraan', noSort: true },
                     { key: 'service', label: 'Layanan' },
                     { key: 'status', label: 'Status' },
+                    { key: 'paymentStatus', label: 'Pembayaran' },
                     { key: 'total', label: 'Total' },
                     { key: 'date', label: 'Tanggal' },
                     { key: 'aksi', label: 'Aksi', noSort: true }
@@ -987,6 +1125,7 @@ export default function Orders() {
                       </span>
                     </td>
                     <td className="py-3 px-3 whitespace-nowrap"><StatusBadge status={order.status} size="sm" /></td>
+                    <td className="py-3 px-3 whitespace-nowrap"><PaymentBadge status={order.paymentStatus} size="sm" /></td>
                     <td className="py-3 px-3 text-sm text-white font-bold whitespace-nowrap">{formatCurrency(order.total)}</td>
                     <td className="py-3 px-3 text-xs text-gray-500 whitespace-nowrap">{order.date}</td>
                     <td className="py-3 px-3 whitespace-nowrap">
@@ -1016,7 +1155,7 @@ export default function Orders() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={8}>
+                    <td colSpan={9}>
                       <div className="text-center py-16 flex flex-col items-center gap-3 animate-fadeIn">
                         <MdReceipt size={48} className="text-gray-700 animate-pulse" />
                         <p className="text-gray-600 text-sm">Tidak ada order ditemukan</p>
@@ -1081,7 +1220,7 @@ export default function Orders() {
         isOpen={showForm}
         onClose={() => { setShowForm(false); setEditId(null) }}
         onSubmit={handleSubmit}
-        initialData={editId ? orders.find(o => o.id === editId) || {} : { customer: '', vehicle: '', service: '', status: 'Menunggu', total: '', date: new Date().toISOString().slice(0,10), mechanic: '' }}
+        initialData={editId ? orders.find(o => o.id === editId) || {} : { customer: '', vehicle: '', service: '', status: 'Menunggu', total: '', date: new Date().toISOString().slice(0,10), mechanic: '', paymentStatus: PAYMENT_STATUS.UNPAID, paidAmount: 0 }}
         editId={editId}
         customers={customersList}
         mechanics={mechanicsList}

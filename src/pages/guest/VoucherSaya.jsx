@@ -111,7 +111,19 @@ export default function VoucherSaya() {
   useEffect(() => {
     if (!customer?.id) return
     import('../../services/voucherAPI').then(({ voucherAPI }) => {
-      voucherAPI.fetchByCustomer(customer.id).then(setVouchers).catch(() => {})
+      voucherAPI.fetchByCustomer(customer.id).then(list => {
+        // Kolom Supabase snake_case (discount_pct, valid_until, used_at)
+        // tapi render di bawah pakai camelCase (diskon, validUntil,
+        // usedAt) — tanpa normalisasi ini, diskon & tanggal voucher
+        // akan selalu tampil kosong/NaN untuk SEMUA voucher (bug
+        // pre-existing, ketemu saat mengecek skema voucher).
+        setVouchers((list || []).map(v => ({
+          ...v,
+          diskon:     v.discount_pct ?? v.diskon,
+          validUntil: v.valid_until ?? v.validUntil,
+          usedAt:     v.used_at ?? v.usedAt,
+        })))
+      }).catch(() => {})
     })
   }, [customer?.id])
 

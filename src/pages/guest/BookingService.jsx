@@ -502,11 +502,18 @@ export default function BookingService() {
     const dateStr = form.date.toISOString().slice(0, 10)
 
     try {
+      // Pastikan kendaraan ini punya ID Supabase asli (upsert-by-plate,
+      // aman dipanggil berkali-kali) sebelum booking dibuat, supaya
+      // bookings.vehicle_id benar-benar terisi — bukan cuma teks display.
+      const { syncCustomerVehicle } = await import('../../utils/syncVehicle')
+      const vehicleId = await syncCustomerVehicle(form.vehicle, customer)
+
       const { bookingAPI } = await import('../../services/bookingAPI')
       const result = await bookingAPI.create({
         customerId:     customer?.id ?? null,
         customerName:   customer?.name ?? '',
         vehicleDisplay: `${form.vehicle.brand} ${form.vehicle.model} - ${form.vehicle.plate}`,
+        vehicleId,
         serviceName:    form.service.name,
         date:           dateStr,
         time:           form.time,

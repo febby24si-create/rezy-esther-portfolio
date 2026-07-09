@@ -1535,99 +1535,26 @@ export default function Dashboard() {
       {/* Floating CRM Menu */}
       <FloatingCRMMenu />
 
-      {/* ─── ANALYTICS SECTION ─── */}
+      {/* ─── TOP PERFORMERS (Mekanik / Kendaraan / Servis) ─── */}
+      {/* CATATAN: sebelumnya section ini punya kartu Revenue + chart 6 bulan
+          sendiri ("Dashboard Analytics"), yang isinya tumpang tindih dengan
+          TOP STAT CARDS + REVENUE CHART di bagian atas halaman — dua-duanya
+          sama-sama nampilin revenue, cuma beda periode/granularitas. Efeknya
+          terlihat seperti "dashboard yang sama muncul dua kali" saat di-scroll.
+          Row Revenue Cards & Chart 6 Bulan dihapus di sini; yang dipertahankan
+          cuma bagian yang benar-benar unik (top mekanik/kendaraan/servis). */}
       <div className="mt-8 space-y-6 animate-fadeInUp" style={{ animationDelay: "0.3s" }}>
 
-        {/* Header Analytics */}
+        {/* Header */}
         <div className="flex items-center gap-3 mb-2">
           <div className="w-1 h-7 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" />
-          <h2 className="text-lg font-bold text-white tracking-wide">Dashboard Analytics</h2>
+          <h2 className="text-lg font-bold text-white tracking-wide">Top Performers Bulan Ini</h2>
           <span className="ml-auto text-xs text-gray-500 bg-white/5 px-3 py-1 rounded-full border border-white/10">
             Data real-time dari Supabase
           </span>
         </div>
 
-        {/* Row 1 — Revenue Growth Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[
-            {
-              label: "Revenue Bulan Ini",
-              value: `Rp ${(analytics.revenueThisMonth || 0).toLocaleString("id-ID")}`,
-              sub:   `${analytics.revenueGrowth >= 0 ? "+" : ""}${analytics.revenueGrowth || 0}% vs bulan lalu`,
-              color: analytics.revenueGrowth >= 0 ? "from-emerald-500/20 to-teal-600/10" : "from-red-500/20 to-rose-600/10",
-              badge: analytics.revenueGrowth >= 0 ? "↑" : "↓",
-              badgeColor: analytics.revenueGrowth >= 0 ? "text-emerald-400" : "text-red-400",
-            },
-            {
-              label: "Revenue Bulan Lalu",
-              value: `Rp ${(analytics.revenueLastMonth || 0).toLocaleString("id-ID")}`,
-              sub:   "Periode sebelumnya",
-              color: "from-blue-500/20 to-indigo-600/10",
-              badge: "📅",
-              badgeColor: "text-blue-400",
-            },
-            {
-              label: "Order Selesai Bulan Ini",
-              value: `${(analytics.monthlyRevenue?.[5]?.count || 0)} Order`,
-              sub:   `dari ${orders.length} total order`,
-              color: "from-violet-500/20 to-purple-600/10",
-              badge: "✓",
-              badgeColor: "text-violet-400",
-            },
-          ].map((card, i) => (
-            <div
-              key={i}
-              className={`rounded-2xl border border-white/10 bg-gradient-to-br ${card.color} p-5 backdrop-blur-sm`}
-            >
-              <p className="text-xs text-gray-400 mb-1">{card.label}</p>
-              <p className="text-xl font-bold text-white">{card.value}</p>
-              <p className={`text-xs mt-1 font-medium ${card.badgeColor}`}>
-                {card.badge} {card.sub}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Row 2 — Grafik Revenue 6 Bulan */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
-          <h3 className="text-sm font-semibold text-gray-300 mb-4">
-            Pendapatan 6 Bulan Terakhir
-          </h3>
-          {analytics.monthlyRevenue && analytics.monthlyRevenue.length > 0 ? (
-            <div className="flex items-end gap-2 h-36">
-              {analytics.monthlyRevenue.map((m, i) => {
-                const maxRev = Math.max(...analytics.monthlyRevenue.map((x) => x.revenue), 1);
-                const heightPct = maxRev > 0 ? Math.round((m.revenue / maxRev) * 100) : 0;
-                const isLast = i === analytics.monthlyRevenue.length - 1;
-                return (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1 group">
-                    <span className="text-[10px] text-gray-500 group-hover:text-emerald-400 transition-colors">
-                      {m.revenue > 0 ? `${Math.round(m.revenue / 1000)}k` : "—"}
-                    </span>
-                    <div className="w-full flex flex-col justify-end" style={{ height: "96px" }}>
-                      <div
-                        className={`w-full rounded-t-lg transition-all duration-500 ${
-                          isLast
-                            ? "bg-gradient-to-t from-emerald-600 to-emerald-400"
-                            : "bg-gradient-to-t from-teal-700/60 to-teal-500/40 group-hover:from-teal-600/80 group-hover:to-teal-400/60"
-                        }`}
-                        style={{ height: `${Math.max(heightPct, 4)}%` }}
-                        title={`${m.label}: Rp ${m.revenue.toLocaleString("id-ID")}`}
-                      />
-                    </div>
-                    <span className="text-[10px] text-gray-500">{m.label}</span>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="h-36 flex items-center justify-center text-gray-600 text-sm">
-              Belum ada data order selesai
-            </div>
-          )}
-        </div>
-
-        {/* Row 3 — Top Mekanik + Kendaraan + Servis */}
+        {/* Row — Top Mekanik + Kendaraan + Servis */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
           {/* Top Mekanik */}

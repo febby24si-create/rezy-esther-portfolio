@@ -4,83 +4,68 @@ import {
   MdEdit, MdDelete, MdPerson, MdBuild, MdClose,
   MdCloudUpload, MdCalendarToday, MdSpeed, MdStar,
   MdArrowBack, MdCamera, MdInfo, MdRefresh,
-  MdVerified, MdPhotoCamera, MdOpenInNew, MdSort,
+  MdVerified, MdOpenInNew, MdSort, MdPalette,
 } from 'react-icons/md'
 import { motion, AnimatePresence } from 'framer-motion'
 import Pagination from '../components/Pagination'
-import vehiclesData from '../data/vehiclesData.json'
-import { getAllCustomersFromStore } from '../hooks/useCustomerStore'
+import { vehicleAPI } from '../services/vehicleAPI'
+import { customerAPI } from '../services/customerAPI'
 
-// ─── Constants ────────────────────────────────────────────────────────
-const defaultMechanics = [
-  { id: 'M1', name: 'Ahmad Supriyadi',  specialization: 'Mesin & Transmisi' },
-  { id: 'M2', name: 'Budi Santoso',     specialization: 'Kelistrikan & AC' },
-  { id: 'M3', name: 'Cindy Permata',    specialization: 'Body & Cat' },
-  { id: 'M4', name: 'Dedi Kurniawan',   specialization: 'Ban & Spooring' },
-  { id: 'M5', name: 'Eka Fitriani',     specialization: 'Servis Rutin' },
-]
-
-const statusConfig = {
-  Selesai:  { bg: 'rgba(34,197,94,0.12)',  text: '#22C55E', dot: '#22C55E' },
-  Servis:   { bg: 'rgba(251,191,36,0.12)', text: '#FBBF24', dot: '#FBBF24' },
-  Menunggu: { bg: 'rgba(148,163,184,0.12)',text: '#94A3B8', dot: '#94A3B8' },
-}
-
-const sourceConfig = {
-  catalog:         { label: 'Database', color: '#22C55E', bg: 'rgba(34,197,94,0.12)',  icon: '✦' },
-  customer_upload: { label: 'Upload Customer',  color: '#60A5FA', bg: 'rgba(96,165,250,0.12)', icon: '📸' },
-  admin:           { label: 'Admin',      color: '#A855F7', bg: 'rgba(168,85,247,0.12)', icon: '🛡️' },
-}
-
-function getSourceCfg(v) {
-  if (v.source === 'catalog')          return sourceConfig.catalog
-  if (v.source === 'customer_upload')  return sourceConfig.customer_upload
-  return sourceConfig.admin
-}
+// ============================================================
+// MIGRASI: file ini sebelumnya membaca/menulis sessionStorage
+// ('garage_vehicles') dengan fallback ke data/vehiclesData.json
+// statis — sama sekali terpisah dari tabel `vehicles` di Supabase
+// (301 baris, sudah ada relasi FK ke customers/bookings/orders).
+// Sekarang CRUD langsung ke Supabase lewat services/vehicleAPI.js.
+//
+// PENYESUAIAN MODEL DATA (skema asli tidak punya field-field ini):
+//   - `status` (Selesai/Servis/Menunggu manual)  -> DIHAPUS, diganti
+//     status servis yang DIHITUNG OTOMATIS dari kolom `next_service`
+//     (lebih bermakna daripada field yang diisi manual & gampang basi)
+//   - `mechanicId` (mekanik "ditugaskan" ke kendaraan) -> DIHAPUS,
+//     ini konsepnya milik order/booking, bukan atribut kendaraan
+//   - `source` (catalog/customer_upload/admin)   -> DIHAPUS, itu cuma
+//     penanda asal data demo, tidak ada di skema Supabase
+//   - `color` dan `next_service`                 -> DITAMBAHKAN,
+//     kolom asli yang sebelumnya tidak dipakai UI ini sama sekali
+// ============================================================
 
 const initialForm = {
-  plate: '', brand: '', model: '', year: '', owner: '', customerId: '',
-  type: 'Mobil', mechanicId: '', lastService: new Date().toISOString().slice(0,10),
-  mileage: '', status: 'Menunggu', photo: null, source: 'admin',
+  plate: '', brand: '', model: '', year: '', color: '',
+  customerId: '', ownerName: '', type: 'Mobil',
+  km: '', lastService: '', nextService: '', photo: null,
 }
 
 const inputCls = `w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all focus:ring-2 focus:ring-green-500/30`
 const inputStyle = { background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }
 
-// ─── Helpers ──────────────────────────────────────────────────────────
-const LS_KEY_VEHICLES = 'garage_vehicles'
-
-function loadVehicles() {
-  try {
-    const raw = sessionStorage.getItem(LS_KEY_VEHICLES)
-    if (raw) {
-      const stored = JSON.parse(raw)
-      const storedPlates = new Set(stored.map(v => (v.plate || '').trim().toLowerCase()))
-      const seedRemaining = vehiclesData.filter(
-        v => !storedPlates.has((v.plate || '').trim().toLowerCase())
-      )
-      return [...seedRemaining, ...stored]
-    }
-  } catch { /* ignore */ }
-  return vehiclesData
+// ─── Status servis: DIHITUNG dari next_service, bukan field manual ────
+function getServiceStatus(nextService) {
+  if (!nextService) return { label: 'Belum Dijadwalkan', color: '#94A3B8', bg: 'rgba(148,163,184,0.12)', dot: '#94A3B8' }
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const next = new Date(nextService)
+  const diffDays = Math.round((next - today) / 86400000)
+  if (diffDays < 0)   return { label: 'Servis Terlambat', color: '#EF4444', bg: 'rgba(239,68,68,0.12)',  dot: '#EF4444' }
+  if (diffDays <= 14) return { label: 'Segera Servis',    color: '#FBBF24', bg: 'rgba(251,191,36,0.12)', dot: '#FBBF24' }
+  return                     { label: 'Terjadwal',        color: '#22C55E', bg: 'rgba(34,197,94,0.12)',  dot: '#22C55E' }
 }
 
-// ─── Source Badge ──────────────────────────────────────────────────────
-function SourceBadge({ vehicle, small = false }) {
-  const cfg = getSourceCfg(vehicle)
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full font-semibold ${small ? 'text-xs px-2 py-0.5' : 'text-xs px-2.5 py-1'}`}
-      style={{ background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.color}25` }}
-    >
-      {cfg.icon} {cfg.label}
-    </span>
-  )
+// Normalisasi field Supabase (snake_case) -> camelCase yang dipakai UI
+function normalizeVehicle(v) {
+  if (!v) return v
+  return {
+    ...v,
+    customerId:  v.customer_id ?? null,
+    km:          v.km ?? 0,
+    lastService: v.last_service || '',
+    nextService: v.next_service || '',
+    photo:       v.photo_url || null,
+  }
 }
 
-// ─── Vehicle Card (diperbaiki: tambahan info dan badge) ──────────────
-function VehicleCard({ vehicle, mechanic, customerName, onEdit, onDelete, onDetail }) {
-  const st  = statusConfig[vehicle.status] || statusConfig.Menunggu
+// ─── Vehicle Card ───────────────────────────────────────────────────
+function VehicleCard({ vehicle, customerName, onEdit, onDelete, onDetail }) {
+  const st = getServiceStatus(vehicle.nextService)
 
   return (
     <motion.div
@@ -102,7 +87,7 @@ function VehicleCard({ vehicle, mechanic, customerName, onEdit, onDelete, onDeta
       <div className="relative h-36 overflow-hidden" style={{ background: 'rgba(4,26,20,0.8)' }}>
         {vehicle.photo ? (
           <img src={vehicle.photo} alt={vehicle.plate} className="w-full h-full object-cover opacity-90"
-            onError={e => { e.target.style.display='none' }} />
+            onError={e => { e.target.style.display = 'none' }} />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-2 opacity-25">
             {vehicle.type === 'Motor'
@@ -113,16 +98,11 @@ function VehicleCard({ vehicle, mechanic, customerName, onEdit, onDelete, onDeta
         )}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(6,40,31,1) 0%, transparent 60%)' }} />
 
-        {/* Status */}
+        {/* Status servis (derived) */}
         <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-          style={{ background: st.bg, color: st.text, border: `1px solid ${st.dot}30` }}>
+          style={{ background: st.bg, color: st.color, border: `1px solid ${st.dot}30` }}>
           <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: st.dot }} />
-          {vehicle.status}
-        </div>
-
-        {/* Source badge */}
-        <div className="absolute top-3 right-10">
-          <SourceBadge vehicle={vehicle} small />
+          {st.label}
         </div>
 
         {/* Actions */}
@@ -158,7 +138,7 @@ function VehicleCard({ vehicle, mechanic, customerName, onEdit, onDelete, onDeta
         <p className="text-sm font-medium text-gray-300 mb-0.5">
           {vehicle.brand} <span className="text-white">{vehicle.model}</span>
         </p>
-        <p className="text-xs text-gray-500 mb-3">{vehicle.year} · {vehicle.owner}</p>
+        <p className="text-xs text-gray-500 mb-3">{vehicle.year || '—'} {vehicle.color ? `· ${vehicle.color}` : ''}</p>
 
         {customerName && (
           <div className="flex items-center gap-1.5 mb-2">
@@ -170,8 +150,8 @@ function VehicleCard({ vehicle, mechanic, customerName, onEdit, onDelete, onDeta
         <div className="flex items-center justify-between pt-3"
           style={{ borderTop: '1px solid rgba(34,197,94,0.08)' }}>
           <div className="flex items-center gap-1.5">
-            <MdPerson size={13} className="text-green-700" />
-            <span className="text-xs text-green-400/80 truncate max-w-[120px]">{mechanic || 'Belum ditugaskan'}</span>
+            <MdSpeed size={13} className="text-green-700" />
+            <span className="text-xs text-green-400/80">{vehicle.km ? `${vehicle.km.toLocaleString('id-ID')} km` : '—'}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <MdCalendarToday size={12} className="text-gray-600" />
@@ -183,19 +163,18 @@ function VehicleCard({ vehicle, mechanic, customerName, onEdit, onDelete, onDeta
   )
 }
 
-// ─── Detail Drawer (perbaikan: tombol view customer) ──────────────
-function DetailDrawer({ vehicle, mechanic, customerData, onClose, onEdit, onViewCustomer }) {
+// ─── Detail Drawer ──────────────────────────────────────────────────
+function DetailDrawer({ vehicle, customerData, onClose, onEdit, onViewCustomer }) {
   if (!vehicle) return null
-  const st  = statusConfig[vehicle.status] || statusConfig.Menunggu
+  const st = getServiceStatus(vehicle.nextService)
   const rows = [
-    { label: 'Nomor Plat',     value: vehicle.plate || '—',                     icon: <MdDirectionsCar size={15}/> },
-    { label: 'Merek & Model',  value: `${vehicle.brand} ${vehicle.model}`,       icon: <MdStar size={15}/> },
-    { label: 'Tahun',          value: vehicle.year || '—',                       icon: <MdCalendarToday size={15}/> },
-    { label: 'Pemilik',        value: vehicle.owner || '—',                      icon: <MdPerson size={15}/> },
-    { label: 'Kilometer',      value: vehicle.mileage ? `${vehicle.mileage} km` : '—', icon: <MdSpeed size={15}/> },
-    { label: 'Servis Terakhir',value: vehicle.lastService || '—',                icon: <MdBuild size={15}/> },
-    { label: 'Mekanik',        value: mechanic || 'Belum ditugaskan',            icon: <MdPerson size={15}/> },
-    { label: 'Ditambahkan',    value: vehicle.addedAt || '—',                   icon: <MdCalendarToday size={15}/> },
+    { label: 'Nomor Plat',      value: vehicle.plate || '—',                            icon: <MdDirectionsCar size={15}/> },
+    { label: 'Merek & Model',   value: `${vehicle.brand || ''} ${vehicle.model || ''}`.trim() || '—', icon: <MdStar size={15}/> },
+    { label: 'Tahun',           value: vehicle.year || '—',                             icon: <MdCalendarToday size={15}/> },
+    { label: 'Warna',           value: vehicle.color || '—',                            icon: <MdPalette size={15}/> },
+    { label: 'Kilometer',       value: vehicle.km ? `${vehicle.km.toLocaleString('id-ID')} km` : '—', icon: <MdSpeed size={15}/> },
+    { label: 'Servis Terakhir', value: vehicle.lastService || '—',                      icon: <MdBuild size={15}/> },
+    { label: 'Servis Berikutnya', value: vehicle.nextService || '—',                    icon: <MdCalendarToday size={15}/> },
   ]
 
   return (
@@ -221,7 +200,7 @@ function DetailDrawer({ vehicle, mechanic, customerData, onClose, onEdit, onView
           <div className="relative h-56 overflow-hidden" style={{ background: '#041a10' }}>
             {vehicle.photo ? (
               <img src={vehicle.photo} alt={vehicle.plate} className="w-full h-full object-cover"
-                onError={e => { e.target.style.display='none' }} />
+                onError={e => { e.target.style.display = 'none' }} />
             ) : (
               <div className="w-full h-full flex items-center justify-center opacity-20">
                 {vehicle.type === 'Motor'
@@ -250,15 +229,12 @@ function DetailDrawer({ vehicle, mechanic, customerData, onClose, onEdit, onView
                 <div className="flex items-center gap-2.5 mb-1 flex-wrap">
                   <span className="text-2xl font-black text-white tracking-widest">{vehicle.plate || '—'}</span>
                   <span className="text-xs px-2.5 py-1 rounded-full font-semibold"
-                    style={{ background: st.bg, color: st.text }}>
+                    style={{ background: st.bg, color: st.color }}>
                     <span className="w-1.5 h-1.5 rounded-full inline-block mr-1 animate-pulse" style={{ background: st.dot }} />
-                    {vehicle.status}
+                    {st.label}
                   </span>
                 </div>
                 <p className="text-gray-400 text-sm">{vehicle.brand} {vehicle.model} · {vehicle.year}</p>
-                <div className="mt-2">
-                  <SourceBadge vehicle={vehicle} />
-                </div>
               </div>
               <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
                 style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}>
@@ -268,7 +244,7 @@ function DetailDrawer({ vehicle, mechanic, customerData, onClose, onEdit, onView
               </div>
             </div>
 
-            {/* Customer link box - sekarang dengan tombol aksi */}
+            {/* Customer link box */}
             {customerData && (
               <button
                 onClick={() => onViewCustomer && onViewCustomer(customerData)}
@@ -314,8 +290,8 @@ function DetailDrawer({ vehicle, mechanic, customerData, onClose, onEdit, onView
   )
 }
 
-// ─── Modal Form ───────────────────────────────────────────────────────
-function VehicleModal({ isOpen, onClose, onSubmit, form, setForm, editId, mechanics, customers }) {
+// ─── Modal Form ─────────────────────────────────────────────────────
+function VehicleModal({ isOpen, onClose, onSubmit, form, setForm, editId, customers, saving }) {
   const fileRef = useRef()
   const [errors, setErrors] = useState({})
 
@@ -330,10 +306,9 @@ function VehicleModal({ isOpen, onClose, onSubmit, form, setForm, editId, mechan
   const handleOwnerSelect = (e) => {
     const name = e.target.value
     const cust = customers.find(c => c.name === name)
-    setForm(f => ({ ...f, owner: name, customerId: cust?.id || '' }))
+    setForm(f => ({ ...f, ownerName: name, customerId: cust?.id || '' }))
   }
 
-  // Validasi sederhana sebelum submit
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!form.plate.trim()) {
@@ -410,9 +385,10 @@ function VehicleModal({ isOpen, onClose, onSubmit, form, setForm, editId, mechan
               {[
                 { label: 'Merek',  key: 'brand', placeholder: 'Toyota' },
                 { label: 'Model',  key: 'model', placeholder: 'Avanza' },
-                { label: 'Tahun', key: 'year',  placeholder: '2022', type: 'number' },
-                { label: 'KM',    key: 'mileage', placeholder: '32000' },
-              ].map(({ label, key, placeholder, type='text' }) => (
+                { label: 'Tahun',  key: 'year',  placeholder: '2022', type: 'number' },
+                { label: 'Warna',  key: 'color', placeholder: 'Hitam' },
+                { label: 'KM',     key: 'km',    placeholder: '32000', type: 'number' },
+              ].map(({ label, key, placeholder, type = 'text' }) => (
                 <div key={key}>
                   <label className="block text-xs text-gray-400 mb-1.5">{label}</label>
                   <input type={type} value={form[key] || ''} placeholder={placeholder}
@@ -425,7 +401,7 @@ function VehicleModal({ isOpen, onClose, onSubmit, form, setForm, editId, mechan
               <div className="col-span-2">
                 <label className="block text-xs text-gray-400 mb-1.5">Pemilik</label>
                 <div className="relative">
-                  <input list="customer-list" value={form.owner || ''} placeholder="Nama pemilik atau pilih customer..."
+                  <input list="customer-list" value={form.ownerName || ''} placeholder="Pilih customer..."
                     onChange={handleOwnerSelect}
                     className={inputCls} style={inputStyle} />
                   <datalist id="customer-list">
@@ -449,39 +425,17 @@ function VehicleModal({ isOpen, onClose, onSubmit, form, setForm, editId, mechan
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5">Status</label>
-                <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-                  className={inputCls} style={inputStyle}>
-                  <option>Menunggu</option>
-                  <option>Servis</option>
-                  <option>Selesai</option>
-                </select>
+                <label className="block text-xs text-gray-400 mb-1.5">Servis Terakhir</label>
+                <input type="date" value={form.lastService || ''}
+                  onChange={e => setForm(f => ({ ...f, lastService: e.target.value }))}
+                  className={inputCls} style={inputStyle} />
               </div>
             </div>
 
             <div className="mt-4">
-              <label className="block text-xs text-gray-400 mb-1.5">Sumber Kendaraan</label>
-              <select value={form.source || 'admin'} onChange={e => setForm(f => ({ ...f, source: e.target.value }))}
-                className={inputCls} style={inputStyle}>
-                <option value="admin">🛡️ Admin Input</option>
-                <option value="catalog">✦ Database Vehicle</option>
-                <option value="customer_upload">📸 Customer Upload</option>
-              </select>
-            </div>
-
-            <div className="mt-4">
-              <label className="block text-xs text-gray-400 mb-1.5">Penanggung Jawab (Mekanik)</label>
-              <select value={form.mechanicId || ''} onChange={e => setForm(f => ({ ...f, mechanicId: e.target.value }))}
-                className={inputCls} style={inputStyle}>
-                <option value="">— Pilih Mekanik —</option>
-                {mechanics.map(m => <option key={m.id} value={m.id}>{m.name} · {m.specialization}</option>)}
-              </select>
-            </div>
-
-            <div className="mt-4">
-              <label className="block text-xs text-gray-400 mb-1.5">Tanggal Servis Terakhir</label>
-              <input type="date" value={form.lastService || ''}
-                onChange={e => setForm(f => ({ ...f, lastService: e.target.value }))}
+              <label className="block text-xs text-gray-400 mb-1.5">Servis Berikutnya (untuk pengingat)</label>
+              <input type="date" value={form.nextService || ''}
+                onChange={e => setForm(f => ({ ...f, nextService: e.target.value }))}
                 className={inputCls} style={inputStyle} />
             </div>
           </form>
@@ -495,10 +449,10 @@ function VehicleModal({ isOpen, onClose, onSubmit, form, setForm, editId, mechan
             style={{ border: '1px solid rgba(34,197,94,0.15)' }}>
             Batal
           </button>
-          <button type="submit" form="form-vehicle"
-            className="px-6 py-2.5 rounded-xl text-sm font-semibold text-black transition-all hover:opacity-90 flex items-center gap-2"
+          <button type="submit" form="form-vehicle" disabled={saving}
+            className="px-6 py-2.5 rounded-xl text-sm font-semibold text-black transition-all hover:opacity-90 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }}>
-            <MdAdd size={16} /> Simpan
+            {saving ? <MdRefresh size={16} className="animate-spin" /> : <MdAdd size={16} />} {saving ? 'Menyimpan...' : 'Simpan'}
           </button>
         </div>
       </motion.div>
@@ -506,80 +460,67 @@ function VehicleModal({ isOpen, onClose, onSubmit, form, setForm, editId, mechan
   )
 }
 
-// ─── Main Component ────────────────────────────────────────────────────
+// ─── Main Component ─────────────────────────────────────────────────
 export default function Vehicles() {
-  const [vehicles, setVehicles] = useState(loadVehicles)
-  const [mechanics] = useState(() => {
-    try {
-      const s = sessionStorage.getItem('garage_mechanics')
-      return s ? JSON.parse(s) : defaultMechanics
-    } catch { return defaultMechanics }
-  })
-
+  const [vehicles, setVehicles] = useState([])
+  const [loadingList, setLoadingList] = useState(true)
   const [customers, setCustomers] = useState([])
-  useEffect(() => {
-    import('../services/customerAPI').then(({ customerAPI }) => {
-      customerAPI.fetchAll().then(setCustomers).catch(() => {})
-    })
-  }, [])
+
+  const loadVehicles = async () => {
+    setLoadingList(true)
+    try {
+      const data = await vehicleAPI.fetchAll()
+      setVehicles((data || []).map(normalizeVehicle))
+    } catch (err) {
+      console.error('Gagal load vehicles:', err)
+    } finally {
+      setLoadingList(false)
+    }
+  }
+
+  useEffect(() => { loadVehicles() }, [])
+  useEffect(() => { customerAPI.fetchAll().then(setCustomers).catch(() => {}) }, [])
 
   // State filter & sort
   const [search,       setSearch]       = useState('')
   const [filterType,   setFilterType]   = useState('Semua')
-  const [filterStatus, setFilterStatus] = useState('Semua')
-  const [filterSource, setFilterSource] = useState('Semua')
-  const [sortBy,       setSortBy]       = useState('plate')   // 'plate' | 'lastService' | 'mileage'
+  const [filterStatus, setFilterStatus] = useState('Semua') // status servis (derived)
+  const [sortBy,       setSortBy]       = useState('plate')   // 'plate' | 'lastService' | 'km'
   const [sortOrder,    setSortOrder]    = useState('asc')
 
   const [showModal,    setShowModal]    = useState(false)
   const [form,         setForm]         = useState(initialForm)
   const [editId,       setEditId]       = useState(null)
+  const [saving,       setSaving]       = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [detailVehicle,setDetailVehicle]= useState(null)
   const [currentPage,  setCurrentPage]  = useState(1)
   const itemsPerPage = 30
 
-  // Refresh data (merge dengan sessionStorage)
-  const handleRefresh = () => {
-    setVehicles(loadVehicles())
-    // notifikasi sederhana
-    alert('Data kendaraan telah diperbarui dari penyimpanan.')
-  }
+  const handleRefresh = () => { loadVehicles() }
 
-  // Simpan ke sessionStorage setiap kali vehicles berubah
-  useEffect(() => {
-    try { sessionStorage.setItem(LS_KEY_VEHICLES, JSON.stringify(vehicles)) } catch {}
-  }, [vehicles])
+  useEffect(() => { setCurrentPage(1) }, [search, filterType, filterStatus, sortBy, sortOrder])
 
-  // Reset halaman saat filter berubah
-  useEffect(() => { setCurrentPage(1) }, [search, filterType, filterStatus, filterSource, sortBy, sortOrder])
-
-  // Helper
-  const getMechName  = id => mechanics.find(m => m.id === id)?.name || null
-  const getCustomer  = v => {
+  const getCustomer = v => {
     if (v.customerId) return customers.find(c => c.id === v.customerId) || null
-    return customers.find(c => c.name === v.owner) || null
+    return null
   }
 
   // Filter + Sort
   const filtered = useMemo(() => {
     let result = vehicles.filter(v => {
       const q = search.toLowerCase()
-      const matchSearch = !q || [v.plate, v.owner, v.brand, v.model].some(s => (s||'').toLowerCase().includes(q))
-      const matchType   = filterType   === 'Semua' || v.type   === filterType
-      const matchStatus = filterStatus === 'Semua' || v.status === filterStatus
-      const matchSource = filterSource === 'Semua' ||
-        (filterSource === 'catalog'         && v.source === 'catalog') ||
-        (filterSource === 'customer_upload' && v.source === 'customer_upload') ||
-        (filterSource === 'admin'           && (!v.source || v.source === 'admin'))
-      return matchSearch && matchType && matchStatus && matchSource
+      const owner = getCustomer(v)?.name || ''
+      const matchSearch = !q || [v.plate, owner, v.brand, v.model].some(s => (s || '').toLowerCase().includes(q))
+      const matchType   = filterType   === 'Semua' || v.type === filterType
+      const matchStatus = filterStatus === 'Semua' || getServiceStatus(v.nextService).label === filterStatus
+      return matchSearch && matchType && matchStatus
     })
 
-    // Sorting
     const sortFn = (a, b) => {
-      let valA = a[sortBy] || ''
-      let valB = b[sortBy] || ''
-      if (sortBy === 'mileage') {
+      let valA = a[sortBy] ?? ''
+      let valB = b[sortBy] ?? ''
+      if (sortBy === 'km') {
         valA = parseInt(valA) || 0
         valB = parseInt(valB) || 0
         return sortOrder === 'asc' ? valA - valB : valB - valA
@@ -591,17 +532,17 @@ export default function Vehicles() {
     }
     result.sort(sortFn)
     return result
-  }, [vehicles, search, filterType, filterStatus, filterSource, sortBy, sortOrder])
+  }, [vehicles, customers, search, filterType, filterStatus, sortBy, sortOrder])
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage)
-  const paginated  = filtered.slice((currentPage-1)*itemsPerPage, currentPage*itemsPerPage)
+  const paginated  = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
   const counts = useMemo(() => ({
-    all:             vehicles.length,
-    selesai:         vehicles.filter(v => v.status === 'Selesai').length,
-    servis:          vehicles.filter(v => v.status === 'Servis').length,
-    menunggu:        vehicles.filter(v => v.status === 'Menunggu').length,
-    fromCustomer:    vehicles.filter(v => v.source === 'catalog' || v.source === 'customer_upload').length,
+    all:          vehicles.length,
+    terjadwal:    vehicles.filter(v => getServiceStatus(v.nextService).label === 'Terjadwal').length,
+    segeraServis: vehicles.filter(v => getServiceStatus(v.nextService).label === 'Segera Servis').length,
+    terlambat:    vehicles.filter(v => getServiceStatus(v.nextService).label === 'Servis Terlambat').length,
+    withCustomer: vehicles.filter(v => v.customerId).length,
   }), [vehicles])
 
   // ── CRUD Handlers ──
@@ -613,42 +554,65 @@ export default function Vehicles() {
 
   const handleEdit = (v) => {
     setDetailVehicle(null)
+    const owner = getCustomer(v)
     setForm({
-      plate: v.plate, brand: v.brand, model: v.model, year: v.year,
-      owner: v.owner, customerId: v.customerId || '', type: v.type,
-      mechanicId: v.mechanicId || '', lastService: v.lastService || '',
-      mileage: v.mileage || '', status: v.status || 'Menunggu',
-      photo: v.photo || null, source: v.source || 'admin',
+      plate: v.plate || '', brand: v.brand || '', model: v.model || '', year: v.year || '',
+      color: v.color || '', customerId: v.customerId || '', ownerName: owner?.name || '',
+      type: v.type || 'Mobil', km: v.km || '', lastService: v.lastService || '',
+      nextService: v.nextService || '', photo: v.photo || null,
     })
     setEditId(v.id)
     setShowModal(true)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (editId) {
-      setVehicles(prev => prev.map(v => v.id === editId ? { ...v, ...form } : v))
-      alert('Kendaraan berhasil diperbarui!')
-    } else {
-      const newId = 'VA-' + Date.now()
-      setVehicles(prev => [{ ...form, id: newId, addedAt: new Date().toISOString().slice(0,10) }, ...prev])
-      alert('Kendaraan baru berhasil ditambahkan!')
+    setSaving(true)
+
+    const payload = {
+      plate: form.plate, brand: form.brand, model: form.model,
+      year: form.year ? Number(form.year) : null,
+      color: form.color || null,
+      type: form.type,
+      km: form.km ? Number(form.km) : 0,
+      last_service: form.lastService || null,
+      next_service: form.nextService || null,
+      customer_id: form.customerId || null,
+      photo_url: form.photo,
     }
-    setShowModal(false)
-    setForm(initialForm)
-    setEditId(null)
+
+    try {
+      if (editId) {
+        const updated = await vehicleAPI.update(editId, payload)
+        if (updated) setVehicles(prev => prev.map(v => v.id === editId ? normalizeVehicle(updated) : v))
+      } else {
+        const created = await vehicleAPI.create(payload)
+        if (created) setVehicles(prev => [normalizeVehicle(created), ...prev])
+      }
+      setShowModal(false)
+      setForm(initialForm)
+      setEditId(null)
+    } catch (err) {
+      console.error('Gagal menyimpan kendaraan:', err)
+      alert('Gagal menyimpan data kendaraan. Coba lagi.')
+    } finally {
+      setSaving(false)
+    }
   }
 
-  const handleDelete = () => {
-    setVehicles(prev => prev.filter(v => v.id !== deleteTarget.id))
-    setDeleteTarget(null)
-    alert('Kendaraan berhasil dihapus.')
+  const handleDelete = async () => {
+    try {
+      await vehicleAPI.delete(deleteTarget.id)
+      setVehicles(prev => prev.filter(v => v.id !== deleteTarget.id))
+    } catch (err) {
+      console.error('Gagal menghapus kendaraan:', err)
+      alert('Gagal menghapus data kendaraan. Coba lagi.')
+    } finally {
+      setDeleteTarget(null)
+    }
   }
 
-  // Navigasi ke halaman customer (misal panggil navigate dari router)
   const handleViewCustomer = (customer) => {
-    // Jika Anda menggunakan React Router, bisa panggil history.push atau navigate
-    // Di sini kita hanya tampilkan alert sebagai contoh
     alert(`Buka profil customer: ${customer.name} (ID: ${customer.id})`)
   }
 
@@ -663,14 +627,14 @@ export default function Vehicles() {
               Garasi Kendaraan
             </h1>
             <p className="text-sm text-gray-500 mt-0.5">
-              {counts.all} kendaraan · {counts.fromCustomer} dari customer
+              {counts.all} kendaraan · {counts.withCustomer} tertaut customer
             </p>
           </div>
           <div className="flex gap-2">
             <button onClick={handleRefresh}
               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all"
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <MdRefresh size={16} /> Refresh
+              <MdRefresh size={16} className={loadingList ? 'animate-spin' : ''} /> Refresh
             </button>
             <button onClick={handleAdd}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-black transition-all hover:scale-105"
@@ -681,13 +645,12 @@ export default function Vehicles() {
         </div>
 
         {/* Stat cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Total',           value: counts.all,         icon: '🚗', color: '#94A3B8', bg: 'rgba(148,163,184,0.1)' },
-            { label: 'Selesai',         value: counts.selesai,     icon: '✅', color: '#22C55E', bg: 'rgba(34,197,94,0.1)'   },
-            { label: 'Servis',          value: counts.servis,      icon: '🔧', color: '#FBBF24', bg: 'rgba(251,191,36,0.1)'  },
-            { label: 'Menunggu',        value: counts.menunggu,    icon: '⏳', color: '#60A5FA', bg: 'rgba(96,165,250,0.1)'  },
-            { label: 'Dari Customer',   value: counts.fromCustomer,icon: '👤', color: '#A855F7', bg: 'rgba(168,85,247,0.1)'  },
+            { label: 'Total',           value: counts.all,          icon: '🚗', color: '#94A3B8', bg: 'rgba(148,163,184,0.1)' },
+            { label: 'Terjadwal',       value: counts.terjadwal,    icon: '✅', color: '#22C55E', bg: 'rgba(34,197,94,0.1)'   },
+            { label: 'Segera Servis',   value: counts.segeraServis, icon: '🔧', color: '#FBBF24', bg: 'rgba(251,191,36,0.1)'  },
+            { label: 'Servis Terlambat', value: counts.terlambat,   icon: '⚠️', color: '#EF4444', bg: 'rgba(239,68,68,0.1)'  },
           ].map(s => (
             <div key={s.label} className="rounded-2xl px-4 py-3 transition-all hover:scale-[1.02]"
               style={{ background: s.bg, border: `1px solid ${s.color}30` }}>
@@ -711,8 +674,7 @@ export default function Vehicles() {
           </div>
 
           <div className="flex flex-wrap gap-2 items-center">
-            {/* Filter tipe */}
-            {['Semua','Mobil','Motor'].map(t => (
+            {['Semua', 'Mobil', 'Motor'].map(t => (
               <button key={t} onClick={() => setFilterType(t)}
                 className="px-3 py-2 rounded-xl text-xs font-semibold transition-all"
                 style={filterType === t
@@ -721,29 +683,19 @@ export default function Vehicles() {
                 {t}
               </button>
             ))}
-            {/* Filter status */}
             <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
               className="px-3 py-2 rounded-xl text-xs text-gray-300 outline-none bg-white/5 border border-green-900/30">
-              {['Semua','Selesai','Servis','Menunggu'].map(s => <option key={s}>{s}</option>)}
-            </select>
-            {/* Filter sumber */}
-            <select value={filterSource} onChange={e => setFilterSource(e.target.value)}
-              className="px-3 py-2 rounded-xl text-xs text-gray-300 outline-none bg-white/5 border border-green-900/30">
-              <option value="Semua">Semua Sumber</option>
-              <option value="catalog">Database</option>
-              <option value="customer_upload">Upload Customer</option>
-              <option value="admin">Admin</option>
+              {['Semua', 'Terjadwal', 'Segera Servis', 'Servis Terlambat', 'Belum Dijadwalkan'].map(s => <option key={s}>{s}</option>)}
             </select>
           </div>
 
-          {/* Sortir */}
           <div className="flex items-center gap-2 ml-auto">
             <MdSort size={18} className="text-green-600" />
             <select value={sortBy} onChange={e => setSortBy(e.target.value)}
               className="px-3 py-2 rounded-xl text-xs text-gray-300 outline-none bg-white/5 border border-green-900/30">
               <option value="plate">Plat</option>
               <option value="lastService">Tanggal Servis</option>
-              <option value="mileage">Kilometer</option>
+              <option value="km">Kilometer</option>
             </select>
             <button onClick={() => setSortOrder(o => o === 'asc' ? 'desc' : 'asc')}
               className="px-3 py-2 rounded-xl text-xs text-gray-300 hover:text-white transition-all"
@@ -754,37 +706,44 @@ export default function Vehicles() {
         </div>
 
         {/* Grid */}
-        <AnimatePresence>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-            {paginated.map(v => (
-              <VehicleCard
-                key={v.id}
-                vehicle={v}
-                mechanic={getMechName(v.mechanicId)}
-                customerName={getCustomer(v)?.name || null}
-                onEdit={handleEdit}
-                onDelete={setDeleteTarget}
-                onDetail={setDetailVehicle}
-              />
-            ))}
+        {loadingList ? (
+          <div className="flex items-center justify-center py-20">
+            <MdRefresh size={24} className="text-green-400 animate-spin" />
           </div>
-        </AnimatePresence>
+        ) : (
+          <>
+            <AnimatePresence>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {paginated.map(v => (
+                  <VehicleCard
+                    key={v.id}
+                    vehicle={v}
+                    customerName={getCustomer(v)?.name || null}
+                    onEdit={handleEdit}
+                    onDelete={setDeleteTarget}
+                    onDetail={setDetailVehicle}
+                  />
+                ))}
+              </div>
+            </AnimatePresence>
 
-        {paginated.length === 0 && (
-          <div className="text-center py-20 text-gray-500 flex flex-col items-center gap-4">
-            <MdDirectionsCar size={64} className="opacity-20" />
-            <p className="text-sm">Tidak ada kendaraan ditemukan</p>
-          </div>
-        )}
+            {paginated.length === 0 && (
+              <div className="text-center py-20 text-gray-500 flex flex-col items-center gap-4">
+                <MdDirectionsCar size={64} className="opacity-20" />
+                <p className="text-sm">Tidak ada kendaraan ditemukan</p>
+              </div>
+            )}
 
-        <p className="text-xs text-gray-600 mt-6 text-center">
-          Menampilkan {paginated.length} dari {filtered.length} kendaraan
-        </p>
+            <p className="text-xs text-gray-600 mt-6 text-center">
+              Menampilkan {paginated.length} dari {filtered.length} kendaraan
+            </p>
 
-        {totalPages > 1 && (
-          <div className="mt-8">
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-          </div>
+            {totalPages > 1 && (
+              <div className="mt-8">
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -792,7 +751,6 @@ export default function Vehicles() {
       {detailVehicle && (
         <DetailDrawer
           vehicle={detailVehicle}
-          mechanic={getMechName(detailVehicle.mechanicId)}
           customerData={getCustomer(detailVehicle)}
           onClose={() => setDetailVehicle(null)}
           onEdit={handleEdit}
@@ -807,8 +765,8 @@ export default function Vehicles() {
         onSubmit={handleSubmit}
         form={form} setForm={setForm}
         editId={editId}
-        mechanics={mechanics}
         customers={customers}
+        saving={saving}
       />
 
       {/* Hapus confirm */}

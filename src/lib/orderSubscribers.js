@@ -64,7 +64,9 @@ export function registerOrderSubscribers() {
   // mendapat 1 order aktif baru.
   subscribe(ORDER_EVENTS.ORDER_CONFIRMED, ({ order }) => {
     if (order.mechanicId) {
-      updateMechanicActiveOrders(order.mechanicId, order.id, 'add')
+      updateMechanicActiveOrders(order.mechanicId, order.id, 'add').catch(err =>
+        console.error('[orderSubscribers] Gagal update mechanic active orders (confirmed):', err)
+      )
     }
   })
 
@@ -76,28 +78,56 @@ export function registerOrderSubscribers() {
   })
 
   // ── ORDER_COMPLETED ──────────────────────────────────────
-  subscribe(ORDER_EVENTS.ORDER_COMPLETED, ({ order }) => {
+  subscribe(ORDER_EVENTS.ORDER_COMPLETED, async ({ order }) => {
     // 1. Loyalty — Rule 2: gunakan finalTotal, bukan estimatedTotal
+    // SUDAH Supabase-backed (lihat lib/loyaltyEngine.js). CATATAN: untuk
+    // order yang selesai lewat OrderDetail.jsx (workflowEngine), poin
+    // dasar SUDAH diberikan langsung di completeOrder() itu sendiri —
+    // baris ini akan menambah poin KEDUA KALINYA untuk jalur tersebut.
+    // Untuk order yang selesai lewat Orders.jsx (yang TIDAK meng-emit
+    // event ini), baris ini adalah satu-satunya jalur pemberian poin.
     const total = order.finalTotal ?? order.total
     if (order.customerId && total > 0) {
-      applyOrderCompletedLoyalty(order.customerId, total, order.id, order.service)
+      try {
+        const result = await applyOrderCompletedLoyalty(order.customerId, total, order.id, order.service)
+        if (result.success && result.pointsEarned > 0) {
+          const { notificationAPI } = await import('../services/notificationAPI')
+          await notificationAPI.notifyServiceDone(order.customer, order.service, order.id, order.customerId)
+          await notificationAPI.notifyPointsEarned(order.customerId, result.pointsEarned, order.service)
+        }
+      } catch (err) {
+        console.error('[orderSubscribers] Gagal proses loyalty (completed):', err)
+      }
     }
 
     // 2. Voucher — Rule 3: voucher jadi 'used' hanya di sini
+    // SUDAH Supabase-backed (lihat lib/loyaltyEngine.js).
     if (order.customerId && order.voucherId) {
-      const result = markVoucherAsUsed(order.customerId, order.voucherId, order.id)
-      if (result.success) {
-        emit(ORDER_EVENTS.VOUCHER_APPLIED, { order, voucherId: order.voucherId })
+      try {
+        const result = await markVoucherAsUsed(order.customerId, order.voucherId, order.id)
+        if (result.success) {
+          emit(ORDER_EVENTS.VOUCHER_APPLIED, { order, voucherId: order.voucherId })
+        }
+      } catch (err) {
+        console.error('[orderSubscribers] Gagal tandai voucher used:', err)
       }
     }
 
     // 3. Mechanic — Rule 5: activeOrderIds berkurang, status derived
+    // SUDAH Supabase-backed (lihat lib/mechanicEngine.js). order.mechanicId
+    // sekarang terisi kalau mekanik di-assign lewat Orders.jsx atau
+    // OrderDetail.jsx (lihat pages/Orders.jsx handleSubmit/handleQuickAssign).
     if (order.mechanicId) {
-      updateMechanicActiveOrders(order.mechanicId, order.id, 'remove')
+      updateMechanicActiveOrders(order.mechanicId, order.id, 'remove').catch(err =>
+        console.error('[orderSubscribers] Gagal update mechanic active orders (completed):', err)
+      )
     }
 
     // 4. Inventory — Rule 4: deduksi stok hanya saat COMPLETED
-    deductStockForOrder(order)
+    // SUDAH Supabase-backed (lihat lib/inventoryEngine.js).
+    deductStockForOrder(order).catch(err =>
+      console.error('[orderSubscribers] Gagal deduksi stok inventory:', err)
+    )
   })
 
   // ── ORDER_CANCELLED ──────────────────────────────────────
@@ -105,7 +135,9 @@ export function registerOrderSubscribers() {
   // pernah diberikan sebelum COMPLETED.
   subscribe(ORDER_EVENTS.ORDER_CANCELLED, ({ order }) => {
     if (order.mechanicId) {
-      updateMechanicActiveOrders(order.mechanicId, order.id, 'remove')
+      updateMechanicActiveOrders(order.mechanicId, order.id, 'remove').catch(err =>
+        console.error('[orderSubscribers] Gagal update mechanic active orders (cancelled):', err)
+      )
     }
   })
 }

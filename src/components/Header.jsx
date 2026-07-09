@@ -1,6 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useAdminNotifications } from "../hooks/useNotifications";
 import { useNavigate } from "react-router-dom";
+import { orderAPI } from "../services/orderAPI";
+import { customerAPI } from "../services/customerAPI";
 import {
   MdNotifications,
   MdSearch,
@@ -17,6 +19,8 @@ import {
   MdKeyboardArrowDown,
   MdPhotoCamera,
   MdDeleteOutline,
+  MdReceiptLong,
+  MdDirectionsCar,
 } from "react-icons/md";
 
 // Notifikasi sekarang dari Supabase via useAdminNotifications
@@ -41,6 +45,15 @@ export default function Header({ onToggleSidebar }) {
   const notifRef = useRef(null);
   const profileRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  // ── Global Search (Order, Pelanggan, Kendaraan) ──────────────
+  const searchRef = useRef(null);
+  const debounceRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchCache, setSearchCache] = useState(null); // { orders, customers }
+  const [searchResults, setSearchResults] = useState({ orders: [], customers: [] });
 
   // Data user dari sessionStorage (sama dengan yang dipakai Settings)
   const [user, setUser] = useState(() => {
@@ -77,10 +90,90 @@ export default function Header({ onToggleSidebar }) {
     const handler = (e) => {
       if (notifRef.current && !notifRef.current.contains(e.target)) setShowNotif(false);
       if (profileRef.current && !profileRef.current.contains(e.target)) setShowProfile(false);
+      if (searchRef.current && !searchRef.current.contains(e.target)) setSearchOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  // Ambil data order + customer sekali (di-cache), dipakai untuk pencarian.
+  // Data diambil saat search box pertama kali difokus, bukan setiap keystroke.
+  const loadSearchData = useCallback(async () => {
+    if (searchCache) return searchCache;
+    setSearchLoading(true);
+    try {
+      const [orders, customers] = await Promise.all([
+        orderAPI.fetchAll(),
+        customerAPI.fetchAll(),
+      ]);
+      const data = { orders: orders || [], customers: customers || [] };
+      setSearchCache(data);
+      return data;
+    } catch (err) {
+      console.error("Gagal memuat data pencarian:", err);
+      return { orders: [], customers: [] };
+    } finally {
+      setSearchLoading(false);
+    }
+  }, [searchCache]);
+
+  const runSearch = useCallback(async (rawQuery) => {
+    const q = rawQuery.trim().toLowerCase();
+    if (q.length < 2) {
+      setSearchResults({ orders: [], customers: [] });
+      return;
+    }
+    const data = await loadSearchData();
+    const matchedCustomers = (data.customers || [])
+      .filter((c) =>
+        c.name?.toLowerCase().includes(q) ||
+        c.email?.toLowerCase().includes(q) ||
+        c.phone?.toLowerCase().includes(q)
+      )
+      .slice(0, 5);
+    const matchedOrders = (data.orders || [])
+      .filter((o) =>
+        o.id?.toLowerCase().includes(q) ||
+        o.customer?.toLowerCase().includes(q) ||
+        o.vehicle?.toLowerCase().includes(q) ||
+        o.service?.toLowerCase().includes(q)
+      )
+      .slice(0, 5);
+    setSearchResults({ orders: matchedOrders, customers: matchedCustomers });
+  }, [loadSearchData]);
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    setSearchOpen(true);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => runSearch(value), 300);
+  };
+
+  const handleSearchFocus = () => {
+    setSearchOpen(true);
+    loadSearchData(); // warm cache di awal supaya hasil pertama tidak nunggu lama
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    setSearchResults({ orders: [], customers: [] });
+  };
+
+  const goToOrder = (order) => {
+    setSearchOpen(false);
+    clearSearch();
+    navigate(`/orders/${encodeURIComponent(order.id)}`);
+  };
+
+  const goToCustomer = (customer) => {
+    setSearchOpen(false);
+    clearSearch();
+    navigate(`/customers/${encodeURIComponent(customer.id)}`);
+  };
+
+  const hasQuery = searchQuery.trim().length >= 2;
+  const hasResults = searchResults.orders.length > 0 || searchResults.customers.length > 0;
 
   const notifColors = { booking_success: "#22C55E", service_done: "#16A34A", new_booking: "#EAB308", new_order: "#3B82F6", low_stock: "#EF4444" };
 
@@ -136,16 +229,94 @@ export default function Header({ onToggleSidebar }) {
       </button>
 
       {/* Search */}
-      <div className="flex items-center flex-1 max-w-md">
+      <div className="relative flex items-center flex-1 max-w-md" ref={searchRef}>
         <div className="relative w-full">
           <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
           <input
             type="text"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            onFocus={handleSearchFocus}
             placeholder="Cari order, pelanggan, kendaraan..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl text-sm text-gray-300 outline-none transition-all"
+            className="w-full pl-10 pr-9 py-2 rounded-xl text-sm text-gray-300 outline-none transition-all"
             style={{ background: "rgba(11,59,46,0.4)", border: "1px solid rgba(34,197,94,0.1)" }}
           />
+          {searchQuery && (
+            <button
+              onClick={clearSearch}
+              aria-label="Bersihkan pencarian"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+            >
+              <MdClose size={16} />
+            </button>
+          )}
         </div>
+
+        {searchOpen && searchQuery.length > 0 && (
+          <div
+            className="absolute left-0 right-0 top-full mt-2 rounded-2xl overflow-hidden z-[9999]"
+            style={{ background: "#051a0e", border: "1px solid rgba(34,197,94,0.2)", boxShadow: "0 20px 60px rgba(0,0,0,0.7)" }}
+          >
+            {!hasQuery ? (
+              <div className="px-4 py-4 text-xs text-gray-600">Ketik minimal 2 karakter untuk mencari...</div>
+            ) : searchLoading ? (
+              <div className="flex items-center justify-center py-8 text-gray-600 text-xs gap-2">
+                <div className="w-4 h-4 border-2 border-green-500/40 border-t-green-400 rounded-full animate-spin" />
+                Mencari...
+              </div>
+            ) : !hasResults ? (
+              <div className="flex flex-col items-center justify-center py-8 text-gray-600">
+                <span className="text-2xl mb-2">🔍</span>
+                <p className="text-xs">Tidak ada hasil untuk "{searchQuery}"</p>
+              </div>
+            ) : (
+              <div className="max-h-96 overflow-y-auto">
+                {searchResults.customers.length > 0 && (
+                  <div>
+                    <p className="px-4 pt-3 pb-1 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Pelanggan</p>
+                    {searchResults.customers.map((c) => (
+                      <div
+                        key={c.id}
+                        onClick={() => goToCustomer(c)}
+                        className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-green-500/5 transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(34,197,94,0.12)" }}>
+                          <MdPerson className="text-green-400" size={16} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white text-xs font-semibold truncate">{c.name}</p>
+                          <p className="text-gray-500 text-[11px] truncate">{c.email || c.phone || ""}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {searchResults.orders.length > 0 && (
+                  <div>
+                    <p className="px-4 pt-3 pb-1 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Order</p>
+                    {searchResults.orders.map((o) => (
+                      <div
+                        key={o.id}
+                        onClick={() => goToOrder(o)}
+                        className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-green-500/5 transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(34,197,94,0.12)" }}>
+                          <MdReceiptLong className="text-green-400" size={16} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white text-xs font-semibold truncate">{o.customer} · {o.id}</p>
+                          <p className="text-gray-500 text-[11px] truncate flex items-center gap-1">
+                            <MdDirectionsCar size={11} /> {o.vehicle?.split(" - ")[0] || o.service || ""}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Right Actions */}

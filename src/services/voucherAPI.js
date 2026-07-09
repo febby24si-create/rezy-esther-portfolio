@@ -20,6 +20,14 @@ export const voucherAPI = {
     return response.data
   },
 
+  async fetchById(id) {
+    const response = await axios.get(`${API_URL}/vouchers`, {
+      headers,
+      params: { id: `eq.${id}`, limit: 1 }
+    })
+    return response.data[0] || null
+  },
+
   // Buat voucher baru
   async create(data) {
     const response = await axios.post(`${API_URL}/vouchers`, data, { headers })

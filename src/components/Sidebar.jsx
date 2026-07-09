@@ -20,7 +20,8 @@ import {
   MdLogin,
   MdManageAccounts,
 } from "react-icons/md";
-import { getBookingStats } from "../lib/bookingEngine";
+import { bookingAPI } from "../services/bookingAPI";
+import { BOOKING_STATUS } from "../constants/statusConstants";
 
 const navItems = [
   { path: "/dashboard", icon: MdDashboard,    label: "Dashboard" },
@@ -85,11 +86,23 @@ export default function Sidebar({ onClose }) {
   });
 
   useEffect(() => {
-    const loadStats = () => {
-      try { setBookingStats(getBookingStats()) } catch {}
+    // Sebelumnya pakai getBookingStats() dari lib/bookingEngine, yang baca
+    // sessionStorage — key itu tidak pernah diisi lagi sejak Bookings.jsx
+    // pindah ke Supabase, jadi badge ini selalu menunjukkan 0. Sekarang
+    // hitung langsung dari data booking real via bookingAPI.
+    const loadStats = async () => {
+      try {
+        const bookings = await bookingAPI.fetchAll();
+        const pendingConfirmation = (bookings || []).filter(
+          (b) => b.status === BOOKING_STATUS.WAITING_CONFIRMATION
+        ).length;
+        setBookingStats({ pendingConfirmation });
+      } catch {
+        // Diamkan — badge cukup tidak muncul kalau gagal fetch
+      }
     };
     loadStats();
-    const iv = setInterval(loadStats, 5000);
+    const iv = setInterval(loadStats, 15000);
     return () => clearInterval(iv);
   }, []);
 

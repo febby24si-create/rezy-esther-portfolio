@@ -19,6 +19,14 @@ export const mechanicAPI = {
     return response.data
   },
 
+  async fetchById(id) {
+    const response = await axios.get(`${API_URL}/mechanics`, {
+      headers,
+      params: { id: `eq.${id}`, limit: 1 }
+    })
+    return response.data[0] || null
+  },
+
   async create(data) {
     const response = await axios.post(`${API_URL}/mechanics`, data, { headers })
     return response.data[0] || null

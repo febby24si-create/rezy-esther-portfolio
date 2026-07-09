@@ -27,4 +27,13 @@ export const authAPI = {
     const response = await axios.post(API_URL, data, { headers })
     return response.data
   },
+
+  // Cek apakah email terdaftar di tabel users (dipakai oleh Forgot Password)
+  async checkEmailExists(email) {
+    const response = await axios.get(API_URL, {
+      headers,
+      params: { email: `eq.${email}`, limit: 1 },
+    })
+    return response.data.length > 0
+  },
 }

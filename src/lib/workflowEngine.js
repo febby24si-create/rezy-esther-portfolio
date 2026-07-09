@@ -36,7 +36,7 @@
 //   Status 'Selesai' di-set saat QC pass + payment done.
 // ============================================================
 
-import { updateOrder, getAllOrders } from './orderStorage'
+import { updateOrder, getOrderById } from './orderStorage'
 import { emit, ORDER_EVENTS } from './orderEvents'
 
 // ─── WORKFLOW STAGES ─────────────────────────────────────────
@@ -108,8 +108,8 @@ function ok(order)  { return { success: true,  order, error: null } }
 function fail(msg)  { return { success: false, order: null, error: msg } }
 function now()      { return new Date().toISOString() }
 
-function getOrder(orderId) {
-  return getAllOrders().find(o => o.id === orderId) ?? null
+async function getOrder(orderId) {
+  return await getOrderById(orderId)
 }
 
 // ─── STAGE TRANSITIONS ───────────────────────────────────────
@@ -118,8 +118,8 @@ function getOrder(orderId) {
  * Mulai inspeksi — admin/mekanik memulai pengisian checklist.
  * Status order tetap 'Menunggu', workflowStage berubah ke 'inspection'.
  */
-export function startInspection(orderId, { startedBy = 'Admin' } = {}) {
-  const order = getOrder(orderId)
+export async function startInspection(orderId, { startedBy = 'Admin' } = {}) {
+  const order = await getOrder(orderId)
   if (!order) return fail(`Order ${orderId} tidak ditemukan.`)
 
   // Inisialisasi checklist kosong jika belum ada
@@ -131,7 +131,7 @@ export function startInspection(orderId, { startedBy = 'Admin' } = {}) {
     notes:       '',
   }
 
-  return updateOrder(orderId, {
+  return await updateOrder(orderId, {
     workflowStage: WORKFLOW_STAGE.INSPECTION,
     inspection:    inspectionData,
     stageHistory:  [...(order.stageHistory || []), { stage: WORKFLOW_STAGE.INSPECTION, at: now(), by: startedBy }],
@@ -146,8 +146,8 @@ export function startInspection(orderId, { startedBy = 'Admin' } = {}) {
  * @param {string} notes   - catatan umum inspeksi
  * @param {string} by      - nama mekanik/admin
  */
-export function completeInspection(orderId, { items, notes = '', by = 'Admin' } = {}) {
-  const order = getOrder(orderId)
+export async function completeInspection(orderId, { items, notes = '', by = 'Admin' } = {}) {
+  const order = await getOrder(orderId)
   if (!order) return fail(`Order ${orderId} tidak ditemukan.`)
 
   const inspection = {
@@ -158,7 +158,7 @@ export function completeInspection(orderId, { items, notes = '', by = 'Admin' } 
     completedBy: by,
   }
 
-  return updateOrder(orderId, {
+  return await updateOrder(orderId, {
     workflowStage: WORKFLOW_STAGE.ESTIMATION,
     inspection,
     stageHistory: [...(order.stageHistory || []), { stage: WORKFLOW_STAGE.ESTIMATION, at: now(), by }],
@@ -178,8 +178,8 @@ export function completeInspection(orderId, { items, notes = '', by = 'Admin' } 
  * @param {string}   estimasiData.notes     - catatan untuk customer
  * @param {string}   by
  */
-export function saveEstimation(orderId, { items = [], laborCost = 0, discount = 0, notes = '', by = 'Admin' } = {}) {
-  const order = getOrder(orderId)
+export async function saveEstimation(orderId, { items = [], laborCost = 0, discount = 0, notes = '', by = 'Admin' } = {}) {
+  const order = await getOrder(orderId)
   if (!order) return fail(`Order ${orderId} tidak ditemukan.`)
 
   const partsCost    = items.reduce((sum, i) => sum + (i.total || 0), 0)
@@ -200,7 +200,7 @@ export function saveEstimation(orderId, { items = [], laborCost = 0, discount = 
     version:     (order.estimasi?.version || 0) + 1,
   }
 
-  return updateOrder(orderId, {
+  return await updateOrder(orderId, {
     workflowStage:  WORKFLOW_STAGE.WAITING_APPROVAL,
     estimasi,
     total:          grandTotal, // update total di order untuk display
@@ -213,12 +213,12 @@ export function saveEstimation(orderId, { items = [], laborCost = 0, discount = 
  * Customer approve estimasi.
  * Status order berubah ke 'Sedang Dikerjakan', stage ke 'work_order'.
  */
-export function approveEstimation(orderId, { approvedBy = 'Customer', notes = '' } = {}) {
-  const order = getOrder(orderId)
+export async function approveEstimation(orderId, { approvedBy = 'Customer', notes = '' } = {}) {
+  const order = await getOrder(orderId)
   if (!order) return fail(`Order ${orderId} tidak ditemukan.`)
   if (!order.estimasi) return fail('Estimasi belum dibuat.')
 
-  return updateOrder(orderId, {
+  return await updateOrder(orderId, {
     workflowStage:  WORKFLOW_STAGE.WORK_ORDER,
     status:         'Sedang Dikerjakan',
     approvalStatus: APPROVAL_STATUS.APPROVED,
@@ -233,11 +233,11 @@ export function approveEstimation(orderId, { approvedBy = 'Customer', notes = ''
  * Customer minta revisi estimasi.
  * Stage kembali ke 'estimation', approvalStatus = 'revision_requested'.
  */
-export function requestEstimationRevision(orderId, { reason = '', by = 'Customer' } = {}) {
-  const order = getOrder(orderId)
+export async function requestEstimationRevision(orderId, { reason = '', by = 'Customer' } = {}) {
+  const order = await getOrder(orderId)
   if (!order) return fail(`Order ${orderId} tidak ditemukan.`)
 
-  return updateOrder(orderId, {
+  return await updateOrder(orderId, {
     workflowStage:   WORKFLOW_STAGE.ESTIMATION,
     approvalStatus:  APPROVAL_STATUS.REVISION,
     revisionReason:  reason,
@@ -249,8 +249,8 @@ export function requestEstimationRevision(orderId, { reason = '', by = 'Customer
 /**
  * Mulai QC setelah pengerjaan selesai.
  */
-export function startQC(orderId, { by = 'Admin' } = {}) {
-  const order = getOrder(orderId)
+export async function startQC(orderId, { by = 'Admin' } = {}) {
+  const order = await getOrder(orderId)
   if (!order) return fail(`Order ${orderId} tidak ditemukan.`)
 
   const qcData = order.qc || {
@@ -262,7 +262,7 @@ export function startQC(orderId, { by = 'Admin' } = {}) {
     notes:       '',
   }
 
-  return updateOrder(orderId, {
+  return await updateOrder(orderId, {
     workflowStage: WORKFLOW_STAGE.QC,
     qc:            qcData,
     stageHistory:  [...(order.stageHistory || []), { stage: WORKFLOW_STAGE.QC, at: now(), by }],
@@ -273,8 +273,8 @@ export function startQC(orderId, { by = 'Admin' } = {}) {
  * Selesaikan QC. Jika pass → status 'Siap Diambil'.
  * Jika fail → kembali ke 'Sedang Dikerjakan' untuk perbaikan.
  */
-export function completeQC(orderId, { items, passed, notes = '', by = 'Admin' } = {}) {
-  const order = getOrder(orderId)
+export async function completeQC(orderId, { items, passed, notes = '', by = 'Admin' } = {}) {
+  const order = await getOrder(orderId)
   if (!order) return fail(`Order ${orderId} tidak ditemukan.`)
 
   const qc = {
@@ -287,7 +287,7 @@ export function completeQC(orderId, { items, passed, notes = '', by = 'Admin' } 
   }
 
   if (passed) {
-    return updateOrder(orderId, {
+    return await updateOrder(orderId, {
       workflowStage: WORKFLOW_STAGE.READY_PICKUP,
       status:        'Siap Diambil',
       qc,
@@ -295,7 +295,7 @@ export function completeQC(orderId, { items, passed, notes = '', by = 'Admin' } 
     })
   } else {
     // QC gagal — kembali ke pengerjaan
-    return updateOrder(orderId, {
+    return await updateOrder(orderId, {
       workflowStage: WORKFLOW_STAGE.WORK_ORDER,
       status:        'Sedang Dikerjakan',
       qc,
@@ -326,14 +326,14 @@ export function completeQC(orderId, { items, passed, notes = '', by = 'Admin' } 
  * @param {string}  [opts.by]          - nama kasir
  * @returns {{ success: boolean, order: object|null, error: string|null }}
  */
-export function completeOrder(orderId, {
+export async function completeOrder(orderId, {
   finalTotal,
   paymentMethod = 'cash',
   amountPaid    = null,
   discount      = 0,
   by            = 'Admin',
 } = {}) {
-  const order = getOrder(orderId)
+  const order = await getOrder(orderId)
   if (!order) return fail(`Order ${orderId} tidak ditemukan.`)
 
   if (order.workflowStage !== WORKFLOW_STAGE.READY_PICKUP) {
@@ -352,12 +352,13 @@ export function completeOrder(orderId, {
     paidBy:      by,
   }
 
-  const result = updateOrder(orderId, {
+  const result = await updateOrder(orderId, {
     workflowStage: WORKFLOW_STAGE.COMPLETED,
     status:        'Selesai',
     finalTotal,
     payment,
-    pointsAwarded: false,  // akan diupdate oleh loyaltyEngine via subscriber
+    paymentStatus: 'Lunas',
+    paidAmount:    finalTotal,
     stageHistory:  [
       ...(order.stageHistory || []),
       { stage: WORKFLOW_STAGE.COMPLETED, at: now(), by, note: `Bayar ${paymentMethod} ${finalTotal}` },
@@ -366,10 +367,24 @@ export function completeOrder(orderId, {
 
   if (!result.success) return result
 
-  // Emit ORDER_COMPLETED — semua side effect dihandle oleh subscriber:
-  //   → applyOrderCompletedLoyalty (poin, tier, achievement, voucher)
-  //   → deductStockForOrder (inventory)
-  //   → updateMechanicActiveOrders (lepas order dari mekanik)
+  // ── Poin loyalty & notifikasi ────────────────────────────────
+  // CATATAN MIGRASI (update): saat kode ini pertama ditulis,
+  // orderSubscribers.js (lib/loyaltyEngine.js) masih sessionStorage,
+  // jadi poin diberikan LANGSUNG di sini sebagai workaround. Sekarang
+  // lib/loyaltyEngine.js SUDAH dimigrasikan ke Supabase juga — kalau
+  // pemberian poin tetap dilakukan di sini DAN lewat emit() di bawah,
+  // customer akan dapat poin DUA KALI untuk satu order yang sama.
+  //
+  // Jadi sekarang pemberian poin (+ tier-up voucher & voucher
+  // after-service, yang tidak ada di versi inline sebelumnya) HANYA
+  // lewat satu jalur: subscriber ORDER_COMPLETED di orderSubscribers.js,
+  // dipicu oleh emit() di bawah. Fungsi ini hanya bertanggung jawab
+  // menyelesaikan order-nya sendiri.
+
+  // Event lama tetap di-emit — sekarang ini BUKAN lagi kompatibilitas
+  // kosong, melainkan jalur aktif untuk loyalty (poin, tier-up voucher,
+  // voucher after-service), pelepasan mekanik, dan deduksi stok — lihat
+  // lib/orderSubscribers.js.
   emit(ORDER_EVENTS.ORDER_COMPLETED, { order: result.order })
 
   return result
@@ -383,11 +398,11 @@ export function completeOrder(orderId, {
  * @param {object} opts
  * @param {string} opts.by
  */
-export function startWork(orderId, { by = 'Admin' } = {}) {
-  const order = getOrder(orderId)
+export async function startWork(orderId, { by = 'Admin' } = {}) {
+  const order = await getOrder(orderId)
   if (!order) return fail(`Order ${orderId} tidak ditemukan.`)
 
-  return updateOrder(orderId, {
+  return await updateOrder(orderId, {
     workflowStage: WORKFLOW_STAGE.WORK_ORDER,
     status:        'Sedang Dikerjakan',
     workStartedAt: now(),

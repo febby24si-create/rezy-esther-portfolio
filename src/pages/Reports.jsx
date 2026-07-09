@@ -4,8 +4,10 @@ import {
   LineChart, Line, PieChart, Pie, Cell, Legend
 } from 'recharts'
 import { MdDownload, MdCalendarToday, MdTrendingUp, MdTrendingDown, MdRefresh } from 'react-icons/md'
-import ordersData from '../data/ordersData.json'
-import mechanicsData from '../data/mechanicsData.json'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { orderAPI } from '../services/orderAPI'
+import { mechanicAPI } from '../services/mechanicAPI'
 
 const fmt = (v) => `Rp ${(v / 1000000).toFixed(1)}jt`
 const fmtFull = (v) => 'Rp ' + Number(v).toLocaleString('id-ID')
@@ -83,8 +85,9 @@ function getMechanicByName(name, mechanics) {
 
 function MechanicAvatar({ mechanic, size = 32 }) {
   if (!mechanic) return null
-  if (mechanic.photo) {
-    return <img src={mechanic.photo} alt={mechanic.name} className="rounded-xl object-cover" style={{ width: size, height: size }} />
+  const photo = mechanic.photo_url || mechanic.photo
+  if (photo) {
+    return <img src={photo} alt={mechanic.name} className="rounded-xl object-cover" style={{ width: size, height: size }} />
   }
   const initials = mechanic.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
   return (
@@ -113,35 +116,42 @@ function StatCard({ label, value, sub, trend }) {
 }
 
 export default function Reports() {
-  const [orders, setOrders] = useState(() => {
-    try {
-      const stored = sessionStorage.getItem('garage_orders')
-      return stored ? JSON.parse(stored) : ordersData
-    } catch {
-      return ordersData
-    }
-  })
+  const [orders, setOrders] = useState([])
+  const [mechanics, setMechanics] = useState([])
+  const [loadingData, setLoadingData] = useState(true)
+  const [loadError, setLoadError] = useState('')
 
-  const [mechanics, setMechanics] = useState(() => {
-    try {
-      const stored = sessionStorage.getItem('garage_mechanics')
-      return stored ? JSON.parse(stored) : mechanicsData
-    } catch {
-      return mechanicsData
-    }
-  })
-
+  // Ambil data laporan LANGSUNG dari Supabase — sebelumnya halaman ini
+  // membaca dari sessionStorage('garage_orders'/'garage_mechanics') yang
+  // sudah tidak pernah diisi sejak migrasi ke Supabase, sehingga laporan
+  // selalu menampilkan data fallback statis (ordersData.json), bukan data asli.
   useEffect(() => {
-    const handleStorage = () => {
+    let cancelled = false
+    const load = async () => {
+      setLoadingData(true)
+      setLoadError('')
       try {
-        const s = sessionStorage.getItem('garage_orders')
-        if (s) setOrders(JSON.parse(s))
-        const m = sessionStorage.getItem('garage_mechanics')
-        if (m) setMechanics(JSON.parse(m))
-      } catch {}
+        const [rawOrders, rawMechanics] = await Promise.all([
+          orderAPI.fetchAll(),
+          mechanicAPI.fetchAll(),
+        ])
+        if (cancelled) return
+        const normalizedOrders = (rawOrders || []).map(o => ({
+          ...o,
+          date: o.order_date,
+          mechanic: o.mechanic_name,
+        }))
+        setOrders(normalizedOrders)
+        setMechanics(rawMechanics || [])
+      } catch (err) {
+        if (!cancelled) setLoadError('Gagal memuat data laporan dari server. Coba muat ulang halaman.')
+        console.error('Gagal load data Reports:', err)
+      } finally {
+        if (!cancelled) setLoadingData(false)
+      }
     }
-    window.addEventListener('storage', handleStorage)
-    return () => window.removeEventListener('storage', handleStorage)
+    load()
+    return () => { cancelled = true }
   }, [])
 
   const [monthsBack, setMonthsBack] = useState(12)
@@ -190,13 +200,85 @@ export default function Reports() {
       .sort((a, b) => b.selesai - a.selesai || b.total - a.total)
   }, [orders, mechanics])
 
-  const handleExport = () => {
-    const style = document.createElement('style')
-    style.id = 'print-style'
-    style.textContent = `@media print { body > * { display: none !important; } #reports-print { display: block !important; position: fixed; top: 0; left: 0; width: 100%; background: white !important; color: black !important; } .no-print { display: none !important; } }`
-    document.head.appendChild(style)
-    window.print()
-    setTimeout(() => document.getElementById('print-style')?.remove(), 1000)
+  const handleExportPDF = () => {
+    const doc = new jsPDF()
+    const generatedAt = new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' })
+
+    // ── Header ──
+    doc.setFontSize(18)
+    doc.setTextColor(22, 101, 52) // hijau tua
+    doc.text('Esther Garage', 14, 18)
+    doc.setFontSize(12)
+    doc.setTextColor(60, 60, 60)
+    doc.text('Laporan & Analitik', 14, 25)
+    doc.setFontSize(9)
+    doc.setTextColor(130, 130, 130)
+    doc.text(`Dibuat: ${generatedAt}  |  Periode: ${months} bulan terakhir (${activeShortcut})`, 14, 31)
+
+    // ── Ringkasan KPI ──
+    autoTable(doc, {
+      startY: 38,
+      head: [['Metrik', 'Nilai']],
+      body: [
+        ['Total Pendapatan', fmtFull(totalRevenue)],
+        ['Total Order', String(totalOrders)],
+        ['Order Selesai', `${totalSelesai} (${totalOrders > 0 ? Math.round(totalSelesai / totalOrders * 100) : 0}%)`],
+        ['Rata-rata Pendapatan / Bulan', fmtFull(Math.round(totalRevenue / months))],
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [34, 197, 94] },
+      styles: { fontSize: 9 },
+    })
+
+    // ── Pendapatan & Order per Bulan ──
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 8,
+      head: [['Bulan', 'Total Order', 'Selesai', 'Pendapatan']],
+      body: monthly.map(m => [m.month, String(m.orders), String(m.selesai), fmtFull(m.revenue)]),
+      theme: 'striped',
+      headStyles: { fillColor: [34, 197, 94] },
+      styles: { fontSize: 9 },
+    })
+
+    // ── Distribusi Layanan ──
+    if (serviceDist.length > 0) {
+      autoTable(doc, {
+        startY: doc.lastAutoTable.finalY + 8,
+        head: [['Layanan', 'Jumlah Order', 'Persentase']],
+        body: serviceDist.map(s => [s.name, String(s.value), `${s.pct}%`]),
+        theme: 'striped',
+        headStyles: { fillColor: [96, 165, 250] },
+        styles: { fontSize: 9 },
+      })
+    }
+
+    // ── Performa Mekanik ──
+    if (topMechanics.length > 0) {
+      autoTable(doc, {
+        startY: doc.lastAutoTable.finalY + 8,
+        head: [['Mekanik', 'Total Order', 'Selesai', 'Tingkat Penyelesaian']],
+        body: topMechanics.map(m => [
+          m.name,
+          String(m.total),
+          String(m.selesai),
+          `${m.total > 0 ? Math.round(m.selesai / m.total * 100) : 0}%`,
+        ]),
+        theme: 'striped',
+        headStyles: { fillColor: [167, 139, 250] },
+        styles: { fontSize: 9 },
+      })
+    }
+
+    // ── Footer nomor halaman ──
+    const pageCount = doc.internal.getNumberOfPages()
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i)
+      doc.setFontSize(8)
+      doc.setTextColor(150, 150, 150)
+      doc.text(`Halaman ${i} dari ${pageCount}`, doc.internal.pageSize.getWidth() - 14, doc.internal.pageSize.getHeight() - 8, { align: 'right' })
+    }
+
+    doc.save(`laporan-esther-garage-${new Date().toISOString().slice(0, 10)}.pdf`)
   }
 
   return (
@@ -205,11 +287,15 @@ export default function Reports() {
         <div>
           <h1 className="text-2xl font-black text-white tracking-tight">Laporan & Analitik</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            {orders.length > 0 ? `Berdasarkan ${orders.length} order real` : 'Belum ada data order'}
+            {loadingData
+              ? 'Memuat data laporan...'
+              : loadError
+                ? loadError
+                : orders.length > 0 ? `Berdasarkan ${orders.length} order real` : 'Belum ada data order'}
           </p>
         </div>
-        <button onClick={handleExport}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-green-400 transition-all hover:bg-green-500/10"
+        <button onClick={handleExportPDF} disabled={loadingData || orders.length === 0}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-green-400 transition-all hover:bg-green-500/10 disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ border: '1px solid rgba(34,197,94,0.2)' }}>
           <MdDownload size={16} /> Export PDF
         </button>
@@ -230,9 +316,9 @@ export default function Reports() {
             </button>
           ))}
         </div>
-        {orders.length === 0 && (
+        {!loadingData && orders.length === 0 && (
           <span className="ml-auto text-xs text-yellow-500 flex items-center gap-1.5">
-            <MdRefresh size={13} /> Data dari sessionStorage kosong — tambahkan order dulu
+            <MdRefresh size={13} /> Belum ada data order — tambahkan order dulu di menu Orders
           </span>
         )}
       </div>

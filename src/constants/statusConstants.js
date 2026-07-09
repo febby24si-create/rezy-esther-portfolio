@@ -424,3 +424,71 @@ export function isValidBookingTransition(from, to) {
 export function isValidOrderTransition(from, to) {
   return ORDER_TRANSITIONS[from]?.includes(to) ?? false
 }
+
+// ─── PAYMENT STATUS ──────────────────────────────────────────────────
+// Lifecycle pembayaran, TERPISAH dari ORDER_STATUS (lifecycle servis).
+// Satu order bisa "Sedang Dikerjakan" tapi sudah "Lunas" (bayar di muka),
+// atau "Selesai" tapi masih "DP" (ambil kendaraan, lunasi belakangan).
+//
+// Field terkait di tabel `orders` (Supabase):
+//   payment_status  text   default 'Belum Bayar'
+//   paid_amount     numeric default 0
+// ────────────────────────────────────────────────────────────────────
+export const PAYMENT_STATUS = {
+  UNPAID:   'Belum Bayar',
+  PARTIAL:  'DP',
+  PAID:     'Lunas',
+}
+
+export const PAYMENT_STATUS_LIST = Object.values(PAYMENT_STATUS)
+
+export const PAYMENT_STATUS_CONFIG = {
+  [PAYMENT_STATUS.UNPAID]: {
+    color: '#EF4444',
+    bg: 'rgba(239,68,68,0.12)',
+    border: 'rgba(239,68,68,0.25)',
+    dot: '#EF4444',
+    label: 'Belum Bayar',
+    variant: 'danger',
+  },
+  [PAYMENT_STATUS.PARTIAL]: {
+    color: '#F59E0B',
+    bg: 'rgba(245,158,11,0.12)',
+    border: 'rgba(245,158,11,0.25)',
+    dot: '#F59E0B',
+    label: 'DP',
+    variant: 'warning',
+  },
+  [PAYMENT_STATUS.PAID]: {
+    color: '#22C55E',
+    bg: 'rgba(34,197,94,0.15)',
+    border: 'rgba(34,197,94,0.3)',
+    dot: '#22C55E',
+    label: 'Lunas',
+    variant: 'success',
+  },
+}
+
+/** Ambil label display untuk payment status (fallback ke 'Belum Bayar') */
+export function getPaymentStatusLabel(status) {
+  return PAYMENT_STATUS_CONFIG[status]?.label ?? PAYMENT_STATUS.UNPAID
+}
+
+/** Hitung sisa tagihan berdasarkan total order & jumlah yang sudah dibayar */
+export function calcSisaTagihan(total, paidAmount) {
+  const sisa = Number(total || 0) - Number(paidAmount || 0)
+  return sisa > 0 ? sisa : 0
+}
+
+/**
+ * Resolusi payment status dari total & paidAmount — dipakai untuk
+ * menjaga konsistensi (mis. saat paidAmount di-update manual, status
+ * ikut disesuaikan otomatis alih-alih dua field yang bisa saling kontradiksi).
+ */
+export function resolvePaymentStatus(total, paidAmount) {
+  const t = Number(total || 0)
+  const p = Number(paidAmount || 0)
+  if (p <= 0) return PAYMENT_STATUS.UNPAID
+  if (p >= t && t > 0) return PAYMENT_STATUS.PAID
+  return PAYMENT_STATUS.PARTIAL
+}

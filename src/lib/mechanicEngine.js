@@ -1,113 +1,91 @@
 // ============================================================
 // lib/mechanicEngine.js
 //
-// PHASE 2 — Mechanic status sebagai derived state (Rule 5)
+// Mechanic status sebagai derived state (Supabase-backed)
 //
-// Sebelumnya, mechanic.status ('Tersedia'/'Sibuk') di-set MANUAL
-// oleh admin lewat dropdown di Mechanics.jsx, sama sekali tidak
-// terhubung dengan order yang sedang ditangani mekanik tersebut.
+// MIGRASI: file ini sebelumnya baca/tulis sessionStorage
+// ('garage_mechanics'), TERPISAH TOTAL dari tabel `mechanics` di
+// Supabase yang dipakai mechanicAPI (dan dikonsumsi Orders.jsx,
+// Reports.jsx, Dashboard.jsx). Halaman Mechanics.jsx sendiri juga
+// sudah dimigrasikan untuk memakai mechanicAPI — lihat catatan di
+// pages/Mechanics.jsx.
 //
-// Fix: mechanic.status sekarang DI-DERIVE dari activeOrderIds:
-//   - activeOrderIds.length > 0  -> status = 'busy'
-//   - activeOrderIds.length === 0 -> status = 'available'
+// status ('Tersedia'/'Sibuk') DI-DERIVE dari activeOrderIds:
+//   - activeOrderIds.length > 0  -> 'Sibuk'
+//   - activeOrderIds.length === 0 -> 'Tersedia'
 //
-// activeOrderIds diupdate oleh subscriber ORDER_CONFIRMED (tambah),
-// ORDER_COMPLETED (kurang), ORDER_CANCELLED (kurang).
+// activeOrderIds disimpan sebagai kolom JSONB `active_order_ids`
+// di tabel `mechanics` — lihat SUPABASE_MIGRATION_mechanics_inventory.sql
 //
-// Catatan: status lama ('Tersedia'/'Sibuk', Bahasa Indonesia) masih
-// dipertahankan sebagai field terpisah untuk kompatibilitas tampilan
-// existing (Mechanics.jsx, Vehicles.jsx, Reports.jsx, Dashboard.jsx
-// semua menampilkan label ini) -- additive migration. Field baru
-// `status` (english: 'available'/'busy'/'off') ditambahkan
-// berdampingan, dan `statusLabel` di-derive untuk tampilan lama.
-//
-// File ini bergantung pada garage_mechanics yang PERSISTEN sejak
-// Phase 1 fix #1 (Mechanics.jsx sekarang menulis ke key ini).
+// CATATAN KETERBATASAN (belum terpecahkan oleh migrasi ini):
+// Orders.jsx menyimpan mekanik sebagai `mechanic_name` (teks bebas),
+// BUKAN `mechanic_id` (foreign key). Akibatnya, order yang dibuat
+// lewat alur yang berjalan sekarang tidak pernah membawa
+// `order.mechanicId`, sehingga updateMechanicActiveOrders() di bawah
+// ini hanya akan benar-benar terpanggil dari completeOrder() (lewat
+// OrderDetail.jsx) untuk order yang KEBETULAN sudah punya mechanicId
+// (mis. diisi manual). Untuk membuat fitur ini benar-benar hidup,
+// Orders.jsx perlu diubah agar dropdown mekanik menyimpan mechanicId
+// juga — perubahan terpisah yang sengaja tidak digabung ke sini.
 // ============================================================
 
-const LS_KEY_MECHANICS = 'garage_mechanics'
-
-function loadMechanics() {
-  try {
-    const raw = sessionStorage.getItem(LS_KEY_MECHANICS)
-    return raw ? JSON.parse(raw) : []
-  } catch { return [] }
-}
-
-function saveMechanics(list) {
-  try {
-    sessionStorage.setItem(LS_KEY_MECHANICS, JSON.stringify(list))
-  } catch { /* ignore */ }
-}
+import { mechanicAPI } from '../services/mechanicAPI'
 
 /**
- * Derive label status lama (Bahasa Indonesia, dipakai existing UI)
- * dari jumlah activeOrderIds.
+ * Derive status ('Tersedia'/'Sibuk') dari jumlah activeOrderIds.
+ * Label ini yang dipakai di seluruh UI existing (Mechanics.jsx,
+ * Orders.jsx, Dashboard.jsx, Reports.jsx) — tidak ada enum bahasa
+ * Inggris terpisah lagi (disederhanakan dari versi sessionStorage).
  */
-function deriveStatusLabel(activeOrderIds) {
+function deriveStatus(activeOrderIds) {
   return (activeOrderIds && activeOrderIds.length > 0) ? 'Sibuk' : 'Tersedia'
 }
 
 /**
- * Derive status baru (english enum, dipakai domain model baru)
- * dari jumlah activeOrderIds.
- */
-function deriveStatus(activeOrderIds) {
-  return (activeOrderIds && activeOrderIds.length > 0) ? 'busy' : 'available'
-}
-
-/**
- * Tambah/hapus orderId dari activeOrderIds mekanik, lalu re-derive
- * status & statusLabel.
+ * Tambah/hapus orderId dari active_order_ids mekanik di Supabase,
+ * lalu re-derive & simpan status.
  *
  * @param {string} mechanicId
  * @param {string} orderId
  * @param {'add'|'remove'} action
- * @returns {{ success: boolean, message?: string }}
+ * @returns {Promise<{ success: boolean, message?: string }>}
  */
-export function updateMechanicActiveOrders(mechanicId, orderId, action) {
+export async function updateMechanicActiveOrders(mechanicId, orderId, action) {
   if (!mechanicId || !orderId) {
     return { success: false, message: 'mechanicId/orderId kosong.' }
   }
 
-  const mechanics = loadMechanics()
-  const idx = mechanics.findIndex(m => m.id === mechanicId)
-  if (idx === -1) {
-    return { success: false, message: `Mechanic ${mechanicId} tidak ditemukan di garage_mechanics.` }
+  try {
+    const mechanic = await mechanicAPI.fetchById(mechanicId)
+    if (!mechanic) {
+      return { success: false, message: `Mechanic ${mechanicId} tidak ditemukan di Supabase.` }
+    }
+
+    let activeOrderIds = Array.isArray(mechanic.active_order_ids) ? [...mechanic.active_order_ids] : []
+
+    if (action === 'add') {
+      if (!activeOrderIds.includes(orderId)) activeOrderIds.push(orderId)
+    } else if (action === 'remove') {
+      activeOrderIds = activeOrderIds.filter(id => id !== orderId)
+    } else {
+      return { success: false, message: `Action tidak dikenal: ${action}` }
+    }
+
+    await mechanicAPI.update(mechanicId, {
+      active_order_ids: activeOrderIds,
+      status: deriveStatus(activeOrderIds),
+    })
+
+    return { success: true }
+  } catch (err) {
+    return { success: false, message: err.message }
   }
-
-  const current = mechanics[idx]
-  let activeOrderIds = Array.isArray(current.activeOrderIds) ? [...current.activeOrderIds] : []
-
-  if (action === 'add') {
-    if (!activeOrderIds.includes(orderId)) activeOrderIds.push(orderId)
-  } else if (action === 'remove') {
-    activeOrderIds = activeOrderIds.filter(id => id !== orderId)
-  } else {
-    return { success: false, message: `Action tidak dikenal: ${action}` }
-  }
-
-  mechanics[idx] = {
-    ...current,
-    activeOrderIds,
-    status: deriveStatus(activeOrderIds),
-    // statusLabel: kompatibilitas dengan UI lama (Mechanics.jsx,
-    // Vehicles.jsx, dll yang menampilkan 'Tersedia'/'Sibuk').
-    // Field `status` lama (Bahasa Indonesia) dipertahankan agar
-    // tidak merusak rendering existing -- additive migration.
-    statusLabel: deriveStatusLabel(activeOrderIds),
-  }
-
-  saveMechanics(mechanics)
-  return { success: true }
 }
 
 /**
- * Baca daftar mekanik beserta status derived terkini.
- * Read-only helper untuk Reports/Dashboard/Orders autocomplete.
- *
- * @returns {Array}
+ * Baca daftar mekanik beserta status derived terkini dari Supabase.
+ * @returns {Promise<Array>}
  */
-export function getAllMechanics() {
-  return loadMechanics()
+export async function getAllMechanics() {
+  return await mechanicAPI.fetchAll()
 }

@@ -7,33 +7,7 @@ import {
   MdWork, MdTimer, MdPersonAdd, MdRefresh
 } from 'react-icons/md'
 import { motion, AnimatePresence } from 'framer-motion'
-import mechanicsData from '../data/mechanicsData.json'
-
-// ─── LocalStorage helpers ───────────────────────────────────────────
-const LS_KEY_MECHANICS = 'garage_mechanics'
-
-function loadMechanics() {
-  try {
-    const raw = sessionStorage.getItem(LS_KEY_MECHANICS)
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      const enriched = parsed.map(stored => {
-        const fresh = mechanicsData.find(m => m.id === stored.id)
-        return fresh ? { ...fresh, ...stored } : stored
-      })
-      const storedIds = new Set(parsed.map(m => m.id))
-      const newOnes = mechanicsData.filter(m => !storedIds.has(m.id))
-      return [...enriched, ...newOnes]
-    }
-  } catch { /* ignore */ }
-  return mechanicsData
-}
-
-function saveMechanics(list) {
-  try {
-    sessionStorage.setItem(LS_KEY_MECHANICS, JSON.stringify(list))
-  } catch { /* ignore */ }
-}
+import { mechanicAPI } from '../services/mechanicAPI'
 
 // ─── Rating otomatis ──────────────────────────────────────────────────
 function computeRating(jobsDone) {
@@ -57,6 +31,14 @@ const initialForm = {
 
 const inputCls = `w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all focus:ring-2 focus:ring-green-500/30`
 const inputStyle = { background: 'rgba(11,59,46,0.4)', border: '1px solid rgba(34,197,94,0.12)' }
+
+// Kolom Supabase pakai snake_case (jobs_done), tapi seluruh UI di
+// file ini sudah terlanjur pakai camelCase (jobsDone) — normalisasi
+// di satu tempat ini alih-alih ganti semua pemakaian di render.
+function normalizeMechanic(m) {
+  if (!m) return m
+  return { ...m, jobsDone: m.jobs_done ?? m.jobsDone ?? 0, photo: m.photo_url ?? m.photo ?? null }
+}
 
 // ─── Avatar ──────────────────────────────────────────────────────────
 function Avatar({ name, photo, size = 56, className = '' }) {
@@ -314,7 +296,7 @@ function DetailDrawer({ mechanic, onClose, onEdit }) {
 }
 
 // ─── Form Modal ───────────────────────────────────────────────────────
-function MechanicModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
+function MechanicModal({ isOpen, onClose, onSubmit, form, setForm, editId, saving }) {
   const fileRef = useRef()
   const handlePhoto = (e) => {
     const file = e.target.files[0]; if (!file) return
@@ -429,10 +411,10 @@ function MechanicModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
             <button onClick={onClose}
               className="px-5 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all"
               style={{ border: '1px solid rgba(34,197,94,0.1)' }}>Batal</button>
-            <button type="submit" form="form-mechanic"
-              className="px-6 py-2.5 rounded-xl text-sm font-semibold text-black transition-all hover:opacity-90 flex items-center gap-2"
+            <button type="submit" form="form-mechanic" disabled={saving}
+              className="px-6 py-2.5 rounded-xl text-sm font-semibold text-black transition-all hover:opacity-90 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: 'linear-gradient(135deg,#22C55E,#16a34a)', boxShadow: '0 4px 16px rgba(34,197,94,0.3)' }}>
-              <MdAdd size={16} /> Simpan
+              {saving ? <MdRefresh size={16} className="animate-spin" /> : <MdAdd size={16} />} {saving ? 'Menyimpan...' : 'Simpan'}
             </button>
           </div>
         </motion.div>
@@ -443,16 +425,31 @@ function MechanicModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
 
 // ─── Halaman Utama ────────────────────────────────────────────────────
 export default function Mechanics() {
-  const [mechanics, setMechanics] = useState(loadMechanics)
+  const [mechanics, setMechanics] = useState([])
+  const [loadingList, setLoadingList] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [form, setForm] = useState(initialForm)
   const [editId, setEditId] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [detailMechanic, setDetailMechanic] = useState(null)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    saveMechanics(mechanics)
-  }, [mechanics])
+    let cancelled = false
+    const load = async () => {
+      setLoadingList(true)
+      try {
+        const data = await mechanicAPI.fetchAll()
+        if (!cancelled) setMechanics((data || []).map(normalizeMechanic))
+      } catch (err) {
+        console.error('Gagal load mechanics:', err)
+      } finally {
+        if (!cancelled) setLoadingList(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [])
 
   const openAdd = () => {
     setForm({ ...initialForm, jobsDone: 0 })
@@ -468,39 +465,62 @@ export default function Mechanics() {
       experience: m.experience,
       status: m.status,
       phone: m.phone || '',
-      photo: m.photo || null,
+      photo: m.photo_url || null,
       jobsDone: m.jobsDone || 0
     })
     setEditId(m.id)
     setShowModal(true)
   }
 
-  const handleSubmit = (ev) => {
+  const handleSubmit = async (ev) => {
     ev.preventDefault()
     const jobs = parseInt(form.jobsDone) || 0
     const rating = computeRating(jobs)
+    setSaving(true)
 
-    if (editId) {
-      setMechanics(prev => prev.map(m =>
-        m.id === editId
-          ? { ...m, ...form, jobsDone: jobs, rating }
-          : m
-      ))
-    } else {
-      const newId = 'M-' + String(Date.now()).slice(-6)
-      setMechanics(prev => [{
-        ...form,
-        jobsDone: jobs,
-        rating,
-        id: newId
-      }, ...prev])
+    const payload = {
+      name: form.name,
+      specialty: form.specialty,
+      experience: form.experience,
+      status: form.status,
+      phone: form.phone,
+      photo_url: form.photo,
+      jobs_done: jobs,
+      rating,
     }
-    setShowModal(false)
+
+    try {
+      if (editId) {
+        const updated = await mechanicAPI.update(editId, payload)
+        if (updated) {
+          const norm = normalizeMechanic(updated)
+          setMechanics(prev => prev.map(m => m.id === editId ? { ...m, ...norm } : m))
+        }
+      } else {
+        const created = await mechanicAPI.create({ ...payload, active_order_ids: [] })
+        if (created) {
+          setMechanics(prev => [normalizeMechanic(created), ...prev])
+        }
+      }
+      setShowModal(false)
+    } catch (err) {
+      console.error('Gagal menyimpan mekanik:', err)
+      alert('Gagal menyimpan data mekanik. Coba lagi.')
+    } finally {
+      setSaving(false)
+    }
   }
 
-  const handleDelete = () => {
-    setMechanics(prev => prev.filter(m => m.id !== deleteTarget.id))
-    setDeleteTarget(null)
+  const handleDelete = async () => {
+    try {
+      await mechanicAPI.delete(deleteTarget.id)
+      setMechanics(prev => prev.filter(m => m.id !== deleteTarget.id))
+    } catch (err) {
+      console.error('Gagal menghapus mekanik:', err)
+      alert('Gagal menghapus data mekanik. Coba lagi.')
+    } finally {
+      setDeleteTarget(null)
+    }
   }
 
   const avail = mechanics.filter(m => m.status === 'Tersedia').length
@@ -557,19 +577,27 @@ export default function Mechanics() {
         </div>
 
         {/* Grid */}
-        <AnimatePresence>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            {mechanics.map(m => (
-              <MechanicCard key={m.id} m={m} onEdit={openEdit} onDelete={setDeleteTarget} onDetail={setDetailMechanic} />
-            ))}
+        {loadingList ? (
+          <div className="flex items-center justify-center py-20">
+            <MdRefresh size={24} className="text-green-400 animate-spin" />
           </div>
-        </AnimatePresence>
+        ) : (
+          <>
+            <AnimatePresence>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {mechanics.map(m => (
+                  <MechanicCard key={m.id} m={m} onEdit={openEdit} onDelete={setDeleteTarget} onDetail={setDetailMechanic} />
+                ))}
+              </div>
+            </AnimatePresence>
 
-        {mechanics.length === 0 && (
-          <div className="text-center py-20">
-            <div className="text-6xl mb-4 opacity-20">🔧</div>
-            <p className="text-gray-500 text-sm">Belum ada mekanik terdaftar</p>
-          </div>
+            {mechanics.length === 0 && (
+              <div className="text-center py-20">
+                <div className="text-6xl mb-4 opacity-20">🔧</div>
+                <p className="text-gray-500 text-sm">Belum ada mekanik terdaftar</p>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -590,6 +618,7 @@ export default function Mechanics() {
         form={form}
         setForm={setForm}
         editId={editId}
+        saving={saving}
       />
 
       {/* Konfirmasi Hapus */}
