@@ -68,22 +68,29 @@ function BookingStatusBadge({ status, size = 'md' }) {
 }
 
 // ─── KPI STAT CARD ────────────────────────────────────────────
-function StatCard({ label, value, icon: Icon, color, bg, border, sub }) {
+function StatCard({ label, value, icon: Icon, color, border, sub }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl p-4 flex flex-col gap-2"
-      style={{ background: bg, border: `1px solid ${border}` }}
+      className="relative rounded-xl p-4 flex flex-col gap-2 overflow-hidden group transition-all duration-500 hover:scale-[1.03] hover:shadow-lg"
+      style={{
+        background: `linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))`,
+        border: `1px solid ${border}`,
+      }}
     >
-      <div className="flex items-center justify-between">
-        <p className="text-gray-400 text-xs font-medium">{label}</p>
+      <div className="absolute -top-6 -right-6 w-16 h-16 rounded-full opacity-10 group-hover:opacity-20 transition-all duration-700"
+        style={{ background: `radial-gradient(circle, ${color} 0%, transparent 70%)` }} />
+      <div className="flex items-center justify-between relative z-10">
+        <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">{label}</p>
         <div className="w-7 h-7 rounded-lg flex items-center justify-center"
           style={{ background: `${color}20` }}>
           <Icon size={14} style={{ color }} />
         </div>
       </div>
-      <p className="text-2xl font-bold text-white">{value}</p>
-      {sub && <p className="text-gray-500 text-xs">{sub}</p>}
+      <p className="text-2xl font-bold text-white relative z-10">{value}</p>
+      {sub && <p className="text-gray-500 text-xs relative z-10">{sub}</p>}
+      <div className="absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-500 group-hover:h-1"
+        style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
     </motion.div>
   )
 }
@@ -517,63 +524,68 @@ export default function Bookings() {
       {/* KPI STATS */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
         <StatCard label="Pending"          value={stats.pendingConfirmation || 0} icon={Clock}
-          color="#60A5FA" bg="rgba(96,165,250,0.06)" border="rgba(96,165,250,0.15)" sub="perlu konfirmasi" />
+          color="#60A5FA" border="rgba(96,165,250,0.15)" sub="perlu konfirmasi" />
         <StatCard label="Hari Ini"         value={stats.today || 0}               icon={Calendar}
-          color="#22C55E" bg="rgba(34,197,94,0.06)"  border="rgba(34,197,94,0.15)"  sub="jadwal hari ini" />
+          color="#22C55E" border="rgba(34,197,94,0.15)"  sub="jadwal hari ini" />
         <StatCard label="Besok"            value={stats.tomorrow || 0}            icon={CalendarClock}
-          color="#A78BFA" bg="rgba(167,139,250,0.06)" border="rgba(167,139,250,0.15)" />
+          color="#A78BFA" border="rgba(167,139,250,0.15)" />
         <StatCard label="Minggu Ini"       value={stats.thisWeek || 0}            icon={ClipboardList}
-          color="#34D399" bg="rgba(52,211,153,0.06)" border="rgba(52,211,153,0.15)" />
+          color="#34D399" border="rgba(52,211,153,0.15)" />
         <StatCard label="Menunggu Check In" value={stats.waitingCheckIn || 0}    icon={User}
-          color="#34D399" bg="rgba(52,211,153,0.06)" border="rgba(52,211,153,0.15)" />
+          color="#34D399" border="rgba(52,211,153,0.15)" />
         <StatCard label="No Show"          value={stats.noShow || 0}              icon={UserX}
-          color="#FB923C" bg="rgba(251,146,60,0.06)" border="rgba(251,146,60,0.15)" />
+          color="#FB923C" border="rgba(251,146,60,0.15)" />
         <StatCard label="Perlu Aksi"       value={stats.needsAction || 0}         icon={AlertTriangle}
-          color="#EF4444" bg="rgba(239,68,68,0.06)"  border="rgba(239,68,68,0.15)"  sub="segera ditangani" />
+          color="#EF4444" border="rgba(239,68,68,0.15)"  sub="segera ditangani" />
       </div>
 
       {/* FILTER BAR */}
-      <div className="flex flex-wrap gap-3 mb-5">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl flex-1 min-w-48"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <Search size={14} className="text-gray-500 flex-shrink-0" />
+      <div className="flex flex-wrap gap-3 mb-5 animate-fadeInUp" style={{ animationDelay: '50ms', animationFillMode: 'both' }}>
+        <div className="relative flex-1 min-w-48">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
           <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Cari nama, ID, plat, layanan..."
-            className="bg-transparent text-sm text-white outline-none w-full placeholder-gray-600" />
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all duration-300 focus:ring-2 focus:ring-green-500/20 placeholder-gray-600"
+            style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }} />
           {search && (
-            <button onClick={() => setSearch('')} className="text-gray-600 hover:text-white transition-colors">
+            <button onClick={() => setSearch('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-white transition-colors">
               <X size={13} />
             </button>
           )}
         </div>
 
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-          className="px-3 py-2 rounded-xl text-sm text-gray-300 outline-none"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          className="px-3.5 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all duration-300 focus:ring-2 focus:ring-green-500/20"
+          style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }}>
           {statusOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
 
         <input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)}
-          className="px-3 py-2 rounded-xl text-sm text-gray-300 outline-none"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }} />
+          className="px-3.5 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all duration-300 focus:ring-2 focus:ring-green-500/20"
+          style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }} />
         {dateFilter && (
           <button onClick={() => setDateFilter('')}
-            className="px-3 py-2 rounded-xl text-xs text-gray-500 hover:text-white transition-colors"
-            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            className="px-3.5 py-2.5 rounded-xl text-xs text-gray-500 hover:text-white transition-all duration-300 hover:scale-105"
+            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444' }}>
             Reset
           </button>
         )}
 
         <button onClick={handleManualRefresh}
-          className={`p-2.5 rounded-xl text-gray-500 hover:text-white transition-all ${isRefreshing ? 'animate-spin' : ''}`}
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          className={`p-2.5 rounded-xl text-gray-500 hover:text-white transition-all duration-300 hover:scale-105 ${isRefreshing ? 'animate-spin' : ''}`}
+          style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }}>
           <RefreshCw size={15} />
         </button>
       </div>
 
       {/* TABLE */}
       <div className="rounded-2xl overflow-hidden"
-        style={{ background: '#0a1a12', border: '1px solid rgba(34,197,94,0.1)' }}>
+        style={{
+          background: 'linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))',
+          border: '1px solid rgba(34,197,94,0.1)',
+          backdropFilter: 'blur(6px)',
+        }}>
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <Inbox size={36} className="text-gray-700" />

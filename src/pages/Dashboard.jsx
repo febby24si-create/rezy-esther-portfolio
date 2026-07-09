@@ -11,6 +11,8 @@ import {
   PieChart,
   Pie,
   Cell,
+  BarChart,
+  Bar,
 } from "recharts";
 import {
   Wrench,
@@ -916,6 +918,23 @@ export default function Dashboard() {
     [mechAvail]
   );
 
+  // ── Data perbandingan bulanan (dengan growth %) ──
+  const monthlyComparison = useMemo(() => {
+    return analytics.monthlyRevenue.map((item, i) => {
+      const prev = i > 0 ? analytics.monthlyRevenue[i - 1].revenue : 0;
+      const growth = prev > 0 ? Math.round(((item.revenue - prev) / prev) * 100) : 0;
+      return { ...item, growth };
+    });
+  }, [analytics.monthlyRevenue]);
+
+  const total6Month = useMemo(
+    () => monthlyComparison.reduce((s, m) => s + m.revenue, 0),
+    [monthlyComparison]
+  );
+  const avgMonthly = monthlyComparison.length > 0
+    ? Math.round(total6Month / monthlyComparison.length)
+    : 0;
+
   const rangeLabels = {
     hariini: "Hari Ini",
     "7hari": "7 Hari",
@@ -928,25 +947,48 @@ export default function Dashboard() {
       {/* ── GREETING ── */}
       {loggedInUser && (
         <div
-          className="rounded-2xl px-7 py-5 flex items-center justify-between animate-fadeInUp"
+          className="rounded-2xl px-7 py-6 flex items-center justify-between animate-fadeInUp relative overflow-hidden group"
           style={{
-            background: "linear-gradient(135deg, rgba(52,211,153,0.08) 0%, rgba(4,28,21,0.6) 100%)",
-            border: "1px solid rgba(52,211,153,0.12)",
+            background: "linear-gradient(135deg, rgba(52,211,153,0.12) 0%, rgba(4,28,21,0.7) 50%, rgba(2,15,9,0.9) 100%)",
+            border: "1px solid rgba(52,211,153,0.15)",
             backdropFilter: "blur(4px)",
           }}
         >
-          <div>
-            <p className="text-gray-400 text-sm font-medium">{greeting},</p>
-            <p className="text-white text-2xl font-bold mt-0.5 tracking-tight">
-              {loggedInUser.name}
-              <span className="ml-3 text-sm font-normal text-emerald-400 align-middle">
-                ({loggedInUser.email})
-              </span>
-            </p>
+          {/* Decorative gradient orbs */}
+          <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full opacity-20 group-hover:opacity-30 transition-all duration-700"
+            style={{ background: "radial-gradient(circle, rgba(52,211,153,0.3) 0%, transparent 70%)" }} />
+          <div className="absolute -bottom-16 -right-16 w-48 h-48 rounded-full opacity-10"
+            style={{ background: "radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%)" }} />
+
+          <div className="flex items-center gap-5 relative z-10">
+            {/* Avatar dengan inisial */}
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-extrabold text-lg shadow-lg shrink-0"
+              style={{
+                background: "linear-gradient(135deg, #059669, #34D399)",
+                boxShadow: "0 8px 24px rgba(52,211,153,0.25)",
+              }}
+            >
+              {loggedInUser.name?.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'AD'}
+            </div>
+            <div>
+              <p className="text-gray-400 text-sm font-medium">
+                {greeting}, <span className="text-white font-semibold">{loggedInUser.name?.split(' ')[0]}</span>
+              </p>
+              <p className="text-white text-xl sm:text-2xl font-bold mt-0.5 tracking-tight">
+                {loggedInUser.name}
+              </p>
+              <div className="flex items-center gap-3 mt-1">
+                <span className="text-xs text-gray-500">{loggedInUser.email}</span>
+                <span className="w-1 h-1 rounded-full bg-gray-600" />
+                <span className="text-xs text-emerald-400 font-medium">Online</span>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col items-end gap-1.5">
+
+          <div className="flex flex-col items-end gap-1.5 relative z-10">
             <span
-              className="px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+              className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
               style={{
                 background: "rgba(52,211,153,0.15)",
                 color: "#6EE7B7",
@@ -958,6 +1000,10 @@ export default function Dashboard() {
             <p className="text-gray-500 text-xs">
               {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[10px] text-gray-600">Sistem berjalan normal</span>
+            </div>
           </div>
         </div>
       )}
@@ -1167,6 +1213,196 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* ── MONTHLY COMPARISON ── */}
+      <div
+        className="rounded-2xl p-6 animate-fadeInUp"
+        style={{
+          background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
+          border: "1px solid rgba(52,211,153,0.1)",
+          animationDelay: "350ms",
+          animationFillMode: "both",
+        }}
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+              <BarChart3 size={16} className="text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-white text-sm font-bold">Perbandingan Revenue Bulanan</p>
+              <p className="text-gray-500 text-[10px]">6 bulan terakhir — bandingkan pertumbuhan antar bulan</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-gray-500 text-[10px] uppercase tracking-wider">Total 6 Bulan</p>
+              <p className="text-emerald-400 text-sm font-black">
+                <AnimatedNumber value={total6Month} format={fmt} duration={1200} />
+              </p>
+            </div>
+            <div className="w-px h-8 bg-white/10" />
+            <div className="text-right">
+              <p className="text-gray-500 text-[10px] uppercase tracking-wider">Rata-rata</p>
+              <p className="text-blue-400 text-sm font-black">
+                <AnimatedNumber value={avgMonthly} format={fmtShort} duration={1000} />
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {orders.length === 0 ? (
+          <div className="h-48 flex items-center justify-center text-gray-500 text-sm">Belum ada data order</div>
+        ) : (
+          <div style={{ width: "100%", height: 240, minHeight: 240 }}>
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={monthlyComparison} margin={{ top: 24, right: 10, left: 0, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="barRevGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#34D399" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="#059669" stopOpacity={0.6} />
+                  </linearGradient>
+                  <linearGradient id="barNegGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#F87171" stopOpacity={0.8} />
+                    <stop offset="100%" stopColor="#DC2626" stopOpacity={0.5} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fill: "#6B7280", fontSize: 11, fontWeight: 500 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fill: "#4b5563", fontSize: 10 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => (v === 0 ? "0" : `${(v / 1000000).toFixed(0)}jt`)}
+                />
+                <Tooltip
+                  cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    const d = payload[0].payload;
+                    return (
+                      <div
+                        className="rounded-xl px-4 py-3 animate-fadeIn"
+                        style={{
+                          background: "rgba(10, 26, 18, 0.97)",
+                          backdropFilter: "blur(12px)",
+                          border: "1px solid rgba(52, 211, 153, 0.25)",
+                          boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                        }}
+                      >
+                        <p className="text-xs text-gray-400 font-semibold mb-1.5">{label}</p>
+                        <p className="text-emerald-400 font-bold text-sm mb-1">
+                          {fmt(d.revenue)}
+                        </p>
+                        <p className="text-gray-500 text-[11px]">{d.count} order selesai</p>
+                        {d.growth !== 0 && (
+                          <div className={`flex items-center gap-1 mt-1.5 text-[11px] font-semibold ${d.growth > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                            {d.growth > 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                            {d.growth > 0 ? '+' : ''}{d.growth}% dari bulan sebelumnya
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }}
+                />
+                <Bar
+                  dataKey="revenue"
+                      radius={[6, 6, 0, 0]}
+                  maxBarSize={52}
+                  isAnimationActive={true}
+                  animationDuration={1500}
+                  animationEasing="ease-out"
+                  shape={(props) => {
+                    const { fill, x, y, width, height } = props;
+                    const growth = props.payload?.growth || 0;
+                    const barColor = growth >= 0
+                      ? 'url(#barRevGrad)'
+                      : 'url(#barNegGrad)';
+                    return (
+                      <rect x={x} y={y} width={width} height={height} rx={6} ry={6} fill={barColor} />
+                    );
+                  }}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {/* Growth Summary Row */}
+        {monthlyComparison.length > 1 && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 pt-5 border-t border-white/5">
+            {(() => {
+              const lastMonth = monthlyComparison[monthlyComparison.length - 1];
+              const prevMonth = monthlyComparison[monthlyComparison.length - 2];
+              const bestMonth = [...monthlyComparison].sort((a, b) => b.revenue - a.revenue)[0];
+              const growthCount = monthlyComparison.filter(m => m.growth > 0).length;
+              const declineCount = monthlyComparison.filter(m => m.growth < 0).length;
+              const totalGrowth = monthlyComparison.reduce((s, m) => s + (m.growth > 0 ? m.growth : 0), 0);
+              const avgGrowth = monthlyComparison.length > 1
+                ? Math.round(monthlyComparison.reduce((s, m) => s + m.growth, 0) / (monthlyComparison.length - 1))
+                : 0;
+              return [
+                {
+                  label: 'vs Bulan Lalu',
+                  value: lastMonth?.growth || 0,
+                  suffix: '%',
+                  positive: (lastMonth?.growth || 0) >= 0,
+                  highlight: true
+                },
+                {
+                  label: 'Bulan Terbaik',
+                  value: bestMonth?.label || '-',
+                  isLabel: true,
+                  sub: fmtShort(bestMonth?.revenue || 0)
+                },
+                {
+                  label: 'Bulan Naik/Turun',
+                  value: `${growthCount}/${declineCount}`,
+                  suffix: '',
+                  sub: `dalam 6 bulan`
+                },
+                {
+                  label: 'Rata-rata Growth',
+                  value: avgGrowth,
+                  suffix: '%',
+                  positive: avgGrowth >= 0,
+                },
+              ].map((item, idx) => (
+                <div
+                  key={item.label}
+                  className="rounded-xl p-3 animate-fadeInUp"
+                  style={{
+                    background: "rgba(255,255,255,0.03)",
+                    border: "1px solid rgba(255,255,255,0.05)",
+                    animationDelay: `${idx * 80}ms`,
+                    animationFillMode: "both",
+                  }}
+                >
+                  <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-0.5">{item.label}</p>
+                  {item.isLabel ? (
+                    <>
+                      <p className="text-white text-sm font-bold">{item.value}</p>
+                      <p className="text-gray-500 text-[10px]">{item.sub}</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className={`text-sm font-black ${item.highlight ? (item.positive ? 'text-emerald-400' : 'text-red-400') : 'text-white'}`}>
+                        {typeof item.value === 'number' && item.value > 0 ? '+' : ''}{item.value}{item.suffix}
+                      </p>
+                      {item.sub && <p className="text-gray-500 text-[10px]">{item.sub}</p>}
+                    </>
+                  )}
+                </div>
+              ));
+            })()}
+          </div>
+        )}
       </div>
 
       {/* ── TODAY'S JOB QUEUE ── */}
@@ -1546,11 +1782,13 @@ export default function Dashboard() {
       <div className="mt-8 space-y-6 animate-fadeInUp" style={{ animationDelay: "0.3s" }}>
 
         {/* Header */}
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-1 h-7 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" />
-          <h2 className="text-lg font-bold text-white tracking-wide">Top Performers Bulan Ini</h2>
-          <span className="ml-auto text-xs text-gray-500 bg-white/5 px-3 py-1 rounded-full border border-white/10">
-            Data real-time dari Supabase
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className="w-1 h-7 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" />
+            <h2 className="text-lg font-bold text-white tracking-wide">Top Performers Bulan Ini</h2>
+          </div>
+          <span className="text-[10px] text-gray-500 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+            Real-time dari Supabase
           </span>
         </div>
 
@@ -1558,99 +1796,153 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
           {/* Top Mekanik */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
-              🔧 Mekanik Produktif
-            </h3>
+          <div
+            className="rounded-2xl p-5 animate-fadeInUp"
+            style={{
+              background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
+              border: "1px solid rgba(52,211,153,0.1)",
+              animationDelay: "0.1s",
+              animationFillMode: "both",
+            }}
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center">
+                <span className="text-sm">🔧</span>
+              </div>
+              <h3 className="text-sm font-bold text-white">Mekanik Produktif</h3>
+            </div>
             {analytics.topMechanics && analytics.topMechanics.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {analytics.topMechanics.map((m, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
-                      i === 0 ? "bg-yellow-400/20 text-yellow-400" :
+                  <div key={i} className="flex items-center gap-3 p-2 rounded-xl transition-all duration-300 hover:bg-white/5">
+                    <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                      i === 0 ? "bg-amber-500/20 text-amber-400" :
                       i === 1 ? "bg-gray-400/20 text-gray-400" :
                       i === 2 ? "bg-orange-400/20 text-orange-400" :
                       "bg-white/10 text-gray-500"
                     }`}>{i + 1}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-white truncate">{m.name}</p>
-                      <div className="w-full bg-white/10 rounded-full h-1 mt-0.5">
+                      <p className="text-xs font-semibold text-white truncate">{m.name}</p>
+                      <div className="w-full rounded-full h-1.5 mt-1" style={{ background: "rgba(255,255,255,0.05)" }}>
                         <div
-                          className="bg-emerald-500 h-1 rounded-full"
-                          style={{ width: `${Math.round((m.jobs / (analytics.topMechanics[0]?.jobs || 1)) * 100)}%` }}
+                          className="h-full rounded-full transition-all duration-700"
+                          style={{
+                            width: `${Math.max(4, Math.round((m.jobs / (analytics.topMechanics[0]?.jobs || 1)) * 100))}%`,
+                            background: i === 0 ? "linear-gradient(90deg, #F59E0B, #FBBF24)" :
+                                        i === 1 ? "linear-gradient(90deg, #94A3B8, #CBD5E1)" :
+                                        i === 2 ? "linear-gradient(90deg, #F97316, #FB923C)" :
+                                        "#34D399",
+                          }}
                         />
                       </div>
                     </div>
-                    <span className="text-xs text-emerald-400 font-bold flex-shrink-0">{m.jobs}x</span>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-xs font-bold text-emerald-400">{m.jobs}x</p>
+                      <p className="text-[9px] text-gray-600">servis</p>
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-gray-600">Belum ada data</p>
+              <div className="py-8 text-center text-gray-600 text-xs">Belum ada data</div>
             )}
           </div>
 
           {/* Kendaraan Paling Sering */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
-              🚗 Kendaraan Terbanyak
-            </h3>
+          <div
+            className="rounded-2xl p-5 animate-fadeInUp"
+            style={{
+              background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
+              border: "1px solid rgba(52,211,153,0.1)",
+              animationDelay: "0.2s",
+              animationFillMode: "both",
+            }}
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                <span className="text-sm">🚗</span>
+              </div>
+              <h3 className="text-sm font-bold text-white">Kendaraan Terbanyak</h3>
+            </div>
             {analytics.topVehicles && analytics.topVehicles.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {analytics.topVehicles.map((v, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
-                      i === 0 ? "bg-blue-400/20 text-blue-400" :
+                  <div key={i} className="flex items-center gap-3 p-2 rounded-xl transition-all duration-300 hover:bg-white/5">
+                    <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                      i === 0 ? "bg-blue-500/20 text-blue-400" :
                       i === 1 ? "bg-indigo-400/20 text-indigo-400" :
                       "bg-white/10 text-gray-500"
                     }`}>{i + 1}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-white truncate">{v.name}</p>
-                      <div className="w-full bg-white/10 rounded-full h-1 mt-0.5">
+                      <p className="text-xs font-semibold text-white truncate">{v.name}</p>
+                      <div className="w-full rounded-full h-1.5 mt-1" style={{ background: "rgba(255,255,255,0.05)" }}>
                         <div
-                          className="bg-blue-500 h-1 rounded-full"
-                          style={{ width: `${Math.round((v.count / (analytics.topVehicles[0]?.count || 1)) * 100)}%` }}
+                          className="h-full rounded-full transition-all duration-700"
+                          style={{
+                            width: `${Math.max(4, Math.round((v.count / (analytics.topVehicles[0]?.count || 1)) * 100))}%`,
+                            background: "linear-gradient(90deg, #3B82F6, #60A5FA)",
+                          }}
                         />
                       </div>
                     </div>
-                    <span className="text-xs text-blue-400 font-bold flex-shrink-0">{v.count}x</span>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-xs font-bold text-blue-400">{v.count}x</p>
+                      <p className="text-[9px] text-gray-600">servis</p>
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-gray-600">Belum ada data</p>
+              <div className="py-8 text-center text-gray-600 text-xs">Belum ada data</div>
             )}
           </div>
 
           {/* Jenis Servis Terlaris */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
-              📋 Servis Terlaris
-            </h3>
+          <div
+            className="rounded-2xl p-5 animate-fadeInUp"
+            style={{
+              background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
+              border: "1px solid rgba(52,211,153,0.1)",
+              animationDelay: "0.3s",
+              animationFillMode: "both",
+            }}
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg bg-violet-500/15 flex items-center justify-center">
+                <span className="text-sm">📋</span>
+              </div>
+              <h3 className="text-sm font-bold text-white">Servis Terlaris</h3>
+            </div>
             {analytics.topServices && analytics.topServices.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {analytics.topServices.map((s, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
-                      i === 0 ? "bg-violet-400/20 text-violet-400" :
+                  <div key={i} className="flex items-center gap-3 p-2 rounded-xl transition-all duration-300 hover:bg-white/5">
+                    <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                      i === 0 ? "bg-violet-500/20 text-violet-400" :
                       i === 1 ? "bg-purple-400/20 text-purple-400" :
                       "bg-white/10 text-gray-500"
                     }`}>{i + 1}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-white truncate">{s.name}</p>
-                      <div className="w-full bg-white/10 rounded-full h-1 mt-0.5">
+                      <p className="text-xs font-semibold text-white truncate">{s.name}</p>
+                      <div className="w-full rounded-full h-1.5 mt-1" style={{ background: "rgba(255,255,255,0.05)" }}>
                         <div
-                          className="bg-violet-500 h-1 rounded-full"
-                          style={{ width: `${Math.round((s.count / (analytics.topServices[0]?.count || 1)) * 100)}%` }}
+                          className="h-full rounded-full transition-all duration-700"
+                          style={{
+                            width: `${Math.max(4, Math.round((s.count / (analytics.topServices[0]?.count || 1)) * 100))}%`,
+                            background: "linear-gradient(90deg, #8B5CF6, #A78BFA)",
+                          }}
                         />
                       </div>
                     </div>
-                    <span className="text-xs text-violet-400 font-bold flex-shrink-0">{s.count}x</span>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-xs font-bold text-violet-400">{s.count}x</p>
+                      <p className="text-[9px] text-gray-600">servis</p>
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-gray-600">Belum ada data</p>
+              <div className="py-8 text-center text-gray-600 text-xs">Belum ada data</div>
             )}
           </div>
         </div>

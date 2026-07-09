@@ -955,21 +955,26 @@ export default function Orders() {
       {/* ─── STATS CARDS ─── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {[
-          { label: 'Total Order', value: orders.length, color: '#94A3B8', bg: 'rgba(148,163,184,0.06)', delay: 0 },
-          { label: 'Selesai', value: counts.selesai, color: '#22C55E', bg: 'rgba(34,197,94,0.06)', delay: 100 },
-          { label: 'Sedang Dikerjakan', value: counts.proses, color: '#FBBF24', bg: 'rgba(251,191,36,0.06)', delay: 200 },
-          { label: 'Pendapatan Masuk', value: totalPendapatan, color: '#60A5FA', bg: 'rgba(96,165,250,0.06)', delay: 300, format: (v) => `Rp ${(v/1000000).toFixed(1)}jt` },
+          { label: 'Total Order', value: orders.length, color: '#94A3B8', icon: '📋', delay: 0 },
+          { label: 'Selesai', value: counts.selesai, color: '#22C55E', icon: '✅', delay: 100 },
+          { label: 'Sedang Dikerjakan', value: counts.proses, color: '#FBBF24', icon: '🔧', delay: 200 },
+          { label: 'Pendapatan Masuk', value: totalPendapatan, color: '#60A5FA', icon: '💰', delay: 300, format: (v) => `Rp ${(v/1000000).toFixed(1)}jt` },
         ].map((s) => (
           <div
             key={s.label}
-            className="rounded-xl px-4 py-3 transition-all duration-500 hover:scale-[1.04] hover:shadow-lg hover:shadow-green-500/5 animate-fadeInUp"
+            className="relative rounded-xl px-4 py-3 transition-all duration-500 hover:scale-[1.04] hover:shadow-lg hover:shadow-green-500/5 animate-fadeInUp group overflow-hidden"
             style={{
-              background: s.bg,
+              background: `linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))`,
               border: `1px solid ${s.color}15`,
               animationDelay: `${s.delay}ms`,
               animationFillMode: 'both',
             }}>
-            <p className="text-xs text-gray-500 mb-1">{s.label}</p>
+            <div className="absolute -top-6 -right-6 w-16 h-16 rounded-full opacity-10 group-hover:opacity-20 transition-all duration-700"
+              style={{ background: `radial-gradient(circle, ${s.color} 0%, transparent 70%)` }} />
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">{s.label}</p>
+              <span className="text-sm">{s.icon}</span>
+            </div>
             <p className="text-2xl font-black" style={{ color: s.color }}>
               {s.format ? (
                 <AnimatedNumber value={s.value} format={() => s.format(s.value)} duration={1000} />
@@ -977,6 +982,8 @@ export default function Orders() {
                 <AnimatedNumber value={s.value} format={(v) => Math.round(v)} duration={1000} />
               )}
             </p>
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-500 group-hover:h-1"
+              style={{ background: `linear-gradient(90deg, transparent, ${s.color}, transparent)` }} />
           </div>
         ))}
       </div>

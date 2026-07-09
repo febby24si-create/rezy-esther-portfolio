@@ -9,9 +9,10 @@
 // ─── Card Theme Config ──────────────────────────────────────
 export const CARD_THEME = {
   Platinum: {
-    label: 'VIP',
-    sublabel: '贵宾卡',
-    tierLabel: 'VIP',
+    label: 'Platinum',
+    sublabel: 'Platinum Card',
+    tierLabel: 'Platinum',
+    icon: '💎',
     // Base dark + subtle warm black
     gradient: 'linear-gradient(145deg, #0a0800 0%, #130f00 40%, #1a1500 70%, #0a0800 100%)',
     accent: '#D4AF37',
@@ -31,8 +32,9 @@ export const CARD_THEME = {
   },
   Gold: {
     label: 'Gold',
-    sublabel: '黄金卡',
+    sublabel: 'Gold Card',
     tierLabel: 'Gold',
+    icon: '🥇',
     gradient: 'linear-gradient(145deg, #110d00 0%, #1a1400 40%, #241b00 70%, #110d00 100%)',
     accent: '#FBBF24',
     accentLight: '#FDE68A',
@@ -51,8 +53,9 @@ export const CARD_THEME = {
   },
   Silver: {
     label: 'Silver',
-    sublabel: '白银卡',
+    sublabel: 'Silver Card',
     tierLabel: 'Silver',
+    icon: '🥈',
     gradient: 'linear-gradient(145deg, #0d1117 0%, #111820 40%, #161f2c 70%, #0d1117 100%)',
     accent: '#94A3B8',
     accentLight: '#CBD5E1',
@@ -70,9 +73,10 @@ export const CARD_THEME = {
     shadow: '0 20px 60px rgba(148,163,184,0.12), 0 4px 24px rgba(0,0,0,0.70)',
   },
   Bronze: {
-    label: 'Member',
-    sublabel: '会员卡',
-    tierLabel: 'Member',
+    label: 'Bronze',
+    sublabel: 'Bronze Card',
+    tierLabel: 'Bronze',
+    icon: '🥉',
     gradient: 'linear-gradient(145deg, #0f0a06 0%, #150d06 40%, #1c1008 70%, #0f0a06 100%)',
     accent: '#C97D3A',
     accentLight: '#E09A5A',
@@ -320,7 +324,7 @@ export function CardFront({ customer, theme, membershipId, memberSince, totalPoi
               color: theme.accentLight,
             }}
           >
-            {theme.tierLabel}
+            {theme.icon} {theme.tierLabel}
           </div>
         </div>
 

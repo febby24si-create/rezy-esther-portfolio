@@ -528,7 +528,7 @@ export default function Mechanics() {
   const totalJobs = mechanics.reduce((a, m) => a + (m.jobsDone || 0), 0)
 
   return (
-    <div className="min-h-screen" style={{ background: 'radial-gradient(circle at 10% 20%, #072e1f, #03120c)' }}>
+    <div className="min-h-screen" style={{ background: '#060f0a' }}>
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -556,22 +556,29 @@ export default function Mechanics() {
         {/* Stat cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Total Mekanik',   value: mechanics.length, icon: <MdPeople size={18}/>, color: '#94A3B8', bg: 'rgba(148,163,184,0.06)' },
-            { label: 'Tersedia',        value: avail,            icon: <MdCheckCircle size={18}/>, color: '#22C55E', bg: 'rgba(34,197,94,0.06)'  },
-            { label: 'Sedang Sibuk',    value: mechanics.length - avail, icon: <MdPending size={18}/>, color: '#FBBF24', bg: 'rgba(251,191,36,0.06)' },
-            { label: 'Rata-rata Rating',value: avgRating,        icon: <MdStarHalf size={18}/>, color: '#FBBF24', bg: 'rgba(251,191,36,0.06)' },
+            { label: 'Total Mekanik',   value: mechanics.length, icon: <MdPeople size={18}/>, color: '#94A3B8' },
+            { label: 'Tersedia',        value: avail,            icon: <MdCheckCircle size={18}/>, color: '#22C55E'  },
+            { label: 'Sedang Sibuk',    value: mechanics.length - avail, icon: <MdPending size={18}/>, color: '#FBBF24' },
+            { label: 'Rata-rata Rating',value: avgRating,        icon: <MdStarHalf size={18}/>, color: '#FBBF24' },
           ].map(s => (
             <motion.div
               key={s.label}
               whileHover={{ scale: 1.02 }}
-              className="rounded-2xl px-4 py-3 transition-all"
-              style={{ background: s.bg, border: `1px solid ${s.color}15` }}
+              className="relative rounded-2xl px-4 py-3 transition-all duration-500 hover:shadow-lg overflow-hidden group"
+              style={{
+                background: 'linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))',
+                border: `1px solid ${s.color}20`,
+              }}
             >
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-gray-500">{s.label}</p>
+              <div className="absolute -top-6 -right-6 w-16 h-16 rounded-full opacity-10 group-hover:opacity-20 transition-all duration-700"
+                style={{ background: `radial-gradient(circle, ${s.color} 0%, transparent 70%)` }} />
+              <div className="flex items-center justify-between relative z-10">
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">{s.label}</p>
                 <span style={{ color: s.color, opacity: 0.6 }}>{s.icon}</span>
               </div>
-              <p className="text-2xl font-black mt-1" style={{ color: s.color }}>{s.value}</p>
+              <p className="text-2xl font-black mt-1 relative z-10" style={{ color: s.color }}>{s.value}</p>
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-500 group-hover:h-1"
+                style={{ background: `linear-gradient(90deg, transparent, ${s.color}, transparent)` }} />
             </motion.div>
           ))}
         </div>
