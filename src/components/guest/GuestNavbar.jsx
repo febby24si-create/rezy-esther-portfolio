@@ -13,7 +13,7 @@ import { getCustomerAvatar } from '../../utils/randomAvatar'
 
 // ─── Nav links (halaman Guest yang boleh diakses siapa saja) ──
 const GUEST_NAV = [
-  { path: '/guest',         label: 'Beranda', exact: true },
+  { path: '/',               label: 'Beranda', exact: true },
   { path: '/guest/layanan', label: 'Layanan'              },
   { path: '/guest/promo',   label: 'Promo'                },
   { path: '/guest/tentang', label: 'Tentang'              },
@@ -38,7 +38,7 @@ export default function GuestNavbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const location  = useLocation()
   const navigate  = useNavigate()
-  const isLanding = location.pathname === '/guest' || location.pathname === '/'
+  const isLanding = location.pathname === '/'
 
   const { customer, isLoggedIn, logout } = useCustomerAuth()
   const tier    = isLoggedIn ? calcTier(customer?.points || 0) : null
@@ -82,7 +82,7 @@ export default function GuestNavbar() {
           <div className="flex items-center justify-between h-16">
 
             {/* ── Logo ── */}
-            <Link to="/guest" className="flex items-center gap-2.5 flex-shrink-0 group">
+            <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 group">
               <motion.div
                 whileHover={{ rotate: [0, -8, 8, 0], scale: 1.08 }}
                 transition={{ duration: 0.4 }}

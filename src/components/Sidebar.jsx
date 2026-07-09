@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import logo from "../assets/logo2.png";
 import {
   MdDashboard,
@@ -120,9 +121,10 @@ export default function Sidebar({ onClose }) {
       window.removeEventListener("userProfileUpdated", handleUserUpdate);
   }, []);
 
+  const { logout } = useAuth();
+
   const handleLogout = () => {
-    sessionStorage.removeItem("eg_token");
-    sessionStorage.removeItem("eg_user");
+    logout();
     navigate("/login");
   };
 

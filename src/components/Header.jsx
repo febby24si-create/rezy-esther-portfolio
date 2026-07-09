@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAdminNotifications } from "../hooks/useNotifications";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { orderAPI } from "../services/orderAPI";
 import { customerAPI } from "../services/customerAPI";
 import {
@@ -181,8 +182,10 @@ export default function Header({ onToggleSidebar }) {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
 
+  const { logout } = useAuth();
+
   const handleLogout = () => {
-    sessionStorage.removeItem("eg_token");
+    logout();
     navigate("/login");
   };
 

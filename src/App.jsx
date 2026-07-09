@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CustomerAuthProvider } from "./context/CustomerAuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-import MemberProtectedRoute from "./components/MemberProtectedRoute";
 import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import GuestLayout from "./layouts/GuestLayout";
@@ -102,7 +101,7 @@ export default function App() {
             {/* Hanya halaman publik, tidak ada fitur member di sini */}
             <Route element={<GuestLayout />}>
               <Route path="/"                element={<LandingPage />}      />
-              <Route path="/guest"           element={<LandingPage />}      />
+
               <Route path="/guest/tentang"   element={<TentangKami />}      />
               <Route path="/guest/layanan"   element={<Layanan />}          />
               <Route path="/guest/promo"     element={<PromoVoucher />}     />
@@ -122,19 +121,17 @@ export default function App() {
             </Route>
 
             {/* ── Member Area Routes ─────────────────────── */}
-            {/* Semua fitur pengguna dipusatkan di sini */}
-            <Route element={<MemberProtectedRoute />}>
-              <Route element={<MemberLayout />}>
-                <Route path="/member/dashboard"   element={<MemberDashboard />} />
-                <Route path="/member/kartu"       element={<KartuMember />}     />
-                <Route path="/member/booking"     element={<BookingService />}  />
-                <Route path="/member/tracking"    element={<TrackingStatus />}  />
-                <Route path="/member/loyalty"     element={<LoyaltyPoint />}    />
-                <Route path="/member/voucher"     element={<VoucherSaya />}     />
-                <Route path="/member/riwayat"     element={<RiwayatService />}  />
-                <Route path="/member/profil"      element={<ProfilCustomer />}  />
-                <Route path="/member/leaderboard" element={<Leaderboard />}     />
-              </Route>
+            {/* Semua fitur pengguna — bisa diakses tanpa login */}
+            <Route element={<MemberLayout />}>
+              <Route path="/member/dashboard"   element={<MemberDashboard />} />
+              <Route path="/member/kartu"       element={<KartuMember />}     />
+              <Route path="/member/booking"     element={<BookingService />}  />
+              <Route path="/member/tracking"    element={<TrackingStatus />}  />
+              <Route path="/member/loyalty"     element={<LoyaltyPoint />}    />
+              <Route path="/member/voucher"     element={<VoucherSaya />}     />
+              <Route path="/member/riwayat"     element={<RiwayatService />}  />
+              <Route path="/member/profil"      element={<ProfilCustomer />}  />
+              <Route path="/member/leaderboard" element={<Leaderboard />}     />
             </Route>
 
             <Route path="*" element={<NotFound />} />

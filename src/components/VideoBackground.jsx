@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 /**
  * Reusable full-screen video background component.
@@ -11,6 +11,8 @@ import { useState, useEffect, useRef } from 'react'
  * Video file must be at /videos/hero.mp4 (served from public/videos/).
  * On mobile (< 768 px) the video is hidden; the poster is shown instead.
  * Respects prefers-reduced-motion by pausing the video.
+ * Handles browser autoplay policy: if autoplay is blocked, shows the poster
+ * until the user interacts with the page (click/touch/scroll).
  */
 export default function VideoBackground({
   poster = '',
@@ -18,8 +20,44 @@ export default function VideoBackground({
   className = '',
 }) {
   const videoRef = useRef(null)
-  const [isReady, setIsReady] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
   const [videoError, setVideoError] = useState(false)
+  const userInteracted = useRef(false)
+
+  // ── Programmatic play with autoplay rejection handling ──
+  const attemptPlay = useCallback(() => {
+    const video = videoRef.current
+    if (!video) return
+    video.play()
+      .then(() => setIsPlaying(true))
+      .catch(() => {
+        // Autoplay blocked by browser — stay on poster
+        setIsPlaying(false)
+      })
+  }, [])
+
+  // Try to play on mount
+  useEffect(() => {
+    attemptPlay()
+  }, [attemptPlay])
+
+  // Retry play once user interacts with the page
+  useEffect(() => {
+    const handleInteraction = () => {
+      if (userInteracted.current) return
+      userInteracted.current = true
+      attemptPlay()
+    }
+    // Also retry on scroll — user is clearly engaging
+    window.addEventListener('click', handleInteraction, { once: true })
+    window.addEventListener('touchstart', handleInteraction, { once: true })
+    window.addEventListener('scroll', handleInteraction, { once: true })
+    return () => {
+      window.removeEventListener('click', handleInteraction)
+      window.removeEventListener('touchstart', handleInteraction)
+      window.removeEventListener('scroll', handleInteraction)
+    }
+  }, [attemptPlay])
 
   // Respect reduced motion preference
   useEffect(() => {
@@ -29,13 +67,13 @@ export default function VideoBackground({
     }
     const handler = (e) => {
       if (e.matches && videoRef.current) videoRef.current.pause()
-      if (!e.matches && videoRef.current) videoRef.current.play()
+      if (!e.matches && videoRef.current) attemptPlay()
     }
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)
-  }, [])
+  }, [attemptPlay])
 
-  const showVideo = isReady && !videoError
+  const showVideo = isPlaying && !videoError
 
   const defaultOverlay = `
     radial-gradient(ellipse at 50% 0%, rgba(2,15,9,0.3) 0%, transparent 60%),
@@ -54,7 +92,7 @@ export default function VideoBackground({
         playsInline
         preload="auto"
         poster={poster}
-        onCanPlay={() => setIsReady(true)}
+        onPlay={() => setIsPlaying(true)}
         onError={() => setVideoError(true)}
         className={`absolute inset-0 w-full h-full object-cover scale-110 transition-all duration-1000 hidden md:block ${
           showVideo ? 'opacity-100' : 'opacity-0'
@@ -63,7 +101,7 @@ export default function VideoBackground({
         <source src="/videos/hero.mp4" type="video/mp4" />
       </video>
 
-      {/* Static poster image (shown on mobile / loading / error) */}
+      {/* Static poster image (shown on mobile / loading / error / autoplay blocked) */}
       <img
         src={poster}
         alt=""
