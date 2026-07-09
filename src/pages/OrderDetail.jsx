@@ -59,6 +59,7 @@ export const APPROVAL_STATUS = {
   REVISION:  'revision_requested',
 }
 
+
 // ─── INSPECTION CHECKLIST TEMPLATE ──────────────────────────
 export const INSPECTION_CHECKLIST = [
   // Eksterior
