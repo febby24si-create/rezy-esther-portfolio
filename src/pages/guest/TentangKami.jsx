@@ -90,7 +90,7 @@ function FaqItem({ question, answer }) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-card rounded-xl overflow-hidden bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/20 transition-all"
+      className="glass-card rounded-xl overflow-hidden bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all"
     >
       <button
         className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-white/5 transition"
@@ -150,12 +150,12 @@ export default function TentangKami() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="max-w-2xl"
           >
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-400 text-xs font-bold uppercase tracking-widest mb-4">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border-brand text-blue-400 text-xs font-bold uppercase tracking-widest mb-4">
               <MdVerified className="text-sm" /> Tentang Kami
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight">
               Bengkel Modern <br />
-              <span className="bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+              <span className="gradient-text-brand">
                 Sejak 2015
               </span>
             </h1>
@@ -167,7 +167,7 @@ export default function TentangKami() {
                 href="#layanan"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-blue-600/30 transition-all"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-6 py-3 rounded-xl shadow-lg glow-brand transition-all"
               >
                 Layanan Kami <MdArrowForward />
               </motion.a>
@@ -175,7 +175,7 @@ export default function TentangKami() {
                 href="#team"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2 glass-dark hover:bg-white/10 text-white font-semibold px-6 py-3 rounded-xl border border-white/10 hover:border-blue-500/30 transition-all"
+                className="inline-flex items-center gap-2 glass-dark hover:bg-white/10 text-white font-semibold px-6 py-3 rounded-xl border border-white/10 hover:border-brand transition-all"
               >
                 Tim Mekanik
               </motion.a>
@@ -188,16 +188,16 @@ export default function TentangKami() {
       <section className="py-16 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-y border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-1">
+            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-1">
               <AnimatedCounter target={bengkelProfile.stats.customers} suffix="+" label="Pelanggan" />
             </div>
-            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-1">
+            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-1">
               <AnimatedCounter target={bengkelProfile.stats.mechanics} suffix="+" label="Mekanik" />
             </div>
-            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-1">
+            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-1">
               <AnimatedCounter target={10} suffix=" Tahun" label="Pengalaman" />
             </div>
-            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-1">
+            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-1">
               <AnimatedCounter target={bengkelProfile.stats.satisfaction} suffix="%" label="Kepuasan Pelanggan" />
             </div>
           </div>
@@ -209,7 +209,7 @@ export default function TentangKami() {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <Reveal>
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-blue-600/10">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl glow-brand">
                 <img
                   src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&q=80&auto=format&fit=crop"
                   alt="Interior Bengkel Esther Garage"
@@ -290,7 +290,7 @@ export default function TentangKami() {
 
           <div className="grid lg:grid-cols-2 gap-8">
             <Reveal>
-              <div className="glass-card rounded-2xl p-8 bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all">
+              <div className="glass-card rounded-2xl p-8 bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
                     <MdStars className="text-blue-400 text-2xl" />
@@ -302,7 +302,7 @@ export default function TentangKami() {
             </Reveal>
 
             <Reveal delay={150}>
-              <div className="glass-card rounded-2xl p-8 bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all">
+              <div className="glass-card rounded-2xl p-8 bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
                     <MdBuild className="text-orange-400 text-2xl" />
@@ -328,7 +328,7 @@ export default function TentangKami() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <Reveal>
-              <span className="text-blue-400 text-sm font-semibold uppercase tracking-widest">Perjalanan</span>
+              <span className="text-brand text-sm font-semibold uppercase tracking-widest">Perjalanan</span>
               <h2 className="text-3xl font-extrabold text-white mt-2">Sejarah Esther Garage</h2>
               <p className="text-gray-400 text-sm max-w-md mx-auto mt-2">Setiap langkah adalah komitmen untuk pelayanan terbaik.</p>
             </Reveal>
@@ -348,7 +348,7 @@ export default function TentangKami() {
                     />
 
                     <div className={`w-full md:w-[calc(50%-40px)] ${i % 2 === 0 ? 'md:pr-8' : 'md:pl-8'} pl-12 md:pl-0`}>
-                      <div className="glass-card rounded-xl p-5 bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/20 transition-all hover:-translate-y-1">
+                      <div className="glass-card rounded-xl p-5 bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-1">
                         <div className={`font-extrabold text-xl ${i === bengkelProfile.milestones.length - 1 ? 'text-emerald-400' : 'text-blue-400'}`}>
                           {m.year}
                         </div>
@@ -368,7 +368,7 @@ export default function TentangKami() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <Reveal>
-              <span className="text-blue-400 text-sm font-semibold uppercase tracking-widest">Tim Ahli</span>
+              <span className="text-brand text-sm font-semibold uppercase tracking-widest">Tim Ahli</span>
               <h2 className="text-3xl font-extrabold text-white mt-2">Mekanik Profesional</h2>
               <p className="text-gray-400 text-sm max-w-md mx-auto mt-2">Mereka adalah garda terdepan kualitas servis kami.</p>
             </Reveal>
@@ -377,7 +377,7 @@ export default function TentangKami() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {mechanics.map((m, idx) => (
               <Reveal key={m.id} delay={idx * 100}>
-                <div className="glass-card rounded-2xl overflow-hidden text-center bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-2 group">
+                <div className="glass-card rounded-2xl overflow-hidden text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-2 group">
                   <div className="relative h-56 overflow-hidden">
                     <img
                       src={getMechanicAvatar(m.name, 300)}
@@ -435,7 +435,7 @@ export default function TentangKami() {
           <div className="flex flex-wrap justify-center gap-4">
             {bengkelProfile.certifications.map((c, idx) => (
               <Reveal key={c} delay={idx * 50}>
-                <div className="flex items-center gap-3 px-6 py-4 rounded-xl border bg-[#1E293B]/40 border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/10">
+                <div className="flex items-center gap-3 px-6 py-4 rounded-xl border bg-[#1E293B]/40 border-white/5 hover:border-brand transition-all hover:-translate-y-1 hover:shadow-lg hover:glow-brand">
                   <MdVerified className="text-blue-400 text-2xl" />
                   <span className="text-white font-semibold text-sm">{c}</span>
                 </div>
@@ -450,7 +450,7 @@ export default function TentangKami() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <Reveal>
-              <span className="text-blue-400 text-sm font-semibold uppercase tracking-widest">Keunggulan</span>
+              <span className="text-brand text-sm font-semibold uppercase tracking-widest">Keunggulan</span>
               <h2 className="text-3xl font-extrabold text-white mt-2">Mengapa Memilih Kami?</h2>
               <p className="text-gray-400 text-sm max-w-md mx-auto mt-2">Kami hadir dengan layanan terbaik untuk kendaraan Anda.</p>
             </Reveal>
@@ -466,7 +466,7 @@ export default function TentangKami() {
               { icon: <MdWhatsapp className="text-2xl text-green-400" />, title: 'Dukungan WhatsApp', desc: 'CS siap membantu setiap hari.' },
             ].map((item, idx) => (
               <Reveal key={item.title} delay={idx * 100}>
-                <div className="glass-card rounded-2xl p-6 text-center bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-2 group">
+                <div className="glass-card rounded-2xl p-6 text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-2 group">
                   <div className="w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center bg-blue-500/10 group-hover:bg-blue-500/20 transition-all">
                     {item.icon}
                   </div>
@@ -540,7 +540,7 @@ export default function TentangKami() {
           >
             <h2 className="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-4">
               Siap Merawat <br />
-              <span className="bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+              <span className="gradient-text-brand">
                 Kendaraan Anda?
               </span>
             </h2>
@@ -550,7 +550,7 @@ export default function TentangKami() {
             <div className="flex flex-col sm:flex-row justify-center gap-3.5">
               <a
                 href="/member/booking"
-                className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.02]"
+                className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg glow-brand hover:glow-brand hover:scale-[1.02]"
               >
                 Booking Sekarang <MdArrowForward />
               </a>
@@ -558,7 +558,7 @@ export default function TentangKami() {
                 href="https://wa.me/6288708230676?text=Halo%20Esther%20Garage%2C%20saya%20mau%20konsultasi"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 glass-dark hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-2xl border border-white/10 hover:border-blue-500/30 transition-all"
+                className="inline-flex items-center justify-center gap-2.5 glass-dark hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-2xl border border-white/10 hover:border-brand transition-all"
               >
                 <MdWhatsapp className="text-green-400 text-xl" /> Hubungi WhatsApp
               </a>
@@ -595,19 +595,6 @@ export default function TentangKami() {
       </a>
 
       {/* ─── GLOBAL STYLES ──────────────────────────────────────── */}
-      <style>{`
-        .glass-card {
-          background: rgba(255, 255, 255, 0.03);
-          backdrop-filter: blur(8px);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .glass-dark {
-          background: rgba(15, 23, 42, 0.7);
-          backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-      `}</style>
     </div>
   )
 }

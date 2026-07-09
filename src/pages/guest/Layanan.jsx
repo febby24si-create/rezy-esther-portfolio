@@ -89,7 +89,7 @@ function ServiceDetailModal({ service, onClose, onBooking }) {
   const rating = 4.5 + (service.id?.charCodeAt(1) % 3) * 0.2
   const catColors = {
     'Perawatan': 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-    'Performa': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    'Performa': 'bg-blue-500/20 text-blue-400 border-brand',
     'Ban & Kaki': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
     'Kenyamanan': 'bg-purple-500/20 text-purple-400 border-purple-500/30',
     'Elektronik': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
@@ -210,7 +210,7 @@ const EnhancedServiceCard = ({ service, index, onDetail }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.4, ease: "easeOut" }}
       whileHover={{ y: -8, transition: { type: 'spring', stiffness: 300 } }}
-      className="glass-card rounded-2xl overflow-hidden group bg-[#0F172A]/60 border border-white/5 hover:border-blue-500/30 transition-all duration-300"
+      className="glass-card rounded-2xl overflow-hidden group bg-[#0F172A]/60 border border-white/5 hover:border-brand transition-all duration-300"
     >
       <div className="relative h-48 overflow-hidden">
         <img
@@ -256,7 +256,7 @@ const EnhancedServiceCard = ({ service, index, onDetail }) => {
         </div>
         <button
           onClick={() => onDetail(service)}
-          className="mt-4 w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/30 transition-all flex items-center justify-center gap-2 group-hover:gap-3 cursor-pointer"
+          className="mt-4 w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600/20 hover:bg-blue-600/40 border-brand transition-all flex items-center justify-center gap-2 group-hover:gap-3 cursor-pointer"
         >
           Lihat Detail <MdArrowForward className="text-sm" />
         </button>
@@ -351,17 +351,17 @@ export default function Layanan() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="max-w-2xl"
           >
-            <span className="text-blue-400 text-sm font-semibold uppercase tracking-widest">Layanan Kami</span>
+            <span className="text-brand text-sm font-semibold uppercase tracking-widest">Layanan Kami</span>
             <h1 className="text-4xl md:text-5xl font-extrabold text-white mt-2 leading-tight">
               Servis Lengkap untuk <br />
-              <span className="bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">Kendaraan Anda</span>
+              <span className="gradient-text-brand">Kendaraan Anda</span>
             </h1>
             <p className="text-gray-300 text-base mt-4 max-w-lg">
               Dari perawatan rutin hingga perbaikan mesin, semua dikerjakan oleh mekanik bersertifikat dengan peralatan diagnostik modern.
             </p>
             <button
               onClick={() => navigate('/member/booking')}
-              className="inline-flex items-center gap-2.5 mt-6 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-blue-600/30 transition-all"
+              className="inline-flex items-center gap-2.5 mt-6 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-6 py-3 rounded-xl shadow-lg glow-brand transition-all"
             >
               Booking Sekarang <MdArrowForward />
             </button>
@@ -398,7 +398,7 @@ export default function Layanan() {
               { icon: <MdSupportAgent className="text-2xl text-orange-400" />, title: 'Dukungan WhatsApp', desc: 'CS siap membantu setiap hari.' },
             ].map((item, idx) => (
               <FadeInUp key={idx} delay={idx * 100}>
-                <div className="glass-card rounded-2xl p-6 text-center group hover:-translate-y-2 transition-all duration-300 bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30">
+                <div className="glass-card rounded-2xl p-6 text-center group hover:-translate-y-2 transition-all duration-300 bg-[#1E293B]/40 border border-white/5 hover:border-brand">
                   <div className="w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center bg-blue-500/10 group-hover:bg-blue-500/20 transition-all">
                     {item.icon}
                   </div>
@@ -431,7 +431,7 @@ export default function Layanan() {
                   onClick={() => setActiveCategory(c)}
                   className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                     activeCategory === c
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-md shadow-blue-500/20'
+                      ? 'bg-blue-500/20 text-blue-400 border-brand shadow-md glow-brand'
                       : 'bg-white/5 text-gray-400 border border-white/10 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -505,7 +505,7 @@ export default function Layanan() {
       <section className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <span className="text-blue-400 text-sm font-semibold uppercase tracking-widest">FAQ</span>
+            <span className="text-brand text-sm font-semibold uppercase tracking-widest">FAQ</span>
             <h2 className="text-3xl font-extrabold text-white mt-2">Pertanyaan Umum Layanan</h2>
           </div>
           <FAQSection />
@@ -523,7 +523,7 @@ export default function Layanan() {
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}>
             <h2 className="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-4">
               Siap Merawat <br />
-              <span className="bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">Kendaraan Anda?</span>
+              <span className="gradient-text-brand">Kendaraan Anda?</span>
             </h2>
             <p className="text-gray-300 text-base max-w-lg mx-auto mb-8">
               Booking sekarang dan nikmati layanan terbaik dari mekanik profesional kami.
@@ -531,7 +531,7 @@ export default function Layanan() {
             <div className="flex flex-col sm:flex-row justify-center gap-3.5">
               <button
                 onClick={() => navigate('/member/booking')}
-                className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/30 hover:scale-[1.02]"
+                className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg glow-brand hover:scale-[1.02]"
               >
                 Booking Sekarang <MdArrowForward />
               </button>
@@ -539,7 +539,7 @@ export default function Layanan() {
                 href="https://wa.me/6288708230676?text=Halo%20Esther%20Garage%2C%20saya%20mau%20konsultasi"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 glass-dark hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-2xl border border-white/10 hover:border-blue-500/30 transition-all"
+                className="inline-flex items-center justify-center gap-2.5 glass-dark hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-2xl border border-white/10 hover:border-brand transition-all"
               >
                 <MdWhatsapp className="text-green-400 text-xl" /> Hubungi WhatsApp
               </a>
@@ -567,8 +567,6 @@ export default function Layanan() {
       </AnimatePresence>
 
       <style>{`
-        .glass-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.06); }
-        .glass-dark { background: rgba(15,23,42,0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.06); }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
       `}</style>
     </div>
@@ -595,7 +593,7 @@ function FAQItem({ item, idx }) {
   const [open, setOpen] = useState(false)
   return (
     <FadeInUp delay={idx * 100}>
-      <div className="glass-card rounded-xl overflow-hidden bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/20 transition-all">
+      <div className="glass-card rounded-xl overflow-hidden bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all">
         <button className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-white/5 transition" onClick={() => setOpen(!open)}>
           <span className="text-white font-medium text-sm">{item.q}</span>
           <svg className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">

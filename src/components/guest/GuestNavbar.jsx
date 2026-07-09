@@ -72,10 +72,10 @@ export default function GuestNavbar() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         style={{
-          background: showBg ? 'rgba(2,15,9,0.94)' : 'transparent',
+          background: showBg ? 'rgba(2,11,24,0.94)' : 'transparent',
           backdropFilter: showBg ? 'blur(14px)' : 'none',
           WebkitBackdropFilter: showBg ? 'blur(14px)' : 'none',
-          borderBottom: showBg ? '1px solid rgba(34,197,94,0.08)' : 'none',
+          borderBottom: showBg ? '1px solid rgba(6,182,212,0.08)' : 'none',
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -87,15 +87,15 @@ export default function GuestNavbar() {
                 whileHover={{ rotate: [0, -8, 8, 0], scale: 1.08 }}
                 transition={{ duration: 0.4 }}
                 className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg"
-                style={{ background: 'linear-gradient(135deg,#16A34A,#22C55E)', boxShadow: '0 4px 12px rgba(34,197,94,0.3)' }}
+                style={{ background: 'linear-gradient(135deg,#2563eb,#06b6d4)', boxShadow: '0 4px 12px rgba(6,182,212,0.3)' }}
               >
                 <MdDirectionsCar className="text-white text-lg" />
               </motion.div>
               <div>
                 <span className="font-extrabold text-white text-base tracking-tight leading-none">
-                  Esther <span className="text-green-400">Garage</span>
+                  Esther <span className="text-cyan-400">Garage</span>
                 </span>
-                <p className="text-green-500/60 text-[9px] font-semibold tracking-widest uppercase leading-none mt-0.5">
+                <p className="text-blue-400/60 text-[9px] font-semibold tracking-widest uppercase leading-none mt-0.5">
                   Workshop
                 </p>
               </div>
@@ -114,7 +114,7 @@ export default function GuestNavbar() {
                         <motion.div
                           layoutId="nav-underline"
                           className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full"
-                          style={{ background: 'linear-gradient(90deg,#22C55E,#10B981)' }}
+                          style={{ background: 'linear-gradient(90deg,#2563eb,#06b6d4)' }}
                           transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                         />
                       )}
@@ -171,7 +171,7 @@ export default function GuestNavbar() {
                           onError={e => {
                             e.target.onerror = null
                             e.target.style.display = 'none'
-                            e.target.parentElement.style.background = tierCfg?.color || '#22C55E'
+                            e.target.parentElement.style.background = tierCfg?.color || '#06b6d4'
                             e.target.parentElement.innerHTML = `<span style='color:white;font-size:9px;font-weight:bold;display:flex;align-items:center;justify-content:center;width:100%;height:100%'>${(customer?.name||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}</span>`
                           }}
                         />
@@ -198,10 +198,10 @@ export default function GuestNavbar() {
                           exit={{ opacity: 0, scale: 0.95, y: -8 }}
                           transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
                           className="absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl py-2 z-50"
-                          style={{ background: '#041C15', border: '1px solid rgba(34,197,94,0.15)', boxShadow: '0 20px 60px rgba(0,0,0,0.6)' }}
+                          style={{ background: '#04132c', border: '1px solid rgba(6,182,212,0.15)', boxShadow: '0 20px 60px rgba(0,0,0,0.6)' }}
                         >
                           {/* User info header */}
-                          <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(34,197,94,0.1)' }}>
+                          <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(6,182,212,0.1)' }}>
                             <p className="text-white font-bold text-sm truncate">{customer?.name}</p>
                             <div className="flex items-center gap-1.5 mt-1">
                               <span className="text-xs font-bold px-2 py-0.5 rounded-full"
@@ -234,7 +234,7 @@ export default function GuestNavbar() {
                                 transition={{ delay: i * 0.03 }}>
                                 <NavLink to={path} onClick={() => setDropdownOpen(false)}
                                   className={({ isActive }) =>
-                                    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${isActive ? 'text-green-400 bg-green-500/10' : 'text-gray-300 hover:text-white hover:bg-white/5'}`
+                                    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${isActive ? 'text-cyan-400 bg-cyan-500/10' : 'text-gray-300 hover:text-white hover:bg-white/5'}`
                                   }
                                 >
                                   <Icon className="text-base flex-shrink-0 text-gray-500" /> {label}
@@ -265,10 +265,10 @@ export default function GuestNavbar() {
                   </Link>
                   <Link to="/guest/register">
                     <motion.div
-                      whileHover={{ scale: 1.04, boxShadow: '0 8px 24px rgba(34,197,94,0.4)' }}
+                      whileHover={{ scale: 1.04, boxShadow: '0 8px 24px rgba(6,182,212,0.4)' }}
                       whileTap={{ scale: 0.97 }}
                       className="text-white text-sm font-bold px-4 py-2 rounded-xl cursor-pointer"
-                      style={{ background: 'linear-gradient(135deg,#16A34A,#22C55E)', boxShadow: '0 4px 16px rgba(34,197,94,0.25)' }}
+                      style={{ background: 'linear-gradient(135deg,#2563eb,#06b6d4)', boxShadow: '0 4px 16px rgba(6,182,212,0.25)' }}
                     >
                       Daftar Gratis
                     </motion.div>
@@ -279,10 +279,10 @@ export default function GuestNavbar() {
               {/* Booking CTA — always visible */}
               <Link to={isLoggedIn ? '/member/booking' : '/guest/login'}>
                 <motion.div
-                  whileHover={{ scale: 1.04, boxShadow: '0 8px 24px rgba(34,197,94,0.4)' }}
+                  whileHover={{ scale: 1.04, boxShadow: '0 8px 24px rgba(6,182,212,0.4)' }}
                   whileTap={{ scale: 0.97 }}
                   className="text-white text-sm font-bold px-4 py-2 rounded-xl cursor-pointer"
-                  style={{ background: 'linear-gradient(135deg,#16A34A,#22C55E)', boxShadow: '0 4px 16px rgba(34,197,94,0.25)' }}
+                  style={{ background: 'linear-gradient(135deg,#2563eb,#06b6d4)', boxShadow: '0 4px 16px rgba(6,182,212,0.25)' }}
                 >
                   Booking
                 </motion.div>
@@ -324,7 +324,7 @@ export default function GuestNavbar() {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               className="md:hidden overflow-hidden border-t px-4 pb-4 pt-2"
-              style={{ background: 'rgba(2,15,9,0.98)', borderColor: 'rgba(34,197,94,0.1)' }}
+              style={{ background: 'rgba(2,11,24,0.98)', borderColor: 'rgba(6,182,212,0.1)' }}
             >
               {/* Logged-in: user card */}
               {isLoggedIn && (
@@ -342,7 +342,7 @@ export default function GuestNavbar() {
                       onError={e => {
                         e.target.onerror = null
                         e.target.style.display = 'none'
-                        e.target.parentElement.style.background = tierCfg?.color || '#22C55E'
+                        e.target.parentElement.style.background = tierCfg?.color || '#06b6d4'
                         e.target.parentElement.style.display = 'flex'
                         e.target.parentElement.style.alignItems = 'center'
                         e.target.parentElement.style.justifyContent = 'center'
@@ -352,7 +352,7 @@ export default function GuestNavbar() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-sm font-semibold truncate">{customer?.name}</p>
-                    <p className="text-xs" style={{ color: tierCfg?.color || '#22C55E' }}>
+                    <p className="text-xs" style={{ color: tierCfg?.color || '#06b6d4' }}>
                       {tierCfg?.icon} {tier} · {(customer?.points || 0).toLocaleString('id-ID')} poin
                     </p>
                   </div>
@@ -373,7 +373,7 @@ export default function GuestNavbar() {
                     transition={{ delay: i * 0.04 + 0.05 }}>
                     <NavLink to={path} end={!!exact}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-green-500/15 text-green-400' : 'text-gray-300 hover:text-white hover:bg-white/5'}`
+                        `flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-blue-500/15 text-cyan-400' : 'text-gray-300 hover:text-white hover:bg-white/5'}`
                       }
                     >
                       {label}
@@ -392,7 +392,7 @@ export default function GuestNavbar() {
                           transition={{ delay: i * 0.03 + 0.2 }}>
                           <NavLink to={path} onClick={() => setMenuOpen(false)}
                             className={({ isActive }) =>
-                              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-green-500/15 text-green-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`
+                              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-cyan-500/15 text-cyan-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}`
                             }
                           >
                             <Icon className="text-base" /> {label}
@@ -412,7 +412,7 @@ export default function GuestNavbar() {
                         <MdLogin className="text-base" /> Masuk
                       </Link>
                       <Link to="/guest/register" onClick={() => setMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-green-400 hover:bg-green-500/10 transition-colors">
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-cyan-400 hover:bg-cyan-500/10 transition-colors">
                         <MdPerson className="text-base" /> Daftar Gratis
                       </Link>
                     </>
@@ -423,7 +423,7 @@ export default function GuestNavbar() {
                 <Link to={isLoggedIn ? '/member/booking' : '/guest/login'}
                   onClick={() => setMenuOpen(false)}
                   className="mt-3 text-white text-sm font-bold px-4 py-3 rounded-xl text-center block"
-                  style={{ background: 'linear-gradient(135deg,#16A34A,#22C55E)' }}>
+                  style={{ background: 'linear-gradient(135deg,#2563eb,#06b6d4)' }}>
                   🚗 Booking Service Sekarang
                 </Link>
               </div>

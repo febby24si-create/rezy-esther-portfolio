@@ -1,107 +1,154 @@
 import { Link } from 'react-router-dom'
-import { MdDirectionsCar, MdPhone, MdEmail, MdLocationOn, MdAccessTime } from 'react-icons/md'
+import { motion } from 'framer-motion'
+import { MdDirectionsCar, MdPhone, MdEmail, MdLocationOn, MdAccessTime, MdArrowForward } from 'react-icons/md'
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp } from 'react-icons/fa'
 
-const layananLinks = ['Service Berkala', 'Tune Up', 'Ganti Oli', 'Spooring & Balancing', 'Service AC', 'Service Kelistrikan']
-const pelangganLinks = [
-  { label: 'Dashboard Saya', path: '/member/dashboard' },
-  { label: 'Booking Online', path: '/member/booking' },
-  { label: 'Tracking Status', path: '/member/tracking' },
-  { label: 'Riwayat Service', path: '/member/riwayat' },
-  { label: 'Loyalty Point', path: '/member/loyalty' },
-  { label: 'Voucher Saya', path: '/member/voucher' },
-]
-const infoLinks = ['Tentang Kami', 'Promo & Voucher', 'FAQ', 'Kebijakan Privasi', 'Syarat & Ketentuan']
+const footerLinks = {
+  layanan: ['Service Berkala', 'Tune Up', 'Ganti Oli', 'Spooring & Balancing', 'Service AC', 'Service Kelistrikan'],
+  pelanggan: [
+    { label: 'Dashboard Saya', path: '/member/dashboard' },
+    { label: 'Booking Online', path: '/member/booking' },
+    { label: 'Tracking Status', path: '/member/tracking' },
+    { label: 'Riwayat Service', path: '/member/riwayat' },
+    { label: 'Loyalty Point', path: '/member/loyalty' },
+    { label: 'Voucher Saya', path: '/member/voucher' },
+  ],
+  info: ['Tentang Kami', 'Promo & Voucher', 'FAQ', 'Kebijakan Privasi', 'Syarat & Ketentuan'],
+}
+
+function FooterColumn({ title, children }) {
+  return (
+    <div>
+      <h4 className="text-white font-semibold text-sm uppercase tracking-widest mb-5">{title}</h4>
+      <ul className="space-y-3">
+        {children}
+      </ul>
+    </div>
+  )
+}
 
 export default function GuestFooter() {
   return (
-    <footer style={{ background: '#020f09', borderTop: '1px solid rgba(34,197,94,0.08)' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-
-          {/* Brand */}
+    <footer className="border-t border-auto-800/50 bg-auto-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+          {/* Brand - 2 cols */}
           <div className="lg:col-span-2">
-            <Link to="/guest" className="flex items-center gap-3 mb-5">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/30">
+            <Link to="/guest" className="flex items-center gap-3 mb-6 group">
+              <motion.div
+                whileHover={{ rotate: [0, -8, 8, 0], scale: 1.08 }}
+                transition={{ duration: 0.4 }}
+                className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg"
+                style={{ background: 'linear-gradient(135deg,#1d60d1,#3b82f6)', boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}
+              >
                 <MdDirectionsCar className="text-white text-2xl" />
-              </div>
+              </motion.div>
               <div>
-                <span className="font-extrabold text-white text-xl tracking-tight">Esther Garage</span>
-                <p className="text-green-400 text-xs font-semibold tracking-widest uppercase">Workshop</p>
+                <span className="font-extrabold text-white text-xl tracking-tight leading-none">
+                  Esther <span className="gradient-text-brand">Garage</span>
+                </span>
+                <p className="text-brand-400 text-[10px] font-semibold tracking-widest uppercase mt-0.5">Premium Automotive Workshop</p>
               </div>
             </Link>
-            <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-sm">
-              Bengkel modern terpercaya di Sumatera Barat sejak 2015. Teknologi diagnostik terkini, mekanik bersertifikat, dan transparansi harga tanpa kejutan.
+            
+            <p className="text-auto-400 text-sm leading-relaxed mb-8 max-w-sm">
+              Bengkel modern terpercaya di Sumatera Barat sejak 2015. Teknologi diagnostik terkini, 
+              mekanik bersertifikat, dan transparansi harga tanpa kejutan.
             </p>
-            <div className="space-y-2.5 mb-6">
+            
+            <div className="space-y-3 mb-8">
               {[
                 { icon: MdLocationOn, text: 'Bukittinggi, Sumatera Barat' },
                 { icon: MdPhone, text: '+62 887-082-30676' },
                 { icon: MdEmail, text: 'febby24si@mahasiswa.pcr.ac.id' },
                 { icon: MdAccessTime, text: 'Senin–Sabtu, 08.00–18.00 WIB' },
               ].map(({ icon: Icon, text }) => (
-                <div key={text} className="flex items-start gap-3 text-sm text-gray-400">
-                  <Icon className="text-green-400 text-base mt-0.5 flex-shrink-0" />
+                <div key={text} className="flex items-start gap-3 text-sm text-auto-400">
+                  <Icon className="text-brand-400 text-base mt-0.5 flex-shrink-0" />
                   <span>{text}</span>
                 </div>
               ))}
             </div>
-            <div className="flex items-center gap-2.5">
+            
+            <div className="flex items-center gap-3">
               {[FaInstagram, FaFacebookF, FaYoutube].map((Icon, i) => (
-                <button key={i} className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-400 hover:text-white bg-white/5 hover:bg-green-500/20 transition-all">
+                <motion.button
+                  key={i}
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-auto-400 hover:text-white bg-auto-800/50 hover:bg-brand-500/20 border border-auto-700/50 hover:border-brand-500/30 transition-all"
+                >
                   <Icon className="text-sm" />
-                </button>
+                </motion.button>
               ))}
-              <a href="https://wa.me/6281288990011" target="_blank" rel="noreferrer"
-                className="flex items-center gap-2 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 text-green-400 text-sm font-medium px-3 py-2 rounded-lg transition-all ml-1">
-                <FaWhatsapp className="text-base" /> WhatsApp
+              <a href="https://wa.me/6288708230676" target="_blank" rel="noreferrer"
+                className="flex items-center gap-2 text-brand-300 text-sm font-medium px-4 py-2 rounded-xl transition-all ml-2"
+                style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}
+              >
+                <FaWhatsapp className="text-base" />
+                WhatsApp
               </a>
             </div>
           </div>
 
           {/* Layanan */}
-          <div>
-            <h4 className="text-white font-semibold text-sm uppercase tracking-widest mb-4">Layanan</h4>
-            <ul className="space-y-2.5">
-              {layananLinks.map((l) => (
-                <li key={l}><Link to="/guest/layanan" className="text-gray-400 hover:text-green-400 text-sm transition-colors">{l}</Link></li>
-              ))}
-            </ul>
-          </div>
+          <FooterColumn title="Layanan">
+            {footerLinks.layanan.map((l) => (
+              <li key={l}>
+                <Link to="/guest/layanan" className="text-auto-400 hover:text-brand-300 text-sm transition-colors flex items-center gap-1 group">
+                  <span className="w-1 h-1 rounded-full bg-auto-600 group-hover:bg-brand-400 transition-colors" />
+                  {l}
+                </Link>
+              </li>
+            ))}
+          </FooterColumn>
 
           {/* Area Pelanggan */}
-          <div>
-            <h4 className="text-white font-semibold text-sm uppercase tracking-widest mb-4">Area Pelanggan</h4>
-            <ul className="space-y-2.5">
-              {pelangganLinks.map(({ label, path }) => (
-                <li key={label}><Link to={path} className="text-gray-400 hover:text-green-400 text-sm transition-colors">{label}</Link></li>
-              ))}
-            </ul>
-          </div>
+          <FooterColumn title="Area Pelanggan">
+            {footerLinks.pelanggan.map(({ label, path }) => (
+              <li key={label}>
+                <Link to={path} className="text-auto-400 hover:text-brand-300 text-sm transition-colors flex items-center gap-1 group">
+                  <span className="w-1 h-1 rounded-full bg-auto-600 group-hover:bg-brand-400 transition-colors" />
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </FooterColumn>
 
           {/* Info */}
-          <div>
-            <h4 className="text-white font-semibold text-sm uppercase tracking-widest mb-4">Informasi</h4>
-            <ul className="space-y-2.5">
-              {infoLinks.map((l) => (
-                <li key={l}><Link to="/guest" className="text-gray-400 hover:text-green-400 text-sm transition-colors">{l}</Link></li>
-              ))}
-            </ul>
-            <div className="mt-6">
-              <p className="text-xs text-gray-600 uppercase tracking-widest mb-3 font-semibold">Sertifikasi</p>
-              <div className="flex flex-wrap gap-1.5">
+          <FooterColumn title="Informasi">
+            {footerLinks.info.map((l) => (
+              <li key={l}>
+                <Link to="/guest" className="text-auto-400 hover:text-brand-300 text-sm transition-colors flex items-center gap-1 group">
+                  <span className="w-1 h-1 rounded-full bg-auto-600 group-hover:bg-brand-400 transition-colors" />
+                  {l}
+                </Link>
+              </li>
+            ))}
+            <li className="mt-6">
+              <p className="text-auto-500 text-xs uppercase tracking-widest mb-3 font-semibold">Sertifikasi</p>
+              <div className="flex flex-wrap gap-2">
                 {['ISO 9001', 'AHM', 'TAM', 'Bosch'].map((c) => (
-                  <span key={c} className="text-xs px-2 py-1 rounded-md bg-green-500/10 text-green-400 border border-green-500/20 font-medium">{c}</span>
+                  <span key={c} className="text-xs px-3 py-1.5 rounded-lg font-medium bg-brand-500/10 text-brand-300 border border-brand-500/20">
+                    {c}
+                  </span>
                 ))}
               </div>
-            </div>
-          </div>
+            </li>
+          </FooterColumn>
         </div>
       </div>
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-gray-600 text-xs">© {new Date().getFullYear()} Esther Garage. Semua hak cipta dilindungi.</p>
-          <p className="text-gray-600 text-xs">Sistem ditenagai oleh <span className="text-green-400 font-semibold">Esther Garage CRM</span> v2.5</p>
+      
+      {/* Bottom Bar */}
+      <div className="border-t border-auto-800/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-auto-500 text-xs">
+            © {new Date().getFullYear()} Esther Garage. All rights reserved.
+          </p>
+          <div className="flex items-center gap-4">
+            <Link to="/guest" className="text-auto-500 hover:text-brand-300 text-xs transition-colors">Privacy</Link>
+            <Link to="/guest" className="text-auto-500 hover:text-brand-300 text-xs transition-colors">Terms</Link>
+            <span className="text-auto-600 text-xs">Powered by Esther Garage CRM v2.5</span>
+          </div>
         </div>
       </div>
     </footer>

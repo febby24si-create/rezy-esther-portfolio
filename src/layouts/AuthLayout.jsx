@@ -1,25 +1,22 @@
-import { useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import logo from '../assets/logo2.png'
+import VideoBackground from '../components/VideoBackground'
 
 const routeConfigs = {
   '/login': {
-    bgImage: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=1920&auto=format&fit=crop',
     glowColor: 'rgba(34,197,94,0.3)', // Emerald green
     accentText: 'text-garage-400',
     titleGlow: 'drop-shadow-[0_0_12px_rgba(34,197,94,0.4)]',
     tagline: 'Sistem Manajemen Bengkel Modern'
   },
   '/register': {
-    bgImage: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=1920&auto=format&fit=crop',
     glowColor: 'rgba(6,182,212,0.35)', // Cyan/Electric Blue
     accentText: 'text-cyan-400',
     titleGlow: 'drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]',
     tagline: 'Mulai Pengalaman Premium Anda'
   },
   '/forgot': {
-    bgImage: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?q=80&w=1920&auto=format&fit=crop',
     glowColor: 'rgba(245,158,11,0.35)', // Gold/Amber
     accentText: 'text-amber-400',
     titleGlow: 'drop-shadow-[0_0_12px_rgba(245,158,11,0.4)]',
@@ -32,71 +29,30 @@ export default function AuthLayout() {
   const currentPath = location.pathname
   const config = routeConfigs[currentPath] || routeConfigs['/login']
 
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-
-  const handleMouseMove = (e) => {
-    const { clientX, clientY } = e
-    const x = (clientX - window.innerWidth / 2) / 60
-    const y = (clientY - window.innerHeight / 2) / 60
-    setMousePosition({ x, y })
-  }
-
   return (
     <div
-      onMouseMove={handleMouseMove}
       className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-garage-950 text-white font-body selection:bg-garage-400/30 selection:text-white"
     >
-      {/* ── BACKGROUND FULLSCREEN EXPERIENCE ── */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Dark overlay gradients for contrast & premium look */}
-        <div className="absolute inset-0 bg-black/65 z-10 animate-fade-in" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#020f09] via-transparent to-black/75 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#020f09]/95 via-transparent to-[#020f09]/95 z-10" />
+      {/* ── VIDEO BACKGROUND ── */}
+      <VideoBackground
+        poster="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=1920&auto=format&fit=crop"
+        className="z-0"
+      />
 
-        {/* Subtle decorative grid lines overlay */}
-        <div
-          className="absolute inset-0 z-15 opacity-15"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(34,197,94,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,0.05) 1px, transparent 1px)',
-            backgroundSize: '50px 50px'
-          }}
-        />
+      {/* Dark overlay for additional contrast */}
+      <div className="absolute inset-0 bg-black/40 z-[2]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#020f09] via-transparent to-black/60 z-[2]" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#020f09]/90 via-transparent to-[#020f09]/90 z-[2]" />
 
-        {/* Parallax + Fade-in + Blur-to-Focus Background Container */}
-        <motion.div
-          animate={{
-            x: mousePosition.x,
-            y: mousePosition.y,
-          }}
-          transition={{ type: "tween", ease: "easeOut", duration: 0.8 }}
-          className="absolute inset-[-30px] w-[calc(100%+60px)] h-[calc(100%+60px)]"
-        >
-          {/* Ken Burns Zoom Loop with dynamic crossfade key */}
-          <motion.div
-            key={config.bgImage}
-            initial={{ opacity: 0, filter: "blur(15px)" }}
-            animate={{
-              opacity: 1,
-              filter: "blur(0px)",
-              scale: [1, 1.06, 1]
-            }}
-            transition={{
-              opacity: { duration: 1.2, ease: "easeOut" },
-              filter: { duration: 1.2, ease: "easeOut" },
-              scale: {
-                duration: 25,
-                ease: "easeInOut",
-                repeat: Infinity
-              }
-            }}
-            className="w-full h-full bg-cover bg-center"
-            style={{
-              backgroundImage: `url('${config.bgImage}')`
-            }}
-          />
-        </motion.div>
-      </div>
+      {/* Subtle decorative grid lines overlay */}
+      <div
+        className="absolute inset-0 z-[3] opacity-10 pointer-events-none"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(34,197,94,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,0.04) 1px, transparent 1px)',
+          backgroundSize: '50px 50px'
+        }}
+      />
 
       {/* ── CARD & CONTENT WRAPPER ── */}
       <div className="relative z-20 w-full max-w-md px-6 py-12 flex flex-col items-center">

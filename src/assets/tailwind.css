@@ -9,10 +9,12 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource/outfit";
+@import "@fontsource/rajdhani";
 
 /* ── Theme Variables & Keyframes ───────────────────────────── */
 @theme {
-  /* Colors */
+  /* Garage Colors (Admin — Green) */
   --color-garage-950: #020f09;
   --color-garage-900: #041C15;
   --color-garage-800: #06281F;
@@ -22,6 +24,29 @@
   --color-garage-400: #22C55E;
   --color-garage-300: #4ade80;
   --color-garage-200: #86efac;
+
+  /* Automotive Dark Tones (Premium UI Base) */
+  --color-auto-950: #070a0e;
+  --color-auto-900: #0d1117;
+  --color-auto-800: #161b22;
+  --color-auto-700: #21262d;
+  --color-auto-600: #30363d;
+  --color-auto-500: #484f58;
+  --color-auto-400: #6e7681;
+  --color-auto-300: #8b949e;
+  --color-auto-200: #c9d1d9;
+  --color-auto-100: #f0f6fc;
+
+  /* Brand Colors (Guest — Electric Blue / Cyan) */
+  --color-brand-950: #020b18;
+  --color-brand-900: #04132c;
+  --color-brand-800: #061c3f;
+  --color-brand-700: #0b2b5c;
+  --color-brand-600: #0f3d7f;
+  --color-brand-500: #1d60d1;
+  --color-brand-400: #3b82f6;
+  --color-brand-300: #67e8f9;
+  --color-brand-200: #a5f3fc;
 
   /* Fonts */
   --font-display: 'Rajdhani', sans-serif;
@@ -99,6 +124,27 @@
   /* Glass Cards */
   .glass { background: rgba(4,28,21,0.6); backdrop-filter: blur(16px); border: 1px solid rgba(34,197,94,0.12); border-radius:16px; }
   .glass-light { background: rgba(255,255,255,0.04); backdrop-filter: blur(8px); border:1px solid rgba(255,255,255,0.08); border-radius:12px; }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(59, 130, 246, 0.25);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.5);
+  }
+
+  .glass-dark {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
 
   /* Buttons */
   .btn-primary {
@@ -181,10 +227,17 @@
   .glow-gold   { box-shadow:0 0 24px rgba(251,191,36,0.3); }
   .glow-purple { box-shadow:0 0 24px rgba(168,85,247,0.3); }
   .glow-orange { box-shadow:0 0 24px rgba(249,115,22,0.3); }
+  .glow-brand  { box-shadow:0 0 24px rgba(37,99,235,0.25); }
 
   .gradient-text-green   { background:linear-gradient(135deg,#22C55E,#10B981); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
   .gradient-text-gold    { background:linear-gradient(135deg,#FBBF24,#F59E0B); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .gradient-text-brand   { background:linear-gradient(135deg,#3b82f6,#06b6d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
   .gradient-text-premium { background:linear-gradient(135deg,#22C55E 0%,#A855F7 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+  .gradient-bg-brand     { background: linear-gradient(135deg, #3b82f6, #06b6d4); }
+  .border-brand          { border: 1px solid rgba(59, 130, 246, 0.3); }
+  .bg-brand             { background: #3b82f6; }
+  .text-brand           { color: #3b82f6; }
 }
 
 /* ── Root Variables & Dark Mode ───────────────────────────── */
@@ -262,24 +315,6 @@
 
 /* ── Guest Theme Color Overrides (Electric Blue & Cyan) ── */
 .guest-theme, .guest-theme select option {
-  /* Override Tailwind Green Colors */
-  --color-green-50: #f0f9ff;
-  --color-green-100: #e0f2fe;
-  --color-green-200: #bae6fd;
-  --color-green-300: #7dd3fc;
-  --color-green-400: #06b6d4; /* Cyan-400 */
-  --color-green-500: #0891b2; /* Cyan-500 */
-  --color-green-600: #0e7490;
-  --color-green-700: #0f766e;
-  --color-green-800: #115e59;
-  --color-green-900: #134e4a;
-  --color-green-950: #042f2e;
-
-  /* Override Emerald Colors */
-  --color-emerald-400: #3b82f6; /* Blue-400 */
-  --color-emerald-500: #2563eb; /* Blue-500 */
-  --color-emerald-600: #1d4ed8;
-
   /* Override custom Garage colors to represent dark navy & electric blue */
   --color-garage-950: #020b18; /* Dark navy */
   --color-garage-900: #04132c;
@@ -294,182 +329,79 @@
 
 /* Specific elements adjustments for guest pages */
 .guest-theme ::-webkit-scrollbar-thumb {
-  background: rgba(6, 182, 212, 0.2) !important;
+  background: rgba(6, 182, 212, 0.2);
 }
 .guest-theme ::-webkit-scrollbar-thumb:hover {
-  background: rgba(6, 182, 212, 0.35) !important;
+  background: rgba(6, 182, 212, 0.35);
 }
 .guest-theme ::selection {
-  background: rgba(6, 182, 212, 0.25) !important;
+  background: rgba(6, 182, 212, 0.25);
 }
 
-/* Primary buttons & alerts overrides */
+/* Guest buttons */
 .guest-theme .btn-primary {
-  background: linear-gradient(135deg, #2563eb, #06b6d4) !important;
-  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3) !important;
+  background: linear-gradient(135deg, var(--color-garage-500), var(--color-garage-400));
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
 }
 .guest-theme .btn-primary:hover {
-  box-shadow: 0 6px 25px rgba(6, 182, 212, 0.5) !important;
+  box-shadow: 0 6px 25px rgba(6, 182, 212, 0.5);
 }
 .guest-theme .btn-ghost {
-  color: #a5f3fc !important;
-  border-color: rgba(6, 182, 212, 0.2) !important;
+  color: var(--color-garage-200);
+  border-color: rgba(6, 182, 212, 0.2);
 }
 .guest-theme .btn-ghost:hover {
-  color: #06b6d4 !important;
-  border-color: rgba(6, 182, 212, 0.5) !important;
-  background: rgba(6, 182, 212, 0.05) !important;
+  color: var(--color-garage-400);
+  border-color: rgba(6, 182, 212, 0.5);
+  background: rgba(6, 182, 212, 0.05);
 }
 
-/* Navbar specific overrides */
-.guest-theme nav {
-  background: rgba(2, 11, 24, 0.92) !important;
-  border-bottom: 1px solid rgba(6, 182, 212, 0.08) !important;
+/* Base Guest UI elements */
+.guest-theme .glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.guest-theme nav .group .w-9.h-9 {
-  background: linear-gradient(135deg, #2563eb, #06b6d4) !important;
-  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3) !important;
+.guest-theme .glass-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(59, 130, 246, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.5);
 }
-.guest-theme nav .absolute.bottom-0.left-3.right-3.h-0\.5 {
-  background: linear-gradient(90deg, #2563eb, #06b6d4) !important;
+.guest-theme .glass-dark {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
-.guest-theme nav .absolute.right-0.mt-2.w-56 {
-  background: #04132c !important;
-  border: 1px solid rgba(6, 182, 212, 0.15) !important;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.5) !important;
-}
-.guest-theme nav .md\:hidden.overflow-hidden {
-  background: rgba(2, 11, 24, 0.98) !important;
-  border-color: rgba(6, 182, 212, 0.1) !important;
-}
-.guest-theme nav .cursor-pointer.text-white.text-sm.font-bold {
-  background: linear-gradient(135deg, #2563eb, #06b6d4) !important;
-  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.25) !important;
-}
-.guest-theme nav a[href*="/guest/booking"] {
-  background: linear-gradient(135deg, #2563eb, #06b6d4) !important;
-  box-shadow: 0 4px 16px rgba(6, 182, 212, 0.25) !important;
-}
-
-/* Footer specific overrides */
-.guest-theme footer {
-  background: #020b18 !important;
-  border-top: 1px solid rgba(6, 182, 212, 0.08) !important;
-}
-.guest-theme footer .w-11.h-11 {
-  background: linear-gradient(to bottom right, #2563eb, #06b6d4) !important;
-  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3) !important;
-}
-.guest-theme footer button.w-9.h-9:hover {
-  background-color: rgba(6, 182, 212, 0.2) !important;
-}
-.guest-theme footer a.flex.items-center.gap-2 {
-  background-color: rgba(6, 182, 212, 0.1) !important;
-  border-color: rgba(6, 182, 212, 0.2) !important;
-  color: #06b6d4 !important;
-}
-.guest-theme footer a.flex.items-center.gap-2:hover {
-  background-color: rgba(6, 182, 212, 0.2) !important;
-}
-
-/* Sidebar specific overrides */
-.guest-theme .sidebar-link:hover {
-  background: rgba(6, 182, 212, 0.08) !important;
-  color: #67e8f9 !important;
-}
-.guest-theme .sidebar-link.active {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(6, 182, 212, 0.15)) !important;
-  color: #06b6d4 !important;
-  border-color: rgba(6, 182, 212, 0.2) !important;
-  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.12) !important;
-}
-
-/* Form inputs */
-.guest-theme .input-field {
-  background: rgba(6, 28, 63, 0.4) !important;
-  border-color: rgba(6, 182, 212, 0.15) !important;
-}
-.guest-theme .input-field:focus {
-  border-color: rgba(6, 182, 212, 0.4) !important;
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.06) !important;
-}
-.guest-theme select option {
-  background-color: #04132c !important;
-}
-
-/* Badges and tags */
 .guest-theme .status-selesai {
-  background: rgba(6, 182, 212, 0.15) !important;
-  color: #06b6d4 !important;
-  border: 1px solid rgba(6, 182, 212, 0.3) !important;
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--color-garage-400);
+  border: 1px solid rgba(6, 182, 212, 0.3);
 }
 .guest-theme .glow-green {
-  box-shadow: 0 0 24px rgba(6, 182, 212, 0.25) !important;
+  box-shadow: 0 0 24px rgba(6, 182, 212, 0.25);
+}
+.guest-theme .glow-brand {
+  box-shadow: 0 0 24px rgba(59, 130, 246, 0.3);
 }
 .guest-theme .gradient-text-green {
-  background: linear-gradient(135deg, #06b6d4, #2563eb) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
+  background: linear-gradient(135deg, var(--color-garage-400), var(--color-garage-500));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-
-/* Hardcoded styles inside customer panels/cards */
-.guest-theme [style*="rgba(34,197,94,"] {
-  /* Dynamic conversion of inline green colors */
-  border-color: rgba(6, 182, 212, 0.15) !important;
+.guest-theme .gradient-bg-brand {
+  background: linear-gradient(135deg, var(--color-garage-500), var(--color-garage-400));
 }
-.guest-theme [style*="rgba(34,197,94,0.12)"] {
-  border-color: rgba(6, 182, 212, 0.12) !important;
+.guest-theme .border-brand {
+  border: 1px solid rgba(37, 99, 235, 0.3);
 }
-.guest-theme [style*="rgba(34,197,94,0.08)"] {
-  background: rgba(6, 182, 212, 0.08) !important;
-  border-color: rgba(6, 182, 212, 0.15) !important;
+.guest-theme .bg-brand {
+  background: var(--color-garage-500);
 }
-.guest-theme [style*="rgba(34,197,94,0.04)"] {
-  background: rgba(6, 182, 212, 0.04) !important;
-  border-color: rgba(6, 182, 212, 0.12) !important;
-}
-.guest-theme [style*="rgba(34,197,94,0.05)"] {
-  background: rgba(6, 182, 212, 0.05) !important;
-  border-color: rgba(6, 182, 212, 0.1) !important;
-}
-.guest-theme [style*="rgba(34,197,94,0.15)"] {
-  background: rgba(6, 182, 212, 0.15) !important;
-  border-color: rgba(6, 182, 212, 0.3) !important;
-}
-.guest-theme [style*="rgba(34,197,94,0.06)"] {
-  background: rgba(6, 182, 212, 0.06) !important;
-  border-color: rgba(6, 182, 212, 0.1) !important;
-}
-.guest-theme [style*="rgba(34,197,94,0.02)"] {
-  background: rgba(6, 182, 212, 0.02) !important;
-  border-color: rgba(6, 182, 212, 0.08) !important;
-}
-.guest-theme [style*="linear-gradient(135deg, #041C15 0%, #06281F 100%)"] {
-  background: linear-gradient(135deg, #04132c 0%, #061c3f 100%) !important;
-}
-.guest-theme [style*="linear-gradient(135deg,#16A34A,#22C55E)"] {
-  background: linear-gradient(135deg, #2563eb, #06b6d4) !important;
-}
-.guest-theme [style*="linear-gradient(135deg, #22c55e, #10b981)"] {
-  background: linear-gradient(135deg, #2563eb, #06b6d4) !important;
-  box-shadow: 0 0 30px rgba(6, 182, 212, 0.3) !important;
-}
-.guest-theme [style*="linear-gradient(90deg, #22c55e, #10b981)"] {
-  background: linear-gradient(90deg, #2563eb, #06b6d4) !important;
-  box-shadow: 0 0 12px rgba(6, 182, 212, 0.6) !important;
-}
-
-/* Radial gradients overrides for backdrop glows */
-.guest-theme [style*="radial-gradient(ellipse at 50% 0%"] {
-  background: radial-gradient(ellipse at 50% 0%, rgba(6, 182, 212, 0.12) 0%, transparent 60%) !important;
-}
-.guest-theme [style*="radial-gradient(ellipse at 30% 50%"] {
-  background: radial-gradient(ellipse at 30% 50%, rgba(6, 182, 212, 0.12) 0%, transparent 60%), #020b18 !important;
-}
-.guest-theme [style*="radial-gradient(ellipse at 75% 60%"] {
-  background: radial-gradient(ellipse at 75% 60%, rgba(6, 182, 212, 0.08) 0%, transparent 55%) !important;
-}
-.guest-theme [style*="linear-gradient(rgba(34,197,94,1) 1px, transparent 1px)"] {
-  background-image: linear-gradient(rgba(6, 182, 212, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.3) 1px, transparent 1px) !important;
-}
+.guest-theme .text-brand {
+  color: var(--color-garage-500);
+}

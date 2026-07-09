@@ -11,6 +11,8 @@ import {
   MdDirectionsCar, MdBuild, MdCalendarMonth, MdSend,
   MdClose, MdSearch, MdCloudUpload,
 } from 'react-icons/md'
+import StepIndicator from '../../components/ui/StepIndicator'
+import PageSkeleton from '../../components/ui/PageSkeleton'
 
 const STEPS = ['Kendaraan', 'Layanan', 'Jadwal', 'Konfirmasi']
 const fmt = (n) => 'Rp ' + Number(n).toLocaleString('id-ID')
@@ -617,39 +619,18 @@ export default function BookingService() {
           <p className="text-gray-400 text-sm mt-1">Isi form berikut untuk menjadwalkan servis kendaraan Anda.</p>
         </motion.div>
 
-        {/* Step indicator */}
-        <div className="flex items-center mb-10">
-          {STEPS.map((s, i) => (
-            <div key={s} className="flex items-center flex-1">
-              <div className="flex flex-col items-center">
-                <motion.div
-                  animate={i === step ? { scale: [1, 1.1, 1] } : {}}
-                  transition={{ duration: 0.4 }}
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all"
-                  style={
-                    i < step  ? { background: '#22C55E', color: 'white', boxShadow: '0 0 12px rgba(34,197,94,0.4)' }
-                    : i === step ? { background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '2px solid #22C55E' }
-                    : { background: 'rgba(255,255,255,0.04)', color: '#6B7280', border: '1px solid rgba(255,255,255,0.1)' }
-                  }>
-                  {i < step ? <MdCheckCircle className="text-lg" /> : i + 1}
-                </motion.div>
-                <span className={`text-xs mt-1 font-medium hidden sm:block ${i === step ? 'text-green-400' : i < step ? 'text-gray-300' : 'text-gray-600'}`}>
-                  {s}
-                </span>
-              </div>
-              {i < STEPS.length - 1 && (
-                <div className="flex-1 h-0.5 mx-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                  <motion.div className="h-full bg-green-500 rounded-full"
-                    animate={{ width: i < step ? '100%' : '0%' }}
-                    transition={{ duration: 0.4, ease: 'easeOut' }} />
-                </div>
-              )}
-            </div>
-          ))}
+        {/* Step indicator (Sticky) */}
+        <div className="sticky top-16 z-20 pb-8 pt-4 mb-4" style={{ background: 'linear-gradient(to bottom, #020f09 80%, transparent)' }}>
+          <StepIndicator steps={STEPS} current={step} />
         </div>
 
         {/* Step content */}
-        <AnimatePresence mode="wait">
+        {loading ? (
+          <div className="py-10">
+            <PageSkeleton variant="card" count={2} />
+          </div>
+        ) : (
+          <AnimatePresence mode="wait">
           <motion.div key={step}
             initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}>
@@ -852,6 +833,7 @@ export default function BookingService() {
             )}
           </motion.div>
         </AnimatePresence>
+        )}
 
         {/* Navigation buttons */}
         <div className="flex items-center justify-between mt-8">

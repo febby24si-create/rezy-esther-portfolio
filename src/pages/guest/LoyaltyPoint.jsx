@@ -10,6 +10,7 @@ import {
   AnimatedPage, ScrollReveal, StaggerReveal, StaggerItem,
   AnimatedProgress, fadeUp
 } from '../../components/AnimatedPage'
+import PageSkeleton from '../../components/ui/PageSkeleton'
 
 // ─── Reward catalog ────────────────────────────────────────────────────
 const REWARDS = [
@@ -74,13 +75,14 @@ export default function LoyaltyPoint() {
   const [tab, setTab]             = useState('riwayat')
   const [redeemMsg, setRedeemMsg] = useState(null)
   const [history, setHistory]     = useState([])
+  const [loadingHistory, setLoadingHistory] = useState(true)
   const { customer, refreshCustomer } = useCustomerAuth()
 
   // Load riwayat poin dari Supabase
   useEffect(() => {
     if (!customer?.id) return
     import('../../services/pointAPI').then(({ pointAPI }) => {
-      pointAPI.fetchByCustomer(customer.id).then(setHistory).catch(() => {})
+      pointAPI.fetchByCustomer(customer.id).then(setHistory).catch(() => {}).finally(() => setLoadingHistory(false))
     })
   }, [customer?.id])
 
@@ -367,7 +369,9 @@ export default function LoyaltyPoint() {
                 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.3 }}
               >
-                {history.length === 0 ? (
+                {loadingHistory ? (
+                  <PageSkeleton variant="list" count={4} />
+                ) : history.length === 0 ? (
                   <div className="text-center py-16 text-gray-600 flex flex-col items-center gap-3">
                     <div className="text-5xl opacity-30">📋</div>
                     <p className="text-sm">Belum ada riwayat poin.</p>

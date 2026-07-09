@@ -71,7 +71,7 @@ function FaqItem({ question, answer }) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-card rounded-xl overflow-hidden bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/20 transition-all"
+      className="glass-card rounded-xl overflow-hidden bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all"
     >
       <button
         className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-white/5 transition"
@@ -132,7 +132,7 @@ function PromoCard({ promo, showCode, onClaim }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       whileHover={!isExpired ? { y: -8 } : {}}
-      className={`glass-card rounded-2xl overflow-hidden group bg-[#1E293B]/40 border border-white/5 transition-all ${isExpired ? 'opacity-60' : 'hover:border-blue-500/30'}`}
+      className={`glass-card rounded-2xl overflow-hidden group bg-[#1E293B]/40 border border-white/5 transition-all ${isExpired ? 'opacity-60' : 'hover:border-brand'}`}
     >
       {/* ─── Gambar Thumbnail ─── */}
       <div className="relative h-48 overflow-hidden bg-[#0F172A]">
@@ -227,7 +227,7 @@ function PromoCard({ promo, showCode, onClaim }) {
               ? 'bg-green-500/20 text-green-400 border border-green-500/30'
               : claimState === 'already' || claimState === 'copied'
               ? 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/25'
-              : 'text-white bg-gradient-to-r from-blue-600/30 to-blue-500/30 hover:from-blue-600/50 hover:to-blue-500/50 border border-blue-500/30 group-hover:gap-3'
+              : 'text-white bg-gradient-to-r from-blue-600/30 to-blue-500/30 hover:from-blue-600/50 hover:to-blue-500/50 border-brand group-hover:gap-3'
           }`}
         >
           {claimState === 'success' ? (
@@ -376,7 +376,7 @@ export default function PromoVoucher() {
                 href="#booking"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2 glass-dark hover:bg-white/10 text-white font-semibold px-6 py-3 rounded-xl border border-white/10 hover:border-blue-500/30 transition-all"
+                className="inline-flex items-center gap-2 glass-dark hover:bg-white/10 text-white font-semibold px-6 py-3 rounded-xl border border-white/10 hover:border-brand transition-all"
               >
                 Booking Sekarang
               </motion.a>
@@ -389,16 +389,16 @@ export default function PromoVoucher() {
       <section className="py-16 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-y border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-1">
+            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-1">
               <AnimatedCounter target={15} suffix="+" label="Promo Aktif" />
             </div>
-            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-1">
+            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-1">
               <AnimatedCounter target={3000} suffix="+" label="Voucher Digunakan" />
             </div>
-            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-1">
+            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-1">
               <AnimatedCounter target={5000} suffix="+" label="Member Aktif" />
             </div>
-            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-1">
+            <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-1">
               <AnimatedCounter target={98} suffix="%" label="Kepuasan Pelanggan" />
             </div>
           </div>
@@ -508,7 +508,7 @@ export default function PromoVoucher() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Cari promo atau voucher..."
-                className="w-full bg-white/5 backdrop-blur-sm border border-white/10 focus:border-blue-500/50 rounded-xl pl-11 pr-4 py-3 text-white text-sm placeholder-gray-500 outline-none transition-all duration-300 focus:shadow-xl focus:shadow-blue-500/10"
+                className="w-full bg-white/5 backdrop-blur-sm border border-white/10 focus:border-blue-500/50 rounded-xl pl-11 pr-4 py-3 text-white text-sm placeholder-gray-500 outline-none transition-all duration-300 focus:shadow-xl focus:glow-brand"
               />
             </motion.div>
 
@@ -522,7 +522,7 @@ export default function PromoVoucher() {
                   whileTap={{ scale: 0.95 }}
                   className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                     filter === f
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-md shadow-blue-500/20'
+                      ? 'bg-blue-500/20 text-blue-400 border-brand shadow-md glow-brand'
                       : 'bg-white/5 text-gray-400 border border-white/8 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -574,7 +574,7 @@ export default function PromoVoucher() {
       <section className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <span className="text-blue-400 text-sm font-semibold uppercase tracking-widest">Cara Mendapatkan</span>
+            <span className="text-brand text-sm font-semibold uppercase tracking-widest">Cara Mendapatkan</span>
             <h2 className="text-3xl font-extrabold text-white mt-2">Dapatkan Voucher Mudah</h2>
             <p className="text-gray-400 text-sm max-w-md mx-auto mt-2">Ikuti langkah-langkah berikut untuk klaim promo.</p>
           </div>
@@ -592,7 +592,7 @@ export default function PromoVoucher() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
                 viewport={{ once: true }}
-                className="glass-card rounded-2xl p-6 text-center bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-2"
+                className="glass-card rounded-2xl p-6 text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-2"
               >
                 <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center bg-blue-500/10">
                   {step.icon}
@@ -656,7 +656,7 @@ export default function PromoVoucher() {
       <section className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <span className="text-blue-400 text-sm font-semibold uppercase tracking-widest">Loyalitas</span>
+            <span className="text-brand text-sm font-semibold uppercase tracking-widest">Loyalitas</span>
             <h2 className="text-3xl font-extrabold text-white mt-2">Program Loyalitas Member</h2>
             <p className="text-gray-400 text-sm max-w-md mx-auto mt-2">Semakin sering servis, semakin banyak keuntungan.</p>
           </div>
@@ -674,7 +674,7 @@ export default function PromoVoucher() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
                 viewport={{ once: true }}
-                className="glass-card rounded-2xl p-6 text-center bg-[#1E293B]/40 border border-white/5 hover:border-blue-500/30 transition-all hover:-translate-y-2"
+                className="glass-card rounded-2xl p-6 text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-2"
               >
                 <div className="w-14 h-14 rounded-xl mx-auto mb-4 flex items-center justify-center bg-blue-500/10">
                   {item.icon}
@@ -691,7 +691,7 @@ export default function PromoVoucher() {
       <section className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <span className="text-blue-400 text-sm font-semibold uppercase tracking-widest">FAQ</span>
+            <span className="text-brand text-sm font-semibold uppercase tracking-widest">FAQ</span>
             <h2 className="text-3xl font-extrabold text-white mt-2">Pertanyaan Seputar Promo</h2>
           </div>
           <div className="space-y-3">
@@ -748,7 +748,7 @@ export default function PromoVoucher() {
             <div className="flex flex-col sm:flex-row justify-center gap-3.5">
               <a
                 href="/member/dashboard"
-                className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50 hover:scale-[1.02]"
+                className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg glow-brand hover:glow-brand hover:scale-[1.02]"
               >
                 Daftar Member <MdArrowForward />
               </a>
@@ -756,7 +756,7 @@ export default function PromoVoucher() {
                 href="https://wa.me/6288708230676"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2.5 glass-dark hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-2xl border border-white/10 hover:border-blue-500/30 transition-all"
+                className="inline-flex items-center justify-center gap-2.5 glass-dark hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-2xl border border-white/10 hover:border-brand transition-all"
               >
                 <MdWhatsapp className="text-green-400 text-xl" /> Hubungi Kami
               </a>
@@ -817,17 +817,6 @@ export default function PromoVoucher() {
 
       {/* ─── GLOBAL STYLES ──────────────────────────────────────── */}
       <style>{`
-        .glass-card {
-          background: rgba(255, 255, 255, 0.03);
-          backdrop-filter: blur(8px);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .glass-dark {
-          background: rgba(15, 23, 42, 0.7);
-          backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-        }
         .line-clamp-2 {
           display: -webkit-box;
           -webkit-line-clamp: 2;

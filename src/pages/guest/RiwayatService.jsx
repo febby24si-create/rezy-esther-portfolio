@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
-import { MdDirectionsCar, MdBuild, MdPerson, MdCalendarToday, MdStar, MdExpandMore, MdExpandLess, MdRateReview } from 'react-icons/md'
+import { MdDirectionsCar, MdBuild, MdPerson, MdCalendarToday, MdStar, MdExpandMore, MdExpandLess, MdRateReview, MdSearch } from 'react-icons/md'
+import PageSkeleton from '../../components/ui/PageSkeleton'
+import EmptyState from '../../components/EmptyState'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { serviceHistory as staticHistory } from '../../data/guestData'
 
@@ -284,6 +286,7 @@ export default function RiwayatService() {
   const [search, setSearch] = useState('')
   const [allHistory, setAllHistory] = useState([])
   const [loadingHistory, setLoadingHistory] = useState(true)
+  const [refresh, setRefresh] = useState(0)
   const { customer } = useCustomerAuth()
 
   // Load riwayat servis dari Supabase
@@ -319,7 +322,7 @@ export default function RiwayatService() {
       }
     }
     load()
-  }, [customer?.id])
+  }, [customer?.id, refresh])
 
   const filtered = allHistory.filter(o =>
     o.service.toLowerCase().includes(search.toLowerCase()) ||
@@ -360,12 +363,22 @@ export default function RiwayatService() {
         </div>
 
         {/* List */}
-        {filtered.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="text-5xl mb-4">🔍</div>
-            <p className="text-white font-semibold text-lg mb-2">Tidak ditemukan</p>
-            <p className="text-gray-500 text-sm">Coba kata kunci lain</p>
-          </div>
+        {loadingHistory ? (
+          <PageSkeleton variant="list" count={3} />
+        ) : allHistory.length === 0 ? (
+          <EmptyState 
+            icon={MdBuild}
+            title="Belum ada riwayat servis"
+            description="Anda belum pernah melakukan servis. Jadwalkan servis pertama Anda sekarang!"
+            actionLabel="Booking Sekarang"
+            onAction={() => window.location.href = '/member/booking'}
+          />
+        ) : filtered.length === 0 ? (
+          <EmptyState 
+            icon={MdSearch}
+            title="Tidak ditemukan"
+            description="Coba gunakan kata kunci lain untuk mencari histori servis Anda."
+          />
         ) : (
           <div className="space-y-3">
             {filtered.map(o => (

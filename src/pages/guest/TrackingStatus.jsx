@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { AnimatedPage, ScrollReveal, GlowDot } from '../../components/AnimatedPage'
 import { getBookingsByCustomer, BOOKING_STATUS, BOOKING_STATUS_CONFIG } from '../../lib/bookingEngine'
+import PageSkeleton from '../../components/ui/PageSkeleton'
+import EmptyState from '../../components/EmptyState'
 
 const STATUS_STEPS = {
   'Menunggu Konfirmasi': [
@@ -58,33 +60,58 @@ function TimelineStep({ step, isLast, index }) {
       className="flex gap-4">
       <div className="flex flex-col items-center">
         <motion.div
-          initial={step.done ? { scale:0 } : {}}
-          animate={step.done ? { scale:1 } : {}}
+          initial={step.status === 'done' ? { scale:0 } : {}}
+          animate={step.status === 'done' ? { scale:1 } : {}}
           transition={{ delay: index * 0.06 + 0.1, type:'spring', stiffness:200 }}
           className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border-2 ${
-            step.done ? 'border-green-500/60' : 'border-white/12'
+            step.status === 'done' ? 'border-green-500/60' : step.status === 'current' ? 'border-amber-500/60' : 'border-white/12'
           }`}
-          style={{ background: step.done ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.04)' }}>
-          {step.done
-            ? <MdCheckCircle className="text-green-400 text-base" />
-            : <span className="w-2 h-2 rounded-full bg-gray-600 block" />}
+          style={{ background: step.status === 'done' ? 'rgba(34,197,94,0.15)' : step.status === 'current' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)' }}>
+          {step.status === 'done' ? <MdCheckCircle className="text-green-400 text-base" /> :
+           step.status === 'current' ? <GlowDot color="#FBBF24" size={8} /> :
+           <span className="w-2 h-2 rounded-full bg-gray-600 block" />}
         </motion.div>
         {!isLast && (
-          <div className="w-0.5 my-1 flex-1 min-h-6" style={{ background: step.done ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.06)' }} />
+          <div className="w-0.5 my-1 flex-1 min-h-6" style={{ background: step.status === 'done' ? 'rgba(34,197,94,0.25)' : 'rgba(255,255,255,0.06)' }} />
         )}
       </div>
       <div className={`pb-5 flex-1 ${isLast ? 'pb-0' : ''}`}>
-        <p className={`font-semibold text-sm ${step.done ? 'text-white' : 'text-gray-500'}`}>{step.label}</p>
-        <p className={`text-xs mt-0.5 leading-relaxed ${step.done ? 'text-gray-400' : 'text-gray-600'}`}>{step.desc}</p>
+        <div className="flex items-center justify-between">
+          <p className={`font-semibold text-sm ${step.status === 'done' ? 'text-white' : step.status === 'current' ? 'text-amber-400' : 'text-gray-500'}`}>{step.label}</p>
+          {step.timestamp && <span className="text-xs text-gray-500">{new Date(step.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>}
+        </div>
+        <p className={`text-xs mt-0.5 leading-relaxed ${step.status === 'done' ? 'text-gray-400' : 'text-gray-600'}`}>{step.desc}</p>
       </div>
     </motion.div>
   )
 }
 
 function OrderCard({ order }) {
-  const steps   = STATUS_STEPS[order.status] || STATUS_STEPS['Menunggu Konfirmasi']
-  const badge   = STATUS_BADGE[order.status]  || STATUS_BADGE['Menunggu Konfirmasi']
-  const progress = Math.round((steps.filter(s => s.done).length / steps.length) * 100)
+  let steps = [];
+  let progress = 0;
+
+  if (order.stage_history && order.stage_history.length > 0) {
+    // If granular stage_history from backend is available
+    steps = order.stage_history.map((sh, i) => {
+      const isLast = i === order.stage_history.length - 1;
+      return {
+        id: sh.id || i,
+        label: sh.stage || sh.status || 'Update',
+        desc: sh.notes || '',
+        timestamp: sh.timestamp || sh.created_at,
+        status: isLast && order.status !== 'Selesai' ? 'current' : 'done'
+      };
+    });
+    // Add pending steps based on current status if needed, but for now we just show history
+    progress = order.status === 'Selesai' ? 100 : Math.min(90, Math.round((steps.length / 6) * 100));
+  } else {
+    // Fallback to static steps
+    const staticSteps = STATUS_STEPS[order.status] || STATUS_STEPS['Menunggu Konfirmasi']
+    steps = staticSteps.map(s => ({ ...s, status: s.done ? 'done' : 'pending' }));
+    progress = Math.round((staticSteps.filter(s => s.done).length / staticSteps.length) * 100)
+  }
+
+  const badge = STATUS_BADGE[order.status] || STATUS_BADGE['Menunggu Konfirmasi'];
 
   return (
     <motion.div
@@ -182,6 +209,7 @@ export default function TrackingStatus() {
   const [searchResult, setSearchResult] = useState(null)
   const [notFound, setNotFound]         = useState(false)
   const [myOrders, setMyOrders]         = useState([])
+  const [loading, setLoading]           = useState(true)
 
   // Load orders dari Supabase
   useEffect(() => {
@@ -194,7 +222,7 @@ export default function TrackingStatus() {
           vehicle:  o.vehicle_display,
           date:     o.order_date,
         })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)))
-      }).catch(() => {})
+      }).catch(() => {}).finally(() => setLoading(false))
     })
   }, [customer?.id])
 
@@ -244,15 +272,23 @@ export default function TrackingStatus() {
 
           <AnimatePresence>
             {notFound && (
-              <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-8 }}
-                className="mb-6 p-4 rounded-xl text-sm text-red-400 border border-red-500/20"
-                style={{ background: 'rgba(239,68,68,0.08)' }}>
-                ❌ Nomor order tidak ditemukan.
+              <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-8 }} className="mb-6">
+                 <EmptyState 
+                   icon={MdSearch} 
+                   title="Nomor order tidak ditemukan" 
+                   description="Periksa kembali nomor order Anda dan coba lagi." 
+                   actionLabel="Kembali" 
+                   onAction={() => {setNotFound(false); setSearchId('')}} 
+                 />
               </motion.div>
             )}
           </AnimatePresence>
 
-          {searchResult && <OrderCard order={searchResult} />}
+          {loading && !searchResult ? (
+            <PageSkeleton variant="card" count={2} />
+          ) : (
+            <>
+              {searchResult && <OrderCard order={searchResult} />}
 
           {/* ── BOOKING AKTIF (belum check-in) ── */}
           {!searchResult && myBookings.length > 0 && (
@@ -332,18 +368,15 @@ export default function TrackingStatus() {
             </div>
           )}
 
-          {!searchResult && activeOrders.length === 0 && (
-            <motion.div initial={{ opacity:0, scale:0.96 }} animate={{ opacity:1, scale:1 }}
-              className="text-center py-12 rounded-2xl border border-white/8 mb-8"
-              style={{ background: 'rgba(255,255,255,0.02)' }}>
-              <MdHourglassEmpty className="text-gray-600 text-5xl mx-auto mb-3" />
-              <p className="text-white font-semibold text-lg mb-1">Tidak ada service aktif</p>
-              <p className="text-gray-500 text-sm mb-4">Semua kendaraan selesai diservis.</p>
-              <Link to="/member/booking"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
-                style={{ background: 'linear-gradient(135deg,#16A34A,#22C55E)' }}>
-                🚗 Booking Service Baru
-              </Link>
+          {!searchResult && activeOrders.length === 0 && myBookings.length === 0 && (
+            <motion.div initial={{ opacity:0, scale:0.96 }} animate={{ opacity:1, scale:1 }} className="mb-8">
+              <EmptyState 
+                icon={MdHourglassEmpty}
+                title="Tidak ada service aktif"
+                description="Semua kendaraan telah selesai diservis."
+                actionLabel="Booking Service Baru"
+                onAction={() => window.location.href = '/member/booking'}
+              />
             </motion.div>
           )}
 
@@ -372,6 +405,8 @@ export default function TrackingStatus() {
                 ))}
               </div>
             </div>
+          )}
+          </>
           )}
         </div>
       </div>

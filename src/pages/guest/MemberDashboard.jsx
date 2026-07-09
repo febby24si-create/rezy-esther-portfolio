@@ -295,7 +295,7 @@ function RiwayatTab({ orders }) {
             onClick={() => setFilter(s)}
             className={`px-4 py-1.5 rounded-xl text-xs font-medium transition-all border ${
               filter === s
-                ? "bg-blue-500/20 text-blue-400 border-blue-500/40"
+                ? "bg-blue-500/20 text-blue-400 border-brand"
                 : "bg-white/5 text-gray-400 border-white/10 hover:text-white hover:bg-white/10"
             }`}
           >
@@ -507,7 +507,7 @@ function LayananTab() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="p-5 rounded-2xl bg-white/[0.03] border border-white/8 hover:border-blue-500/30 transition-all group"
+            className="p-5 rounded-2xl bg-white/[0.03] border border-white/8 hover:border-brand transition-all group"
           >
             <div className="flex items-start gap-4">
               <div className="text-3xl flex-shrink-0">{s.icon}</div>
@@ -536,7 +536,7 @@ function LayananTab() {
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => navigate("/member/booking")}
-                className="flex-1 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/30 transition-all flex items-center justify-center gap-1"
+                className="flex-1 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600/20 hover:bg-blue-600/40 border-brand transition-all flex items-center justify-center gap-1"
               >
                 Booking <MdArrowForward className="text-xs" />
               </button>

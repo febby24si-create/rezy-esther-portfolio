@@ -4,6 +4,7 @@ import { MdPerson, MdEmail, MdLock, MdPhone, MdVisibility, MdVisibilityOff, MdAr
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { motion } from 'framer-motion'
 import logo from '../../assets/logo2.png'
+import VideoBackground from '../../components/VideoBackground'
 
 export default function RegisterCustomer() {
   const navigate = useNavigate()
@@ -15,14 +16,6 @@ export default function RegisterCustomer() {
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
   const [showPass, setShowPass] = useState(false)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-
-  const handleMouseMove = (e) => {
-    const { clientX, clientY } = e
-    const x = (clientX - window.innerWidth / 2) / 60
-    const y = (clientY - window.innerHeight / 2) / 60
-    setMousePosition({ x, y })
-  }
 
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value })
 
@@ -49,54 +42,24 @@ export default function RegisterCustomer() {
 
   return (
     <div
-      onMouseMove={handleMouseMove}
       className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-garage-950 text-white font-body selection:bg-garage-400/30 selection:text-white px-4 py-8"
     >
-      {/* ── BACKGROUND FULLSCREEN EXPERIENCE ── */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Dark overlay gradients for contrast & premium look */}
-        <div className="absolute inset-0 bg-black/65 z-10 animate-fade-in" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#020f09] via-transparent to-black/75 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#020f09]/95 via-transparent to-[#020f09]/95 z-10" />
-
-        {/* Subtle decorative grid lines overlay */}
-        <div
-          className="absolute inset-0 z-15 opacity-15"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(34,197,94,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,0.05) 1px, transparent 1px)',
-            backgroundSize: '50px 50px'
-          }}
-        />
-
-        {/* Parallax + Fade-in + Blur-to-Focus Background Container */}
-        <motion.div
-          animate={{
-            x: mousePosition.x,
-            y: mousePosition.y,
-          }}
-          transition={{ type: "tween", ease: "easeOut", duration: 0.8 }}
-          initial={{ filter: "blur(20px)", opacity: 0 }}
-          animate={{ filter: "blur(0px)", opacity: 1 }}
-          className="absolute inset-[-30px] w-[calc(100%+60px)] h-[calc(100%+60px)]"
-        >
-          {/* Ken Burns Zoom Loop */}
-          <motion.div
-            animate={{
-              scale: [1, 1.06, 1],
-            }}
-            transition={{
-              duration: 25,
-              ease: "easeInOut",
-              repeat: Infinity,
-            }}
-            className="w-full h-full bg-cover bg-center"
-            style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=1920&auto=format&fit=crop')` // Mercedes headlights matching customer registration
-            }}
-          />
-        </motion.div>
-      </div>
+      {/* ── VIDEO BACKGROUND ── */}
+      <VideoBackground
+        poster="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=1920&auto=format&fit=crop"
+        className="z-0"
+      />
+      <div className="absolute inset-0 bg-black/40 z-[2]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-garage-950 via-transparent to-black/60 z-[2]" />
+      <div className="absolute inset-0 bg-gradient-to-r from-garage-950/90 via-transparent to-garage-950/90 z-[2]" />
+      <div
+        className="absolute inset-0 z-[3] opacity-10 pointer-events-none"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(6,182,212,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.04) 1px, transparent 1px)',
+          backgroundSize: '50px 50px'
+        }}
+      />
 
       {/* ── CARD & CONTENT WRAPPER ── */}
       <div className="relative z-20 w-full max-w-md flex flex-col items-center">
@@ -133,7 +96,7 @@ export default function RegisterCustomer() {
                 group-hover:shadow-[0_0_40px_rgba(22,163,74,0.3)]
               "
               style={{
-                background: 'linear-gradient(135deg, #0B3B2E, #020f09)'
+                background: 'linear-gradient(135deg, #061c3f, #04132c)'
               }}
             >
               <img
@@ -298,11 +261,12 @@ export default function RegisterCustomer() {
 
             {/* Submit */}
             <motion.button
-              whileHover={{ scale: 1.01, boxShadow: '0 0 20px rgba(34, 197, 94, 0.4)' }}
+              whileHover={{ scale: 1.01, boxShadow: '0 0 20px rgba(6, 182, 212, 0.4)' }}
               whileTap={{ scale: 0.99 }}
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 rounded-xl text-sm font-semibold text-white relative transition-all duration-300 cursor-pointer bg-gradient-to-r from-garage-500 to-garage-400 border-none flex items-center justify-center shadow-[0_4px_15px_rgba(22,163,74,0.2)] mt-2 disabled:opacity-75"
+              className="w-full py-3.5 rounded-xl text-sm font-semibold text-white relative transition-all duration-300 cursor-pointer bg-gradient-to-r from-garage-500 to-garage-400 border-none flex items-center justify-center mt-2 disabled:opacity-75"
+              style={{ boxShadow: '0 4px 15px rgba(6,182,212,0.25)' }}
             >
               {loading ? (
                 <span className="flex items-center gap-2">

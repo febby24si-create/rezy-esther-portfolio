@@ -4,7 +4,7 @@ import { MdCheckCircle, MdError, MdInfo, MdWarning, MdClose } from 'react-icons/
 const typeStyles = {
   success: { bg: 'bg-green-500/15 border-green-500/30',  icon: MdCheckCircle, color: 'text-green-400' },
   error:   { bg: 'bg-red-500/15   border-red-500/30',    icon: MdError,       color: 'text-red-400'   },
-  info:    { bg: 'bg-blue-500/15  border-blue-500/30',   icon: MdInfo,        color: 'text-blue-400'  },
+  info:    { bg: 'bg-blue-500/15  border-brand',   icon: MdInfo,        color: 'text-blue-400'  },
   warning: { bg: 'bg-yellow-500/15 border-yellow-500/30',icon: MdWarning,     color: 'text-yellow-400'},
 }
 
