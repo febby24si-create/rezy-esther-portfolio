@@ -29,8 +29,8 @@ const initialForm = {
   jobsDone: 0
 }
 
-const inputCls = `w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all focus:ring-2 focus:ring-green-500/30`
-const inputStyle = { background: 'rgba(11,59,46,0.4)', border: '1px solid rgba(34,197,94,0.12)' }
+const inputCls = `w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all focus:ring-2 focus:ring-blue-500/30`
+const inputStyle = { background: 'rgba(11,59,46,0.4)', border: '1px solid rgba(59,130,246,0.12)' }
 
 // Kolom Supabase pakai snake_case (jobs_done), tapi seluruh UI di
 // file ini sudah terlanjur pakai camelCase (jobsDone) — normalisasi
@@ -44,7 +44,7 @@ function normalizeMechanic(m) {
 function Avatar({ name, photo, size = 56, className = '' }) {
   const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
   const colors = [
-    ['#0B3B2E', '#22C55E'], ['#1e3a5f', '#3B82F6'], ['#3b1f5e', '#8B5CF6'],
+    ['#0a1222', '#3B82F6'], ['#1e3a5f', '#3B82F6'], ['#3b1f5e', '#8B5CF6'],
     ['#5e1f1f', '#EF4444'], ['#3b3b1f', '#EAB308'], ['#1f3b3b', '#14B8A6'],
   ]
   const [bg, accent] = colors[name.charCodeAt(0) % colors.length]
@@ -91,19 +91,19 @@ function MechanicCard({ m, onEdit, onDelete, onDetail }) {
       className="group relative rounded-2xl overflow-hidden cursor-pointer"
       style={{
         background: 'linear-gradient(160deg, rgba(8,44,34,0.95) 0%, rgba(4,26,20,0.9) 100%)',
-        border: '1px solid rgba(34,197,94,0.12)',
+        border: '1px solid rgba(59,130,246,0.12)',
         backdropFilter: 'blur(8px)',
         boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
       }}
     >
       {/* Glow accent */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-        style={{ background: 'radial-gradient(circle at 80% 20%, rgba(34,197,94,0.08), transparent 60%)' }} />
+        style={{ background: 'radial-gradient(circle at 80% 20%, rgba(59,130,246,0.08), transparent 60%)' }} />
 
       {/* Top bar */}
       <div className="h-1 w-full" style={{
         background: isAvail
-          ? 'linear-gradient(90deg, #22C55E, #16a34a, #22C55E)'
+          ? 'linear-gradient(90deg, #3B82F6, #2563eb, #3B82F6)'
           : 'linear-gradient(90deg, #FBBF24, #d97706, #FBBF24)'
       }} />
 
@@ -129,16 +129,16 @@ function MechanicCard({ m, onEdit, onDelete, onDetail }) {
           <div className="flex-1 min-w-0 pt-0.5">
             <div className="flex items-center gap-1.5 mb-0.5">
               <h3 className="text-white font-bold text-base truncate">{m.name}</h3>
-              {m.rating >= 4.8 && <MdVerified size={14} className="text-green-400 flex-shrink-0" />}
+              {m.rating >= 4.8 && <MdVerified size={14} className="text-blue-400 flex-shrink-0" />}
             </div>
-            <p className="text-green-400/80 text-xs font-medium mb-1.5 flex items-center gap-1">
-              <MdWork size={12} className="text-green-600" />
+            <p className="text-blue-400/80 text-xs font-medium mb-1.5 flex items-center gap-1">
+              <MdWork size={12} className="text-blue-600" />
               {m.specialty}
             </p>
             <span className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full font-semibold transition-all ${
-              isAvail ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+              isAvail ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
             }`}>
-              <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isAvail ? 'bg-green-400' : 'bg-yellow-400'}`} />
+              <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isAvail ? 'bg-blue-400' : 'bg-yellow-400'}`} />
               {m.status}
             </span>
           </div>
@@ -151,8 +151,8 @@ function MechanicCard({ m, onEdit, onDelete, onDetail }) {
             { label: 'Pekerjaan', value: m.jobsDone || '—', icon: <MdCheckCircle size={12} /> },
             { label: 'Rating', value: m.rating, icon: <MdStar size={12} /> },
           ].map(s => (
-            <div key={s.label} className="rounded-xl p-2.5 text-center transition-all group-hover:bg-green-500/5"
-              style={{ background: 'rgba(11,59,46,0.3)', border: '1px solid rgba(34,197,94,0.06)' }}>
+            <div key={s.label} className="rounded-xl p-2.5 text-center transition-all group-hover:bg-blue-500/5"
+              style={{ background: 'rgba(11,59,46,0.3)', border: '1px solid rgba(59,130,246,0.06)' }}>
               <div className="text-green-700/50 flex justify-center mb-0.5">{s.icon}</div>
               <p className="text-white font-bold text-sm">{s.value}</p>
               <p className="text-gray-500 text-[10px] mt-0.5">{s.label}</p>
@@ -162,7 +162,7 @@ function MechanicCard({ m, onEdit, onDelete, onDetail }) {
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-3"
-          style={{ borderTop: '1px solid rgba(34,197,94,0.06)' }}>
+          style={{ borderTop: '1px solid rgba(59,130,246,0.06)' }}>
           <div className="flex items-center gap-1.5 text-gray-500">
             <MdPhone size={12} />
             <span className="text-xs">{m.phone || '—'}</span>
@@ -199,8 +199,8 @@ function DetailDrawer({ mechanic, onClose, onEdit }) {
           transition={{ type: 'spring', damping: 28, stiffness: 300 }}
           className="relative w-full max-w-sm h-full overflow-y-auto"
           style={{
-            background: 'linear-gradient(170deg, #061a14 0%, #0a2e1e 100%)',
-            borderLeft: '1px solid rgba(34,197,94,0.15)',
+            background: 'linear-gradient(170deg, #0a1222 0%, #0f172a 100%)',
+            borderLeft: '1px solid rgba(59,130,246,0.15)',
             boxShadow: '-30px 0 80px rgba(0,0,0,0.6)'
           }}
           onClick={e => e.stopPropagation()}
@@ -208,7 +208,7 @@ function DetailDrawer({ mechanic, onClose, onEdit }) {
           {/* Header strip */}
           <div className="h-1.5" style={{
             background: isAvail
-              ? 'linear-gradient(90deg, #22C55E, #16a34a, #22C55E)'
+              ? 'linear-gradient(90deg, #3B82F6, #2563eb, #3B82F6)'
               : 'linear-gradient(90deg, #FBBF24, #d97706, #FBBF24)'
           }} />
 
@@ -229,15 +229,15 @@ function DetailDrawer({ mechanic, onClose, onEdit }) {
             <Avatar name={mechanic.name} photo={mechanic.photo} size={100} className="ring-4 ring-green-500/20" />
             <div className="flex items-center gap-2 mt-4 mb-1">
               <h2 className="text-2xl font-black text-white">{mechanic.name}</h2>
-              {mechanic.rating >= 4.8 && <MdVerified size={20} className="text-green-400" />}
+              {mechanic.rating >= 4.8 && <MdVerified size={20} className="text-blue-400" />}
             </div>
-            <p className="text-green-400/80 text-sm mb-2 flex items-center gap-1">
-              <MdWork size={14} className="text-green-600" /> {mechanic.specialty}
+            <p className="text-blue-400/80 text-sm mb-2 flex items-center gap-1">
+              <MdWork size={14} className="text-blue-600" /> {mechanic.specialty}
             </p>
             <span className={`text-xs px-4 py-1.5 rounded-full font-semibold flex items-center gap-1.5 ${
-              isAvail ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+              isAvail ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
             }`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${isAvail ? 'bg-green-400' : 'bg-yellow-400'}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${isAvail ? 'bg-blue-400' : 'bg-yellow-400'}`} />
               {mechanic.status}
             </span>
           </div>
@@ -257,7 +257,7 @@ function DetailDrawer({ mechanic, onClose, onEdit }) {
               { label: 'Pekerjaan Selesai', value: mechanic.jobsDone || '—', icon: <MdCheckCircle size={18}/> },
             ].map(s => (
               <div key={s.label} className="rounded-xl p-4 text-center"
-                style={{ background: 'rgba(11,59,46,0.3)', border: '1px solid rgba(34,197,94,0.08)' }}>
+                style={{ background: 'rgba(11,59,46,0.3)', border: '1px solid rgba(59,130,246,0.08)' }}>
                 <div className="text-green-700/60 mb-1">{s.icon}</div>
                 <p className="text-xl font-black text-white">{s.value}</p>
                 <p className="text-[10px] text-gray-500 mt-0.5">{s.label}</p>
@@ -267,14 +267,14 @@ function DetailDrawer({ mechanic, onClose, onEdit }) {
 
           {/* Detail list */}
           <div className="mx-5 rounded-2xl overflow-hidden mb-6"
-            style={{ border: '1px solid rgba(34,197,94,0.08)', background: 'rgba(11,59,46,0.15)' }}>
+            style={{ border: '1px solid rgba(59,130,246,0.08)', background: 'rgba(11,59,46,0.15)' }}>
             {[
               { label: 'ID Mekanik', value: mechanic.id },
               { label: 'No. Telepon',  value: mechanic.phone || '—' },
               { label: 'Spesialisasi', value: mechanic.specialty },
             ].map((row, i, arr) => (
               <div key={i} className="flex items-center justify-between px-4 py-3"
-                style={{ borderBottom: i < arr.length - 1 ? '1px solid rgba(34,197,94,0.06)' : 'none' }}>
+                style={{ borderBottom: i < arr.length - 1 ? '1px solid rgba(59,130,246,0.06)' : 'none' }}>
                 <span className="text-xs text-gray-500">{row.label}</span>
                 <span className="text-sm text-gray-200 font-medium">{row.value}</span>
               </div>
@@ -285,7 +285,7 @@ function DetailDrawer({ mechanic, onClose, onEdit }) {
           <div className="px-5 pb-8">
             <button onClick={() => { onClose(); onEdit(mechanic) }}
               className="w-full py-3.5 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]"
-              style={{ background: 'linear-gradient(135deg, #22C55E, #16a34a)', boxShadow: '0 8px 24px rgba(34,197,94,0.3)' }}>
+              style={{ background: 'linear-gradient(135deg, #3B82F6, #2563eb)', boxShadow: '0 8px 24px rgba(59,130,246,0.3)' }}>
               Edit Profil Mekanik
             </button>
           </div>
@@ -324,19 +324,19 @@ function MechanicModal({ isOpen, onClose, onSubmit, form, setForm, editId, savin
           transition={{ type: 'spring', damping: 25 }}
           className="w-full max-w-md rounded-2xl overflow-hidden"
           style={{
-            background: 'linear-gradient(160deg, #061a14 0%, #0a2e1e 100%)',
-            border: '1px solid rgba(34,197,94,0.15)',
+            background: 'linear-gradient(160deg, #0a1222 0%, #0f172a 100%)',
+            border: '1px solid rgba(59,130,246,0.15)',
             boxShadow: '0 30px 80px rgba(0,0,0,0.6)'
           }}
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4"
-            style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
+            style={{ borderBottom: '1px solid rgba(59,130,246,0.08)' }}>
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{ background: 'rgba(34,197,94,0.12)' }}>
-                {editId ? <MdEdit size={16} className="text-green-400" /> : <MdPersonAdd size={16} className="text-green-400" />}
+                style={{ background: 'rgba(59,130,246,0.12)' }}>
+                {editId ? <MdEdit size={16} className="text-blue-400" /> : <MdPersonAdd size={16} className="text-blue-400" />}
               </div>
               <h2 className="text-base font-bold text-white">{editId ? 'Edit Mekanik' : 'Tambah Mekanik'}</h2>
             </div>
@@ -354,14 +354,14 @@ function MechanicModal({ isOpen, onClose, onSubmit, form, setForm, editId, savin
                 <label className="block text-xs text-gray-400 mb-2">Foto Profil</label>
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(11,59,46,0.3)', border: '1px solid rgba(34,197,94,0.1)' }}>
+                    style={{ background: 'rgba(11,59,46,0.3)', border: '1px solid rgba(59,130,246,0.1)' }}>
                     {form.photo
                       ? <img src={form.photo} alt="preview" className="w-full h-full object-cover" />
                       : <MdCamera size={24} className="text-green-800/60" />}
                   </div>
                   <button type="button" onClick={() => fileRef.current?.click()}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs text-green-400/70 hover:text-green-400 transition-all hover:bg-green-500/10"
-                    style={{ border: '1px dashed rgba(34,197,94,0.2)' }}>
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs text-blue-400/70 hover:text-blue-400 transition-all hover:bg-blue-500/10"
+                    style={{ border: '1px dashed rgba(59,130,246,0.2)' }}>
                     <MdCloudUpload size={15} /> Upload Foto
                   </button>
                   <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
@@ -407,13 +407,13 @@ function MechanicModal({ isOpen, onClose, onSubmit, form, setForm, editId, savin
 
           {/* Footer */}
           <div className="flex items-center justify-end gap-3 px-6 py-4"
-            style={{ borderTop: '1px solid rgba(34,197,94,0.08)' }}>
+            style={{ borderTop: '1px solid rgba(59,130,246,0.08)' }}>
             <button onClick={onClose}
               className="px-5 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all"
-              style={{ border: '1px solid rgba(34,197,94,0.1)' }}>Batal</button>
+              style={{ border: '1px solid rgba(59,130,246,0.1)' }}>Batal</button>
             <button type="submit" form="form-mechanic" disabled={saving}
               className="px-6 py-2.5 rounded-xl text-sm font-semibold text-black transition-all hover:opacity-90 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: 'linear-gradient(135deg,#22C55E,#16a34a)', boxShadow: '0 4px 16px rgba(34,197,94,0.3)' }}>
+              style={{ background: 'linear-gradient(135deg,#3B82F6,#2563eb)', boxShadow: '0 4px 16px rgba(59,130,246,0.3)' }}>
               {saving ? <MdRefresh size={16} className="animate-spin" /> : <MdAdd size={16} />} {saving ? 'Menyimpan...' : 'Simpan'}
             </button>
           </div>
@@ -528,13 +528,13 @@ export default function Mechanics() {
   const totalJobs = mechanics.reduce((a, m) => a + (m.jobsDone || 0), 0)
 
   return (
-    <div className="min-h-screen" style={{ background: '#060f0a' }}>
+    <div className="min-h-screen" style={{ background: '#070b14' }}>
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-black tracking-tight flex items-center gap-3">
-              <span className="bg-gradient-to-r from-green-300 to-emerald-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-300 to-blue-600 bg-clip-text text-transparent">
                 Tim Mekanik
               </span>
               <span className="text-sm font-normal text-gray-500 bg-white/5 px-3 py-1 rounded-full">
@@ -542,13 +542,13 @@ export default function Mechanics() {
               </span>
             </h1>
             <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
-              <MdPeople size={14} className="text-green-600" />
+              <MdPeople size={14} className="text-blue-600" />
               {avail} tersedia · {mechanics.length - avail} sibuk · rata-rata rating {avgRating}
             </p>
           </div>
           <button onClick={openAdd}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-black transition-all hover:scale-105 active:scale-95"
-            style={{ background: 'linear-gradient(135deg, #22C55E, #16a34a)', boxShadow: '0 8px 24px rgba(34,197,94,0.35)' }}>
+            style={{ background: 'linear-gradient(135deg, #3B82F6, #2563eb)', boxShadow: '0 8px 24px rgba(59,130,246,0.35)' }}>
             <MdPersonAdd size={18} /> Tambah Mekanik
           </button>
         </div>
@@ -557,7 +557,7 @@ export default function Mechanics() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
             { label: 'Total Mekanik',   value: mechanics.length, icon: <MdPeople size={18}/>, color: '#94A3B8' },
-            { label: 'Tersedia',        value: avail,            icon: <MdCheckCircle size={18}/>, color: '#22C55E'  },
+            { label: 'Tersedia',        value: avail,            icon: <MdCheckCircle size={18}/>, color: '#3B82F6'  },
             { label: 'Sedang Sibuk',    value: mechanics.length - avail, icon: <MdPending size={18}/>, color: '#FBBF24' },
             { label: 'Rata-rata Rating',value: avgRating,        icon: <MdStarHalf size={18}/>, color: '#FBBF24' },
           ].map(s => (
@@ -566,7 +566,7 @@ export default function Mechanics() {
               whileHover={{ scale: 1.02 }}
               className="relative rounded-2xl px-4 py-3 transition-all duration-500 hover:shadow-lg overflow-hidden group"
               style={{
-                background: 'linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))',
+                background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))',
                 border: `1px solid ${s.color}20`,
               }}
             >
@@ -586,7 +586,7 @@ export default function Mechanics() {
         {/* Grid */}
         {loadingList ? (
           <div className="flex items-center justify-center py-20">
-            <MdRefresh size={24} className="text-green-400 animate-spin" />
+            <MdRefresh size={24} className="text-blue-400 animate-spin" />
           </div>
         ) : (
           <>
@@ -644,7 +644,7 @@ export default function Mechanics() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               className="w-full max-w-sm rounded-2xl p-6 text-center"
-              style={{ background: 'linear-gradient(160deg, #0a2a1f, #061a14)', border: '1px solid rgba(239,68,68,0.3)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
+              style={{ background: 'linear-gradient(160deg, #0f172a, #0a1222)', border: '1px solid rgba(239,68,68,0.3)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
               onClick={e => e.stopPropagation()}
             >
               <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
@@ -653,7 +653,7 @@ export default function Mechanics() {
               </div>
               <h3 className="text-white font-bold text-lg mb-2">Hapus Mekanik?</h3>
               <p className="text-gray-400 text-sm mb-6">
-                Data <span className="text-green-400 font-bold">{deleteTarget.name}</span> akan dihapus permanen.
+                Data <span className="text-blue-400 font-bold">{deleteTarget.name}</span> akan dihapus permanen.
               </p>
               <div className="flex gap-3">
                 <button onClick={() => setDeleteTarget(null)}

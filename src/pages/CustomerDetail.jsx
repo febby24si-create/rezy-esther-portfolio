@@ -57,7 +57,7 @@ function daysSince(d) {
 
 // ─── Sub-components ───────────────────────────────────────────
 
-function SectionCard({ title, icon: Icon, iconColor = '#22C55E', children, className = '' }) {
+function SectionCard({ title, icon: Icon, iconColor = '#3B82F6', children, className = '' }) {
   return (
     <div
       className={`rounded-2xl border p-5 ${className}`}
@@ -87,7 +87,7 @@ function InfoRow({ label, value, mono = false, highlight = false, copyable = fal
       <span className="text-gray-500 text-xs w-36 flex-shrink-0 pt-0.5">{label}</span>
       <div className="flex items-center gap-1.5 flex-1 justify-end min-w-0">
         <span
-          className={`text-right text-sm break-all ${mono ? 'font-mono' : ''} ${highlight ? 'text-green-400 font-semibold' : value && value !== '-' ? 'text-white' : 'text-gray-600'}`}
+          className={`text-right text-sm break-all ${mono ? 'font-mono' : ''} ${highlight ? 'text-blue-400 font-semibold' : value && value !== '-' ? 'text-white' : 'text-gray-600'}`}
         >
           {value || '-'}
         </span>
@@ -96,7 +96,7 @@ function InfoRow({ label, value, mono = false, highlight = false, copyable = fal
             onClick={handleCopy}
             className="text-gray-600 hover:text-gray-400 transition-colors flex-shrink-0"
           >
-            {copied ? <MdCheck size={13} className="text-green-400" /> : <MdContentCopy size={13} />}
+            {copied ? <MdCheck size={13} className="text-blue-400" /> : <MdContentCopy size={13} />}
           </button>
         )}
       </div>
@@ -104,7 +104,7 @@ function InfoRow({ label, value, mono = false, highlight = false, copyable = fal
   )
 }
 
-function BadgeChip({ label, color = '#22C55E', bg, border }) {
+function BadgeChip({ label, color = '#3B82F6', bg, border }) {
   return (
     <span
       className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
@@ -118,8 +118,8 @@ function BadgeChip({ label, color = '#22C55E', bg, border }) {
 function StatusDot({ active }) {
   return (
     <span className="flex items-center gap-1.5">
-      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${active ? 'bg-green-400' : 'bg-gray-600'}`} />
-      <span className={`text-xs ${active ? 'text-green-400' : 'text-gray-500'}`}>
+      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${active ? 'bg-blue-400' : 'bg-gray-600'}`} />
+      <span className={`text-xs ${active ? 'text-blue-400' : 'text-gray-500'}`}>
         {active ? 'Aktif' : 'Tidak Aktif'}
       </span>
     </span>
@@ -234,7 +234,7 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
       {/* ── Hero section ────────────────────────────────────── */}
       <div
         className="rounded-2xl border p-5 mb-5 flex flex-wrap items-start gap-5"
-        style={{ background: 'rgba(4,28,21,0.7)', borderColor: 'rgba(34,197,94,0.15)' }}
+        style={{ background: 'rgba(4,28,21,0.7)', borderColor: 'rgba(59,130,246,0.15)' }}
       >
         {/* Avatar */}
         <div
@@ -266,10 +266,10 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
           {/* Quick stats */}
           <div className="flex flex-wrap gap-4">
             {[
-              { label: 'Total Order',   value: `${customer.totalOrders || customerOrders.length}×`,     color: '#22C55E' },
+              { label: 'Total Order',   value: `${customer.totalOrders || customerOrders.length}×`,     color: '#3B82F6' },
               { label: 'Total Pengeluaran', value: fmt(totalSpentCalc || customer.totalSpent), color: '#FBBF24' },
               { label: 'Poin Loyalty',  value: `${(customer.points || 0).toLocaleString('id-ID')} pt`,  color: loyalty.color },
-              { label: 'Terakhir Servis', value: lastOrderDays < 9999 ? `${lastOrderDays} hari lalu` : '-', color: lastOrderDays > 180 ? '#EF4444' : lastOrderDays > 90 ? '#F97316' : '#22C55E' },
+              { label: 'Terakhir Servis', value: lastOrderDays < 9999 ? `${lastOrderDays} hari lalu` : '-', color: lastOrderDays > 180 ? '#EF4444' : lastOrderDays > 90 ? '#F97316' : '#3B82F6' },
             ].map(s => (
               <div key={s.label}>
                 <p className="text-gray-500 text-xs">{s.label}</p>
@@ -282,8 +282,8 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
         {/* Creator code pill */}
         {customer.creatorCode && (
           <div
-            className="px-3 py-1.5 rounded-xl text-xs font-mono font-semibold text-green-400 flex-shrink-0"
-            style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}
+            className="px-3 py-1.5 rounded-xl text-xs font-mono font-semibold text-blue-400 flex-shrink-0"
+            style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}
           >
             🎯 {customer.creatorCode}
           </div>
@@ -298,7 +298,7 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
             onClick={() => setActiveTab(key)}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
               activeTab === key
-                ? 'bg-green-500/20 text-green-400 border border-green-500/25'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/25'
                 : 'text-gray-400 hover:text-white border border-white/8 hover:bg-white/5'
             }`}
           >
@@ -323,7 +323,7 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
           </SectionCard>
 
           {/* Kontak */}
-          <SectionCard title="Kontak" icon={MdPhone} iconColor="#22C55E">
+          <SectionCard title="Kontak" icon={MdPhone} iconColor="#3B82F6">
             <InfoRow label="Nomor HP"  value={customer.phone} copyable />
             <InfoRow label="Email"     value={customer.email} copyable />
             <InfoRow label="Alamat"    value={customer.address} />
@@ -336,7 +336,7 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
                 </a>
               )}
               {customer.whatsapp && (
-                <span className="flex items-center gap-1.5 text-green-400 text-xs">
+                <span className="flex items-center gap-1.5 text-blue-400 text-xs">
                   <FaWhatsapp /> {customer.whatsapp}
                 </span>
               )}
@@ -375,7 +375,7 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
                     alert(`✅ +${amt} poin berhasil ditambahkan ke ${customer.name}`)
                   }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-                  style={{ background: 'rgba(34,197,94,0.12)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.25)' }}>
+                  style={{ background: 'rgba(59,130,246,0.12)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.25)' }}>
                   + Tambah Poin
                 </button>
                 <button
@@ -416,7 +416,7 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
                 />
                 <div className="flex gap-2 mt-2">
                   <button onClick={handleSaveNotes}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-500/20 text-green-400 border border-green-500/25 hover:bg-green-500/30 transition-all">
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/25 hover:bg-blue-500/30 transition-all">
                     <MdSave size={13} /> Simpan
                   </button>
                   <button onClick={() => setEditingNotes(false)}
@@ -448,7 +448,7 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
           {/* Summary cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: 'Total Order',     value: customerOrders.length, suffix: '×', color: '#22C55E' },
+              { label: 'Total Order',     value: customerOrders.length, suffix: '×', color: '#3B82F6' },
               { label: 'Total Pengeluaran', value: fmt(totalSpentCalc), color: '#FBBF24' },
               { label: 'Order Selesai',   value: customerOrders.filter(o => o.status === 'Selesai').length, suffix: '×', color: '#60A5FA' },
               { label: 'Order Aktif',     value: customerOrders.filter(o => ['Antrian','Proses'].includes(o.status)).length, suffix: '×', color: '#A855F7' },
@@ -472,7 +472,7 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
               <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
                 {customerOrders.map(order => {
                   const statusColor = {
-                    Selesai: '#22C55E', Proses: '#FBBF24', Antrian: '#60A5FA',
+                    Selesai: '#3B82F6', Proses: '#FBBF24', Antrian: '#60A5FA',
                     Batal: '#EF4444', Ditunda: '#F97316',
                   }[order.status] || '#6B7280'
                   return (
@@ -561,7 +561,7 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
                 />
                 <div className="flex gap-2 mt-2">
                   <button onClick={handleSaveNotes}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-500/20 text-green-400 border border-green-500/25">
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-500/20 text-blue-400 border border-blue-500/25">
                     <MdSave size={13} /> Simpan
                   </button>
                   <button onClick={() => setEditingNotes(false)}
@@ -601,7 +601,7 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
             } />
           </SectionCard>
 
-          <SectionCard title="Statistik Penggunaan" icon={MdTrendingUp} iconColor="#22C55E">
+          <SectionCard title="Statistik Penggunaan" icon={MdTrendingUp} iconColor="#3B82F6">
             <InfoRow label="Total Kunjungan" value={`${customer.totalOrders || customerOrders.length}×`} />
             <InfoRow label="Rata-rata Interval" value={
               customerOrders.length > 1
@@ -652,7 +652,7 @@ export default function CustomerDetail({ customerId: propId, onClose }) {
           <SectionCard title="Ringkasan Engagement" icon={MdBarChart} iconColor="#A855F7" className="md:col-span-2">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
-                { label: 'Total Order',       value: `${customerOrders.length}×`,   color: '#22C55E' },
+                { label: 'Total Order',       value: `${customerOrders.length}×`,   color: '#3B82F6' },
                 { label: 'Total Pengeluaran', value: fmt(totalSpentCalc),            color: '#FBBF24' },
                 { label: 'Poin Terkumpul',    value: `${(customer.points||0).toLocaleString('id-ID')} pt`, color: '#A855F7' },
                 { label: 'Komplain',          value: `${customer.complaints||0}×`,  color: (customer.complaints||0)>0 ? '#EF4444' : '#6B7280' },

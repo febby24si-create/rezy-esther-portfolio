@@ -58,10 +58,10 @@ const stringToHue = (str) => {
 // ─── Status config (dark theme) ──────────────────────────────────────
 const STATUS = {
   Selesai: {
-    color: '#22C55E',
-    bg: 'rgba(34,197,94,0.15)',
-    border: 'rgba(34,197,94,0.3)',
-    dot: '#22C55E',
+    color: '#3B82F6',
+    bg: 'rgba(59,130,246,0.15)',
+    border: 'rgba(59,130,246,0.3)',
+    dot: '#3B82F6',
     icon: MdCheckCircle,
     label: 'Selesai'
   },
@@ -154,8 +154,8 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
       onClick={onClose}>
       <div className="relative w-full max-w-md h-full overflow-y-auto flex flex-col animate-slideRight"
         style={{
-          background: 'linear-gradient(160deg,#06140e 0%,#0a1f16 100%)',
-          borderLeft: '1px solid rgba(34,197,94,0.15)',
+          background: 'linear-gradient(160deg,#0a1222 0%,#0f172a 100%)',
+          borderLeft: '1px solid rgba(59,130,246,0.15)',
           boxShadow: '-20px 0 60px rgba(0,0,0,0.6)'
         }}
         onClick={e => e.stopPropagation()}>
@@ -172,8 +172,8 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
             {/* Workflow Detail button — buka /orders/:id */}
             <button
               onClick={() => { onClose(); navigate(`/orders/${encodeURIComponent(order.id)}`) }}
-              className="flex items-center gap-1.5 px-3 h-9 rounded-full text-green-400 text-xs font-semibold hover:scale-105 transition-all duration-300"
-              style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)' }}
+              className="flex items-center gap-1.5 px-3 h-9 rounded-full text-blue-400 text-xs font-semibold hover:scale-105 transition-all duration-300"
+              style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)' }}
               title="Buka Workflow Detail">
               <MdOpenInNew size={14} /> Workflow
             </button>
@@ -200,10 +200,10 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
             </div>
           </div>
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm font-mono font-bold text-green-400">{order.id}</span>
+            <span className="text-sm font-mono font-bold text-blue-400">{order.id}</span>
             <button onClick={copyId}
               className="w-6 h-6 rounded-md flex items-center justify-center transition-all duration-300 hover:bg-white/10 hover:scale-110"
-              style={{ color: copied ? '#22C55E' : '#4B5563' }}>
+              style={{ color: copied ? '#3B82F6' : '#4B5563' }}>
               {copied ? <MdCheck size={13} className="animate-bounce-soft" /> : <MdContentCopy size={13} />}
             </button>
           </div>
@@ -214,13 +214,13 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
         </div>
 
         <div className="mx-5 mb-5 rounded-2xl p-4 flex-shrink-0 animate-fadeInUp"
-          style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.12)', animationDelay: '150ms', animationFillMode: 'both' }}>
+          style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.12)', animationDelay: '150ms', animationFillMode: 'both' }}>
           <p className="text-xs text-gray-500 mb-1">Total Pembayaran</p>
           <p className="text-3xl font-black text-white">
             <AnimatedNumber value={order.total} format={(v) => formatCurrency(Math.round(v))} duration={1000} />
           </p>
           {order.paymentStatus === PAYMENT_STATUS.PARTIAL && (
-            <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: '1px solid rgba(34,197,94,0.1)' }}>
+            <div className="mt-3 pt-3 flex items-center justify-between text-xs" style={{ borderTop: '1px solid rgba(59,130,246,0.1)' }}>
               <span className="text-gray-500">Sudah dibayar (DP)</span>
               <span className="text-amber-400 font-semibold">{formatCurrency(order.paidAmount)}</span>
             </div>
@@ -234,7 +234,7 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
         </div>
 
         <div className="mx-5 mb-5 rounded-2xl overflow-hidden flex-shrink-0 animate-fadeInUp"
-          style={{ border: '1px solid rgba(34,197,94,0.08)', background: 'rgba(0,0,0,0.3)', animationDelay: '200ms', animationFillMode: 'both' }}>
+          style={{ border: '1px solid rgba(59,130,246,0.08)', background: 'rgba(0,0,0,0.3)', animationDelay: '200ms', animationFillMode: 'both' }}>
           {[
             { icon: <MdBuild size={15}/>,         label: 'Layanan',   value: order.service },
             { icon: <MdDirectionsCar size={15}/>,  label: 'Kendaraan', value: order.vehicle.split(' - ')[0] },
@@ -242,7 +242,7 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
             { icon: <MdCalendarToday size={15}/>,  label: 'Tanggal',   value: order.date },
           ].map((row, i, arr) => (
             <div key={i} className="flex items-center justify-between px-4 py-3 transition-colors hover:bg-white/5"
-              style={{ borderBottom: i < arr.length - 1 ? '1px solid rgba(34,197,94,0.05)' : 'none' }}>
+              style={{ borderBottom: i < arr.length - 1 ? '1px solid rgba(59,130,246,0.05)' : 'none' }}>
               <div className="flex items-center gap-2.5">
                 <span className="text-green-900/70 transition-transform duration-300 group-hover:scale-110">{row.icon}</span>
                 <span className="text-xs text-gray-500">{row.label}</span>
@@ -286,7 +286,7 @@ function DetailDrawer({ order, onClose, onEdit, onDelete, onInvoice }) {
         <div className="px-5 pb-8 mt-auto flex-shrink-0 animate-fadeInUp" style={{ animationDelay: '350ms', animationFillMode: 'both' }}>
           <button onClick={() => { onClose(); onInvoice(order) }}
             className="w-full py-3 rounded-xl text-sm font-bold text-black transition-all duration-300 hover:opacity-90 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
-            style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }}>
+            style={{ background: 'linear-gradient(90deg,#3B82F6,#2563eb)' }}>
             <MdReceipt size={16} className="animate-pulse" /> Lihat Invoice
           </button>
         </div>
@@ -301,10 +301,10 @@ function OrderCard({ order, onDetail, onEdit, onDelete, onInvoice, onQuickAssign
   return (
     <div
       onClick={() => onDetail(order)}
-      className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl hover:shadow-green-500/5 animate-fadeInUp"
+      className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/5 animate-fadeInUp"
       style={{
-        background: 'linear-gradient(145deg,rgba(6,30,20,0.95),rgba(8,40,28,0.85))',
-        border: '1px solid rgba(34,197,94,0.1)',
+        background: 'linear-gradient(145deg,rgba(15,23,42,0.95),rgba(10,18,34,0.85))',
+        border: '1px solid rgba(59,130,246,0.1)',
         boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
         animationDelay: `${delay}ms`,
         animationFillMode: 'both',
@@ -345,7 +345,7 @@ function OrderCard({ order, onDetail, onEdit, onDelete, onInvoice, onQuickAssign
         </div>
         <div className="flex items-center gap-2 mb-3 flex-wrap">
           <span className="text-xs px-2.5 py-1 rounded-full font-medium transition-all duration-300 hover:scale-105"
-            style={{ background: 'rgba(34,197,94,0.08)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.12)' }}>
+            style={{ background: 'rgba(59,130,246,0.08)', color: '#4ade80', border: '1px solid rgba(59,130,246,0.12)' }}>
             {order.service}
           </span>
           {order.needsMechanicAssignment && (
@@ -360,7 +360,7 @@ function OrderCard({ order, onDetail, onEdit, onDelete, onInvoice, onQuickAssign
           {order.vehicle.split(' - ')[0]}
         </p>
         <div className="flex items-center justify-between pt-3"
-          style={{ borderTop: '1px solid rgba(34,197,94,0.06)' }}>
+          style={{ borderTop: '1px solid rgba(59,130,246,0.06)' }}>
           <div className="flex flex-col gap-1.5">
             <StatusBadge status={order.status} size="sm" />
             <PaymentBadge status={order.paymentStatus} size="sm" />
@@ -386,12 +386,12 @@ function InvoiceModal({ order, onClose }) {
     .hd{display:flex;justify-content:space-between;margin-bottom:30px;}
     table{width:100%;border-collapse:collapse;margin-bottom:20px;}
     th{text-align:left;padding:8px;background:#1a1a1a;color:#aaa;}td{padding:8px;border-bottom:1px solid #222;color:#ccc;}
-    .tot{background:#1a1a1a;font-weight:bold;color:#22C55E;}
+    .tot{background:#1a1a1a;font-weight:bold;color:#3B82F6;}
     </style></head><body><div class="c">
-    <div class="hd"><div><div style="font-size:22px;font-weight:bold;color:#22C55E">EstherGarage</div>
+    <div class="hd"><div><div style="font-size:22px;font-weight:bold;color:#3B82F6">EstherGarage</div>
     <div style="font-size:11px;color:#666">Bengkel Terpercaya</div></div>
     <div style="text-align:right"><div style="font-weight:bold;color:#fff">INVOICE</div>
-    <div style="color:#22C55E;font-weight:bold">${order.id}</div>
+    <div style="color:#3B82F6;font-weight:bold">${order.id}</div>
     <div style="font-size:12px;color:#666">${order.date}</div></div></div>
     <div style="border-top:1px solid #222;border-bottom:1px solid #222;padding:10px 0;margin-bottom:20px">
     <div style="font-size:11px;color:#666">Kepada:</div><div style="font-weight:bold;color:#fff">${order.customer}</div>
@@ -399,7 +399,7 @@ function InvoiceModal({ order, onClose }) {
     <table><thead><tr><th>Layanan</th><th style="text-align:right">Harga</th></tr></thead>
     <tbody><tr><td>${order.service}</td><td style="text-align:right">${formatCurrency(order.total)}</td></tr></tbody>
     <tfoot><tr class="tot"><td>TOTAL</td><td style="text-align:right">${formatCurrency(order.total)}</td></tr></tfoot>
-    </table><div style="margin-top:20px;font-size:12px;color:#888">Status: <strong style="color:${order.status==='Selesai'?'#22C55E':'#f59e0b'}">${order.status}</strong></div>
+    </table><div style="margin-top:20px;font-size:12px;color:#888">Status: <strong style="color:${order.status==='Selesai'?'#3B82F6':'#f59e0b'}">${order.status}</strong></div>
     <div style="font-size:11px;margin-top:8px;color:#555">Terima kasih atas kepercayaan Anda!</div>
     </div></body></html>`)
     w.document.close(); w.print()
@@ -411,29 +411,29 @@ function InvoiceModal({ order, onClose }) {
       style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}
       onClick={onClose}>
       <div className="w-full max-w-sm rounded-2xl overflow-hidden animate-slideUp"
-        style={{ background: 'linear-gradient(160deg,#06140e,#0a1f16)', border: '1px solid rgba(34,197,94,0.15)', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }}
+        style={{ background: 'linear-gradient(160deg,#0a1222,#0f172a)', border: '1px solid rgba(59,130,246,0.15)', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }}
         onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
-          <div className="flex items-center gap-2"><MdReceipt size={18} className="text-green-400 animate-pulse" /><h3 className="text-white font-bold">Invoice</h3></div>
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(59,130,246,0.08)' }}>
+          <div className="flex items-center gap-2"><MdReceipt size={18} className="text-blue-400 animate-pulse" /><h3 className="text-white font-bold">Invoice</h3></div>
           <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5 transition-all duration-300 hover:rotate-90"><MdClose size={18} /></button>
         </div>
         <div className="p-5">
-          <div className="rounded-2xl p-4 mb-4 animate-fadeInUp" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)', animationDelay: '100ms', animationFillMode: 'both' }}>
+          <div className="rounded-2xl p-4 mb-4 animate-fadeInUp" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.08)', animationDelay: '100ms', animationFillMode: 'both' }}>
             <div className="flex justify-between mb-3">
-              <div><p className="text-green-400 font-black text-lg">EstherGarage</p><p className="text-gray-600 text-xs">Bengkel Terpercaya</p></div>
-              <div className="text-right"><p className="text-white font-bold text-sm">INVOICE</p><p className="text-green-400 text-xs font-mono">{order.id}</p><p className="text-gray-600 text-xs">{order.date}</p></div>
+              <div><p className="text-blue-400 font-black text-lg">EstherGarage</p><p className="text-gray-600 text-xs">Bengkel Terpercaya</p></div>
+              <div className="text-right"><p className="text-white font-bold text-sm">INVOICE</p><p className="text-blue-400 text-xs font-mono">{order.id}</p><p className="text-gray-600 text-xs">{order.date}</p></div>
             </div>
-            <div className="py-3 mb-3" style={{ borderTop: '1px solid rgba(34,197,94,0.08)', borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
+            <div className="py-3 mb-3" style={{ borderTop: '1px solid rgba(59,130,246,0.08)', borderBottom: '1px solid rgba(59,130,246,0.08)' }}>
               <p className="text-gray-600 text-xs mb-1">Kepada:</p><p className="text-white font-semibold">{order.customer}</p><p className="text-gray-500 text-xs">{order.vehicle}</p>
             </div>
             <div className="flex justify-between py-2 text-sm"><span className="text-gray-400">{order.service}</span><span className="text-white">{formatCurrency(order.total)}</span></div>
-            <div className="flex justify-between py-2 mt-1 text-sm font-bold" style={{ borderTop: '1px solid rgba(34,197,94,0.08)' }}>
-              <span className="text-gray-300">TOTAL</span><span className="text-green-400">{formatCurrency(order.total)}</span>
+            <div className="flex justify-between py-2 mt-1 text-sm font-bold" style={{ borderTop: '1px solid rgba(59,130,246,0.08)' }}>
+              <span className="text-gray-300">TOTAL</span><span className="text-blue-400">{formatCurrency(order.total)}</span>
             </div>
           </div>
           <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 transition-all duration-300 hover:bg-white/5 hover:scale-[1.02]" style={{ border: '1px solid rgba(34,197,94,0.08)' }}>Tutup</button>
-            <button onClick={printInvoice} className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all duration-300 hover:opacity-90 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2" style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }}><MdPrint size={15} /> Cetak</button>
+            <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 transition-all duration-300 hover:bg-white/5 hover:scale-[1.02]" style={{ border: '1px solid rgba(59,130,246,0.08)' }}>Tutup</button>
+            <button onClick={printInvoice} className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all duration-300 hover:opacity-90 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2" style={{ background: 'linear-gradient(90deg,#3B82F6,#2563eb)' }}><MdPrint size={15} /> Cetak</button>
           </div>
         </div>
       </div>
@@ -443,8 +443,8 @@ function InvoiceModal({ order, onClose }) {
 
 // ─── Form Modal ──────────────────────────────────────────────────────
 const SERVICE_OPTIONS = ['Servis Berkala','Ganti Oli','Tune Up','Servis Rem','Ganti Ban','Servis AC','Ganti Kampas Rem','Spooring & Balancing','Cuci Mobil','Detailing']
-const inputCls = 'w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all duration-300 focus:ring-2 focus:ring-green-500/20 placeholder-gray-600'
-const inputStyle = { background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(34,197,94,0.1)' }
+const inputCls = 'w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all duration-300 focus:ring-2 focus:ring-blue-500/20 placeholder-gray-600'
+const inputStyle = { background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(59,130,246,0.1)' }
 
 function FormModal({ isOpen, onClose, onSubmit, initialData, editId, customers, mechanics }) {
   const [form, setForm] = useState(initialData)
@@ -471,11 +471,11 @@ function FormModal({ isOpen, onClose, onSubmit, initialData, editId, customers, 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }} onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl overflow-hidden animate-slideUp" style={{ background: 'linear-gradient(160deg,#06140e,#0a1f16)', border: '1px solid rgba(34,197,94,0.15)', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }} onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
+      <div className="w-full max-w-md rounded-2xl overflow-hidden animate-slideUp" style={{ background: 'linear-gradient(160deg,#0a1222,#0f172a)', border: '1px solid rgba(59,130,246,0.15)', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }} onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(59,130,246,0.08)' }}>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center transition-transform duration-300 hover:rotate-12" style={{ background: 'rgba(34,197,94,0.12)' }}>
-              {editId ? <MdEdit size={15} className="text-green-400" /> : <MdAdd size={15} className="text-green-400" />}
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center transition-transform duration-300 hover:rotate-12" style={{ background: 'rgba(59,130,246,0.12)' }}>
+              {editId ? <MdEdit size={15} className="text-blue-400" /> : <MdAdd size={15} className="text-blue-400" />}
             </div>
             <h3 className="text-white font-bold">{editId ? 'Edit Order' : 'Tambah Order Baru'}</h3>
           </div>
@@ -582,9 +582,9 @@ function FormModal({ isOpen, onClose, onSubmit, initialData, editId, customers, 
             )}
           </div>
         </form>
-        <div className="flex gap-3 px-5 py-4" style={{ borderTop: '1px solid rgba(34,197,94,0.08)' }}>
-          <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all duration-300 hover:bg-white/5 hover:scale-[1.02]" style={{ border: '1px solid rgba(34,197,94,0.08)' }}>Batal</button>
-          <button type="submit" form="order-form" className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all duration-300 hover:opacity-90 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2" style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }}><MdCheck size={15} className="animate-bounce-soft" /> {editId ? 'Simpan' : 'Buat Order'}</button>
+        <div className="flex gap-3 px-5 py-4" style={{ borderTop: '1px solid rgba(59,130,246,0.08)' }}>
+          <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all duration-300 hover:bg-white/5 hover:scale-[1.02]" style={{ border: '1px solid rgba(59,130,246,0.08)' }}>Batal</button>
+          <button type="submit" form="order-form" className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all duration-300 hover:opacity-90 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2" style={{ background: 'linear-gradient(90deg,#3B82F6,#2563eb)' }}><MdCheck size={15} className="animate-bounce-soft" /> {editId ? 'Simpan' : 'Buat Order'}</button>
         </div>
       </div>
     </div>
@@ -598,12 +598,12 @@ function QuickAssignMechanic({ order, mechanics, onClose, onAssign }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }} onClick={onClose}>
-      <div className="w-full max-w-sm rounded-2xl p-5 animate-slideUp" style={{ background: 'linear-gradient(160deg,#06140e,#0a1f16)', border: '1px solid rgba(96,165,250,0.15)', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }} onClick={e => e.stopPropagation()}>
+      <div className="w-full max-w-sm rounded-2xl p-5 animate-slideUp" style={{ background: 'linear-gradient(160deg,#0a1222,#0f172a)', border: '1px solid rgba(96,165,250,0.15)', boxShadow: '0 25px 60px rgba(0,0,0,0.6)' }} onClick={e => e.stopPropagation()}>
         <div className="flex items-center gap-2.5 mb-1">
           <MdBuild className="text-blue-400 animate-pulse" size={18} />
           <h3 className="text-white font-bold">Tugaskan Mekanik</h3>
         </div>
-        <p className="text-xs text-gray-500 mb-4">Order <span className="text-green-400 font-mono">{order.id}</span> dari booking online — {order.customer} · {order.service}</p>
+        <p className="text-xs text-gray-500 mb-4">Order <span className="text-blue-400 font-mono">{order.id}</span> dari booking online — {order.customer} · {order.service}</p>
         <label className="block text-xs text-gray-400 mb-1.5">Pilih Mekanik</label>
         <input
           list="quick-mechanic-list"
@@ -619,7 +619,7 @@ function QuickAssignMechanic({ order, mechanics, onClose, onAssign }) {
           {mechanics.map(m => <option key={m.id} value={m.name} />)}
         </datalist>
         <div className="flex gap-3 mt-5">
-          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all duration-300 hover:bg-white/5" style={{ border: '1px solid rgba(34,197,94,0.08)' }}>Batal</button>
+          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all duration-300 hover:bg-white/5" style={{ border: '1px solid rgba(59,130,246,0.08)' }}>Batal</button>
           <button
             onClick={() => mechanic && onAssign(order.id, mechanic)}
             disabled={!mechanic}
@@ -637,10 +637,10 @@ function QuickAssignMechanic({ order, mechanics, onClose, onAssign }) {
 function DeleteConfirm({ target, onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-fadeIn" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }} onClick={onCancel}>
-      <div className="w-full max-w-xs rounded-2xl p-6 text-center animate-slideUp" style={{ background: '#0a1a12', border: '1px solid rgba(239,68,68,0.2)', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }} onClick={e => e.stopPropagation()}>
+      <div className="w-full max-w-xs rounded-2xl p-6 text-center animate-slideUp" style={{ background: '#0f172a', border: '1px solid rgba(239,68,68,0.2)', boxShadow: '0 20px 50px rgba(0,0,0,0.6)' }} onClick={e => e.stopPropagation()}>
         <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse" style={{ background: 'rgba(239,68,68,0.08)', border: '2px solid rgba(239,68,68,0.15)' }}><MdDelete size={26} className="text-red-500" /></div>
         <h3 className="text-white font-bold text-lg mb-2">Hapus Order?</h3>
-        <p className="text-gray-400 text-sm mb-6">Order <span className="text-green-400 font-mono font-bold">{target?.id}</span> akan dihapus permanen.</p>
+        <p className="text-gray-400 text-sm mb-6">Order <span className="text-blue-400 font-mono font-bold">{target?.id}</span> akan dihapus permanen.</p>
         <div className="flex gap-3">
           <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all duration-300 hover:bg-white/5 hover:scale-[1.02]" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>Batal</button>
           <button onClick={onConfirm} className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-300 hover:opacity-90 hover:scale-[1.02] active:scale-95" style={{ background: 'linear-gradient(90deg,#ef4444,#dc2626)' }}>Hapus</button>
@@ -654,7 +654,7 @@ function DeleteConfirm({ target, onConfirm, onCancel }) {
 const SortIcon = ({ column, sortColumn, sortDirection }) => {
   const isActive = sortColumn === column
   return (
-    <span className={`inline-block transition-all duration-300 ${isActive ? 'text-green-400' : 'text-gray-700'}`}>
+    <span className={`inline-block transition-all duration-300 ${isActive ? 'text-blue-400' : 'text-gray-700'}`}>
       {!isActive && <MdUnfoldMore size={13} />}
       {isActive && sortDirection === 'asc' && <MdExpandLess size={13} className="animate-bounce-soft" />}
       {isActive && sortDirection === 'desc' && <MdExpandMore size={13} className="animate-bounce-soft" />}
@@ -929,7 +929,7 @@ export default function Orders() {
   const thCls = "text-left py-3 px-3 text-[11px] text-gray-500 font-semibold uppercase tracking-wider whitespace-nowrap cursor-pointer select-none hover:text-gray-300 transition-colors duration-300"
 
   return (
-    <div className="page-animate bg-[#060f0a] min-h-screen p-4 md:p-6">
+    <div className="page-animate bg-[#070b14] min-h-screen p-4 md:p-6">
       {/* ─── HEADER ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 animate-fadeInUp">
         <div>
@@ -940,13 +940,13 @@ export default function Orders() {
         </div>
         <div className="flex gap-2">
           <button onClick={exportCSV}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-green-400 transition-all duration-300 hover:bg-green-500/10 hover:scale-[1.04] active:scale-95"
-            style={{ border: '1px solid rgba(34,197,94,0.15)' }}>
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-blue-400 transition-all duration-300 hover:bg-blue-500/10 hover:scale-[1.04] active:scale-95"
+            style={{ border: '1px solid rgba(59,130,246,0.15)' }}>
             <MdDownload size={16} className="transition-transform duration-300 group-hover:translate-y-0.5" /> Export
           </button>
           <button onClick={handleAdd}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-black transition-all duration-300 hover:opacity-90 hover:scale-[1.04] active:scale-95"
-            style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)', boxShadow: '0 4px 18px rgba(34,197,94,0.3)' }}>
+            style={{ background: 'linear-gradient(90deg,#3B82F6,#2563eb)', boxShadow: '0 4px 18px rgba(59,130,246,0.3)' }}>
             <MdAdd size={18} className="transition-transform duration-300 group-hover:rotate-90" /> Tambah Order
           </button>
         </div>
@@ -956,15 +956,15 @@ export default function Orders() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {[
           { label: 'Total Order', value: orders.length, color: '#94A3B8', icon: '📋', delay: 0 },
-          { label: 'Selesai', value: counts.selesai, color: '#22C55E', icon: '✅', delay: 100 },
+          { label: 'Selesai', value: counts.selesai, color: '#3B82F6', icon: '✅', delay: 100 },
           { label: 'Sedang Dikerjakan', value: counts.proses, color: '#FBBF24', icon: '🔧', delay: 200 },
           { label: 'Pendapatan Masuk', value: totalPendapatan, color: '#60A5FA', icon: '💰', delay: 300, format: (v) => `Rp ${(v/1000000).toFixed(1)}jt` },
         ].map((s) => (
           <div
             key={s.label}
-            className="relative rounded-xl px-4 py-3 transition-all duration-500 hover:scale-[1.04] hover:shadow-lg hover:shadow-green-500/5 animate-fadeInUp group overflow-hidden"
+            className="relative rounded-xl px-4 py-3 transition-all duration-500 hover:scale-[1.04] hover:shadow-lg hover:shadow-blue-500/5 animate-fadeInUp group overflow-hidden"
             style={{
-              background: `linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))`,
+              background: `linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))`,
               border: `1px solid ${s.color}15`,
               animationDelay: `${s.delay}ms`,
               animationFillMode: 'both',
@@ -989,17 +989,17 @@ export default function Orders() {
       </div>
 
       {/* ─── TABLE / GRID ─── */}
-      <div className="rounded-2xl overflow-hidden animate-fadeInUp" style={{ background: 'rgba(10,26,18,0.8)', border: '1px solid rgba(34,197,94,0.06)', backdropFilter: 'blur(6px)', animationDelay: '100ms', animationFillMode: 'both' }}>
+      <div className="rounded-2xl overflow-hidden animate-fadeInUp" style={{ background: 'rgba(10,26,18,0.8)', border: '1px solid rgba(59,130,246,0.06)', backdropFilter: 'blur(6px)', animationDelay: '100ms', animationFillMode: 'both' }}>
         {/* ─── TOOLBAR ─── */}
-        <div className="flex flex-col sm:flex-row gap-3 p-4" style={{ borderBottom: '1px solid rgba(34,197,94,0.05)' }}>
+        <div className="flex flex-col sm:flex-row gap-3 p-4" style={{ borderBottom: '1px solid rgba(59,130,246,0.05)' }}>
           <div className="relative flex-1">
-            <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 transition-colors duration-300 focus-within:text-green-400" size={16} />
+            <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 transition-colors duration-300 focus-within:text-blue-400" size={16} />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Cari order, pelanggan, layanan..."
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all duration-300 focus:ring-2 focus:ring-green-500/20 placeholder-gray-600"
-              style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }}
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all duration-300 focus:ring-2 focus:ring-blue-500/20 placeholder-gray-600"
+              style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.08)' }}
             />
           </div>
           <div className="flex gap-2">
@@ -1008,30 +1008,30 @@ export default function Orders() {
                 onClick={() => setShowFilter(p => !p)}
                 className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm transition-all duration-300 hover:scale-[1.04] active:scale-95 ${
                   activeFilters > 0
-                    ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                    : 'bg-green-500/5 text-gray-400 border border-green-500/10 hover:bg-green-500/10'
+                    ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                    : 'bg-blue-500/5 text-gray-400 border border-blue-500/10 hover:bg-blue-500/10'
                 }`}>
                 <MdFilterList size={16} className={`transition-transform duration-300 ${showFilter ? 'rotate-180' : ''}`} />
                 {activeFilters > 0 && (
-                  <span className="w-4 h-4 rounded-full text-xs font-bold text-black flex items-center justify-center animate-pulse" style={{ background: '#22C55E' }}>
+                  <span className="w-4 h-4 rounded-full text-xs font-bold text-black flex items-center justify-center animate-pulse" style={{ background: '#3B82F6' }}>
                     {activeFilters}
                   </span>
                 )}
               </button>
               {showFilter && (
-                <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl p-4 z-30 animate-fadeInUp" style={{ background: '#06140e', border: '1px solid rgba(34,197,94,0.12)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+                <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl p-4 z-30 animate-fadeInUp" style={{ background: '#0a1222', border: '1px solid rgba(59,130,246,0.12)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
                   <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-3">Filter</p>
                   <div className="space-y-3">
                     <div className="animate-fadeInUp" style={{ animationDelay: '50ms', animationFillMode: 'both' }}>
                       <label className="block text-xs text-gray-500 mb-1.5">Status</label>
-                      <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none transition-all duration-300 focus:ring-2 focus:ring-green-500/20" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }}>
+                      <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none transition-all duration-300 focus:ring-2 focus:ring-blue-500/20" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.08)' }}>
                         <option value="">Semua Status</option>
                         {Object.keys(STATUS).map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
                     <div className="animate-fadeInUp" style={{ animationDelay: '75ms', animationFillMode: 'both' }}>
                       <label className="block text-xs text-gray-500 mb-1.5">Status Pembayaran</label>
-                      <select value={filterPayment} onChange={e => setFilterPayment(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none transition-all duration-300 focus:ring-2 focus:ring-green-500/20" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }}>
+                      <select value={filterPayment} onChange={e => setFilterPayment(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none transition-all duration-300 focus:ring-2 focus:ring-blue-500/20" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.08)' }}>
                         <option value="">Semua Pembayaran</option>
                         {PAYMENT_STATUS_LIST.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
@@ -1039,11 +1039,11 @@ export default function Orders() {
                     <div className="grid grid-cols-2 gap-2">
                       <div className="animate-fadeInUp" style={{ animationDelay: '100ms', animationFillMode: 'both' }}>
                         <label className="block text-xs text-gray-500 mb-1.5">Dari</label>
-                        <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none transition-all duration-300 focus:ring-2 focus:ring-green-500/20" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }} />
+                        <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none transition-all duration-300 focus:ring-2 focus:ring-blue-500/20" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.08)' }} />
                       </div>
                       <div className="animate-fadeInUp" style={{ animationDelay: '150ms', animationFillMode: 'both' }}>
                         <label className="block text-xs text-gray-500 mb-1.5">Sampai</label>
-                        <input type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none transition-all duration-300 focus:ring-2 focus:ring-green-500/20" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }} />
+                        <input type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)} className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none transition-all duration-300 focus:ring-2 focus:ring-blue-500/20" style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.08)' }} />
                       </div>
                     </div>
                     <button onClick={resetFilters} className="w-full py-2 rounded-xl text-xs text-red-400 transition-all duration-300 hover:bg-red-500/10 hover:scale-[1.02] active:scale-95" style={{ border: '1px solid rgba(239,68,68,0.15)' }}>
@@ -1053,7 +1053,7 @@ export default function Orders() {
                 </div>
               )}
             </div>
-            <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(34,197,94,0.08)' }}>
+            <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(59,130,246,0.08)' }}>
               {[
                 { id: 'table', icon: <MdTableRows size={16}/> },
                 { id: 'grid', icon: <MdGridView size={16}/> }
@@ -1063,7 +1063,7 @@ export default function Orders() {
                   onClick={() => setViewMode(v.id)}
                   className="w-9 h-9 flex items-center justify-center transition-all duration-300 hover:scale-110"
                   style={viewMode === v.id
-                    ? { background: 'rgba(34,197,94,0.12)', color: '#22C55E' }
+                    ? { background: 'rgba(59,130,246,0.12)', color: '#3B82F6' }
                     : { background: 'rgba(255,255,255,0.03)', color: '#4B5563' }}>
                   {v.icon}
                 </button>
@@ -1077,7 +1077,7 @@ export default function Orders() {
           <div className="overflow-x-auto">
             <table className="w-full" style={{ minWidth: 700 }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid rgba(34,197,94,0.05)' }}>
+                <tr style={{ borderBottom: '1px solid rgba(59,130,246,0.05)' }}>
                   {[
                     { key: 'id', label: 'No. Order' },
                     { key: 'customer', label: 'Pelanggan' },
@@ -1107,13 +1107,13 @@ export default function Orders() {
                   <tr
                     key={order.id}
                     onClick={() => setDetailTarget(order)}
-                    className="cursor-pointer transition-all duration-300 hover:bg-green-500/[0.03] group animate-fadeInUp"
+                    className="cursor-pointer transition-all duration-300 hover:bg-blue-500/[0.03] group animate-fadeInUp"
                     style={{
-                      borderBottom: '1px solid rgba(34,197,94,0.03)',
+                      borderBottom: '1px solid rgba(59,130,246,0.03)',
                       animationDelay: `${200 + idx * 40}ms`,
                       animationFillMode: 'both',
                     }}>
-                    <td className="py-3 px-3 text-xs text-green-400 font-mono font-semibold whitespace-nowrap">{order.id}</td>
+                    <td className="py-3 px-3 text-xs text-blue-400 font-mono font-semibold whitespace-nowrap">{order.id}</td>
                     <td className="py-3 px-3 whitespace-nowrap">
                       <div className="flex items-center gap-2.5">
                         <Avatar name={order.customer} size={32} />
@@ -1127,7 +1127,7 @@ export default function Orders() {
                     </td>
                     <td className="py-3 px-3 text-sm text-gray-400 whitespace-nowrap max-w-[160px] truncate">{order.vehicle.split(' - ')[0]}</td>
                     <td className="py-3 px-3">
-                      <span className="text-[10px] px-2 py-1 rounded-full transition-all duration-300 hover:scale-105" style={{ background: 'rgba(34,197,94,0.06)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.08)' }}>
+                      <span className="text-[10px] px-2 py-1 rounded-full transition-all duration-300 hover:scale-105" style={{ background: 'rgba(59,130,246,0.06)', color: '#4ade80', border: '1px solid rgba(59,130,246,0.08)' }}>
                         {order.service}
                       </span>
                     </td>
@@ -1166,7 +1166,7 @@ export default function Orders() {
                       <div className="text-center py-16 flex flex-col items-center gap-3 animate-fadeIn">
                         <MdReceipt size={48} className="text-gray-700 animate-pulse" />
                         <p className="text-gray-600 text-sm">Tidak ada order ditemukan</p>
-                        <button onClick={resetFilters} className="text-green-500 text-xs hover:underline flex items-center gap-1 transition-all duration-300 hover:scale-105">
+                        <button onClick={resetFilters} className="text-blue-500 text-xs hover:underline flex items-center gap-1 transition-all duration-300 hover:scale-105">
                           <MdRefresh size={13} className="transition-transform duration-300 hover:rotate-180" /> Reset filter
                         </button>
                       </div>
@@ -1203,9 +1203,9 @@ export default function Orders() {
         )}
 
         {/* ─── PAGINATION ─── */}
-        <div className="px-5 py-4 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(34,197,94,0.04)' }}>
+        <div className="px-5 py-4 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid rgba(59,130,246,0.04)' }}>
           <p className="text-xs text-gray-600 animate-fadeIn" style={{ animationDelay: '300ms', animationFillMode: 'both' }}>
-            Menampilkan <span className="text-gray-300 font-semibold">{filtered.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> - <span className="text-gray-300 font-semibold">{Math.min(currentPage * itemsPerPage, filtered.length)}</span> dari <span className="text-green-500 font-semibold">{filtered.length}</span> order {activeFilters > 0 && "(disaring)"}
+            Menampilkan <span className="text-gray-300 font-semibold">{filtered.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span> - <span className="text-gray-300 font-semibold">{Math.min(currentPage * itemsPerPage, filtered.length)}</span> dari <span className="text-blue-500 font-semibold">{filtered.length}</span> order {activeFilters > 0 && "(disaring)"}
           </p>
           {filtered.length > 0 && totalPages > 1 && (
             <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
@@ -1247,23 +1247,23 @@ export default function Orders() {
       {pointToast && (
         <div className="fixed bottom-6 right-6 z-[100] animate-bounce-in"
           style={{
-            background: 'linear-gradient(135deg,#06140e,#0a1f16)',
-            border: '1px solid rgba(34,197,94,0.3)',
+            background: 'linear-gradient(135deg,#0a1222,#0f172a)',
+            border: '1px solid rgba(59,130,246,0.3)',
             borderRadius: 16,
-            boxShadow: '0 8px 32px rgba(34,197,94,0.15)',
+            boxShadow: '0 8px 32px rgba(59,130,246,0.15)',
             padding: '16px 20px',
             minWidth: 280,
             maxWidth: 340,
           }}>
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 animate-pulse"
-              style={{ background: 'rgba(34,197,94,0.1)' }}>
-              <MdStars size={22} className="text-green-400 animate-spin-slow" />
+              style={{ background: 'rgba(59,130,246,0.1)' }}>
+              <MdStars size={22} className="text-blue-400 animate-spin-slow" />
             </div>
             <div>
               <p className="text-white font-bold text-sm">Poin Diberikan! 🎉</p>
               <p className="text-gray-400 text-xs mt-0.5">
-                <span className="text-green-400 font-semibold">{pointToast.name}</span> mendapat{' '}
+                <span className="text-blue-400 font-semibold">{pointToast.name}</span> mendapat{' '}
                 <span className="text-yellow-400 font-bold animate-pulse">+{pointToast.earned} poin</span>
               </p>
               {pointToast.tierUpgraded && (
@@ -1295,9 +1295,9 @@ export default function Orders() {
           to { opacity: 1; transform: translateX(0); }
         }
         @keyframes pulse-ring {
-          0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.2); }
-          70% { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
-          100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+          0% { box-shadow: 0 0 0 0 rgba(59,130,246,0.2); }
+          70% { box-shadow: 0 0 0 8px rgba(59,130,246,0); }
+          100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
         }
         @keyframes bounce-soft {
           0%, 100% { transform: translateY(0); }

@@ -68,7 +68,7 @@ const STAGE_META = {
   [WORKFLOW_STAGE.WORK_ORDER]:       { label: 'Work Order',        color: '#A78BFA', icon: Hammer },
   [WORKFLOW_STAGE.QC]:               { label: 'Quality Control',   color: '#34D399', icon: ShieldCheck },
   [WORKFLOW_STAGE.READY_PICKUP]:     { label: 'Siap Diambil',      color: '#4ADE80', icon: CheckCircle2 },
-  [WORKFLOW_STAGE.COMPLETED]:        { label: 'Selesai',           color: '#22C55E', icon: CheckCircle2 },
+  [WORKFLOW_STAGE.COMPLETED]:        { label: 'Selesai',           color: '#3B82F6', icon: CheckCircle2 },
   [WORKFLOW_STAGE.CANCELLED]:        { label: 'Dibatalkan',        color: '#EF4444', icon: X },
 }
 
@@ -84,7 +84,7 @@ const STAGE_ORDER = [
 ]
 
 const INSPECTION_RESULT_CFG = {
-  [INSPECTION_STATUS.OK]:        { label: 'OK',       color: '#22C55E', bg: 'rgba(34,197,94,0.1)' },
+  [INSPECTION_STATUS.OK]:        { label: 'OK',       color: '#3B82F6', bg: 'rgba(59,130,246,0.1)' },
   [INSPECTION_STATUS.ATTENTION]: { label: 'Perhatian', color: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
   [INSPECTION_STATUS.REPLACE]:   { label: 'Ganti',     color: '#EF4444', bg: 'rgba(239,68,68,0.1)' },
   [INSPECTION_STATUS.SKIPPED]:   { label: '—',         color: '#4B5563', bg: 'rgba(75,85,99,0.1)' },
@@ -126,7 +126,7 @@ function StageProgress({ currentStage }) {
             </div>
             {idx < stages.length - 1 && (
               <div className="w-8 h-0.5 mb-4 flex-shrink-0 transition-all duration-700"
-                style={{ background: idx < currentIdx ? '#22C55E33' : 'rgba(255,255,255,0.05)' }} />
+                style={{ background: idx < currentIdx ? '#3B82F633' : 'rgba(255,255,255,0.05)' }} />
             )}
           </div>
         )
@@ -143,10 +143,10 @@ function OrderSummary({ order }) {
 
   return (
     <div className="rounded-2xl p-5 mb-6"
-      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(34,197,94,0.1)' }}>
+      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(59,130,246,0.1)' }}>
       <div className="flex items-start justify-between gap-4 mb-4">
         <div>
-          <p className="font-mono text-green-400 font-bold text-sm mb-0.5">{order.id}</p>
+          <p className="font-mono text-blue-400 font-bold text-sm mb-0.5">{order.id}</p>
           <p className="text-white font-bold text-lg">{order.customer}</p>
           <p className="text-gray-500 text-sm">{order.vehicle}</p>
         </div>
@@ -165,7 +165,7 @@ function OrderSummary({ order }) {
         ].map(({ icon: I, label, value }) => (
           <div key={label} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.02)' }}>
             <div className="flex items-center gap-1.5 mb-1">
-              <I size={11} className="text-green-400" />
+              <I size={11} className="text-blue-400" />
               <p className="text-gray-600 text-[10px] uppercase tracking-wider">{label}</p>
             </div>
             <p className="text-white text-xs font-medium truncate">{value}</p>
@@ -248,9 +248,9 @@ function InspectionPanel({ order, onUpdate }) {
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="mb-4 px-4 py-2.5 rounded-xl text-sm font-medium"
             style={{
-              background: toast.type === 'error' ? 'rgba(239,68,68,0.12)' : 'rgba(34,197,94,0.12)',
-              border: `1px solid ${toast.type === 'error' ? 'rgba(239,68,68,0.25)' : 'rgba(34,197,94,0.25)'}`,
-              color: toast.type === 'error' ? '#EF4444' : '#22C55E',
+              background: toast.type === 'error' ? 'rgba(239,68,68,0.12)' : 'rgba(59,130,246,0.12)',
+              border: `1px solid ${toast.type === 'error' ? 'rgba(239,68,68,0.25)' : 'rgba(59,130,246,0.25)'}`,
+              color: toast.type === 'error' ? '#EF4444' : '#3B82F6',
             }}>
             {toast.msg}
           </motion.div>
@@ -385,9 +385,9 @@ function EstimasiPanel({ order, onUpdate }) {
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="mb-4 px-4 py-2.5 rounded-xl text-sm font-medium"
             style={{
-              background: toast.type === 'error' ? 'rgba(239,68,68,0.12)' : 'rgba(34,197,94,0.12)',
-              border: `1px solid ${toast.type === 'error' ? 'rgba(239,68,68,0.25)' : 'rgba(34,197,94,0.25)'}`,
-              color: toast.type === 'error' ? '#EF4444' : '#22C55E',
+              background: toast.type === 'error' ? 'rgba(239,68,68,0.12)' : 'rgba(59,130,246,0.12)',
+              border: `1px solid ${toast.type === 'error' ? 'rgba(239,68,68,0.25)' : 'rgba(59,130,246,0.25)'}`,
+              color: toast.type === 'error' ? '#EF4444' : '#3B82F6',
             }}>
             {toast.msg}
           </motion.div>
@@ -414,7 +414,7 @@ function EstimasiPanel({ order, onUpdate }) {
           <p className="text-gray-500 text-xs uppercase tracking-wider font-semibold">Parts & Material</p>
           {canEdit && (
             <button onClick={() => setItems(p => [...p, blankItem()])}
-              className="flex items-center gap-1 text-xs text-green-400 hover:text-green-300 transition-colors">
+              className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
               <Plus size={11} /> Tambah
             </button>
           )}
@@ -463,7 +463,7 @@ function EstimasiPanel({ order, onUpdate }) {
                       : <span className="text-gray-300">{fmt(item.unitPrice)}</span>
                     }
                   </td>
-                  <td className="px-3 py-2 text-green-400 font-semibold whitespace-nowrap">
+                  <td className="px-3 py-2 text-blue-400 font-semibold whitespace-nowrap">
                     {fmt(item.total)}
                   </td>
                   {canEdit && (
@@ -505,7 +505,7 @@ function EstimasiPanel({ order, onUpdate }) {
         </div>
         <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
           <span className="text-white font-bold text-sm">Total</span>
-          <span className="text-green-400 font-black text-lg">{fmt(grandTotal)}</span>
+          <span className="text-blue-400 font-black text-lg">{fmt(grandTotal)}</span>
         </div>
       </div>
 
@@ -584,9 +584,9 @@ function ApprovalPanel({ order, onUpdate }) {
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="mb-4 px-4 py-2.5 rounded-xl text-sm font-medium"
             style={{
-              background: toast.type === 'error' ? 'rgba(239,68,68,0.12)' : 'rgba(34,197,94,0.12)',
-              border: `1px solid ${toast.type === 'error' ? 'rgba(239,68,68,0.25)' : 'rgba(34,197,94,0.25)'}`,
-              color: toast.type === 'error' ? '#EF4444' : '#22C55E',
+              background: toast.type === 'error' ? 'rgba(239,68,68,0.12)' : 'rgba(59,130,246,0.12)',
+              border: `1px solid ${toast.type === 'error' ? 'rgba(239,68,68,0.25)' : 'rgba(59,130,246,0.25)'}`,
+              color: toast.type === 'error' ? '#EF4444' : '#3B82F6',
             }}>
             {toast.msg}
           </motion.div>
@@ -595,9 +595,9 @@ function ApprovalPanel({ order, onUpdate }) {
 
       {isDone && (
         <div className="flex items-center gap-2 p-3 rounded-xl"
-          style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)' }}>
-          <CheckCircle2 size={16} className="text-green-400 flex-shrink-0" />
-          <p className="text-green-400 text-sm font-semibold">Estimasi disetujui · Work Order aktif</p>
+          style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)' }}>
+          <CheckCircle2 size={16} className="text-blue-400 flex-shrink-0" />
+          <p className="text-blue-400 text-sm font-semibold">Estimasi disetujui · Work Order aktif</p>
         </div>
       )}
 
@@ -625,7 +625,7 @@ function ApprovalPanel({ order, onUpdate }) {
           <div className="flex gap-2">
             <button onClick={handleApprove} disabled={loading}
               className="flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-50"
-              style={{ background: 'rgba(34,197,94,0.15)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.3)' }}>
+              style={{ background: 'rgba(59,130,246,0.15)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.3)' }}>
               {loading ? <RefreshCw size={13} className="animate-spin" /> : <ThumbsUp size={13} />}
               ACC Estimasi
             </button>
@@ -692,9 +692,9 @@ function WorkOrderPanel({ order }) {
                 <div key={idx} className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
                   style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
                   <div className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0"
-                    style={{ background: isDone ? 'rgba(34,197,94,0.15)' : 'rgba(167,139,250,0.15)',
-                             border: `1px solid ${isDone ? 'rgba(34,197,94,0.3)' : 'rgba(167,139,250,0.3)'}` }}>
-                    {isDone && <Check size={10} className="text-green-400" />}
+                    style={{ background: isDone ? 'rgba(59,130,246,0.15)' : 'rgba(167,139,250,0.15)',
+                             border: `1px solid ${isDone ? 'rgba(59,130,246,0.3)' : 'rgba(167,139,250,0.3)'}` }}>
+                    {isDone && <Check size={10} className="text-blue-400" />}
                   </div>
                   <span className="text-gray-300 text-xs flex-1">{item.description}</span>
                   <span className="text-gray-500 text-xs">{item.qty} {item.unit}</span>
@@ -779,9 +779,9 @@ function QCPanel({ order, onUpdate }) {
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="mb-4 px-4 py-2.5 rounded-xl text-sm font-medium"
             style={{
-              background: toast.type === 'error' ? 'rgba(239,68,68,0.12)' : 'rgba(34,197,94,0.12)',
-              border: `1px solid ${toast.type === 'error' ? 'rgba(239,68,68,0.25)' : 'rgba(34,197,94,0.25)'}`,
-              color: toast.type === 'error' ? '#EF4444' : '#22C55E',
+              background: toast.type === 'error' ? 'rgba(239,68,68,0.12)' : 'rgba(59,130,246,0.12)',
+              border: `1px solid ${toast.type === 'error' ? 'rgba(239,68,68,0.25)' : 'rgba(59,130,246,0.25)'}`,
+              color: toast.type === 'error' ? '#EF4444' : '#3B82F6',
             }}>
             {toast.msg}
           </motion.div>
@@ -813,14 +813,14 @@ function QCPanel({ order, onUpdate }) {
               style={{ background: 'rgba(255,255,255,0.05)' }}>
               <motion.div
                 className="h-full rounded-full"
-                style={{ background: passedCount === totalCount ? '#22C55E' : '#34D399' }}
+                style={{ background: passedCount === totalCount ? '#3B82F6' : '#34D399' }}
                 initial={{ width: 0 }}
                 animate={{ width: `${(passedCount / totalCount) * 100}%` }}
                 transition={{ duration: 0.5 }}
               />
             </div>
             <span className="text-xs font-bold"
-              style={{ color: passedCount === totalCount ? '#22C55E' : '#34D399' }}>
+              style={{ color: passedCount === totalCount ? '#3B82F6' : '#34D399' }}>
               {Math.round((passedCount / totalCount) * 100)}%
             </span>
           </div>
@@ -831,17 +831,17 @@ function QCPanel({ order, onUpdate }) {
               <div key={item.id}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all"
                 style={{
-                  background: item.passed ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.02)',
-                  border: `1px solid ${item.passed ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.04)'}`,
+                  background: item.passed ? 'rgba(59,130,246,0.06)' : 'rgba(255,255,255,0.02)',
+                  border: `1px solid ${item.passed ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.04)'}`,
                 }}
                 onClick={() => isActive && toggleItem(item.id)}>
                 <div
                   className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all"
                   style={{
-                    background: item.passed ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.04)',
-                    border: `1.5px solid ${item.passed ? '#22C55E' : 'rgba(255,255,255,0.1)'}`,
+                    background: item.passed ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.04)',
+                    border: `1.5px solid ${item.passed ? '#3B82F6' : 'rgba(255,255,255,0.1)'}`,
                   }}>
-                  {item.passed && <Check size={11} className="text-green-400" />}
+                  {item.passed && <Check size={11} className="text-blue-400" />}
                 </div>
                 <span className="text-xs flex-1" style={{ color: item.passed ? '#D1FAE5' : '#9CA3AF' }}>
                   {item.label}
@@ -865,7 +865,7 @@ function QCPanel({ order, onUpdate }) {
               <div className="flex gap-2">
                 <button onClick={() => handleComplete(true)} disabled={loading}
                   className="flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-50"
-                  style={{ background: 'linear-gradient(135deg,#15803d,#16a34a)', color: '#fff' }}>
+                  style={{ background: 'linear-gradient(135deg,#1d4ed8,#2563eb)', color: '#fff' }}>
                   {loading ? <RefreshCw size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
                   QC Lulus — Siap Diambil
                 </button>
@@ -880,9 +880,9 @@ function QCPanel({ order, onUpdate }) {
 
           {isDone && order.qc?.passed && (
             <div className="flex items-center gap-2 p-3 rounded-xl"
-              style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
-              <CheckCircle2 size={15} className="text-green-400" />
-              <p className="text-green-400 text-xs font-semibold">QC LULUS — Kendaraan siap diserahkan</p>
+              style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
+              <CheckCircle2 size={15} className="text-blue-400" />
+              <p className="text-blue-400 text-xs font-semibold">QC LULUS — Kendaraan siap diserahkan</p>
             </div>
           )}
         </>
@@ -970,7 +970,7 @@ function PaymentPanel({ order, onUpdate }) {
       {isDone && (
         <div className="space-y-3">
           <div className="p-4 rounded-xl" style={{ background: 'rgba(74,222,128,0.06)', border: '1px solid rgba(74,222,128,0.15)' }}>
-            <p className="text-green-400 text-xs font-semibold uppercase tracking-wider mb-3">Bukti Pembayaran</p>
+            <p className="text-blue-400 text-xs font-semibold uppercase tracking-wider mb-3">Bukti Pembayaran</p>
             <div className="space-y-2 text-xs">
               {[
                 { label: 'Total Dibayar', value: fmt(order.payment?.finalTotal), highlight: true },
@@ -982,7 +982,7 @@ function PaymentPanel({ order, onUpdate }) {
               ].map(({ label, value, highlight }) => (
                 <div key={label} className="flex justify-between">
                   <span className="text-gray-500">{label}</span>
-                  <span className={highlight ? 'text-green-400 font-black text-sm' : 'text-gray-300 font-medium'}>{value}</span>
+                  <span className={highlight ? 'text-blue-400 font-black text-sm' : 'text-gray-300 font-medium'}>{value}</span>
                 </div>
               ))}
             </div>
@@ -1017,7 +1017,7 @@ function PaymentPanel({ order, onUpdate }) {
             </div>
             <div className="flex justify-between pt-2 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
               <span className="text-white font-bold text-sm">Total Tagihan</span>
-              <span className="text-green-400 font-black text-lg">{fmt(adjustedTotal)}</span>
+              <span className="text-blue-400 font-black text-lg">{fmt(adjustedTotal)}</span>
             </div>
           </div>
 
@@ -1060,7 +1060,7 @@ function PaymentPanel({ order, onUpdate }) {
           {/* Tombol bayar */}
           <button onClick={handlePay} disabled={loading}
             className="w-full py-3 rounded-xl text-base font-black flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-50"
-            style={{ background: 'linear-gradient(135deg,#15803d,#16a34a,#22c55e)', color: '#fff' }}>
+            style={{ background: 'linear-gradient(135deg,#1d4ed8,#2563eb,#3B82F6)', color: '#fff' }}>
             {loading
               ? <><RefreshCw size={16} className="animate-spin" /> Memproses...</>
               : <><CheckCircle2 size={16} /> Proses Pembayaran {fmt(adjustedTotal)}</>
@@ -1075,7 +1075,7 @@ function PaymentPanel({ order, onUpdate }) {
 // ─── PANEL WRAPPER ────────────────────────────────────────────
 function Panel({ title, icon: Icon, color, status, meta, children }) {
   const statusStyles = {
-    done:     { border: `rgba(${color === '#22C55E' ? '34,197,94' : '255,255,255'},0.08)`, bg: 'rgba(255,255,255,0.01)' },
+    done:     { border: `rgba(${color === '#3B82F6' ? '34,197,94' : '255,255,255'},0.08)`, bg: 'rgba(255,255,255,0.01)' },
     active:   { border: `${color}25`,  bg: `${color}06` },
     pending:  { border: 'rgba(255,255,255,0.06)', bg: 'rgba(255,255,255,0.01)' },
     locked:   { border: 'rgba(255,255,255,0.04)', bg: 'rgba(255,255,255,0.005)' },
@@ -1102,8 +1102,8 @@ function Panel({ title, icon: Icon, color, status, meta, children }) {
         </div>
         {status === 'done' && (
           <div className="w-6 h-6 rounded-full flex items-center justify-center"
-            style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)' }}>
-            <Check size={12} className="text-green-400" />
+            style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}>
+            <Check size={12} className="text-blue-400" />
           </div>
         )}
         {status === 'active' && (
@@ -1151,7 +1151,7 @@ export default function OrderDetail() {
     return (
       <AnimatedPage>
         <div className="flex items-center justify-center h-64">
-          <RefreshCw size={24} className="text-green-400 animate-spin" />
+          <RefreshCw size={24} className="text-blue-400 animate-spin" />
         </div>
       </AnimatedPage>
     )
@@ -1164,8 +1164,8 @@ export default function OrderDetail() {
           <AlertTriangle size={32} className="text-red-400" />
           <p className="text-gray-400">Order tidak ditemukan: {id}</p>
           <button onClick={() => navigate('/orders')}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-green-400 hover:text-white transition-colors"
-            style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}>
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-blue-400 hover:text-white transition-colors"
+            style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}>
             <ArrowLeft size={14} /> Kembali ke Orders
           </button>
         </div>

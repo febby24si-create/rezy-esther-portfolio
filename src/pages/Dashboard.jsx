@@ -1,2010 +1,860 @@
-import { useState, useRef, useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
+// ============================================================
+// Dashboard.jsx — Esther Garage CRM Analytics Dashboard
+// Chart-focused design. Prioritizes data visualization over KPI cards.
+// Dark theme · Blue accent · Glassmorphism · Framer Motion · Recharts
+// ============================================================
+import { useState, useRef, useEffect, useMemo } from "react"
+import { Link } from "react-router-dom"
+import { motion, AnimatePresence } from "framer-motion"
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-} from "recharts";
+  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line,
+} from "recharts"
 import {
-  Wrench,
-  CheckCircle2,
-  Clock,
-  DollarSign,
-  Plus,
-  Users,
-  Car,
-  Package,
-  BarChart3,
-  ChevronRight,
-  AlertTriangle,
-  HardHat,
-  MessageCircle,
-  Bot,
-  X,
-  Send,
-  TrendingUp,
-  TrendingDown,
-  MessageSquare,
-  Activity,
-  Zap,
-  Calendar,
-  Crown,
-  Sparkles,
-  Award,
-  Gift,
-} from "lucide-react";
-import { calcTier, TIER_CONFIG } from "../context/CustomerAuthContext";
-// getBookingStats digantikan bookingAPI.calcStats() via useStorageData
+  TrendingUp, TrendingDown, Clock, ChevronRight,
+  X, MessageCircle, Bot, MessageSquare, Send,
+} from "lucide-react"
+import useDashboardData from "../hooks/useDashboardData"
 
-const fmt = (n) => "Rp " + Number(n).toLocaleString("id-ID");
+const fmt = (n) => "Rp " + Number(n).toLocaleString("id-ID")
 const fmtShort = (n) =>
-  n >= 1000000 ? `Rp ${(n / 1000000).toFixed(1)}jt` : fmt(n);
+  n >= 1000000 ? `Rp ${(n / 1000000).toFixed(1)}jt` : fmt(n)
 
-// ─── Animated Number ──────────────────────────────────────────────────
-function AnimatedNumber({ value, duration = 800, format = (v) => v }) {
-  const [display, setDisplay] = useState(0);
-  const startTime = useRef(null);
-  const startValue = useRef(0);
-
-  useEffect(() => {
-    startValue.current = display;
-    startTime.current = null;
-    const step = (timestamp) => {
-      if (!startTime.current) startTime.current = timestamp;
-      const progress = Math.min((timestamp - startTime.current) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const current = startValue.current + (value - startValue.current) * eased;
-      setDisplay(current);
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [value, duration]);
-
-  return <>{format(display)}</>;
-}
-
-// ─── Ambil data dari Supabase ──────────────────────────────────────────
-function useStorageData() {
-  const [orders, setOrders]       = useState([]);
-  const [inventory, setInventory] = useState([]);
-  const [mechanics, setMechanics] = useState([]);
-  const [vehicles, setVehicles]   = useState([]);
-  const [bookingStats, setBookingStats] = useState({});
-  const [loading, setLoading]     = useState(true);
+// ─── Animated Number ────────────────────────────────────────
+function AnimatedNumber({ value, duration = 800, format = (v) => v, delay = 0 }) {
+  const [display, setDisplay] = useState(0)
+  const startTime = useRef(null)
+  const startValue = useRef(0)
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [
-          { orderAPI },
-          { productAPI },
-          { mechanicAPI },
-          { bookingAPI },
-        ] = await Promise.all([
-          import("../services/orderAPI"),
-          import("../services/productAPI"),
-          import("../services/mechanicAPI"),
-          import("../services/bookingAPI"),
-        ]);
-        const [ordersData, productsData, mechanicsData, bookingsData] =
-          await Promise.all([
-            orderAPI.fetchAll(),
-            productAPI.fetchAll(),
-            mechanicAPI.fetchAll(),
-            bookingAPI.fetchAll(),
-          ]);
-        const normalizedOrders = ordersData.map((o) => ({
-          ...o,
-          date:     o.order_date || o.date,
-          customer: o.customer_name || o.customer,
-          vehicle:  o.vehicle_display || o.vehicle,
-          mechanic: o.mechanic_name || o.mechanic,
-        }));
-        setOrders(normalizedOrders);
-        setInventory(productsData.map((p) => ({ ...p, minStock: p.min_stock ?? p.minStock ?? 5 })));
-        setMechanics(mechanicsData);
-        setBookingStats(bookingAPI.calcStats(bookingsData));
-      } catch (err) {
-        console.error("Dashboard: Gagal load data Supabase:", err);
-      } finally {
-        setLoading(false);
+    const timer = setTimeout(() => {
+      startValue.current = display
+      startTime.current = null
+      const step = (timestamp) => {
+        if (!startTime.current) startTime.current = timestamp
+        const progress = Math.min((timestamp - startTime.current) / duration, 1)
+        const eased = 1 - Math.pow(1 - progress, 3)
+        setDisplay(startValue.current + (value - startValue.current) * eased)
+        if (progress < 1) requestAnimationFrame(step)
       }
-    };
-    load();
-  }, []);
-
-  return { orders, inventory, mechanics, vehicles, bookingStats, loading };
+      requestAnimationFrame(step)
+    }, delay)
+    return () => clearTimeout(timer)
+  }, [value, duration, delay])
+  return <>{format(display)}</>
 }
 
-// ─── Membership stats ──────────────────────────────────────────────────
-function useMembershipStats() {
-  const [customers, setCustomers] = useState([]);
-
-  useEffect(() => {
-    import("../services/customerAPI").then(({ customerAPI }) => {
-      customerAPI.fetchAll().then(setCustomers).catch(() => setCustomers([]));
-    });
-  }, []);
-
-  return useMemo(() => {
-    const total = customers.length;
-    const active = customers.filter(
-      (c) => (c.membership_status || c.membershipStatus) === "active"
-    );
-    const totalActive = active.length;
-    const now = new Date();
-    const thisMonthKey = now.toISOString().slice(0, 7);
-    const lastMonthDate = new Date(now);
-    lastMonthDate.setMonth(lastMonthDate.getMonth() - 1);
-    const lastMonthKey = lastMonthDate.toISOString().slice(0, 7);
-    const newThisMonth = customers.filter((c) =>
-      (c.member_since || c.memberSince || c.join_date || c.joinDate || "").startsWith(thisMonthKey)
-    ).length;
-    const newLastMonth = customers.filter((c) =>
-      (c.member_since || c.memberSince || c.join_date || c.joinDate || "").startsWith(lastMonthKey)
-    ).length;
-    const growthRate =
-      newLastMonth > 0
-        ? Math.round(((newThisMonth - newLastMonth) / newLastMonth) * 100)
-        : newThisMonth > 0 ? 100 : 0;
-    const byTier = { Bronze: 0, Silver: 0, Gold: 0, Platinum: 0 };
-    active.forEach((c) => { byTier[calcTier(c.points || 0)]++; });
-    return { total, totalActive, newThisMonth, growthRate, byTier };
-  }, [customers]);
+// ─── Section Header ─────────────────────────────────────────
+function SectionHeader({ icon, title, subtitle, action }) {
+  return (
+    <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-xl bg-blue-500/15 flex items-center justify-center">
+          <span className="text-sm">{icon}</span>
+        </div>
+        <div>
+          <h3 className="text-white text-sm font-bold">{title}</h3>
+          {subtitle && <p className="text-gray-500 text-[10px]">{subtitle}</p>}
+        </div>
+      </div>
+      {action}
+    </div>
+  )
 }
 
-// ─── Analytics hook (data dari orders Supabase) ───────────────────────
-function useAnalytics(orders) {
-  return useMemo(() => {
-    const done = orders.filter((o) => o.status === "Selesai");
-    const now = new Date();
-
-    // Pendapatan per bulan (6 bulan terakhir)
-    const monthlyRevenue = Array.from({ length: 6 }, (_, i) => {
-      const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
-      const key = d.toISOString().slice(0, 7);
-      const label = d.toLocaleString("id-ID", { month: "short", year: "2-digit" });
-      const revenue = done
-        .filter((o) => (o.date || "").startsWith(key))
-        .reduce((s, o) => s + Number(o.total || 0), 0);
-      const count = done.filter((o) => (o.date || "").startsWith(key)).length;
-      return { label, revenue, count };
-    });
-
-    // Kendaraan paling sering servis
-    const vehicleCount = {};
-    done.forEach((o) => {
-      const v = (o.vehicle || o.vehicle_display || "Unknown").split(" - ")[0].trim();
-      vehicleCount[v] = (vehicleCount[v] || 0) + 1;
-    });
-    const topVehicles = Object.entries(vehicleCount)
-      .sort((a, b) => b[1] - a[1]).slice(0, 5)
-      .map(([name, count]) => ({ name, count }));
-
-    // Mekanik paling produktif
-    const mechCount = {};
-    const mechRevenue = {};
-    done.forEach((o) => {
-      const m = o.mechanic || o.mechanic_name || null;
-      if (m && m !== "—") {
-        mechCount[m]   = (mechCount[m] || 0) + 1;
-        mechRevenue[m] = (mechRevenue[m] || 0) + Number(o.total || 0);
-      }
-    });
-    const topMechanics = Object.entries(mechCount)
-      .sort((a, b) => b[1] - a[1]).slice(0, 5)
-      .map(([name, jobs]) => ({ name, jobs, revenue: mechRevenue[name] || 0 }));
-
-    // Jenis servis paling laris
-    const serviceCount = {};
-    done.forEach((o) => {
-      const s = o.service || "Lainnya";
-      serviceCount[s] = (serviceCount[s] || 0) + 1;
-    });
-    const topServices = Object.entries(serviceCount)
-      .sort((a, b) => b[1] - a[1]).slice(0, 5)
-      .map(([name, count]) => ({ name, count }));
-
-    // Revenue bulan ini vs bulan lalu
-    const thisMonth = now.toISOString().slice(0, 7);
-    const lastMonthD = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const lastMonth = lastMonthD.toISOString().slice(0, 7);
-    const revenueThisMonth = done
-      .filter((o) => (o.date || "").startsWith(thisMonth))
-      .reduce((s, o) => s + Number(o.total || 0), 0);
-    const revenueLastMonth = done
-      .filter((o) => (o.date || "").startsWith(lastMonth))
-      .reduce((s, o) => s + Number(o.total || 0), 0);
-    const revenueGrowth =
-      revenueLastMonth > 0
-        ? Math.round(((revenueThisMonth - revenueLastMonth) / revenueLastMonth) * 100)
-        : revenueThisMonth > 0 ? 100 : 0;
-
-    return { monthlyRevenue, topVehicles, topMechanics, topServices, revenueThisMonth, revenueLastMonth, revenueGrowth };
-  }, [orders]);
-}
-
-
-
-// ─── Build revenue chart ──────────────────────────────────────────────
-function buildRevenueChart(orders, range) {
-  const now = new Date();
-  let days = 18;
-  let startDate = new Date(now);
-
-  if (range === "hariini") {
-    days = 1;
-    startDate = new Date(now);
-  } else if (range === "7hari") {
-    days = 7;
-    startDate.setDate(now.getDate() - 6);
-  } else if (range === "30hari") {
-    days = 30;
-    startDate.setDate(now.getDate() - 29);
-  } else if (range === "bulanini") {
-    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-    const diff = Math.floor((now - startDate) / (1000 * 60 * 60 * 24)) + 1;
-    days = diff;
-  }
-
-  const dates = Array.from({ length: days }, (_, i) => {
-    const d = new Date(startDate);
-    d.setDate(startDate.getDate() + i);
-    return d.toISOString().slice(0, 10);
-  });
-
-  return dates.map((date) => {
-    const dayOrders = orders.filter(
-      (o) => o.date === date && o.status === "Selesai"
-    );
-    const revenue = dayOrders.reduce((s, o) => s + Number(o.total), 0);
-    const d = new Date(date + "T00:00:00");
-    const label =
-      days === 1
-        ? "Hari Ini"
-        : `${d.getDate()} ${d.toLocaleString("id-ID", { month: "short" })}`;
-    return { date: label, revenue, count: dayOrders.length };
-  });
-}
-
-// ─── Mini sparkline ───────────────────────────────────────────────────
-function buildMiniChart(orders, statusFilter) {
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    const dateStr = d.toISOString().slice(0, 10);
-    const count = orders.filter(
-      (o) => o.date === dateStr && (!statusFilter || o.status === statusFilter)
-    ).length;
-    return { v: count };
-  });
-}
-
-// ─── Custom Tooltip ───────────────────────────────────────────────────
-const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload?.length) return null;
+// ─── Chart Tooltip ─────────────────────────────────────────
+function ChartTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null
   return (
     <div
-      className="rounded-xl px-4 py-3 animate-fadeIn"
+      className="rounded-xl px-4 py-3"
       style={{
-        background: "rgba(10, 26, 18, 0.95)",
+        background: "rgba(10, 18, 34, 0.97)",
         backdropFilter: "blur(12px)",
-        border: "1px solid rgba(52, 211, 153, 0.25)",
+        border: "1px solid rgba(96, 165, 250, 0.2)",
         boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
       }}
     >
-      <p className="text-xs text-gray-400 mb-1">{label}</p>
-      <p className="text-emerald-400 font-bold text-sm">
-        {fmtShort(payload[0].value)}
-      </p>
-      <p className="text-gray-500 text-xs mt-1">{payload[0].payload.count} order</p>
+      <p className="text-xs text-gray-400 mb-1.5 font-medium">{label}</p>
+      {payload.map((p, i) => (
+        <p key={i} className="text-sm font-bold" style={{ color: p.color || p.fill }}>
+          {p.name}: {typeof p.value === "number" ? fmtShort(p.value) : p.value}
+        </p>
+      ))}
     </div>
-  );
-};
-
-// ─── Mini Sparkline ───────────────────────────────────────────────────
-function MiniSparkline({ data, color = "#34D399" }) {
-  return (
-    <div style={{ width: "100%", height: 48, minHeight: 48 }}>
-      <ResponsiveContainer width="100%" height={48}>
-        <AreaChart data={data} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
-          <defs>
-            <linearGradient id={`spark-${color.replace("#", "")}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={color} stopOpacity={0.4} />
-              <stop offset="95%" stopColor={color} stopOpacity={0.02} />
-            </linearGradient>
-          </defs>
-          <Area
-            type="monotone"
-            dataKey="v"
-            stroke={color}
-            strokeWidth={2.5}
-            fill={`url(#spark-${color.replace("#", "")})`}
-            dot={false}
-            isAnimationActive={true}
-            animationDuration={1200}
-            animationEasing="ease-out"
-          />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
-  );
+  )
 }
 
-// ─── Top Stat Card ────────────────────────────────────────────────────
-function TopStatCard({
-  icon: Icon,
-  iconBg,
-  label,
-  value,
-  change,
-  positive,
-  sparkData,
-  sparkColor,
-  delay = 0,
-  format = (v) => (typeof v === "number" ? Math.round(v) : v),
-}) {
+// ─── KPI Card ───────────────────────────────────────────────
+function KpiCard({ data, index }) {
+  const { label, value, icon, trend, positive, color, format, suffix } = data
+
   return (
-    <div
-      className="relative rounded-2xl p-5 flex flex-col justify-between overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-emerald-500/10 group animate-fadeInUp"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.08 }}
+      whileHover={{ y: -3, scale: 1.01 }}
+      className="relative rounded-2xl p-5 flex flex-col overflow-hidden group cursor-default"
       style={{
-        background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
-        border: "1px solid rgba(52, 211, 153, 0.12)",
-        backdropFilter: "blur(8px)",
-        minHeight: 150,
-        animationDelay: `${delay}ms`,
-        animationFillMode: "both",
+        background: "linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))",
+        border: "1px solid rgba(96, 165, 250, 0.1)",
+        backdropFilter: "blur(12px)",
       }}
     >
-      <div className="flex items-start justify-between mb-2">
-        <div>
-          <p className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-1">{label}</p>
+      <div className="absolute top-0 left-4 right-4 h-[2px] rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500"
+        style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }}
+      />
+      <div className="flex items-center justify-between relative z-10">
+        <div className="flex-1 min-w-0">
+          <p className="text-gray-400 text-[10px] font-semibold uppercase tracking-widest mb-1">{label}</p>
           <p className="text-white text-2xl font-black leading-tight tracking-tight">
-            <AnimatedNumber value={value} format={format} duration={900} />
+            <AnimatedNumber value={value} format={format || ((v) => {
+              const n = Math.round(v).toLocaleString("id-ID")
+              return suffix ? `${n}${suffix}` : n
+            })} duration={1200} delay={index * 50} />
           </p>
-          {change !== undefined && (
-            <span
-              className={`inline-flex items-center gap-1 text-xs font-semibold mt-1.5 ${
-                positive ? "text-emerald-400" : "text-red-400"
-              }`}
-            >
-              {positive ? (
-                <TrendingUp size={12} className="animate-bounce-soft" />
-              ) : (
-                <TrendingDown size={12} className="animate-bounce-soft" />
-              )}
-              {change}
-            </span>
-          )}
         </div>
         <div
-          className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-500 group-hover:rotate-12 group-hover:scale-110"
-          style={{ background: iconBg }}
+          className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6"
+          style={{ background: `${color}18` }}
         >
-          <Icon size={20} className="text-white" />
+          <span className="text-lg">{icon}</span>
         </div>
       </div>
-      <div className="-mx-2">
-        <MiniSparkline data={sparkData} color={sparkColor} />
-      </div>
-      <div className="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl -z-10 group-hover:bg-emerald-500/15 transition-all duration-700"></div>
-    </div>
-  );
+      {trend !== undefined && (
+        <div className="flex items-center gap-2 mt-2 relative z-10">
+          <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full ${
+            positive ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10"
+          }`}>
+            {positive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+            {Math.abs(trend)}%
+          </span>
+          <span className="text-gray-600 text-[10px]">vs last month</span>
+        </div>
+      )}
+    </motion.div>
+  )
 }
 
-// ─── Status Badge ─────────────────────────────────────────────────────
-const STATUS_CFG = {
-  Selesai: { bg: "rgba(52,211,153,0.15)", color: "#34D399", label: "Completed" },
-  "Sedang Dikerjakan": { bg: "rgba(251,191,36,0.15)", color: "#FBBF24", label: "In Progress" },
-  Menunggu: { bg: "rgba(148,163,184,0.1)", color: "#94A3B8", label: "Waiting" },
-  Dibatalkan: { bg: "rgba(239,68,68,0.12)", color: "#EF4444", label: "Cancelled" },
-};
-
-function StatusBadge({ status }) {
-  const s = STATUS_CFG[status] || STATUS_CFG["Menunggu"];
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wider animate-pulse-ring"
-      style={{ background: s.bg, color: s.color, border: `1px solid ${s.color}25` }}
-    >
-      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: s.color }} />
-      {s.label}
-    </span>
-  );
-}
-
-function stringToHue(str = "") {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) h = str.charCodeAt(i) + ((h << 5) - h);
-  return Math.abs(h) % 360;
-}
-
-// ─── Donut Chart ──────────────────────────────────────────────────────
-function DonutChart({ data, total, centerSub, size = 140 }) {
-  const [hoverIndex, setHoverIndex] = useState(null);
+// ─── 1. Monthly Revenue (Large Area Chart) ──────────────────
+function RevenueChart({ data }) {
+  if (!data || data.length === 0) return null
+  const total = data.reduce((s, m) => s + m.revenue, 0)
+  const avg = Math.round(total / data.length)
+  const last = data[data.length - 1]
+  const prev = data[data.length - 2]
+  const growth = prev ? Math.round(((last.revenue - prev.revenue) / prev.revenue) * 100) : 0
 
   return (
     <div
-      className="relative"
-      style={{ width: size, height: size }}
-      onMouseLeave={() => setHoverIndex(null)}
+      className="rounded-2xl p-6 h-full"
+      style={{
+        background: "linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))",
+        border: "1px solid rgba(96, 165, 250, 0.1)",
+      }}
     >
-      <PieChart width={size} height={size}>
-        <Pie
-          data={data}
-          cx={size / 2 - 1}
-          cy={size / 2 - 1}
-          innerRadius={size * 0.32}
-          outerRadius={size * 0.46}
-          paddingAngle={2}
-          dataKey="value"
-          strokeWidth={0}
-          isAnimationActive={true}
-          animationDuration={1500}
-          animationEasing="ease-out"
-        >
-          {data.map((entry, index) => (
-            <Cell
-              key={index}
-              fill={entry.color}
-              onMouseEnter={() => setHoverIndex(index)}
-              style={{
-                cursor: "pointer",
-                transition: "transform 0.3s ease, filter 0.4s ease",
-                transform: hoverIndex === index ? "scale(1.08)" : "scale(1)",
-                filter: hoverIndex === index
-                  ? "drop-shadow(0 0 16px rgba(52,211,153,0.5))"
-                  : "none",
-                transformOrigin: "center",
-              }}
-            />
-          ))}
-        </Pie>
-      </PieChart>
-      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <p className="text-white text-2xl font-black leading-none">
-          <AnimatedNumber value={total} format={(v) => Math.round(v)} duration={1200} />
-        </p>
-        <p className="text-gray-400 text-[10px] uppercase tracking-wider mt-0.5">{centerSub}</p>
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <p className="text-gray-400 text-[10px] font-semibold uppercase tracking-widest">Monthly Revenue</p>
+            <span className={`inline-flex items-center gap-1 text-[11px] font-bold ${
+              growth >= 0 ? "text-emerald-400" : "text-red-400"
+            }`}>
+              {growth >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+              {growth > 0 ? "+" : ""}{growth}%
+            </span>
+          </div>
+          <p className="text-white text-3xl font-black mt-1 tracking-tight">
+            <AnimatedNumber value={total} format={fmtShort} duration={1500} />
+          </p>
+          <p className="text-gray-500 text-[10px] mt-0.5">vs previous month · Avg {fmtShort(avg)}/month</p>
+        </div>
+      </div>
+      <div style={{ width: "100%", height: 280, minHeight: 280 }}>
+        <ResponsiveContainer width="100%" height={280}>
+          <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.02} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
+            <XAxis dataKey="month" tick={{ fill: "#4b5563", fontSize: 10 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: "#4b5563", fontSize: 10 }} axisLine={false} tickLine={false}
+              tickFormatter={(v) => `${(v / 1000000).toFixed(0)}jt`} />
+            <Tooltip content={<ChartTooltip />} />
+            <Area type="monotone" dataKey="revenue" stroke="#3B82F6" strokeWidth={3} fill="url(#revGrad)"
+              dot={false} activeDot={{ r: 6, fill: "#3B82F6", stroke: "#0a1222", strokeWidth: 3 }}
+              isAnimationActive animationDuration={1800} animationEasing="ease-out" />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
     </div>
-  );
+  )
 }
 
-// ─── CHATBOT MODAL ────────────────────────────────────────────────────
+// ─── 2. Booking Trend (Bar Chart) ──────────────────────────
+function BookingTrendChart({ data }) {
+  if (!data || data.length === 0) return null
+  const total = data.reduce((s, m) => s + m.bookings, 0)
+  const peak = [...data].sort((a, b) => b.bookings - a.bookings)[0]
+
+  return (
+    <div
+      className="rounded-2xl p-6 h-full"
+      style={{
+        background: "linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))",
+        border: "1px solid rgba(96, 165, 250, 0.1)",
+      }}
+    >
+      <div className="mb-4">
+        <p className="text-gray-400 text-[10px] font-semibold uppercase tracking-widest">Booking Trend</p>
+        <p className="text-white text-3xl font-black mt-1 tracking-tight">
+          <AnimatedNumber value={total} format={(v) => Math.round(v)} duration={1200} />
+        </p>
+        <p className="text-gray-500 text-[10px] mt-0.5">Peak: {peak.month} ({peak.bookings})</p>
+      </div>
+      <div style={{ width: "100%", height: 280, minHeight: 280 }}>
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="bookGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#60A5FA" stopOpacity={0.9} />
+                <stop offset="100%" stopColor="#2563EB" stopOpacity={0.5} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
+            <XAxis dataKey="month" tick={{ fill: "#4b5563", fontSize: 10 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: "#4b5563", fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
+            <Tooltip cursor={{ fill: "rgba(255,255,255,0.03)" }} content={<ChartTooltip />} />
+            <Bar dataKey="bookings" radius={[6, 6, 0, 0]} maxBarSize={36}
+              fill="url(#bookGrad)"
+              isAnimationActive animationDuration={1800} animationEasing="ease-out" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  )
+}
+
+// ─── 3. Service Category Distribution (Donut Chart) ─────────
+function ServiceDonutChart({ data }) {
+  if (!data || data.length === 0) return null
+  const totalServices = data.reduce((s, c) => s + c.value, 0)
+
+  return (
+    <div
+      className="rounded-2xl p-6 h-full"
+      style={{
+        background: "linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))",
+        border: "1px solid rgba(96, 165, 250, 0.1)",
+      }}
+    >
+      <div className="mb-4">
+        <p className="text-gray-400 text-[10px] font-semibold uppercase tracking-widest">Service Distribution</p>
+        <p className="text-white text-2xl font-black mt-1">
+          <AnimatedNumber value={totalServices} format={(v) => Math.round(v)} duration={1200} />
+        </p>
+        <p className="text-gray-500 text-[10px] mt-0.5">Total services</p>
+      </div>
+      <div className="flex flex-col items-center">
+        <div className="relative">
+          <PieChart width={180} height={180}>
+            <Pie data={data} cx={90} cy={90}
+              innerRadius={58} outerRadius={82}
+              paddingAngle={3} dataKey="value" strokeWidth={0}
+              isAnimationActive animationDuration={1500} animationEasing="ease-out">
+              {data.map((entry, idx) => (
+                <Cell key={idx} fill={entry.color}
+                  style={{ filter: `drop-shadow(0 0 6px ${entry.color}30)` }} />
+              ))}
+            </Pie>
+          </PieChart>
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <p className="text-white text-lg font-black">{totalServices}</p>
+          </div>
+        </div>
+        <div className="w-full space-y-1.5 mt-3">
+          {data.slice(0, 5).map((s) => (
+            <div key={s.name} className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-sm" style={{ background: s.color }} />
+                <span className="text-gray-300 text-[10px]">{s.name}</span>
+              </div>
+              <span className="text-gray-400 text-[10px]">{Math.round((s.value / totalServices) * 100)}%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── 4. Member Growth (Line Chart) ──────────────────────────
+function MemberGrowthChart({ data }) {
+  if (!data || data.length === 0) return null
+  const latest = data[data.length - 1]
+  return (
+    <div
+      className="rounded-2xl p-6 h-full"
+      style={{
+        background: "linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))",
+        border: "1px solid rgba(96, 165, 250, 0.1)",
+      }}
+    >
+      <div className="mb-4">
+        <p className="text-gray-400 text-[10px] font-semibold uppercase tracking-widest">Member Growth</p>
+        <p className="text-white text-2xl font-black mt-1">
+          <AnimatedNumber value={latest.total} format={(v) => Math.round(v)} duration={1200} />
+        </p>
+        <p className="text-gray-500 text-[10px] mt-0.5">{latest.new} new this month</p>
+      </div>
+      <div style={{ width: "100%", height: 180, minHeight: 180 }}>
+        <ResponsiveContainer width="100%" height={180}>
+          <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="growthLine" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#8B5CF6" />
+                <stop offset="100%" stopColor="#3B82F6" />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+            <XAxis dataKey="month" tick={{ fill: "#4b5563", fontSize: 8 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: "#4b5563", fontSize: 8 }} axisLine={false} tickLine={false} allowDecimals={false} />
+            <Tooltip content={<ChartTooltip />} />
+            <Line type="monotone" dataKey="total" stroke="url(#growthLine)" strokeWidth={3}
+              dot={false} activeDot={{ r: 5, fill: "#8B5CF6", stroke: "#0a1222", strokeWidth: 2 }}
+              isAnimationActive animationDuration={1500} animationEasing="ease-out" />
+            <Line type="monotone" dataKey="new" stroke="#22D3EE" strokeWidth={2}
+              dot={false} isAnimationActive animationDuration={1500} animationEasing="ease-out" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  )
+}
+
+// ─── 5. Revenue by Service Category (Stacked Bar) ──────────
+const SERVICE_KEYS_DASH = [
+  { key: 'oil', label: 'Oil Change', color: '#3B82F6' },
+  { key: 'tuneup', label: 'Tune Up', color: '#10B981' },
+  { key: 'ac', label: 'AC Service', color: '#F59E0B' },
+  { key: 'brake', label: 'Brake', color: '#EF4444' },
+  { key: 'tire', label: 'Tire', color: '#8B5CF6' },
+  { key: 'body', label: 'Body', color: '#EC4899' },
+  { key: 'other', label: 'Others', color: '#6B7280' },
+]
+
+// ─── Loading Skeleton ────────────────────────────────────
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-8 animate-pulse">
+      <div className="h-20 rounded-2xl bg-white/5" />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => <div key={i} className="h-32 rounded-2xl bg-white/5" />)}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 h-80 rounded-2xl bg-white/5" />
+        <div className="h-80 rounded-2xl bg-white/5" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[...Array(3)].map((_, i) => <div key={i} className="h-64 rounded-2xl bg-white/5" />)}
+      </div>
+    </div>
+  )
+}
+
+function RevenueByServiceChart({ data }) {
+  if (!data || data.length === 0) return null
+  const [hoveredKey, setHoveredKey] = useState(null)
+
+  return (
+    <div
+      className="rounded-2xl p-6 h-full"
+      style={{
+        background: "linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))",
+        border: "1px solid rgba(96, 165, 250, 0.1)",
+      }}
+    >
+      <SectionHeader icon="📊" title="Revenue by Service" subtitle="Monthly breakdown" />
+      <div style={{ width: "100%", height: 200, minHeight: 200 }}>
+        <ResponsiveContainer width="100%" height={200}>
+          <BarChart data={data} margin={{ top: 5, right: 5, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+            <XAxis dataKey="month" tick={{ fill: "#4b5563", fontSize: 9 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: "#4b5563", fontSize: 8 }} axisLine={false} tickLine={false} />
+            <Tooltip
+              cursor={{ fill: "rgba(255,255,255,0.03)" }}
+              content={({ active, payload, label }) => {
+                if (!active || !payload?.length) return null
+                const total = payload.reduce((s, p) => s + p.value, 0)
+                return (
+                  <div className="rounded-xl px-4 py-3" style={{
+                    background: "rgba(10, 18, 34, 0.97)", backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(96, 165, 250, 0.2)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                  }}>
+                    <p className="text-xs text-gray-400 mb-1.5 font-medium">{label}</p>
+                    {payload.map((p) => (
+                      <p key={p.name} className="text-[11px]" style={{ color: p.color }}>
+                        {p.name}: {p.value} services
+                      </p>
+                    ))}
+                    <p className="text-xs text-white font-bold mt-1 pt-1 border-t border-white/10">Total: {total}</p>
+                  </div>
+                )
+              }}
+            />
+            {SERVICE_KEYS_DASH.map((s) => (
+              <Bar key={s.key} dataKey={s.key} stackId="a" fill={s.color} radius={0}
+                maxBarSize={24}
+                isAnimationActive animationDuration={1200} animationEasing="ease-out"
+                onMouseEnter={() => setHoveredKey(s.key)}
+                onMouseLeave={() => setHoveredKey(null)}
+                style={{ opacity: hoveredKey && hoveredKey !== s.key ? 0.4 : 1, transition: "opacity 0.2s" }}
+              />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/5">
+        {SERVICE_KEYS_DASH.map((s) => (
+          <span key={s.key} className="flex items-center gap-1.5 text-[9px] text-gray-400"
+            onMouseEnter={() => setHoveredKey(s.key)}
+            onMouseLeave={() => setHoveredKey(null)}
+            style={{ opacity: hoveredKey && hoveredKey !== s.key ? 0.4 : 1, cursor: "default" }}>
+            <span className="w-2 h-2 rounded-sm" style={{ background: s.color }} />
+            {s.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── 6. Recent Bookings (Modern Table) ─────────────────────
+function RecentBookingsTable({ data }) {
+  if (!data || data.length === 0) return null
+  return (
+    <div
+      className="rounded-2xl p-6"
+      style={{
+        background: "linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))",
+        border: "1px solid rgba(96, 165, 250, 0.1)",
+      }}
+    >
+      <SectionHeader icon="📅" title="Recent Bookings" subtitle="Latest service bookings"
+        action={
+          <Link to="/bookings" className="text-blue-400 text-[10px] font-bold hover:text-blue-300 transition-colors flex items-center gap-1">
+            View All <ChevronRight size={12} />
+          </Link>
+        }
+      />
+      <div className="overflow-x-auto -mx-2">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="text-gray-500 uppercase tracking-wider text-[9px] border-b border-white/5">
+              <th className="text-left pb-3 pl-2 font-semibold">Customer</th>
+              <th className="text-left pb-3 font-semibold">Service</th>
+              <th className="text-left pb-3 font-semibold hidden sm:table-cell">Vehicle</th>
+              <th className="text-left pb-3 font-semibold hidden md:table-cell">Mechanic</th>
+              <th className="text-right pb-3 pr-2 font-semibold">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5">
+            {data.map((b, i) => (
+              <motion.tr key={b.time + b.customer}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.04 }}
+                className="hover:bg-white/5 transition-colors group cursor-pointer">
+                <td className="py-2.5 pl-2 pr-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center text-[9px] font-bold text-blue-400 flex-shrink-0">
+                      {b.customer.charAt(0)}
+                    </div>
+                    <span className="text-white font-semibold text-[11px]">{b.customer}</span>
+                  </div>
+                </td>
+                <td className="py-2.5 pr-3 text-gray-300 text-[11px]">{b.service}</td>
+                <td className="py-2.5 pr-3 text-gray-500 text-[10px] hidden sm:table-cell">{b.vehicle}</td>
+                <td className="py-2.5 pr-3 text-gray-500 text-[10px] hidden md:table-cell">{b.mechanic}</td>
+                <td className="py-2.5 pr-2 text-right">
+                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                    b.status === "completed" ? "bg-emerald-500/15 text-emerald-400" :
+                    b.status === "in-progress" ? "bg-yellow-500/15 text-yellow-400" :
+                    "bg-blue-500/15 text-blue-400"
+                  }`}>
+                    {b.status === "completed" ? "Done" : b.status === "in-progress" ? "In Progress" : "Scheduled"}
+                  </span>
+                </td>
+              </motion.tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// ─── 7. Customer Activity Timeline ─────────────────────────
+function ActivityTimeline({ data }) {
+  if (!data || data.length === 0) return null
+  const [visibleCount, setVisibleCount] = useState(Math.min(5, data.length))
+  return (
+    <div
+      className="rounded-2xl p-6"
+      style={{
+        background: "linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))",
+        border: "1px solid rgba(96, 165, 250, 0.1)",
+      }}
+    >
+      <SectionHeader icon="⚡" title="Activity Timeline" subtitle="Real-time feed" />
+      <div className="space-y-1">
+        {data.slice(0, visibleCount).map((a, i) => (
+          <motion.div key={a.id}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.04 }}
+            className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-all duration-200">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-xs bg-blue-500/10">{a.icon}</div>
+            <div className="flex-1 min-w-0">
+              <p className="text-gray-200 text-xs">
+                {a.text} <span className="text-blue-400 font-semibold">{a.name}</span>
+              </p>
+              <p className="text-gray-600 text-[9px] mt-0.5">{a.time}</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+      {visibleCount < data.length && (
+        <button onClick={() => setVisibleCount(data.length)}
+          className="w-full mt-2 py-2 text-center text-gray-500 text-[10px] font-bold hover:text-blue-400 transition-colors rounded-lg hover:bg-blue-500/5">
+          + {data.length - visibleCount} more
+        </button>
+      )}
+    </div>
+  )
+}
+
+// ─── 8. Top Customers ──────────────────────────────────────
+function TopCustomersWidget({ data }) {
+  if (!data || data.length === 0) return null
+  return (
+    <div
+      className="rounded-2xl p-6"
+      style={{
+        background: "linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))",
+        border: "1px solid rgba(96, 165, 250, 0.1)",
+      }}
+    >
+      <SectionHeader icon="👑" title="Top Customers" subtitle="By lifetime value" />
+      <div className="space-y-1">
+        {data.map((c, i) => {
+          const maxSpent = data[0].spent
+          return (
+            <motion.div key={c.name}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.05 }}
+              className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0 hover:bg-white/5 -mx-2 px-2 rounded-lg transition-colors">
+              <span className={`w-5 h-5 rounded-lg flex items-center justify-center text-[8px] font-bold flex-shrink-0 ${
+                i === 0 ? "bg-amber-500/20 text-amber-400" : i === 1 ? "bg-gray-400/20 text-gray-400" : i === 2 ? "bg-orange-400/20 text-orange-400" : "bg-white/10 text-gray-500"
+              }`}>{i + 1}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-white text-xs font-semibold truncate">{c.name}</p>
+                  <span className={`text-[8px] font-bold px-1 py-0.5 rounded ${
+                    c.tier === "Platinum" ? "bg-purple-500/15 text-purple-400" : "bg-amber-500/15 text-amber-400"
+                  }`}>{c.tier}</span>
+                </div>
+                <div className="w-full h-1 rounded-full mt-1 overflow-hidden bg-white/5">
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${(c.spent / maxSpent) * 100}%` }}
+                    transition={{ duration: 0.8, delay: i * 0.06, ease: "easeOut" }}
+                    className="h-full rounded-full"
+                    style={{ background: i === 0 ? "linear-gradient(90deg, #F59E0B, #FBBF24)" : i === 1 ? "linear-gradient(90deg, #94A3B8, #CBD5E1)" : "linear-gradient(90deg, #3B82F6, #60A5FA)" }} />
+                </div>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="text-blue-400 text-xs font-bold">{fmtShort(c.spent)}</p>
+                <p className="text-gray-500 text-[8px]">{c.orders}x</p>
+              </div>
+            </motion.div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ─── 9. Mechanic Performance ───────────────────────────────
+function MechanicPerformanceWidget({ data }) {
+  if (!data || data.length === 0) return null
+  return (
+    <div
+      className="rounded-2xl p-6"
+      style={{
+        background: "linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))",
+        border: "1px solid rgba(96, 165, 250, 0.1)",
+      }}
+    >
+      <SectionHeader icon="🔧" title="Mechanic Performance" subtitle="Monthly job completion"
+        action={
+          <Link to="/mechanics" className="text-blue-400 text-[10px] font-bold hover:text-blue-300 transition-colors flex items-center gap-1">
+            View All <ChevronRight size={12} />
+          </Link>
+        }
+      />
+      <div style={{ width: "100%", height: 200, minHeight: 200 }}>
+        <ResponsiveContainer width="100%" height={200}>
+          <BarChart data={data} layout="vertical" margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" horizontal={false} />
+            <XAxis type="number" tick={{ fill: "#4b5563", fontSize: 9 }} axisLine={false} tickLine={false} />
+            <YAxis type="category" dataKey="name" tick={{ fill: "#94A3B8", fontSize: 10 }} axisLine={false} tickLine={false} width={50} />
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null
+                const d = payload[0].payload
+                return (
+                  <div className="rounded-xl px-4 py-3" style={{
+                    background: "rgba(10, 18, 34, 0.97)", backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(96, 165, 250, 0.2)", boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
+                  }}>
+                    <p className="text-xs text-gray-400 font-medium mb-1.5">{d.name}</p>
+                    <p className="text-sm font-bold text-blue-400">{d.jobs} jobs</p>
+                    <p className="text-[11px] text-gray-400">{fmtShort(d.revenue)}</p>
+                    <p className="text-[11px] text-gray-500">Rating: {d.rating} ⭐</p>
+                  </div>
+                )
+              }}
+            />
+            <Bar dataKey="jobs" radius={[0, 6, 6, 0]} maxBarSize={20}
+              isAnimationActive animationDuration={1200} animationEasing="ease-out">
+              {data.map((entry, idx) => (
+                <Cell key={idx} fill={["#3B82F6","#60A5FA","#93C5FD","#BFDBFE","#1D4ED8","#2563EB"][idx]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  )
+}
+
+// ─── CHATBOT ────────────────────────────────────────────────
 function ChatbotModal({ isOpen, onClose }) {
   const [messages, setMessages] = useState([
     { role: "bot", text: "Halo! Saya AI asisten Esther Garage. Ada yang bisa saya bantu? 😊" },
-  ]);
-  const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const chatEndRef = useRef(null);
+  ])
+  const [input, setInput] = useState("")
+  const [isTyping, setIsTyping] = useState(false)
+  const chatEndRef = useRef(null)
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
 
   const getBotReply = (userMessage) => {
-    const lowerMsg = userMessage.toLowerCase();
-    if (lowerMsg.includes("harga") || lowerMsg.includes("biaya")) {
-      return "Untuk informasi harga servis, silakan cek menu Layanan atau hubungi admin via WhatsApp. Biaya servis standar mulai Rp 150.000.";
-    } else if (lowerMsg.includes("jadwal") || lowerMsg.includes("booking")) {
-      return "Anda bisa booking servis melalui menu Order Baru. Pastikan memilih tanggal dan layanan yang diinginkan.";
-    } else if (lowerMsg.includes("stok") || lowerMsg.includes("spare part")) {
-      return "Stok part bisa dilihat di menu Inventaris. Jika part habis, admin akan menginfokan penggantiannya.";
-    } else if (lowerMsg.includes("terima kasih") || lowerMsg.includes("thanks")) {
-      return "Sama-sama! Senang bisa membantu. 😊";
-    } else {
-      return "Terima kasih atas pertanyaannya. Tim kami akan segera merespon melalui WhatsApp. Apakah ada hal lain yang bisa saya bantu?";
-    }
-  };
+    const lowerMsg = userMessage.toLowerCase()
+    if (lowerMsg.includes("harga") || lowerMsg.includes("biaya"))
+      return "Untuk informasi harga servis, silakan cek menu Layanan atau hubungi admin via WhatsApp. Biaya servis standar mulai Rp 150.000."
+    if (lowerMsg.includes("jadwal") || lowerMsg.includes("booking"))
+      return "Anda bisa booking servis melalui menu Order Baru. Pastikan memilih tanggal dan layanan yang diinginkan."
+    if (lowerMsg.includes("stok") || lowerMsg.includes("spare part"))
+      return "Stok part bisa dilihat di menu Inventaris. Jika part habis, admin akan menginfokan penggantiannya."
+    if (lowerMsg.includes("terima kasih") || lowerMsg.includes("thanks"))
+      return "Sama-sama! Senang bisa membantu. 😊"
+    return "Terima kasih atas pertanyaannya. Tim kami akan segera merespon melalui WhatsApp. Apakah ada hal lain yang bisa saya bantu?"
+  }
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
-    const userText = input.trim();
-    setMessages((prev) => [...prev, { role: "user", text: userText }]);
-    setInput("");
-    setIsTyping(true);
+  const handleSend = () => {
+    if (!input.trim()) return
+    const userText = input.trim()
+    setMessages((prev) => [...prev, { role: "user", text: userText }])
+    setInput("")
+    setIsTyping(true)
     setTimeout(() => {
-      const reply = getBotReply(userText);
-      setMessages((prev) => [...prev, { role: "bot", text: reply }]);
-      setIsTyping(false);
-    }, 800);
-  };
+      const reply = getBotReply(userText)
+      setMessages((prev) => [...prev, { role: "bot", text: reply }])
+      setIsTyping(false)
+    }, 800)
+  }
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div
-        className="w-full max-w-md rounded-3xl flex flex-col animate-slideUp"
-        style={{
-          height: 520,
-          background: "linear-gradient(145deg, #0a1e15, #05120b)",
-          border: "1px solid rgba(52,211,153,0.2)",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.8)",
-        }}
-      >
-        <div className="flex items-center justify-between p-5 border-b border-emerald-500/10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="w-full max-w-md rounded-3xl flex flex-col"
+        style={{ height: 520, background: "linear-gradient(145deg, #0f172a, #0a1222)", border: "1px solid rgba(96,165,250,0.2)", boxShadow: "0 24px 80px rgba(0,0,0,0.8)" }}>
+        <div className="flex items-center justify-between p-5 border-b border-blue-500/10">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center animate-pulse">
-              <Bot size={18} className="text-emerald-400" />
-            </div>
-            <div>
-              <h3 className="text-white font-bold text-sm">AI Assistant</h3>
-              <p className="text-emerald-400 text-[10px] uppercase tracking-wider">Online</p>
-            </div>
+            <div className="w-9 h-9 rounded-xl bg-blue-500/20 flex items-center justify-center"><Bot size={18} className="text-blue-400" /></div>
+            <div><h3 className="text-white font-bold text-sm">AI Assistant</h3><p className="text-blue-400 text-[10px] uppercase tracking-wider">Online</p></div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-white transition-all duration-300 hover:rotate-90"
-          >
-            <X size={20} />
-          </button>
+          <button onClick={onClose} className="text-gray-500 hover:text-white transition-all duration-300 hover:rotate-90"><X size={20} /></button>
         </div>
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
           {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-fadeInUp`}
-              style={{ animationDelay: `${idx * 50}ms` }}
-            >
-              <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
-                  msg.role === "user"
-                    ? "bg-emerald-600/30 text-white rounded-br-none border border-emerald-500/20"
-                    : "bg-white/5 text-gray-200 rounded-bl-none border border-white/5"
-                }`}
-              >
-                {msg.text}
-              </div>
+            <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
+                msg.role === "user" ? "bg-blue-600/30 text-white rounded-br-none border border-blue-500/20" : "bg-white/5 text-gray-200 rounded-bl-none border border-white/5"
+              }`}>{msg.text}</div>
             </div>
           ))}
-          {isTyping && (
-            <div className="flex justify-start animate-fadeIn">
-              <div className="bg-white/5 rounded-2xl px-4 py-2.5 text-sm text-gray-400 border border-white/5">
-                <span className="animate-pulse">···</span>
-              </div>
-            </div>
-          )}
+          {isTyping && <div className="flex justify-start"><div className="bg-white/5 rounded-2xl px-4 py-2.5 text-sm text-gray-400 border border-white/5"><span className="animate-pulse">···</span></div></div>}
           <div ref={chatEndRef} />
         </div>
-        <div className="p-4 border-t border-emerald-500/10 flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleSend()}
+        <div className="p-4 border-t border-blue-500/10 flex gap-2">
+          <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === "Enter" && handleSend()}
             placeholder="Tanyakan sesuatu..."
-            className="flex-1 bg-white/5 border border-emerald-500/15 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-400/40 transition-all duration-300"
-          />
-          <button
-            onClick={handleSend}
-            className="w-10 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-500 flex items-center justify-center text-white transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg shadow-emerald-500/20"
-          >
+            className="flex-1 bg-white/5 border border-blue-500/15 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-400/40 transition-all duration-300" />
+          <button onClick={handleSend}
+            className="w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-500 flex items-center justify-center text-white transition-all duration-300 hover:scale-110 active:scale-95 shadow-lg shadow-blue-500/20">
             <Send size={16} />
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
-  );
+  )
 }
 
-// ─── FLOATING MENU ────────────────────────────────────────────────────
-function FloatingCRMMenu() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [showChatbot, setShowChatbot] = useState(false);
-
-  const handleWhatsApp = () => {
-    const phoneNumber = "6281234567890";
-    const message = "Halo Esther Garage, saya ingin menanyakan...";
-    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, "_blank");
-    setIsOpen(false);
-  };
-
+// ─── Floating Menu ─────────────────────────────────────────
+function FloatingMenu() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [showChatbot, setShowChatbot] = useState(false)
+  const handleWhatsApp = () => { window.open("https://wa.me/6281234567890?text=Halo%20Esther%20Garage%2C%20saya%20ingin%20menanyakan...", "_blank"); setIsOpen(false) }
   return (
     <>
       <div className="fixed bottom-6 right-6 z-40">
-        {isOpen && (
-          <div className="absolute bottom-16 right-0 mb-2 space-y-2">
-            <button
-              onClick={() => {
-                setShowChatbot(true);
-                setIsOpen(false);
-              }}
-              className="flex items-center gap-3 rounded-full px-5 py-2.5 shadow-xl transition-all w-44 border animate-fadeInUp"
-              style={{
-                background: "rgba(10, 26, 18, 0.95)",
-                backdropFilter: "blur(12px)",
-                color: "#34D399",
-                borderColor: "rgba(52,211,153,0.3)",
-              }}
-            >
-              <Bot size={18} className="animate-spin-slow" />
-              <span className="text-sm font-medium">AI Chatbot</span>
-            </button>
-            <button
-              onClick={handleWhatsApp}
-              className="flex items-center gap-3 rounded-full px-5 py-2.5 shadow-xl transition-all w-44 border animate-fadeInUp"
-              style={{
-                background: "rgba(10, 26, 18, 0.95)",
-                backdropFilter: "blur(12px)",
-                color: "#34D399",
-                borderColor: "rgba(52,211,153,0.3)",
-              }}
-            >
-              <MessageCircle size={18} />
-              <span className="text-sm font-medium">WhatsApp</span>
-            </button>
-          </div>
-        )}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-14 h-14 rounded-full flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 animate-pulse-ring shadow-2xl shadow-emerald-500/30"
-          style={{
-            background: "linear-gradient(135deg, #059669, #10B981)",
-            boxShadow: "0 0 40px rgba(52,211,153,0.3)",
-          }}
-        >
-          {isOpen ? (
-            <X size={24} className="rotate-90 transition-transform duration-300" />
-          ) : (
-            <MessageSquare size={24} className="transition-transform duration-300" />
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div initial={{ opacity: 0, y: 20, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.9 }}
+              className="absolute bottom-16 right-0 mb-2 space-y-2">
+              <button onClick={() => { setShowChatbot(true); setIsOpen(false) }}
+                className="flex items-center gap-3 rounded-full px-5 py-2.5 shadow-xl transition-all w-44 border"
+                style={{ background: "rgba(15, 23, 42, 0.95)", backdropFilter: "blur(12px)", color: "#60A5FA", borderColor: "rgba(96,165,250,0.3)" }}>
+                <Bot size={18} /><span className="text-sm font-medium">AI Chatbot</span>
+              </button>
+              <button onClick={handleWhatsApp}
+                className="flex items-center gap-3 rounded-full px-5 py-2.5 shadow-xl transition-all w-44 border"
+                style={{ background: "rgba(15, 23, 42, 0.95)", backdropFilter: "blur(12px)", color: "#60A5FA", borderColor: "rgba(96,165,250,0.3)" }}>
+                <MessageCircle size={18} /><span className="text-sm font-medium">WhatsApp</span>
+              </button>
+            </motion.div>
           )}
+        </AnimatePresence>
+        <button onClick={() => setIsOpen(!isOpen)}
+          className="w-14 h-14 rounded-full flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 shadow-2xl"
+          style={{ background: "linear-gradient(135deg, #3B82F6, #2563EB)", boxShadow: "0 0 40px rgba(59,130,246,0.3)" }}>
+          {isOpen ? <X size={24} className="rotate-90 transition-transform duration-300" /> : <MessageSquare size={24} />}
         </button>
       </div>
       <ChatbotModal isOpen={showChatbot} onClose={() => setShowChatbot(false)} />
     </>
-  );
-}
-
-// ─── Member List Widget ──────────────────────────────────────────────
-function MemberListWidget({ membership }) {
-  const [search, setSearch] = useState("")
-  const [filterTier, setFilterTier] = useState("Semua")
-  const [allCustomers, setAllCustomers] = useState([])
-
-  useEffect(() => {
-    import("../services/customerAPI").then(({ customerAPI }) => {
-      customerAPI.fetchAll().then(setAllCustomers).catch(() => {})
-    })
-  }, [])
-
-  const members = allCustomers.filter(c =>
-    (c.membership_status || c.membershipStatus) === "active"
-  )
-
-  const tierColors = { Bronze: "#F97316", Silver: "#94A3B8", Gold: "#FBBF24", Platinum: "#A855F7" }
-  const tierIcons = { Bronze: <Award size={12} />, Silver: <Gift size={12} />, Gold: <Crown size={12} />, Platinum: <Sparkles size={12} /> }
-  const tiers = ["Semua", "Platinum", "Gold", "Silver", "Bronze"]
-
-  const filtered = members.filter(c => {
-    const matchSearch = !search || c.name?.toLowerCase().includes(search.toLowerCase()) || c.email?.toLowerCase().includes(search.toLowerCase())
-    const matchTier = filterTier === "Semua" || calcTier(c.points || 0) === filterTier
-    const matchStatus = (c.membership_status || c.membershipStatus) === "active"
-    return matchSearch && matchTier && matchStatus
-  }).sort((a, b) => (b.points || 0) - (a.points || 0))
-
-  return (
-    <div
-      className="rounded-2xl p-6 animate-fadeInUp"
-      style={{
-        background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
-        border: "1px solid rgba(52,211,153,0.1)",
-        animationDelay: "900ms",
-        animationFillMode: "both",
-      }}
-    >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/15 flex items-center justify-center">
-            <Users size={16} className="text-emerald-400" />
-          </div>
-          <p className="text-white text-sm font-bold">Daftar Member Aktif</p>
-          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/20">
-            {members.length}
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Cari member..."
-            className="text-xs bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-white placeholder-gray-500 outline-none focus:border-emerald-400/40 transition-all duration-300 w-44"
-          />
-          <Link
-            to="/membership"
-            className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 group transition-all duration-300 font-medium"
-          >
-            Kelola <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
-          </Link>
-        </div>
-      </div>
-
-      {/* Tier filter */}
-      <div className="flex flex-wrap gap-1.5 mb-5">
-        {tiers.map(t => (
-          <button
-            key={t}
-            onClick={() => setFilterTier(t)}
-            className={`px-3.5 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-300 border ${
-              filterTier === t
-                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30 shadow-lg shadow-emerald-500/5"
-                : "bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10"
-            }`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-
-      {/* Member table */}
-      {filtered.length === 0 ? (
-        <div className="text-center py-10 text-gray-500 text-sm">
-          {members.length === 0 ? "Belum ada member aktif." : "Tidak ada member yang cocok."}
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="text-gray-500 uppercase tracking-wider border-b border-white/5">
-                <th className="text-left pb-3 font-semibold">Member</th>
-                <th className="text-left pb-3 font-semibold">Tier</th>
-                <th className="text-right pb-3 font-semibold">Poin</th>
-                <th className="text-right pb-3 font-semibold">Servis</th>
-                <th className="text-right pb-3 font-semibold">Total Belanja</th>
-                <th className="text-right pb-3 font-semibold">Bergabung</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {filtered.slice(0, 8).map((c, i) => {
-                const tier = calcTier(c.points || 0)
-                const cfg = TIER_CONFIG[tier]
-                return (
-                  <tr key={c.id || i} className="hover:bg-white/5 transition-colors group">
-                    <td className="py-3 pr-3">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0 transition-transform group-hover:scale-110"
-                          style={{ background: `${cfg?.color}25`, color: cfg?.color }}
-                        >
-                          {c.name?.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-white font-semibold truncate max-w-[140px]">{c.name}</p>
-                          <p className="text-gray-500 truncate max-w-[140px] text-[10px]">{c.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3 pr-3">
-                      <span
-                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border"
-                        style={{ background: `${cfg?.color}15`, color: cfg?.color, borderColor: `${cfg?.color}30` }}
-                      >
-                        {tierIcons[tier]} {tier}
-                      </span>
-                    </td>
-                    <td className="py-3 text-right font-bold" style={{ color: cfg?.color }}>
-                      {(c.points || 0).toLocaleString("id-ID")}
-                    </td>
-                    <td className="py-3 text-right text-gray-400">{c.totalOrders || 0}x</td>
-                    <td className="py-3 text-right text-gray-300">
-                      Rp{((c.totalSpent || 0) / 1000000).toFixed(1)}jt
-                    </td>
-                    <td className="py-3 text-right text-gray-500 text-[10px]">
-                      {c.memberSince ? c.memberSince.slice(0, 7) : "-"}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-          {filtered.length > 8 && (
-            <div className="text-center mt-4">
-              <Link
-                to="/membership"
-                className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium"
-              >
-                + {filtered.length - 8} member lainnya → Lihat semua
-              </Link>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
   )
 }
 
-// ─── MAIN DASHBOARD ───────────────────────────────────────────────────
+// ─── MAIN ───────────────────────────────────────────────────
 export default function Dashboard() {
-  const { orders, inventory, mechanics, vehicles, bookingStats, loading } = useStorageData();
-  const membership = useMembershipStats();
-  const analytics  = useAnalytics(orders);
+  const {
+    loading, error, kpiData, monthlyRevenue, serviceCategories,
+    customerGrowth, revenueByService, todaySchedule, activityFeed,
+    topCustomers, mechanicPerformance,
+  } = useDashboardData()
 
   const loggedInUser = useMemo(() => {
-    try {
-      const raw = sessionStorage.getItem('eg_user')
-      return raw ? JSON.parse(raw) : null
-    } catch { return null }
+    try { const raw = sessionStorage.getItem("eg_user"); return raw ? JSON.parse(raw) : null } catch { return null }
   }, [])
-
   const greeting = useMemo(() => {
     const hour = new Date().getHours()
-    if (hour < 11) return 'Selamat Pagi'
-    if (hour < 15) return 'Selamat Siang'
-    if (hour < 18) return 'Selamat Sore'
-    return 'Selamat Malam'
+    if (hour < 11) return "Selamat Pagi"
+    if (hour < 15) return "Selamat Siang"
+    if (hour < 18) return "Selamat Sore"
+    return "Selamat Malam"
   }, [])
 
-  const [timeRange, setTimeRange] = useState("bulanini");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const kpiIds = ["monthly_revenue", "total_bookings", "active_members", "satisfaction"]
+  const kpiIcons = { monthly_revenue: "💰", total_bookings: "📅", active_members: "✅", satisfaction: "😊" }
+  const kpiColors = { monthly_revenue: "#3B82F6", total_bookings: "#F59E0B", active_members: "#10B981", satisfaction: "#14B8A6" }
+  const fourKpis = useMemo(() =>
+    kpiIds.map((id) => {
+      const src = (kpiData || []).find((k) => k.id === id)
+      return { ...src, id, icon: kpiIcons[id], color: kpiColors[id] }
+    }),
+  [kpiData])
 
-  const revenueChart = useMemo(
-    () => buildRevenueChart(orders, timeRange),
-    [orders, timeRange]
-  );
-
-  const totalRevenue = useMemo(() => {
-    return revenueChart.reduce((sum, day) => sum + day.revenue, 0);
-  }, [revenueChart]);
-
-  const sparkAll = useMemo(() => buildMiniChart(orders, null), [orders]);
-  const sparkWip = useMemo(() => buildMiniChart(orders, "Sedang Dikerjakan"), [orders]);
-  const sparkDone = useMemo(() => buildMiniChart(orders, "Selesai"), [orders]);
-
-  const totalOrders = orders.length;
-  const orderSelesai = orders.filter((o) => o.status === "Selesai").length;
-  const orderProses = orders.filter((o) => o.status === "Sedang Dikerjakan").length;
-  const orderMenunggu = orders.filter((o) => o.status === "Menunggu").length;
-  const orderCancelled = orders.filter((o) => o.status === "Dibatalkan").length;
-  const mechAvail = mechanics.filter((m) => m.status === "Tersedia").length;
-  const outOfStock = inventory.filter((i) => i.stock === 0).length;
-  const reorderSoon = inventory.filter((i) => i.stock > 0 && i.stock <= (i.minStock || 0)).length;
-  const goodStock = inventory.filter((i) => i.stock > (i.minStock || 0)).length;
-  const totalInv = inventory.length;
-
-  const now = new Date();
-  const weekAgo = new Date(now);
-  weekAgo.setDate(now.getDate() - 7);
-  const twoWeekAgo = new Date(now);
-  twoWeekAgo.setDate(now.getDate() - 14);
-
-  const thisWeekRev = orders
-    .filter((o) => o.status === "Selesai" && o.date >= weekAgo.toISOString().slice(0, 10))
-    .reduce((s, o) => s + Number(o.total), 0);
-  const lastWeekRev = orders
-    .filter(
-      (o) =>
-        o.status === "Selesai" &&
-        o.date >= twoWeekAgo.toISOString().slice(0, 10) &&
-        o.date < weekAgo.toISOString().slice(0, 10)
-    )
-    .reduce((s, o) => s + Number(o.total), 0);
-  const revChange = lastWeekRev > 0 ? Math.round(((thisWeekRev - lastWeekRev) / lastWeekRev) * 100) : null;
-
-  const jobDonutData = [
-    { name: "Selesai", value: orderSelesai || 1, color: "#34D399" },
-    { name: "In Progress", value: orderProses || 0, color: "#FBBF24" },
-    { name: "Menunggu", value: orderMenunggu || 0, color: "#818CF8" },
-    { name: "Dibatalkan", value: orderCancelled || 0, color: "#4B5563" },
-  ].filter((d) => d.value > 0);
-
-  const tierColors = { Gold: "#F59E0B", Silver: "#94A3B8", Bronze: "#CD7F32", Platinum: "#A78BFA" };
-  const memberDonutData = Object.entries(membership.byTier)
-    .map(([tier, count]) => ({ name: tier, value: count || 0, color: tierColors[tier] }))
-    .filter((d) => d.value > 0);
-
-  const invDonutData = [
-    { name: "Low Stock", value: outOfStock, color: "#EF4444" },
-    { name: "Reorder Soon", value: reorderSoon, color: "#F59E0B" },
-    { name: "Good", value: goodStock || 1, color: "#34D399" },
-  ].filter((d) => d.value > 0);
-
-  const jadwal = orders
-    .filter((o) => o.status === "Menunggu" || o.status === "Sedang Dikerjakan")
-    .slice(0, 6);
-
-  const sparkMech = useMemo(
-    () => Array.from({ length: 7 }, (_, i) => ({ v: mechAvail > 0 ? mechAvail - (i % 2) : 0 })),
-    [mechAvail]
-  );
-
-  // ── Data perbandingan bulanan (dengan growth %) ──
-  const monthlyComparison = useMemo(() => {
-    return analytics.monthlyRevenue.map((item, i) => {
-      const prev = i > 0 ? analytics.monthlyRevenue[i - 1].revenue : 0;
-      const growth = prev > 0 ? Math.round(((item.revenue - prev) / prev) * 100) : 0;
-      return { ...item, growth };
-    });
-  }, [analytics.monthlyRevenue]);
-
-  const total6Month = useMemo(
-    () => monthlyComparison.reduce((s, m) => s + m.revenue, 0),
-    [monthlyComparison]
-  );
-  const avgMonthly = monthlyComparison.length > 0
-    ? Math.round(total6Month / monthlyComparison.length)
-    : 0;
-
-  const rangeLabels = {
-    hariini: "Hari Ini",
-    "7hari": "7 Hari",
-    "30hari": "30 Hari",
-    bulanini: "Bulan Ini",
-  };
+  if (loading) return <DashboardSkeleton />
+  if (error) return <div className="min-h-screen flex items-center justify-center text-red-400 text-sm">Error loading dashboard data: {error}</div>
 
   return (
-    <div className="page-animate space-y-6" style={{ background: "#060f0a", minHeight: "100vh", paddingBottom: "2rem" }}>
-      {/* ── GREETING ── */}
-      {loggedInUser && (
-        <div
-          className="rounded-2xl px-7 py-6 flex items-center justify-between animate-fadeInUp relative overflow-hidden group"
-          style={{
-            background: "linear-gradient(135deg, rgba(52,211,153,0.12) 0%, rgba(4,28,21,0.7) 50%, rgba(2,15,9,0.9) 100%)",
-            border: "1px solid rgba(52,211,153,0.15)",
-            backdropFilter: "blur(4px)",
-          }}
-        >
-          {/* Decorative gradient orbs */}
+    <div className="min-h-screen" style={{ background: "#070b14" }}>
+      <div className="max-w-[1440px] mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+        {/* Greeting */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl px-7 py-5 flex items-center justify-between relative overflow-hidden group"
+          style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(15,23,42,0.7) 50%, rgba(7,11,20,0.9) 100%)", border: "1px solid rgba(96,165,250,0.12)", backdropFilter: "blur(4px)" }}>
           <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full opacity-20 group-hover:opacity-30 transition-all duration-700"
-            style={{ background: "radial-gradient(circle, rgba(52,211,153,0.3) 0%, transparent 70%)" }} />
+            style={{ background: "radial-gradient(circle, rgba(96,165,250,0.2) 0%, transparent 70%)" }} />
           <div className="absolute -bottom-16 -right-16 w-48 h-48 rounded-full opacity-10"
-            style={{ background: "radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%)" }} />
-
+            style={{ background: "radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%)" }} />
           <div className="flex items-center gap-5 relative z-10">
-            {/* Avatar dengan inisial */}
-            <div
+            <motion.div whileHover={{ scale: 1.05, rotate: 3 }}
               className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-extrabold text-lg shadow-lg shrink-0"
-              style={{
-                background: "linear-gradient(135deg, #059669, #34D399)",
-                boxShadow: "0 8px 24px rgba(52,211,153,0.25)",
-              }}
-            >
-              {loggedInUser.name?.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'AD'}
-            </div>
+              style={{ background: "linear-gradient(135deg, #3B82F6, #60A5FA)", boxShadow: "0 8px 24px rgba(59,130,246,0.25)" }}>
+              {loggedInUser?.name?.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase() || "AD"}
+            </motion.div>
             <div>
-              <p className="text-gray-400 text-sm font-medium">
-                {greeting}, <span className="text-white font-semibold">{loggedInUser.name?.split(' ')[0]}</span>
-              </p>
-              <p className="text-white text-xl sm:text-2xl font-bold mt-0.5 tracking-tight">
-                {loggedInUser.name}
-              </p>
+              <p className="text-gray-400 text-sm font-medium">{greeting}, <span className="text-white font-semibold">{loggedInUser?.name?.split(" ")[0] || "Admin"}</span></p>
               <div className="flex items-center gap-3 mt-1">
-                <span className="text-xs text-gray-500">{loggedInUser.email}</span>
+                <span className="text-gray-500 text-xs">{loggedInUser?.email || "admin@esthergarage.com"}</span>
                 <span className="w-1 h-1 rounded-full bg-gray-600" />
-                <span className="text-xs text-emerald-400 font-medium">Online</span>
+                <span className="flex items-center gap-1.5 text-emerald-400 text-xs font-medium"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Online</span>
               </div>
             </div>
           </div>
-
-          <div className="flex flex-col items-end gap-1.5 relative z-10">
-            <span
-              className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
-              style={{
-                background: "rgba(52,211,153,0.15)",
-                color: "#6EE7B7",
-                border: "1px solid rgba(52,211,153,0.25)",
-              }}
-            >
-              {loggedInUser.role}
+          <div className="flex items-center gap-4 relative z-10">
+            <span className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
+              style={{ background: "rgba(59,130,246,0.12)", color: "#60A5FA", border: "1px solid rgba(59,130,246,0.2)" }}>
+              {loggedInUser?.role || "Admin"}
             </span>
-            <p className="text-gray-500 text-xs">
-              {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-            </p>
-            <div className="flex items-center gap-1.5 mt-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] text-gray-600">Sistem berjalan normal</span>
-            </div>
+            <div className="flex items-center gap-1 text-gray-500 text-[10px]"><Clock size={12} /> {new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</div>
           </div>
-        </div>
-      )}
+        </motion.div>
 
-      {/* ── TOP STAT CARDS ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <TopStatCard
-          icon={Wrench}
-          iconBg="rgba(52,211,153,0.25)"
-          label="Total Orders"
-          value={totalOrders}
-          change={`+${Math.max(0, Math.round(totalOrders * 0.12))}% vs yesterday`}
-          positive
-          sparkData={sparkAll}
-          sparkColor="#34D399"
-          delay={0}
-        />
-        <TopStatCard
-          icon={DollarSign}
-          iconBg="rgba(96,165,250,0.25)"
-          label="Revenue (7d)"
-          value={thisWeekRev}
-          format={fmt}
-          change={revChange !== null ? `${revChange > 0 ? "+" : ""}${revChange}% vs last week` : undefined}
-          positive={revChange === null || revChange >= 0}
-          sparkData={sparkDone}
-          sparkColor="#60A5FA"
-          delay={100}
-        />
-        <TopStatCard
-          icon={Activity}
-          iconBg="rgba(251,191,36,0.25)"
-          label="Active Jobs"
-          value={orderProses}
-          change={`+7% in progress`}
-          positive
-          sparkData={sparkWip}
-          sparkColor="#FBBF24"
-          delay={200}
-        />
-        <TopStatCard
-          icon={HardHat}
-          iconBg="rgba(167,139,250,0.25)"
-          label="Mechanics Available"
-          value={mechAvail}
-          change={mechanics.length > 0 ? `${Math.round((mechAvail / mechanics.length) * 100)}% available` : undefined}
-          positive={mechAvail > 0}
-          sparkData={sparkMech}
-          sparkColor="#A78BFA"
-          delay={300}
-        />
-      </div>
-
-      {/* ── REVENUE CHART + JOB STATUS ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Revenue Overview */}
-        <div
-          className="lg:col-span-2 rounded-2xl p-6 animate-fadeInUp"
-          style={{
-            background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
-            border: "1px solid rgba(52,211,153,0.1)",
-            animationDelay: "200ms",
-            animationFillMode: "both",
-          }}
-        >
-          <div className="flex items-start justify-between mb-2">
-            <div>
-              <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Revenue Overview</p>
-              <p className="text-white text-3xl font-black mt-1 tracking-tight">
-                <AnimatedNumber value={totalRevenue} format={fmt} duration={1200} />
-              </p>
-              {revChange !== null && (
-                <span
-                  className={`inline-flex items-center gap-1.5 text-xs font-semibold mt-1 ${
-                    revChange >= 0 ? "text-emerald-400" : "text-red-400"
-                  }`}
-                >
-                  <TrendingUp size={12} className="animate-bounce-soft" />
-                  {revChange > 0 ? "+" : ""}{revChange}% vs last week
-                </span>
-              )}
-            </div>
-
-            {/* ── DROPDOWN FILTER ── */}
-            <div className="relative">
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="text-xs px-4 py-2 rounded-xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/10 flex items-center gap-1.5"
-                style={{
-                  background: "rgba(52,211,153,0.1)",
-                  color: "#34D399",
-                  border: "1px solid rgba(52,211,153,0.15)",
-                }}
-              >
-                {rangeLabels[timeRange]} <ChevronRight size={14} className={`transition-transform duration-300 ${isDropdownOpen ? "rotate-90" : ""}`} />
-              </button>
-              {isDropdownOpen && (
-                <div
-                  className="absolute right-0 mt-2 w-40 rounded-xl shadow-2xl z-10 animate-fadeInUp"
-                  style={{
-                    background: "rgba(10, 26, 18, 0.98)",
-                    backdropFilter: "blur(12px)",
-                    border: "1px solid rgba(52,211,153,0.15)",
-                  }}
-                >
-                  {Object.entries(rangeLabels).map(([key, label]) => (
-                    <button
-                      key={key}
-                      onClick={() => {
-                        setTimeRange(key);
-                        setIsDropdownOpen(false);
-                      }}
-                      className={`block w-full text-left px-4 py-2.5 text-xs transition-all duration-200 hover:bg-emerald-500/10 ${
-                        timeRange === key ? "text-emerald-400 font-semibold" : "text-gray-400"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {orders.length === 0 ? (
-            <div className="h-56 flex items-center justify-center text-gray-500 text-sm">Belum ada data order</div>
-          ) : (
-            <div style={{ width: "100%", height: 230, minHeight: 230 }}>
-              <ResponsiveContainer width="100%" height={230}>
-                <AreaChart data={revenueChart} margin={{ top: 10, right: 5, left: 5, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#34D399" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="#34D399" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fill: "#4b5563", fontSize: 10 }}
-                    axisLine={false}
-                    tickLine={false}
-                    interval={Math.max(0, Math.floor(revenueChart.length / 6))}
-                  />
-                  <YAxis
-                    tick={{ fill: "#4b5563", fontSize: 10 }}
-                    axisLine={false}
-                    tickLine={false}
-                    tickFormatter={(v) => (v === 0 ? "0" : `${(v / 1000000).toFixed(0)}M`)}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="#34D399"
-                    strokeWidth={3}
-                    fill="url(#revGrad)"
-                    dot={false}
-                    activeDot={{ r: 6, fill: "#34D399", stroke: "#060f0a", strokeWidth: 3 }}
-                    isAnimationActive={true}
-                    animationDuration={1500}
-                    animationEasing="ease-out"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+        {/* 4 KPI Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {fourKpis.map((kpi, i) => <KpiCard key={kpi.id} data={kpi} index={i} />)}
         </div>
 
-        {/* Job Status Overview */}
-        <div
-          className="rounded-2xl p-6 animate-fadeInUp"
-          style={{
-            background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
-            border: "1px solid rgba(52,211,153,0.1)",
-            animationDelay: "300ms",
-            animationFillMode: "both",
-          }}
-        >
-          <p className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-4">Job Status</p>
-          <div className="flex justify-center mb-5">
-            <DonutChart data={jobDonutData} total={totalOrders} centerSub="Total Jobs" size={150} />
-          </div>
-          <div className="space-y-3">
-            {[
-              { label: "Completed", value: orderSelesai, color: "#34D399", pct: totalOrders > 0 ? Math.round((orderSelesai / totalOrders) * 100) : 0 },
-              { label: "In Progress", value: orderProses, color: "#FBBF24", pct: totalOrders > 0 ? Math.round((orderProses / totalOrders) * 100) : 0 },
-              { label: "Waiting", value: orderMenunggu, color: "#818CF8", pct: totalOrders > 0 ? Math.round((orderMenunggu / totalOrders) * 100) : 0 },
-              { label: "Cancelled", value: orderCancelled, color: "#4B5563", pct: totalOrders > 0 ? Math.round((orderCancelled / totalOrders) * 100) : 0 },
-            ].map((item, idx) => (
-              <div
-                key={item.label}
-                className="flex items-center justify-between animate-fadeInUp"
-                style={{ animationDelay: `${400 + idx * 80}ms`, animationFillMode: "both" }}
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
-                  <span className="text-gray-300 text-xs font-medium">{item.label}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-white text-xs font-bold">
-                    <AnimatedNumber value={item.value} format={(v) => Math.round(v)} duration={600} />
-                  </span>
-                  <span className="text-gray-500 text-[10px]">({item.pct}%)</span>
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* Charts Row 1: Revenue + Booking */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2"><RevenueChart data={monthlyRevenue} /></div>
+          <div className="lg:col-span-1"><BookingTrendChart data={monthlyRevenue} /></div>
+        </div>
+
+        {/* Charts Row 2: Service Donut + Member Growth + Revenue by Service */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <ServiceDonutChart data={serviceCategories} />
+          <MemberGrowthChart data={customerGrowth} />
+          <RevenueByServiceChart data={revenueByService} />
+        </div>
+
+        {/* Recent Bookings + Activity Timeline */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RecentBookingsTable data={todaySchedule} />
+          <ActivityTimeline data={activityFeed} />
+        </div>
+
+        {/* Top Customers + Mechanic Performance */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TopCustomersWidget data={topCustomers} />
+          <MechanicPerformanceWidget data={mechanicPerformance} />
         </div>
       </div>
 
-      {/* ── MONTHLY COMPARISON ── */}
-      <div
-        className="rounded-2xl p-6 animate-fadeInUp"
-        style={{
-          background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
-          border: "1px solid rgba(52,211,153,0.1)",
-          animationDelay: "350ms",
-          animationFillMode: "both",
-        }}
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/15 flex items-center justify-center">
-              <BarChart3 size={16} className="text-emerald-400" />
-            </div>
-            <div>
-              <p className="text-white text-sm font-bold">Perbandingan Revenue Bulanan</p>
-              <p className="text-gray-500 text-[10px]">6 bulan terakhir — bandingkan pertumbuhan antar bulan</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-gray-500 text-[10px] uppercase tracking-wider">Total 6 Bulan</p>
-              <p className="text-emerald-400 text-sm font-black">
-                <AnimatedNumber value={total6Month} format={fmt} duration={1200} />
-              </p>
-            </div>
-            <div className="w-px h-8 bg-white/10" />
-            <div className="text-right">
-              <p className="text-gray-500 text-[10px] uppercase tracking-wider">Rata-rata</p>
-              <p className="text-blue-400 text-sm font-black">
-                <AnimatedNumber value={avgMonthly} format={fmtShort} duration={1000} />
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {orders.length === 0 ? (
-          <div className="h-48 flex items-center justify-center text-gray-500 text-sm">Belum ada data order</div>
-        ) : (
-          <div style={{ width: "100%", height: 240, minHeight: 240 }}>
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={monthlyComparison} margin={{ top: 24, right: 10, left: 0, bottom: 5 }}>
-                <defs>
-                  <linearGradient id="barRevGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#34D399" stopOpacity={0.9} />
-                    <stop offset="100%" stopColor="#059669" stopOpacity={0.6} />
-                  </linearGradient>
-                  <linearGradient id="barNegGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#F87171" stopOpacity={0.8} />
-                    <stop offset="100%" stopColor="#DC2626" stopOpacity={0.5} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fill: "#6B7280", fontSize: 11, fontWeight: 500 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fill: "#4b5563", fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(v) => (v === 0 ? "0" : `${(v / 1000000).toFixed(0)}jt`)}
-                />
-                <Tooltip
-                  cursor={{ fill: "rgba(255,255,255,0.03)" }}
-                  content={({ active, payload, label }) => {
-                    if (!active || !payload?.length) return null;
-                    const d = payload[0].payload;
-                    return (
-                      <div
-                        className="rounded-xl px-4 py-3 animate-fadeIn"
-                        style={{
-                          background: "rgba(10, 26, 18, 0.97)",
-                          backdropFilter: "blur(12px)",
-                          border: "1px solid rgba(52, 211, 153, 0.25)",
-                          boxShadow: "0 8px 32px rgba(0,0,0,0.6)",
-                        }}
-                      >
-                        <p className="text-xs text-gray-400 font-semibold mb-1.5">{label}</p>
-                        <p className="text-emerald-400 font-bold text-sm mb-1">
-                          {fmt(d.revenue)}
-                        </p>
-                        <p className="text-gray-500 text-[11px]">{d.count} order selesai</p>
-                        {d.growth !== 0 && (
-                          <div className={`flex items-center gap-1 mt-1.5 text-[11px] font-semibold ${d.growth > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                            {d.growth > 0 ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-                            {d.growth > 0 ? '+' : ''}{d.growth}% dari bulan sebelumnya
-                          </div>
-                        )}
-                      </div>
-                    );
-                  }}
-                />
-                <Bar
-                  dataKey="revenue"
-                      radius={[6, 6, 0, 0]}
-                  maxBarSize={52}
-                  isAnimationActive={true}
-                  animationDuration={1500}
-                  animationEasing="ease-out"
-                  shape={(props) => {
-                    const { fill, x, y, width, height } = props;
-                    const growth = props.payload?.growth || 0;
-                    const barColor = growth >= 0
-                      ? 'url(#barRevGrad)'
-                      : 'url(#barNegGrad)';
-                    return (
-                      <rect x={x} y={y} width={width} height={height} rx={6} ry={6} fill={barColor} />
-                    );
-                  }}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-
-        {/* Growth Summary Row */}
-        {monthlyComparison.length > 1 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 pt-5 border-t border-white/5">
-            {(() => {
-              const lastMonth = monthlyComparison[monthlyComparison.length - 1];
-              const prevMonth = monthlyComparison[monthlyComparison.length - 2];
-              const bestMonth = [...monthlyComparison].sort((a, b) => b.revenue - a.revenue)[0];
-              const growthCount = monthlyComparison.filter(m => m.growth > 0).length;
-              const declineCount = monthlyComparison.filter(m => m.growth < 0).length;
-              const totalGrowth = monthlyComparison.reduce((s, m) => s + (m.growth > 0 ? m.growth : 0), 0);
-              const avgGrowth = monthlyComparison.length > 1
-                ? Math.round(monthlyComparison.reduce((s, m) => s + m.growth, 0) / (monthlyComparison.length - 1))
-                : 0;
-              return [
-                {
-                  label: 'vs Bulan Lalu',
-                  value: lastMonth?.growth || 0,
-                  suffix: '%',
-                  positive: (lastMonth?.growth || 0) >= 0,
-                  highlight: true
-                },
-                {
-                  label: 'Bulan Terbaik',
-                  value: bestMonth?.label || '-',
-                  isLabel: true,
-                  sub: fmtShort(bestMonth?.revenue || 0)
-                },
-                {
-                  label: 'Bulan Naik/Turun',
-                  value: `${growthCount}/${declineCount}`,
-                  suffix: '',
-                  sub: `dalam 6 bulan`
-                },
-                {
-                  label: 'Rata-rata Growth',
-                  value: avgGrowth,
-                  suffix: '%',
-                  positive: avgGrowth >= 0,
-                },
-              ].map((item, idx) => (
-                <div
-                  key={item.label}
-                  className="rounded-xl p-3 animate-fadeInUp"
-                  style={{
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.05)",
-                    animationDelay: `${idx * 80}ms`,
-                    animationFillMode: "both",
-                  }}
-                >
-                  <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-0.5">{item.label}</p>
-                  {item.isLabel ? (
-                    <>
-                      <p className="text-white text-sm font-bold">{item.value}</p>
-                      <p className="text-gray-500 text-[10px]">{item.sub}</p>
-                    </>
-                  ) : (
-                    <>
-                      <p className={`text-sm font-black ${item.highlight ? (item.positive ? 'text-emerald-400' : 'text-red-400') : 'text-white'}`}>
-                        {typeof item.value === 'number' && item.value > 0 ? '+' : ''}{item.value}{item.suffix}
-                      </p>
-                      {item.sub && <p className="text-gray-500 text-[10px]">{item.sub}</p>}
-                    </>
-                  )}
-                </div>
-              ));
-            })()}
-          </div>
-        )}
-      </div>
-
-      {/* ── TODAY'S JOB QUEUE ── */}
-      <div
-        className="rounded-2xl p-6 animate-fadeInUp"
-        style={{
-          background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
-          border: "1px solid rgba(52,211,153,0.1)",
-          animationDelay: "400ms",
-          animationFillMode: "both",
-        }}
-      >
-        <div className="flex items-center justify-between mb-5">
-          <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Today's Job Queue</p>
-          <Link
-            to="/orders"
-            className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 group transition-all duration-300 font-medium"
-          >
-            View All <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
-          </Link>
-        </div>
-        {jadwal.length === 0 ? (
-          <div className="py-10 text-center text-gray-500 text-sm">Tidak ada antrian aktif</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {jadwal.map((o, i) => {
-              const hue = stringToHue(o.customer);
-              return (
-                <div
-                  key={i}
-                  className="flex items-center gap-4 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-500/5 animate-fadeInUp"
-                  style={{
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.06)",
-                    animationDelay: `${500 + i * 80}ms`,
-                    animationFillMode: "both",
-                  }}
-                >
-                  <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm transition-transform duration-300 group-hover:rotate-12"
-                    style={{ background: `hsla(${hue},60%,15%,0.8)`, color: `hsl(${hue},70%,60%)` }}
-                  >
-                    <Car size={18} style={{ color: `hsl(${hue},70%,60%)` }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm font-semibold truncate">{o.customer}</p>
-                    <p className="text-gray-400 text-xs truncate">{o.service}</p>
-                    {o.id && <p className="text-gray-600 text-[10px] font-mono">#{o.id}</p>}
-                  </div>
-                  <StatusBadge status={o.status} />
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* ── MEMBERSHIP TIER + INVENTORY STATUS ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Membership Tier */}
-        <div
-          className="rounded-2xl p-6 animate-fadeInUp"
-          style={{
-            background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
-            border: "1px solid rgba(52,211,153,0.1)",
-            animationDelay: "500ms",
-            animationFillMode: "both",
-          }}
-        >
-          <div className="flex items-center justify-between mb-5">
-            <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Membership Tier</p>
-            <Link
-              to="/membership"
-              className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 group transition-all duration-300 font-medium"
-            >
-              Detail <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
-            </Link>
-          </div>
-          <div className="flex items-center gap-8">
-            <DonutChart
-              data={memberDonutData.length > 0 ? memberDonutData : [{ name: "empty", value: 1, color: "#1f2937" }]}
-              total={membership.total}
-              centerSub="Members"
-              size={140}
-            />
-            <div className="flex-1 space-y-3">
-              {Object.entries(membership.byTier).map(([tier, count], idx) => {
-                const pct = membership.totalActive > 0 ? Math.round((count / membership.totalActive) * 100) : 0;
-                const cfg = TIER_CONFIG[tier];
-                return (
-                  <div
-                    key={tier}
-                    className="animate-fadeInUp"
-                    style={{ animationDelay: `${600 + idx * 80}ms`, animationFillMode: "both" }}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm">{cfg?.icon}</span>
-                        <span className="text-xs font-bold" style={{ color: tierColors[tier] }}>
-                          {tier}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-white text-xs font-bold">
-                          <AnimatedNumber value={count} format={(v) => Math.round(v)} duration={600} />
-                        </span>
-                        <span className="text-gray-500 text-[10px]">({pct}%)</span>
-                      </div>
-                    </div>
-                    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
-                      <div
-                        className="h-full rounded-full transition-all duration-1000 ease-out"
-                        style={{ width: `${pct}%`, background: tierColors[tier] }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Inventory Status */}
-        <div
-          className="rounded-2xl p-6 animate-fadeInUp"
-          style={{
-            background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
-            border: "1px solid rgba(52,211,153,0.1)",
-            animationDelay: "600ms",
-            animationFillMode: "both",
-          }}
-        >
-          <div className="flex items-center justify-between mb-5">
-            <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Inventory Status</p>
-            <Link
-              to="/inventory"
-              className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 group transition-all duration-300 font-medium"
-            >
-              Detail <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
-            </Link>
-          </div>
-          <div className="flex items-center gap-8">
-            <DonutChart
-              data={invDonutData.length > 0 ? invDonutData : [{ name: "empty", value: 1, color: "#1f2937" }]}
-              total={totalInv}
-              centerSub="Total Items"
-              size={140}
-            />
-            <div className="flex-1 space-y-3">
-              {[
-                { label: "Low Stock", value: outOfStock, color: "#EF4444", pct: totalInv > 0 ? Math.round((outOfStock / totalInv) * 100) : 0 },
-                { label: "Reorder Soon", value: reorderSoon, color: "#F59E0B", pct: totalInv > 0 ? Math.round((reorderSoon / totalInv) * 100) : 0 },
-                { label: "Good", value: goodStock, color: "#34D399", pct: totalInv > 0 ? Math.round((goodStock / totalInv) * 100) : 0 },
-              ].map((item, idx) => (
-                <div
-                  key={item.label}
-                  className="animate-fadeInUp"
-                  style={{ animationDelay: `${700 + idx * 80}ms`, animationFillMode: "both" }}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full" style={{ background: item.color }} />
-                      <span className="text-xs text-gray-300 font-medium">{item.label}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-white text-xs font-bold">
-                        <AnimatedNumber value={item.value} format={(v) => Math.round(v)} duration={600} />
-                      </span>
-                      <span className="text-gray-500 text-[10px]">({item.pct}%)</span>
-                    </div>
-                  </div>
-                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
-                    <div
-                      className="h-full rounded-full transition-all duration-1000 ease-out"
-                      style={{ width: `${item.pct}%`, background: item.color }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── CRITICAL ALERTS + QUICK ACTIONS ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Critical Alerts */}
-        <div
-          className="rounded-2xl p-6 animate-fadeInUp"
-          style={{
-            background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
-            border: "1px solid rgba(52,211,153,0.1)",
-            animationDelay: "700ms",
-            animationFillMode: "both",
-          }}
-        >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-7 h-7 rounded-xl bg-red-500/15 flex items-center justify-center">
-              <AlertTriangle size={16} className="text-red-400 animate-pulse" />
-            </div>
-            <p className="text-white text-sm font-bold">Critical Alerts</p>
-          </div>
-          <div className="space-y-3">
-            {outOfStock > 0 && (
-              <Link
-                to="/inventory"
-                className="flex items-center justify-between p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-red-500/5 animate-slideInLeft"
-                style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)" }}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-red-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
-                    <Package size={14} className="text-red-400" />
-                  </div>
-                  <div>
-                    <p className="text-red-400 text-xs font-bold">Low Stock</p>
-                    <p className="text-gray-400 text-xs">{outOfStock} items are running low</p>
-                  </div>
-                </div>
-                <span className="text-red-400 text-xs flex items-center gap-1 group font-medium">
-                  View <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
-                </span>
-              </Link>
-            )}
-            {orderProses > 0 && (
-              <Link
-                to="/orders"
-                className="flex items-center justify-between p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-500/5 animate-slideInLeft"
-                style={{ background: "rgba(251,191,36,0.06)", border: "1px solid rgba(251,191,36,0.15)", animationDelay: "100ms" }}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-yellow-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
-                    <Clock size={14} className="text-yellow-400" />
-                  </div>
-                  <div>
-                    <p className="text-yellow-400 text-xs font-bold">Delayed Jobs</p>
-                    <p className="text-gray-400 text-xs">{orderProses} jobs are in progress</p>
-                  </div>
-                </div>
-                <span className="text-yellow-400 text-xs flex items-center gap-1 group font-medium">
-                  View <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
-                </span>
-              </Link>
-            )}
-            {orderMenunggu > 0 && (
-              <Link
-                to="/orders"
-                className="flex items-center justify-between p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/5 animate-slideInLeft"
-                style={{ background: "rgba(96,165,250,0.06)", border: "1px solid rgba(96,165,250,0.15)", animationDelay: "200ms" }}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
-                    <Calendar size={14} className="text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-blue-400 text-xs font-bold">Upcoming Service</p>
-                    <p className="text-gray-400 text-xs">{orderMenunggu} vehicles need service</p>
-                  </div>
-                </div>
-                <span className="text-blue-400 text-xs flex items-center gap-1 group font-medium">
-                  View <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
-                </span>
-              </Link>
-            )}
-            {(bookingStats.pendingConfirmation || 0) > 0 && (
-              <Link
-                to="/bookings"
-                className="flex items-center justify-between p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/5 animate-slideInLeft"
-                style={{ background: "rgba(96,165,250,0.06)", border: "1px solid rgba(96,165,250,0.2)", animationDelay: "300ms" }}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 animate-pulse">
-                    <Calendar size={14} className="text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-blue-400 text-xs font-bold">Booking Menunggu Konfirmasi</p>
-                    <p className="text-gray-400 text-xs">{bookingStats.pendingConfirmation} booking baru</p>
-                  </div>
-                </div>
-                <span className="text-blue-400 text-xs flex items-center gap-1 group font-medium">
-                  Kelola <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
-                </span>
-              </Link>
-            )}
-            {(bookingStats.today || 0) > 0 && (
-              <Link
-                to="/bookings"
-                className="flex items-center justify-between p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-500/5 animate-slideInLeft"
-                style={{ background: "rgba(52,211,153,0.06)", border: "1px solid rgba(52,211,153,0.15)", animationDelay: "350ms" }}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                    <Calendar size={14} className="text-emerald-400" />
-                  </div>
-                  <div>
-                    <p className="text-emerald-400 text-xs font-bold">Jadwal Hari Ini</p>
-                    <p className="text-gray-400 text-xs">{bookingStats.today} booking dijadwalkan</p>
-                  </div>
-                </div>
-                <span className="text-emerald-400 text-xs flex items-center gap-1 group font-medium">
-                  Lihat <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
-                </span>
-              </Link>
-            )}
-            {outOfStock === 0 && orderProses === 0 && orderMenunggu === 0 && bookingStats.needsAction === 0 && (
-              <div className="py-8 text-center text-gray-500 text-sm flex flex-col items-center gap-3 animate-fadeIn">
-                <CheckCircle2 size={32} className="text-emerald-500/40 animate-pulse" />
-                Semua dalam kondisi baik
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div
-          className="rounded-2xl p-6 animate-fadeInUp"
-          style={{
-            background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
-            border: "1px solid rgba(52,211,153,0.1)",
-            animationDelay: "800ms",
-            animationFillMode: "both",
-          }}
-        >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-7 h-7 rounded-xl bg-emerald-500/15 flex items-center justify-center">
-              <Zap size={16} className="text-emerald-400 animate-pulse" />
-            </div>
-            <p className="text-white text-sm font-bold">Quick Actions</p>
-          </div>
-          <div className="grid grid-cols-5 gap-3">
-            {[
-              { icon: Plus, label: "New Order", to: "/orders", color: "#34D399", bg: "rgba(52,211,153,0.15)" },
-              { icon: Users, label: "Add Customer", to: "/customers", color: "#60A5FA", bg: "rgba(96,165,250,0.15)" },
-              { icon: Car, label: "Add Vehicle", to: "/vehicles", color: "#818CF8", bg: "rgba(129,140,248,0.15)" },
-              { icon: Package, label: "Inventory", to: "/inventory", color: "#F59E0B", bg: "rgba(245,158,11,0.15)" },
-              { icon: BarChart3, label: "Reports", to: "/reports", color: "#34D399", bg: "rgba(52,211,153,0.15)" },
-            ].map(({ icon: Icon, label, to, color, bg }, idx) => (
-              <Link
-                key={label}
-                to={to}
-                className="flex flex-col items-center gap-2.5 p-4 rounded-xl text-center transition-all duration-300 hover:scale-110 hover:shadow-xl hover:shadow-emerald-500/10 group animate-fadeInUp"
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  animationDelay: `${900 + idx * 80}ms`,
-                  animationFillMode: "both",
-                }}
-              >
-                <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
-                  style={{ background: bg }}
-                >
-                  <Icon size={20} style={{ color }} className="transition-transform duration-300 group-hover:scale-110" />
-                </div>
-                <span className="text-gray-300 text-[10px] font-medium leading-tight group-hover:text-white transition-colors duration-300">
-                  {label}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── DAFTAR MEMBER AKTIF ── */}
-      <MemberListWidget membership={membership} />
-
-      {/* Floating CRM Menu */}
-      <FloatingCRMMenu />
-
-      {/* ─── TOP PERFORMERS (Mekanik / Kendaraan / Servis) ─── */}
-      {/* CATATAN: sebelumnya section ini punya kartu Revenue + chart 6 bulan
-          sendiri ("Dashboard Analytics"), yang isinya tumpang tindih dengan
-          TOP STAT CARDS + REVENUE CHART di bagian atas halaman — dua-duanya
-          sama-sama nampilin revenue, cuma beda periode/granularitas. Efeknya
-          terlihat seperti "dashboard yang sama muncul dua kali" saat di-scroll.
-          Row Revenue Cards & Chart 6 Bulan dihapus di sini; yang dipertahankan
-          cuma bagian yang benar-benar unik (top mekanik/kendaraan/servis). */}
-      <div className="mt-8 space-y-6 animate-fadeInUp" style={{ animationDelay: "0.3s" }}>
-
-        {/* Header */}
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-7 rounded-full bg-gradient-to-b from-emerald-400 to-teal-600" />
-            <h2 className="text-lg font-bold text-white tracking-wide">Top Performers Bulan Ini</h2>
-          </div>
-          <span className="text-[10px] text-gray-500 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-            Real-time dari Supabase
-          </span>
-        </div>
-
-        {/* Row — Top Mekanik + Kendaraan + Servis */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-          {/* Top Mekanik */}
-          <div
-            className="rounded-2xl p-5 animate-fadeInUp"
-            style={{
-              background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
-              border: "1px solid rgba(52,211,153,0.1)",
-              animationDelay: "0.1s",
-              animationFillMode: "both",
-            }}
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center">
-                <span className="text-sm">🔧</span>
-              </div>
-              <h3 className="text-sm font-bold text-white">Mekanik Produktif</h3>
-            </div>
-            {analytics.topMechanics && analytics.topMechanics.length > 0 ? (
-              <div className="space-y-2.5">
-                {analytics.topMechanics.map((m, i) => (
-                  <div key={i} className="flex items-center gap-3 p-2 rounded-xl transition-all duration-300 hover:bg-white/5">
-                    <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
-                      i === 0 ? "bg-amber-500/20 text-amber-400" :
-                      i === 1 ? "bg-gray-400/20 text-gray-400" :
-                      i === 2 ? "bg-orange-400/20 text-orange-400" :
-                      "bg-white/10 text-gray-500"
-                    }`}>{i + 1}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-white truncate">{m.name}</p>
-                      <div className="w-full rounded-full h-1.5 mt-1" style={{ background: "rgba(255,255,255,0.05)" }}>
-                        <div
-                          className="h-full rounded-full transition-all duration-700"
-                          style={{
-                            width: `${Math.max(4, Math.round((m.jobs / (analytics.topMechanics[0]?.jobs || 1)) * 100))}%`,
-                            background: i === 0 ? "linear-gradient(90deg, #F59E0B, #FBBF24)" :
-                                        i === 1 ? "linear-gradient(90deg, #94A3B8, #CBD5E1)" :
-                                        i === 2 ? "linear-gradient(90deg, #F97316, #FB923C)" :
-                                        "#34D399",
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-xs font-bold text-emerald-400">{m.jobs}x</p>
-                      <p className="text-[9px] text-gray-600">servis</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-8 text-center text-gray-600 text-xs">Belum ada data</div>
-            )}
-          </div>
-
-          {/* Kendaraan Paling Sering */}
-          <div
-            className="rounded-2xl p-5 animate-fadeInUp"
-            style={{
-              background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
-              border: "1px solid rgba(52,211,153,0.1)",
-              animationDelay: "0.2s",
-              animationFillMode: "both",
-            }}
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center">
-                <span className="text-sm">🚗</span>
-              </div>
-              <h3 className="text-sm font-bold text-white">Kendaraan Terbanyak</h3>
-            </div>
-            {analytics.topVehicles && analytics.topVehicles.length > 0 ? (
-              <div className="space-y-2.5">
-                {analytics.topVehicles.map((v, i) => (
-                  <div key={i} className="flex items-center gap-3 p-2 rounded-xl transition-all duration-300 hover:bg-white/5">
-                    <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
-                      i === 0 ? "bg-blue-500/20 text-blue-400" :
-                      i === 1 ? "bg-indigo-400/20 text-indigo-400" :
-                      "bg-white/10 text-gray-500"
-                    }`}>{i + 1}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-white truncate">{v.name}</p>
-                      <div className="w-full rounded-full h-1.5 mt-1" style={{ background: "rgba(255,255,255,0.05)" }}>
-                        <div
-                          className="h-full rounded-full transition-all duration-700"
-                          style={{
-                            width: `${Math.max(4, Math.round((v.count / (analytics.topVehicles[0]?.count || 1)) * 100))}%`,
-                            background: "linear-gradient(90deg, #3B82F6, #60A5FA)",
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-xs font-bold text-blue-400">{v.count}x</p>
-                      <p className="text-[9px] text-gray-600">servis</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-8 text-center text-gray-600 text-xs">Belum ada data</div>
-            )}
-          </div>
-
-          {/* Jenis Servis Terlaris */}
-          <div
-            className="rounded-2xl p-5 animate-fadeInUp"
-            style={{
-              background: "linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))",
-              border: "1px solid rgba(52,211,153,0.1)",
-              animationDelay: "0.3s",
-              animationFillMode: "both",
-            }}
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-violet-500/15 flex items-center justify-center">
-                <span className="text-sm">📋</span>
-              </div>
-              <h3 className="text-sm font-bold text-white">Servis Terlaris</h3>
-            </div>
-            {analytics.topServices && analytics.topServices.length > 0 ? (
-              <div className="space-y-2.5">
-                {analytics.topServices.map((s, i) => (
-                  <div key={i} className="flex items-center gap-3 p-2 rounded-xl transition-all duration-300 hover:bg-white/5">
-                    <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
-                      i === 0 ? "bg-violet-500/20 text-violet-400" :
-                      i === 1 ? "bg-purple-400/20 text-purple-400" :
-                      "bg-white/10 text-gray-500"
-                    }`}>{i + 1}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-white truncate">{s.name}</p>
-                      <div className="w-full rounded-full h-1.5 mt-1" style={{ background: "rgba(255,255,255,0.05)" }}>
-                        <div
-                          className="h-full rounded-full transition-all duration-700"
-                          style={{
-                            width: `${Math.max(4, Math.round((s.count / (analytics.topServices[0]?.count || 1)) * 100))}%`,
-                            background: "linear-gradient(90deg, #8B5CF6, #A78BFA)",
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-xs font-bold text-violet-400">{s.count}x</p>
-                      <p className="text-[9px] text-gray-600">servis</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-8 text-center text-gray-600 text-xs">Belum ada data</div>
-            )}
-          </div>
-        </div>
-
-      </div>
-
-      {/* ─── GLOBAL ANIMATION STYLES ─── */}
-      <style>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(40px) scale(0.96); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes slideInLeft {
-          from { opacity: 0; transform: translateX(-20px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes pulse-ring {
-          0% { box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
-          70% { box-shadow: 0 0 0 14px rgba(52,211,153,0); }
-          100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
-        }
-        @keyframes bounce-soft {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
-        }
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-fadeInUp {
-          animation: fadeInUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.5s ease both;
-        }
-        .animate-slideUp {
-          animation: slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-        .animate-slideInLeft {
-          animation: slideInLeft 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
-        .animate-pulse-ring {
-          animation: pulse-ring 2s ease-out infinite;
-        }
-        .animate-bounce-soft {
-          animation: bounce-soft 1.2s ease-in-out infinite;
-        }
-        .animate-spin-slow {
-          animation: spin-slow 6s linear infinite;
-        }
-        .page-animate > * {
-          will-change: transform, opacity;
-        }
-      `}</style>
+      <FloatingMenu />
     </div>
-  );
+  )
 }

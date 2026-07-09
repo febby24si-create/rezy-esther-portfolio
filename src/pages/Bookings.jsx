@@ -74,7 +74,7 @@ function StatCard({ label, value, icon: Icon, color, border, sub }) {
       initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
       className="relative rounded-xl p-4 flex flex-col gap-2 overflow-hidden group transition-all duration-500 hover:scale-[1.03] hover:shadow-lg"
       style={{
-        background: `linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))`,
+        background: `linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))`,
         border: `1px solid ${border}`,
       }}
     >
@@ -176,15 +176,15 @@ function BookingDrawer({ booking, onClose, onRefresh }) {
         initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
         className="ml-auto w-full max-w-md h-full overflow-y-auto flex flex-col"
-        style={{ background: '#0a1a12', borderLeft: '1px solid rgba(34,197,94,0.15)' }}
+        style={{ background: '#0f172a', borderLeft: '1px solid rgba(59,130,246,0.15)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div className="p-5 border-b flex items-start justify-between gap-3 sticky top-0 z-10"
-          style={{ background: '#0a1a12', borderColor: 'rgba(34,197,94,0.1)' }}>
+          style={{ background: '#0f172a', borderColor: 'rgba(59,130,246,0.1)' }}>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-mono text-xs text-green-400">{booking.id}</span>
+              <span className="font-mono text-xs text-blue-400">{booking.id}</span>
               <BookingStatusBadge status={booking.status} size="sm" />
             </div>
             <p className="text-white font-bold text-base">{booking.customer_name || booking.customerName}</p>
@@ -204,9 +204,9 @@ function BookingDrawer({ booking, onClose, onRefresh }) {
               initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className="mx-5 mt-4 px-4 py-2.5 rounded-xl text-sm font-medium"
               style={{
-                background: toast.type === 'error' ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)',
-                border: `1px solid ${toast.type === 'error' ? 'rgba(239,68,68,0.3)' : 'rgba(34,197,94,0.3)'}`,
-                color: toast.type === 'error' ? '#EF4444' : '#22C55E',
+                background: toast.type === 'error' ? 'rgba(239,68,68,0.15)' : 'rgba(59,130,246,0.15)',
+                border: `1px solid ${toast.type === 'error' ? 'rgba(239,68,68,0.3)' : 'rgba(59,130,246,0.3)'}`,
+                color: toast.type === 'error' ? '#EF4444' : '#3B82F6',
               }}>
               {toast.msg}
             </motion.div>
@@ -219,7 +219,7 @@ function BookingDrawer({ booking, onClose, onRefresh }) {
             {canConfirm && (
               <button onClick={handleConfirm} disabled={loading}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:opacity-90 disabled:opacity-50"
-                style={{ background: 'rgba(34,197,94,0.15)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.3)' }}>
+                style={{ background: 'rgba(59,130,246,0.15)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.3)' }}>
                 <Check size={13} /> Konfirmasi
               </button>
             )}
@@ -315,7 +315,7 @@ function BookingDrawer({ booking, onClose, onRefresh }) {
         <div className="p-5 space-y-4 flex-1">
           <div className="rounded-xl p-4 space-y-2" style={rowBg}>
             <div className="flex items-center gap-2 mb-1">
-              <Wrench size={13} className="text-green-400" />
+              <Wrench size={13} className="text-blue-400" />
               <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider">Layanan</span>
             </div>
             <p className="text-white font-semibold text-sm">{booking.service || booking.serviceName}</p>
@@ -323,7 +323,7 @@ function BookingDrawer({ booking, onClose, onRefresh }) {
               <p className="text-gray-500 text-xs">Estimasi {booking.estimatedDuration}</p>
             )}
             {booking.estimatedPrice > 0 && (
-              <p className="text-green-400 text-sm font-bold">{fmt(booking.estimatedPrice)}</p>
+              <p className="text-blue-400 text-sm font-bold">{fmt(booking.estimatedPrice)}</p>
             )}
           </div>
 
@@ -374,7 +374,7 @@ function BookingDrawer({ booking, onClose, onRefresh }) {
               </div>
               {booking.confirmedAt && (
                 <div className="flex items-center gap-2 text-gray-400">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
                   <span>Dikonfirmasi oleh {booking.confirmedBy}</span>
                   <span className="ml-auto text-gray-600">{timeAgo(booking.confirmedAt)}</span>
                 </div>
@@ -416,7 +416,7 @@ function BookingRow({ booking, onSelect }) {
       initial={{ opacity: 0 }} animate={{ opacity: 1 }}
       onClick={() => onSelect(booking)}
       className="border-b cursor-pointer transition-all duration-150 hover:bg-white/[0.03] group"
-      style={{ borderColor: 'rgba(34,197,94,0.06)' }}
+      style={{ borderColor: 'rgba(59,130,246,0.06)' }}
     >
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
@@ -526,7 +526,7 @@ export default function Bookings() {
         <StatCard label="Pending"          value={stats.pendingConfirmation || 0} icon={Clock}
           color="#60A5FA" border="rgba(96,165,250,0.15)" sub="perlu konfirmasi" />
         <StatCard label="Hari Ini"         value={stats.today || 0}               icon={Calendar}
-          color="#22C55E" border="rgba(34,197,94,0.15)"  sub="jadwal hari ini" />
+          color="#3B82F6" border="rgba(59,130,246,0.15)"  sub="jadwal hari ini" />
         <StatCard label="Besok"            value={stats.tomorrow || 0}            icon={CalendarClock}
           color="#A78BFA" border="rgba(167,139,250,0.15)" />
         <StatCard label="Minggu Ini"       value={stats.thisWeek || 0}            icon={ClipboardList}
@@ -545,8 +545,8 @@ export default function Bookings() {
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
           <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Cari nama, ID, plat, layanan..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all duration-300 focus:ring-2 focus:ring-green-500/20 placeholder-gray-600"
-            style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }} />
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all duration-300 focus:ring-2 focus:ring-blue-500/20 placeholder-gray-600"
+            style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.08)' }} />
           {search && (
             <button onClick={() => setSearch('')}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-white transition-colors">
@@ -556,14 +556,14 @@ export default function Bookings() {
         </div>
 
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-          className="px-3.5 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all duration-300 focus:ring-2 focus:ring-green-500/20"
-          style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }}>
+          className="px-3.5 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all duration-300 focus:ring-2 focus:ring-blue-500/20"
+          style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.08)' }}>
           {statusOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
 
         <input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)}
-          className="px-3.5 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all duration-300 focus:ring-2 focus:ring-green-500/20"
-          style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }} />
+          className="px-3.5 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all duration-300 focus:ring-2 focus:ring-blue-500/20"
+          style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.08)' }} />
         {dateFilter && (
           <button onClick={() => setDateFilter('')}
             className="px-3.5 py-2.5 rounded-xl text-xs text-gray-500 hover:text-white transition-all duration-300 hover:scale-105"
@@ -574,7 +574,7 @@ export default function Bookings() {
 
         <button onClick={handleManualRefresh}
           className={`p-2.5 rounded-xl text-gray-500 hover:text-white transition-all duration-300 hover:scale-105 ${isRefreshing ? 'animate-spin' : ''}`}
-          style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(34,197,94,0.08)' }}>
+          style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(59,130,246,0.08)' }}>
           <RefreshCw size={15} />
         </button>
       </div>
@@ -582,8 +582,8 @@ export default function Bookings() {
       {/* TABLE */}
       <div className="rounded-2xl overflow-hidden"
         style={{
-          background: 'linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))',
-          border: '1px solid rgba(34,197,94,0.1)',
+          background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(10, 18, 34, 0.95))',
+          border: '1px solid rgba(59,130,246,0.1)',
           backdropFilter: 'blur(6px)',
         }}>
         {filtered.length === 0 ? (
@@ -600,7 +600,7 @@ export default function Bookings() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
+                <tr style={{ borderBottom: '1px solid rgba(59,130,246,0.08)' }}>
                   {['ID', 'Customer', 'Layanan', 'Jadwal', 'Status', 'Dibuat', ''].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-xs text-gray-600 font-semibold uppercase tracking-wider">
                       {h}
@@ -615,7 +615,7 @@ export default function Bookings() {
               </tbody>
             </table>
             <div className="px-4 py-3 flex items-center justify-between"
-              style={{ borderTop: '1px solid rgba(34,197,94,0.06)' }}>
+              style={{ borderTop: '1px solid rgba(59,130,246,0.06)' }}>
               <p className="text-gray-600 text-xs">
                 Menampilkan <span className="text-gray-400">{filtered.length}</span> dari{' '}
                 <span className="text-gray-400">{bookings.length}</span> booking

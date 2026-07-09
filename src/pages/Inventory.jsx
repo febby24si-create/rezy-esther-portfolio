@@ -34,8 +34,8 @@ const categoryIcons = {
 }
 
 const categoryColors = {
-  'Oli Mesin': '#22C55E',
-  'Oli Transmisi': '#22C55E',
+  'Oli Mesin': '#3B82F6',
+  'Oli Transmisi': '#3B82F6',
   'Filter Oli': '#3B82F6',
   'Filter Udara': '#3B82F6',
   'Busi': '#F59E0B',
@@ -59,7 +59,7 @@ const getCategoryColor = (cat) => categoryColors[cat] || '#9CA3AF'
 const getStockStatus = (stock, minStock) => {
   if (stock === 0)          return { label: 'Habis',   cls: 'text-red-400', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)' }
   if (stock <= minStock)    return { label: 'Menipis', cls: 'text-yellow-400', bg: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.3)' }
-  return                     { label: 'Aman',    cls: 'text-green-400', bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.2)' }
+  return                     { label: 'Aman',    cls: 'text-blue-400', bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.2)' }
 }
 
 const CATEGORIES = [
@@ -71,8 +71,8 @@ const CATEGORIES = [
 
 const initialForm = { code: '', name: '', category: 'Oli Mesin', stock: '', unit: 'pcs', minStock: '5', buyPrice: '', sellPrice: '' }
 
-const inputCls = 'w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all focus:ring-2 focus:ring-green-500/20'
-const inputStyle = { background: 'rgba(11,59,46,0.5)', border: '1px solid rgba(34,197,94,0.15)' }
+const inputCls = 'w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all focus:ring-2 focus:ring-blue-500/20'
+const inputStyle = { background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(59,130,246,0.15)' }
 
 // ─── Load data dengan merge ──────────────────────────────────────────
 function loadInventory() {
@@ -116,10 +116,10 @@ function RestockModal({ item, onClose, onConfirm }) {
         <motion.div
           initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
           className="w-full max-w-sm rounded-2xl overflow-hidden"
-          style={{ background: 'linear-gradient(160deg,#061a14,#0a2e1e)', border: '1px solid rgba(34,197,94,0.2)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
+          style={{ background: 'linear-gradient(160deg,#0a1222,#0f172a)', border: '1px solid rgba(59,130,246,0.2)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
           onClick={e => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(59,130,246,0.08)' }}>
             <div>
               <h3 className="text-white font-bold">Ubah Stok</h3>
               <p className="text-xs text-gray-500 mt-0.5 truncate max-w-[220px]">{item.name}</p>
@@ -130,21 +130,21 @@ function RestockModal({ item, onClose, onConfirm }) {
           </div>
 
           <form onSubmit={handleSubmit} className="p-5 space-y-4">
-            <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'rgba(11,59,46,0.4)', border: '1px solid rgba(34,197,94,0.1)' }}>
+            <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'rgba(15,23,42,0.4)', border: '1px solid rgba(59,130,246,0.1)' }}>
               <span className="text-xs text-gray-500">Stok saat ini</span>
               <span className="text-white font-black text-lg">{item.stock} <span className="text-gray-500 text-sm font-normal">{item.unit}</span></span>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               {[
-                { id: 'add',    label: '+ Tambah',  icon: MdAddCircle,    color: '#22C55E', bg: 'rgba(34,197,94,0.12)'  },
+                { id: 'add',    label: '+ Tambah',  icon: MdAddCircle,    color: '#3B82F6', bg: 'rgba(59,130,246,0.12)'  },
                 { id: 'reduce', label: '− Kurangi', icon: MdRemoveCircle, color: '#EF4444', bg: 'rgba(239,68,68,0.1)'   },
               ].map(t => (
                 <button key={t.id} type="button" onClick={() => setType(t.id)}
                   className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all"
                   style={type === t.id
                     ? { background: t.bg, color: t.color, border: `1.5px solid ${t.color}40` }
-                    : { background: 'rgba(11,59,46,0.3)', color: '#4B5563', border: '1px solid rgba(34,197,94,0.08)' }}>
+                    : { background: 'rgba(15,23,42,0.3)', color: '#4B5563', border: '1px solid rgba(59,130,246,0.08)' }}>
                   <t.icon size={15} /> {t.label}
                 </button>
               ))}
@@ -158,9 +158,9 @@ function RestockModal({ item, onClose, onConfirm }) {
 
             {qty && parseInt(qty) > 0 && (
               <div className="flex items-center justify-between p-3 rounded-xl"
-                style={{ background: type === 'add' ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)', border: `1px solid ${type === 'add' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}` }}>
+                style={{ background: type === 'add' ? 'rgba(59,130,246,0.08)' : 'rgba(239,68,68,0.08)', border: `1px solid ${type === 'add' ? 'rgba(59,130,246,0.2)' : 'rgba(239,68,68,0.2)'}` }}>
                 <span className="text-xs text-gray-400">Stok setelah</span>
-                <span className="font-black" style={{ color: type === 'add' ? '#22C55E' : preview < 0 ? '#EF4444' : '#FBBF24' }}>
+                <span className="font-black" style={{ color: type === 'add' ? '#3B82F6' : preview < 0 ? '#EF4444' : '#FBBF24' }}>
                   {Math.max(0, preview)} {item.unit}
                 </span>
               </div>
@@ -176,10 +176,10 @@ function RestockModal({ item, onClose, onConfirm }) {
             <div className="flex gap-3 pt-1">
               <button type="button" onClick={onClose}
                 className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all"
-                style={{ border: '1px solid rgba(34,197,94,0.12)' }}>Batal</button>
+                style={{ border: '1px solid rgba(59,130,246,0.12)' }}>Batal</button>
               <button type="submit"
                 className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 flex items-center justify-center gap-2"
-                style={{ background: type === 'add' ? 'linear-gradient(135deg,#22C55E,#16a34a)' : 'linear-gradient(135deg,#ef4444,#dc2626)' }}>
+                style={{ background: type === 'add' ? 'linear-gradient(135deg,#3B82F6,#2563eb)' : 'linear-gradient(135deg,#ef4444,#dc2626)' }}>
                 <MdCheck size={15} /> Simpan
               </button>
             </div>
@@ -205,10 +205,10 @@ function HistoryDrawer({ item, history, onClose }) {
           initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
           transition={{ type: 'spring', damping: 28, stiffness: 300 }}
           className="w-full max-w-sm h-full overflow-y-auto"
-          style={{ background: 'linear-gradient(160deg,#061a14,#082b1e)', borderLeft: '1px solid rgba(34,197,94,0.15)', boxShadow: '-30px 0 80px rgba(0,0,0,0.6)' }}
+          style={{ background: 'linear-gradient(160deg,#0a1222,#0f172a)', borderLeft: '1px solid rgba(59,130,246,0.15)', boxShadow: '-30px 0 80px rgba(0,0,0,0.6)' }}
           onClick={e => e.stopPropagation()}
         >
-          <div className="h-0.5" style={{ background: 'linear-gradient(90deg,#22C55E,#16a34a)' }} />
+          <div className="h-0.5" style={{ background: 'linear-gradient(90deg,#3B82F6,#2563eb)' }} />
 
           <div className="flex items-center gap-3 px-5 py-4">
             <button onClick={onClose}
@@ -222,7 +222,7 @@ function HistoryDrawer({ item, history, onClose }) {
             </div>
           </div>
 
-          <div className="mx-5 mb-5 rounded-2xl p-4 text-center" style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)' }}>
+          <div className="mx-5 mb-5 rounded-2xl p-4 text-center" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)' }}>
             <p className="text-xs text-gray-500 mb-1">Stok Sekarang</p>
             <p className="text-4xl font-black text-white">{item.stock}</p>
             <p className="text-gray-500 text-sm">{item.unit}</p>
@@ -236,10 +236,10 @@ function HistoryDrawer({ item, history, onClose }) {
               <div className="space-y-2">
                 {itemHistory.map((h, i) => (
                   <div key={i} className="flex items-center gap-3 p-3 rounded-xl"
-                    style={{ background: 'rgba(11,59,46,0.3)', border: '1px solid rgba(34,197,94,0.07)' }}>
+                    style={{ background: 'rgba(15,23,42,0.3)', border: '1px solid rgba(59,130,246,0.07)' }}>
                     <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
                       style={h.delta > 0
-                        ? { background: 'rgba(34,197,94,0.12)', color: '#22C55E' }
+                        ? { background: 'rgba(59,130,246,0.12)', color: '#3B82F6' }
                         : { background: 'rgba(239,68,68,0.1)', color: '#EF4444' }}>
                       {h.delta > 0 ? <MdTrendingUp size={16} /> : <MdTrendingDown size={16} />}
                     </div>
@@ -247,7 +247,7 @@ function HistoryDrawer({ item, history, onClose }) {
                       <p className="text-xs text-gray-300 font-medium">{h.note}</p>
                       <p className="text-xs text-gray-600 mt-0.5">{h.date} · Stok: {h.before} → {h.after}</p>
                     </div>
-                    <span className="text-sm font-black flex-shrink-0" style={{ color: h.delta > 0 ? '#22C55E' : '#EF4444' }}>
+                    <span className="text-sm font-black flex-shrink-0" style={{ color: h.delta > 0 ? '#3B82F6' : '#EF4444' }}>
                       {h.delta > 0 ? '+' : ''}{h.delta}
                     </span>
                   </div>
@@ -280,7 +280,7 @@ function DetailDrawer({ item, onClose, onEdit, onRestock, onAddToOrder }) {
           initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
           transition={{ type: 'spring', damping: 28, stiffness: 300 }}
           className="w-full max-w-sm h-full overflow-y-auto"
-          style={{ background: 'linear-gradient(160deg,#061a14,#082b1e)', borderLeft: '1px solid rgba(34,197,94,0.15)', boxShadow: '-30px 0 80px rgba(0,0,0,0.6)' }}
+          style={{ background: 'linear-gradient(160deg,#0a1222,#0f172a)', borderLeft: '1px solid rgba(59,130,246,0.15)', boxShadow: '-30px 0 80px rgba(0,0,0,0.6)' }}
           onClick={e => e.stopPropagation()}
         >
           <div className="h-1" style={{ background: `linear-gradient(90deg, ${color}, ${color}80)` }} />
@@ -298,7 +298,7 @@ function DetailDrawer({ item, onClose, onEdit, onRestock, onAddToOrder }) {
                 <MdEdit size={16} />
               </button>
               <button onClick={() => { onClose(); onRestock(item) }}
-                className="w-9 h-9 rounded-full flex items-center justify-center text-green-400 hover:scale-110 transition-all"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-blue-400 hover:scale-110 transition-all"
                 style={{ background: 'rgba(255,255,255,0.06)' }}>
                 <MdAddCircle size={16} />
               </button>
@@ -320,13 +320,13 @@ function DetailDrawer({ item, onClose, onEdit, onRestock, onAddToOrder }) {
 
           <div className="grid grid-cols-2 gap-3 mx-5 mb-5">
             {[
-              { label: 'Stok', value: `${item.stock} ${item.unit}`, color: '#22C55E' },
+              { label: 'Stok', value: `${item.stock} ${item.unit}`, color: '#3B82F6' },
               { label: 'Min. Stok', value: `${item.minStock} ${item.unit}`, color: '#FBBF24' },
               { label: 'Harga Beli', value: fmt(item.buyPrice), color: '#60A5FA' },
               { label: 'Harga Jual', value: fmt(item.sellPrice), color: '#A78BFA' },
             ].map(s => (
               <div key={s.label} className="rounded-xl p-3 text-center"
-                style={{ background: 'rgba(11,59,46,0.3)', border: '1px solid rgba(34,197,94,0.08)' }}>
+                style={{ background: 'rgba(15,23,42,0.3)', border: '1px solid rgba(59,130,246,0.08)' }}>
                 <p className="text-[10px] text-gray-500">{s.label}</p>
                 <p className="text-lg font-black" style={{ color: s.color }}>{s.value}</p>
               </div>
@@ -334,7 +334,7 @@ function DetailDrawer({ item, onClose, onEdit, onRestock, onAddToOrder }) {
           </div>
 
           <div className="mx-5 mb-5 rounded-xl p-3 flex items-center gap-3"
-            style={{ background: 'rgba(11,59,46,0.2)', border: '1px solid rgba(34,197,94,0.08)' }}>
+            style={{ background: 'rgba(11,59,46,0.2)', border: '1px solid rgba(59,130,246,0.08)' }}>
             <span className="text-xs text-gray-500">Kategori</span>
             <span className="text-sm text-white font-medium flex items-center gap-1.5">
               <span style={{ color }}>{getCategoryIcon(item.category)}</span>
@@ -345,7 +345,7 @@ function DetailDrawer({ item, onClose, onEdit, onRestock, onAddToOrder }) {
           <div className="px-5 pb-8 flex flex-col gap-2">
             <button onClick={() => { onClose(); onRestock(item) }}
               className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 flex items-center justify-center gap-2"
-              style={{ background: 'linear-gradient(135deg, #22C55E, #16a34a)', boxShadow: '0 8px 24px rgba(34,197,94,0.25)' }}>
+              style={{ background: 'linear-gradient(135deg, #3B82F6, #2563eb)', boxShadow: '0 8px 24px rgba(59,130,246,0.25)' }}>
               <MdAddCircle size={16} /> Restock / Ubah Stok
             </button>
             <button onClick={() => { onClose(); onAddToOrder(item) }}
@@ -374,13 +374,13 @@ function ItemModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
         <motion.div
           initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
           className="w-full max-w-lg rounded-2xl overflow-hidden"
-          style={{ background: 'linear-gradient(160deg,#061a14,#0a2e1e)', border: '1px solid rgba(34,197,94,0.2)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
+          style={{ background: 'linear-gradient(160deg,#0a1222,#0f172a)', border: '1px solid rgba(59,130,246,0.2)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
           onClick={e => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(34,197,94,0.08)' }}>
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(59,130,246,0.08)' }}>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(34,197,94,0.12)' }}>
-                <MdInventory2 size={15} className="text-green-400" />
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(59,130,246,0.12)' }}>
+                <MdInventory2 size={15} className="text-blue-400" />
               </div>
               <h3 className="text-white font-bold">{editId ? 'Edit Barang' : 'Tambah Barang'}</h3>
             </div>
@@ -442,13 +442,13 @@ function ItemModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
             </div>
           </form>
 
-          <div className="flex gap-3 px-5 py-4" style={{ borderTop: '1px solid rgba(34,197,94,0.08)' }}>
+          <div className="flex gap-3 px-5 py-4" style={{ borderTop: '1px solid rgba(59,130,246,0.08)' }}>
             <button type="button" onClick={onClose}
               className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all"
-              style={{ border: '1px solid rgba(34,197,94,0.12)' }}>Batal</button>
+              style={{ border: '1px solid rgba(59,130,246,0.12)' }}>Batal</button>
             <button type="submit" form="form-item"
               className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg,#22C55E,#16a34a)' }}>
+              style={{ background: 'linear-gradient(135deg,#3B82F6,#2563eb)' }}>
               {editId ? 'Simpan' : 'Tambah'}
             </button>
           </div>
@@ -553,13 +553,13 @@ export default function Inventory() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'radial-gradient(circle at 10% 20%, #072e1f, #03120c)' }}>
+    <div className="min-h-screen" style={{ background: 'radial-gradient(circle at 10% 20%, #0a1222, #050810)' }}>
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-black tracking-tight flex items-center gap-3">
-              <span className="bg-gradient-to-r from-green-300 to-emerald-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-300 to-blue-600 bg-clip-text text-transparent">
                 Inventaris Spare Part
               </span>
               <span className="text-sm font-normal text-gray-500 bg-white/5 px-3 py-1 rounded-full">
@@ -572,7 +572,7 @@ export default function Inventory() {
           </div>
           <button onClick={openAdd}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-black transition-all hover:scale-105 active:scale-95"
-            style={{ background: 'linear-gradient(135deg, #22C55E, #16a34a)', boxShadow: '0 8px 24px rgba(34,197,94,0.35)' }}>
+            style={{ background: 'linear-gradient(135deg, #3B82F6, #2563eb)', boxShadow: '0 8px 24px rgba(59,130,246,0.35)' }}>
             <MdAdd size={18} /> Tambah Barang
           </button>
         </div>
@@ -580,7 +580,7 @@ export default function Inventory() {
         {/* Stat cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Total SKU', value: totalSKU, icon: <MdInventory2 size={18}/>, color: '#22C55E', bg: 'rgba(34,197,94,0.06)' },
+            { label: 'Total SKU', value: totalSKU, icon: <MdInventory2 size={18}/>, color: '#3B82F6', bg: 'rgba(59,130,246,0.06)' },
             { label: 'Nilai Stok', value: `Rp ${(totalValue/1000000).toFixed(1)}jt`, icon: <MdTrendingUp size={18}/>, color: '#60A5FA', bg: 'rgba(96,165,250,0.06)' },
             { label: 'Menipis', value: lowStock, icon: <MdWarning size={18}/>, color: '#FBBF24', bg: 'rgba(251,191,36,0.06)' },
             { label: 'Habis', value: outOfStock, icon: <MdRemoveCircle size={18}/>, color: '#EF4444', bg: 'rgba(239,68,68,0.06)' },
@@ -611,22 +611,22 @@ export default function Inventory() {
 
         {/* Filter & Search */}
         <div className="rounded-2xl p-4 mb-6"
-          style={{ background: 'rgba(6,28,20,0.7)', border: '1px solid rgba(34,197,94,0.1)', backdropFilter: 'blur(8px)' }}>
+          style={{ background: 'rgba(10,18,34,0.7)', border: '1px solid rgba(59,130,246,0.1)', backdropFilter: 'blur(8px)' }}>
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" size={16} />
               <input value={search} onChange={e => setSearch(e.target.value)}
                 placeholder="Cari nama atau kode barang..."
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-gray-300 outline-none focus:ring-2 focus:ring-green-500/20 transition-all"
-                style={{ background: 'rgba(11,59,46,0.4)', border: '1px solid rgba(34,197,94,0.12)' }} />
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-gray-300 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                style={{ background: 'rgba(15,23,42,0.4)', border: '1px solid rgba(59,130,246,0.12)' }} />
             </div>
             <div className="flex flex-wrap gap-1.5">
               {CATEGORIES.map(cat => (
                 <button key={cat} onClick={() => setCategory(cat)}
                   className="px-3 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap"
                   style={category === cat
-                    ? { background: 'rgba(34,197,94,0.2)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.3)' }
-                    : { background: 'rgba(11,59,46,0.3)', color: '#6B7280', border: '1px solid rgba(34,197,94,0.08)' }}>
+                    ? { background: 'rgba(59,130,246,0.2)', color: '#3B82F6', border: '1px solid rgba(59,130,246,0.3)' }
+                    : { background: 'rgba(15,23,42,0.3)', color: '#6B7280', border: '1px solid rgba(59,130,246,0.08)' }}>
                   {cat}
                 </button>
               ))}
@@ -653,8 +653,8 @@ export default function Inventory() {
                   whileHover={{ y: -4, boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}
                   className="group relative rounded-2xl overflow-hidden cursor-pointer"
                   style={{
-                    background: 'linear-gradient(160deg, rgba(8,44,34,0.95) 0%, rgba(4,26,20,0.9) 100%)',
-                    border: '1px solid rgba(34,197,94,0.1)',
+                    background: 'linear-gradient(160deg, rgba(15,23,42,0.95) 0%, rgba(10,18,34,0.9) 100%)',
+                    border: '1px solid rgba(59,130,246,0.1)',
                     boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
                   }}
                   onClick={() => setDetailTarget(it)}
@@ -680,22 +680,22 @@ export default function Inventory() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 mb-3">
-                      <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(11,59,46,0.3)' }}>
+                      <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(15,23,42,0.3)' }}>
                         <p className="text-[10px] text-gray-500">Stok</p>
                         <p className={`text-lg font-black ${it.stock === 0 ? 'text-red-400' : it.stock <= it.minStock ? 'text-yellow-400' : 'text-white'}`}>
                           {it.stock}
                           <span className="text-xs text-gray-500 font-normal ml-1">{it.unit}</span>
                         </p>
                       </div>
-                      <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(11,59,46,0.3)' }}>
+                      <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(15,23,42,0.3)' }}>
                         <p className="text-[10px] text-gray-500">Harga Jual</p>
-                        <p className="text-sm font-black text-green-400">{fmt(it.sellPrice)}</p>
+                        <p className="text-sm font-black text-blue-400">{fmt(it.sellPrice)}</p>
                       </div>
                     </div>
 
                     <div className="h-1 rounded-full overflow-hidden mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
                       <div className="h-full rounded-full transition-all"
-                        style={{ width: `${pct}%`, background: it.stock === 0 ? '#EF4444' : it.stock <= it.minStock ? '#FBBF24' : '#22C55E' }} />
+                        style={{ width: `${pct}%`, background: it.stock === 0 ? '#EF4444' : it.stock <= it.minStock ? '#FBBF24' : '#3B82F6' }} />
                     </div>
 
                     <div className="flex items-center justify-between gap-1">
@@ -705,8 +705,8 @@ export default function Inventory() {
                       </span>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
                         <button onClick={() => setRestockTarget(it)} title="Restock"
-                          className="w-7 h-7 rounded-lg flex items-center justify-center text-green-400 hover:bg-green-500/15 hover:scale-110 transition-all"
-                          style={{ background: 'rgba(34,197,94,0.08)' }}>
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-blue-400 hover:bg-blue-500/15 hover:scale-110 transition-all"
+                          style={{ background: 'rgba(59,130,246,0.08)' }}>
                           <MdAddCircle size={14} />
                         </button>
                         <button onClick={() => setHistoryTarget(it)} title="Riwayat"
@@ -782,7 +782,7 @@ export default function Inventory() {
             <motion.div
               initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
               className="w-full max-w-sm rounded-2xl p-6 text-center"
-              style={{ background: 'linear-gradient(160deg, #0a2a1f, #061a14)', border: '1px solid rgba(239,68,68,0.3)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
+              style={{ background: 'linear-gradient(160deg, #0f172a, #0a1222)', border: '1px solid rgba(239,68,68,0.3)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
               onClick={e => e.stopPropagation()}
             >
               <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
@@ -791,7 +791,7 @@ export default function Inventory() {
               </div>
               <h3 className="text-white font-bold text-lg mb-2">Hapus Barang?</h3>
               <p className="text-gray-400 text-sm mb-6">
-                <span className="text-green-400 font-bold">{deleteTarget.name}</span> akan dihapus permanen.
+                <span className="text-blue-400 font-bold">{deleteTarget.name}</span> akan dihapus permanen.
               </p>
               <div className="flex gap-3">
                 <button onClick={() => setDeleteTarget(null)}

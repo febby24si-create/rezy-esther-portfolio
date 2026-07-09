@@ -39,6 +39,8 @@ import Pagination from "../components/Pagination";
 import customersData from "../data/customersData.json";
 import { getCustomerAvatar } from "../utils/randomAvatar";
 import { useCustomerStore } from "../hooks/useCustomerStore";
+import { calcTier } from "../lib/loyaltyConstants";
+import { orderAPI } from "../services/orderAPI";
 import CustomerDetail from "./CustomerDetail";
 
 import {
@@ -60,21 +62,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// ─── Storage helpers ──────────────────────────────────────────────────
-const getOrdersFromStorage = () => {
-  const stored = sessionStorage.getItem("garage_orders");
-  return stored ? JSON.parse(stored) : [];
-};
-
 // ─── Loyalty & Points helpers ──────────────────────────────────────
-const POINTS_PER_ORDER = 10;
-
-const getLoyaltyFromPoints = (points) => {
-  if (points >= 80) return "Platinum";
-  if (points >= 50) return "Gold";
-  if (points >= 25) return "Silver";
-  return "Bronze";
-};
+// PERBAIKAN BUG: sebelumnya file ini punya logika tier SENDIRI, terpisah
+// dari calcTier() asli (lib/loyaltyConstants.js) yang dipakai di
+// MembershipAdmin.jsx & seluruh member area. Threshold-nya juga beda jauh
+// (25/50/80 di sini vs 500/1500/3000 yang asli), DAN "points" dihitung
+// ulang dari jumlah order yang diambil dari sessionStorage('garage_orders')
+// — key yang sudah tidak pernah diisi lagi sejak Orders.jsx pindah ke
+// Supabase. Hasilnya: totalOrders selalu 0 -> points selalu 0 -> SEMUA
+// customer selalu "Bronze", padahal customer.points asli di Supabase
+// sudah bervariasi sehat (2 - 4948 poin di data production).
+//
+// Sekarang getLoyaltyFromPoints cuma alias tipis ke calcTier() asli,
+// dan "points" yang dipakai adalah customer.points langsung dari Supabase
+// (lihat customerPoints useMemo & CustomerCard di bawah).
+const getLoyaltyFromPoints = calcTier;
 
 const getLoyaltyConfig = (loyalty) => {
   const configs = {
@@ -151,7 +153,7 @@ function Avatar({ customer, size = 32 }) {
         style={{
           width: size, height: size,
           fontSize: size * 0.35,
-          background: "linear-gradient(135deg,#16A34A,#22C55E)",
+          background: "linear-gradient(135deg,#2563EB,#3B82F6)",
         }}
       >
         {initials}
@@ -164,7 +166,7 @@ function Avatar({ customer, size = 32 }) {
       <img
         src={src}
         alt={customer.name}
-        className="rounded-xl object-cover w-full h-full border border-green-500/20"
+        className="rounded-xl object-cover w-full h-full border border-blue-500/20"
         onError={() => setImgError(true)}
       />
     </div>
@@ -176,16 +178,16 @@ const SortIcon = ({ column, sortColumn, sortDirection }) => {
   if (sortColumn !== column)
     return <MdUnfoldMore size={13} className="text-gray-700" />;
   return sortDirection === "asc" ? (
-    <MdExpandLess size={13} className="text-green-400" />
+    <MdExpandLess size={13} className="text-blue-400" />
   ) : (
-    <MdExpandMore size={13} className="text-green-400" />
+    <MdExpandMore size={13} className="text-blue-400" />
   );
 };
 
 // ─── Order Card ────────────────────────────────────────────────────────
 function OrderCard({ order }) {
   const statusColor =
-    order.status === "Selesai" ? "#22C55E"
+    order.status === "Selesai" ? "#3B82F6"
     : order.status === "Sedang Dikerjakan" ? "#FBBF24"
     : "#94A3B8";
 
@@ -196,12 +198,12 @@ function OrderCard({ order }) {
       className="p-4 rounded-2xl hover:scale-[1.01] transition-all"
       style={{
         background: "rgba(6,26,20,0.8)",
-        border: "1px solid rgba(34,197,94,0.1)",
+        border: "1px solid rgba(59,130,246,0.1)",
       }}
     >
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1 min-w-0">
-          <p className="text-green-400 font-mono text-xs mb-0.5">{order.id}</p>
+          <p className="text-blue-400 font-mono text-xs mb-0.5">{order.id}</p>
           <p className="text-white text-sm font-semibold truncate">{order.service}</p>
           <p className="text-gray-500 text-xs">{order.vehicle}</p>
         </div>
@@ -226,8 +228,9 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
 
   const refreshOrders = useCallback(() => {
     if (!customer) return;
-    const all = getOrdersFromStorage();
-    setOrders(all.filter((o) => o.customer === customer.name));
+    orderAPI.fetchByCustomer(customer.id)
+      .then(data => setOrders((data || []).map(o => ({ ...o, date: o.order_date }))))
+      .catch(() => setOrders([]));
   }, [customer]);
 
   useEffect(() => {
@@ -236,9 +239,12 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
 
   if (!customer) return null;
 
-  const totalSpent = orders.reduce((s, o) => s + Number(o.total), 0);
-  const totalOrders = orders.length;
-  const points = totalOrders * POINTS_PER_ORDER;
+  // Pakai statistik ASLI dari Supabase (customer.total_spent/total_orders/points),
+  // bukan dihitung ulang dari `orders` — lebih akurat karena mencakup seluruh
+  // riwayat customer, bukan cuma order yang kebetulan ter-fetch di sesi ini.
+  const totalSpent = customer.total_spent || 0;
+  const totalOrders = customer.total_orders || orders.length;
+  const points = customer.points || 0;
   const loyalty = getLoyaltyFromPoints(points);
   const cfg = getLoyaltyConfig(loyalty);
 
@@ -247,8 +253,8 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
       <DialogContent
         className="max-w-xl p-0 overflow-hidden border-0"
         style={{
-          background: "linear-gradient(160deg,#061a14 0%,#082b1e 100%)",
-          border: "1px solid rgba(34,197,94,0.2)",
+          background: "linear-gradient(160deg,#0a1222 0%,#0f172a 100%)",
+          border: "1px solid rgba(59,130,246,0.2)",
           boxShadow: "0 25px 60px rgba(0,0,0,0.6)",
         }}
       >
@@ -275,7 +281,7 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
         <Tabs defaultValue="info" className="px-5 pb-5">
           <TabsList
             className="w-full mb-4 p-0.5"
-            style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.12)" }}
+            style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)" }}
           >
             {[
               { id: "info", label: "ℹ️ Info" },
@@ -285,7 +291,7 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
-                className="flex-1 text-xs py-2 data-[state=active]:text-green-400 data-[state=active]:bg-green-500/10 data-[state=active]:font-semibold"
+                className="flex-1 text-xs py-2 data-[state=active]:text-blue-400 data-[state=active]:bg-blue-500/10 data-[state=active]:font-semibold"
               >
                 {tab.label}
               </TabsTrigger>
@@ -295,7 +301,7 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
           <TabsContent value="info" className="space-y-3 mt-0">
             <div
               className="rounded-xl p-4 space-y-3"
-              style={{ background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.1)" }}
+              style={{ background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.1)" }}
             >
               {[
                 { icon: MdEmail, label: "Email", value: customer.email },
@@ -305,7 +311,7 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
                 { icon: MdStar, label: "Poin Loyalitas", value: `${points} poin`, bold: true },
               ].map(({ icon: Icon, label, value, bold }) => (
                 <div key={label} className="flex items-center gap-3">
-                  <Icon size={14} className="text-green-500 flex-shrink-0" />
+                  <Icon size={14} className="text-blue-500 flex-shrink-0" />
                   <div>
                     <p className="text-xs text-gray-600">{label}</p>
                     <p className={`text-sm ${bold ? "text-white font-bold" : "text-gray-300"}`}>{value}</p>
@@ -315,12 +321,12 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
             </div>
 
             <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-xl p-3 text-center" style={{ background: "rgba(34,197,94,0.05)", border: "1px solid rgba(34,197,94,0.1)" }}>
+              <div className="rounded-xl p-3 text-center" style={{ background: "rgba(59,130,246,0.05)", border: "1px solid rgba(59,130,246,0.1)" }}>
                 <p className="text-lg font-black text-white">{totalOrders}</p>
                 <p className="text-xs text-gray-500 mt-0.5">Transaksi</p>
               </div>
               <div className="rounded-xl p-3 text-center" style={{ background: "rgba(251,191,36,0.05)", border: "1px solid rgba(251,191,36,0.12)" }}>
-                <p className="text-sm font-black text-green-400">{totalOrders > 0 ? formatCurrency(totalSpent / totalOrders) : "—"}</p>
+                <p className="text-sm font-black text-blue-400">{totalOrders > 0 ? formatCurrency(totalSpent / totalOrders) : "—"}</p>
                 <p className="text-xs text-gray-500 mt-0.5">Avg/Order</p>
               </div>
               <div className="rounded-xl p-3 text-center" style={{ background: "rgba(168,85,247,0.06)", border: "1px solid rgba(168,85,247,0.2)" }}>
@@ -364,12 +370,12 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
 
           <TabsContent value="stats" className="mt-0 space-y-4">
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl p-4 text-center" style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.12)" }}>
+              <div className="rounded-xl p-4 text-center" style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)" }}>
                 <p className="text-3xl font-black text-white">{totalOrders}</p>
                 <p className="text-xs text-gray-500 mt-1">Total Pesanan</p>
               </div>
-              <div className="rounded-xl p-4 text-center" style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.12)" }}>
-                <p className="text-base font-black text-green-400">{formatCurrency(totalSpent)}</p>
+              <div className="rounded-xl p-4 text-center" style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.12)" }}>
+                <p className="text-base font-black text-blue-400">{formatCurrency(totalSpent)}</p>
                 <p className="text-xs text-gray-500 mt-1">Total Belanja</p>
               </div>
             </div>
@@ -399,7 +405,7 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
               </p>
             </div>
 
-            <div className="rounded-xl p-4" style={{ background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.1)" }}>
+            <div className="rounded-xl p-4" style={{ background: "rgba(59,130,246,0.04)", border: "1px solid rgba(59,130,246,0.1)" }}>
               <p className="text-xs text-gray-500 uppercase tracking-wider mb-3">Level Loyalitas</p>
               {["Platinum", "Gold", "Silver", "Bronze"].map((level) => {
                 const lvlCfg = getLoyaltyConfig(level);
@@ -432,9 +438,9 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
 }
 
 // ─── Customer Card ──────────────────────────────────────────────────
-function CustomerCard({ customer, allOrders, onDetail, onEdit, onDelete, onProfile }) {
-  const totalOrders = allOrders.filter(o => o.customer === customer.name).length;
-  const points = totalOrders * POINTS_PER_ORDER;
+function CustomerCard({ customer, onDetail, onEdit, onDelete, onProfile }) {
+  const points = customer.points || 0;
+  const totalOrders = customer.total_orders || customer.totalOrders || 0;
   const loyalty = getLoyaltyFromPoints(points);
   const cfg = getLoyaltyConfig(loyalty);
 
@@ -459,7 +465,7 @@ function CustomerCard({ customer, allOrders, onDetail, onEdit, onDelete, onProfi
       
       {isNew && (
         <div className="absolute top-3 right-3 z-10">
-          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-green-500/20 text-green-400 border border-green-500/30">
+          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
             ✦ Baru
           </span>
         </div>
@@ -511,7 +517,7 @@ function CustomerCard({ customer, allOrders, onDetail, onEdit, onDelete, onProfi
         </div>
         <div
           className="flex items-center justify-between pt-3"
-          style={{ borderTop: "1px solid rgba(34,197,94,0.08)" }}
+          style={{ borderTop: "1px solid rgba(59,130,246,0.08)" }}
         >
           <div className="flex flex-col gap-1.5">
             <LoyaltyBadge loyalty={loyalty} size="sm" />
@@ -532,8 +538,8 @@ function CustomerCard({ customer, allOrders, onDetail, onEdit, onDelete, onProfi
 }
 
 // ─── Form Modal ───────────────────────────────────────────────────────
-const inputCls = "w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all focus:ring-2 focus:ring-green-500/20";
-const inputStyle = { background: "rgba(11,59,46,0.5)", border: "1px solid rgba(34,197,94,0.15)" };
+const inputCls = "w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all focus:ring-2 focus:ring-blue-500/20";
+const inputStyle = { background: "rgba(15,23,42,0.5)", border: "1px solid rgba(59,130,246,0.15)" };
 
 function FormModal({ isOpen, onClose, onSubmit, initialData, editId }) {
   const [form, setForm] = useState(initialData);
@@ -573,16 +579,16 @@ function FormModal({ isOpen, onClose, onSubmit, initialData, editId }) {
           exit={{ scale: 0.9, y: 20 }}
           className="w-full max-w-md rounded-2xl overflow-hidden"
           style={{
-            background: "linear-gradient(160deg,#061a14,#0a2e1e)",
-            border: "1px solid rgba(34,197,94,0.2)",
+            background: "linear-gradient(160deg,#0a1222,#0f172a)",
+            border: "1px solid rgba(59,130,246,0.2)",
             boxShadow: "0 25px 60px rgba(0,0,0,0.5)",
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid rgba(34,197,94,0.1)" }}>
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid rgba(59,130,246,0.1)" }}>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(34,197,94,0.15)" }}>
-                {editId ? <MdEdit size={15} className="text-green-400" /> : <MdAdd size={15} className="text-green-400" />}
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(59,130,246,0.15)" }}>
+                {editId ? <MdEdit size={15} className="text-blue-400" /> : <MdAdd size={15} className="text-blue-400" />}
               </div>
               <h3 className="text-white font-bold">{editId ? "Edit Pelanggan" : "Tambah Pelanggan"}</h3>
             </div>
@@ -595,13 +601,13 @@ function FormModal({ isOpen, onClose, onSubmit, initialData, editId }) {
               <label className="block text-xs text-gray-400 mb-1.5">Foto</label>
               <div className="flex items-center gap-3">
                 {previewPhoto ? (
-                  <img src={previewPhoto} alt="Preview" className="w-12 h-12 rounded-xl object-cover border border-green-500/30" />
+                  <img src={previewPhoto} alt="Preview" className="w-12 h-12 rounded-xl object-cover border border-blue-500/30" />
                 ) : (
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold text-white" style={{ background: "linear-gradient(135deg,#16A34A,#22C55E)" }}>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold text-white" style={{ background: "linear-gradient(135deg,#2563EB,#3B82F6)" }}>
                     {form.name ? form.name[0] : "?"}
                   </div>
                 )}
-                <label className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-green-400 border border-green-500/20 hover:bg-green-500/10 transition-all">
+                <label className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-blue-400 border border-blue-500/20 hover:bg-blue-500/10 transition-all">
                   <MdPhotoCamera size={14} /> Upload
                   <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
                 </label>
@@ -624,11 +630,11 @@ function FormModal({ isOpen, onClose, onSubmit, initialData, editId }) {
               <p className="text-xs text-gray-400">Level loyalitas dan poin dihitung otomatis berdasarkan riwayat order.</p>
             </div>
           </form>
-          <div className="flex gap-3 px-5 py-4" style={{ borderTop: "1px solid rgba(34,197,94,0.1)" }}>
-            <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all" style={{ border: "1px solid rgba(34,197,94,0.12)" }}>
+          <div className="flex gap-3 px-5 py-4" style={{ borderTop: "1px solid rgba(59,130,246,0.1)" }}>
+            <button onClick={onClose} className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all" style={{ border: "1px solid rgba(59,130,246,0.12)" }}>
               Batal
             </button>
-            <button type="submit" form="customer-form" className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90 flex items-center justify-center gap-2" style={{ background: "linear-gradient(90deg,#22C55E,#16a34a)" }}>
+            <button type="submit" form="customer-form" className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90 flex items-center justify-center gap-2" style={{ background: "linear-gradient(90deg,#3B82F6,#2563eb)" }}>
               <MdCheck size={15} /> {editId ? "Simpan" : "Buat Pelanggan"}
             </button>
           </div>
@@ -655,7 +661,7 @@ function DeleteConfirm({ target, onConfirm, onCancel }) {
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.9, y: 20 }}
           className="w-full max-w-xs rounded-2xl p-6 text-center"
-          style={{ background: "linear-gradient(160deg, #0a2a1f, #061a14)", border: "1px solid rgba(239,68,68,0.3)", boxShadow: "0 30px 80px rgba(0,0,0,0.6)" }}
+          style={{ background: "linear-gradient(160deg, #0f172a, #0a1222)", border: "1px solid rgba(239,68,68,0.3)", boxShadow: "0 30px 80px rgba(0,0,0,0.6)" }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: "rgba(239,68,68,0.1)", border: "2px solid rgba(239,68,68,0.2)" }}>
@@ -663,7 +669,7 @@ function DeleteConfirm({ target, onConfirm, onCancel }) {
           </div>
           <h3 className="text-white font-bold text-lg mb-2">Hapus Pelanggan?</h3>
           <p className="text-gray-400 text-sm mb-6">
-            Pelanggan <span className="text-green-400 font-mono font-bold">{target?.name}</span> akan dihapus permanen.
+            Pelanggan <span className="text-blue-400 font-mono font-bold">{target?.name}</span> akan dihapus permanen.
           </p>
           <div className="flex gap-3">
             <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
@@ -682,12 +688,7 @@ function DeleteConfirm({ target, onConfirm, onCancel }) {
 // ─── Halaman Utama ──────────────────────────────────────────────────
 export default function Customers() {
   const { customers, setCustomers, addCustomer, updateCustomer, deleteCustomer } = useCustomerStore();
-  const [allOrders, setAllOrders] = useState(() => getOrdersFromStorage());
   const [profileTarget, setProfileTarget] = useState(null);
-
-  const refreshOrders = useCallback(() => {
-    setAllOrders(getOrdersFromStorage());
-  }, []);
 
   const [search, setSearch] = useState("");
   const [filterLoyalty, setFilterLoyalty] = useState("");
@@ -724,14 +725,13 @@ export default function Customers() {
   const customerPoints = useMemo(() => {
     const map = {};
     for (const c of customers) {
-      const orders = allOrders.filter(o => o.customer === c.name);
-      const totalOrders = orders.length;
-      const points = totalOrders * POINTS_PER_ORDER;
+      const points = c.points || 0;
+      const totalOrders = c.total_orders || c.totalOrders || 0;
       const loyalty = getLoyaltyFromPoints(points);
       map[c.id] = { points, loyalty, totalOrders };
     }
     return map;
-  }, [customers, allOrders]);
+  }, [customers]);
 
   const globalAvgPoints = useMemo(() => {
     const allPoints = Object.values(customerPoints).map(p => p.points);
@@ -840,13 +840,13 @@ export default function Customers() {
   const thCls = "text-left py-3 px-3 text-xs text-gray-600 font-semibold uppercase tracking-wider whitespace-nowrap cursor-pointer select-none hover:text-gray-400 transition-colors";
 
   return (
-    <div className="min-h-screen" style={{ background: '#060f0a' }}>
+    <div className="min-h-screen" style={{ background: 'radial-gradient(circle at 10% 20%, #0a1222, #050810)' }}>
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-black tracking-tight flex items-center gap-3">
-              <span className="bg-gradient-to-r from-green-300 to-emerald-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-300 to-blue-600 bg-clip-text text-transparent">
                 Data Pelanggan
               </span>
               <span className="text-sm font-normal text-gray-500 bg-white/5 px-3 py-1 rounded-full">
@@ -854,22 +854,22 @@ export default function Customers() {
               </span>
             </h1>
             <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
-              <MdPeople size={14} className="text-green-600" />
+              <MdPeople size={14} className="text-blue-600" />
               {loyaltyCounts.Platinum} Platinum · {loyaltyCounts.Gold} Gold · {loyaltyCounts.Silver} Silver · {loyaltyCounts.Bronze} Bronze
             </p>
           </div>
           <div className="flex gap-2">
             <button
               onClick={exportCSV}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-green-400 transition-all hover:bg-green-500/10"
-              style={{ border: "1px solid rgba(34,197,94,0.2)" }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-blue-400 transition-all hover:bg-blue-500/10"
+              style={{ border: "1px solid rgba(59,130,246,0.2)" }}
             >
               <MdDownload size={16} /> Export
             </button>
             <button
               onClick={handleAdd}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-black transition-all hover:scale-105 active:scale-95"
-              style={{ background: "linear-gradient(135deg,#22C55E,#16a34a)", boxShadow: "0 8px 24px rgba(34,197,94,0.35)" }}
+              style={{ background: "linear-gradient(135deg,#3B82F6,#2563eb)", boxShadow: "0 8px 24px rgba(59,130,246,0.35)" }}
             >
               <MdAdd size={18} /> Tambah Pelanggan
             </button>
@@ -879,36 +879,30 @@ export default function Customers() {
         {/* Stats Bar */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
           {[
-            { label: "Total", value: totalCustomers, icon: <MdPeople size={18}/>, color: "#94A3B8" },
-            { label: "Platinum", value: loyaltyCounts.Platinum, icon: <MdWorkspacePremium size={18}/>, color: "#A855F7" },
-            { label: "Gold", value: loyaltyCounts.Gold, icon: <MdEmojiEvents size={18}/>, color: "#FBBF24" },
-            { label: "Silver", value: loyaltyCounts.Silver, icon: <MdMilitaryTech size={18}/>, color: "#94A3B8" },
-            { label: "Bronze", value: loyaltyCounts.Bronze, icon: <MdVerified size={18}/>, color: "#F97316" },
+            { label: "Total", value: totalCustomers, icon: <MdPeople size={18}/>, color: "#94A3B8", bg: "rgba(148,163,184,0.06)" },
+            { label: "Platinum", value: loyaltyCounts.Platinum, icon: <MdWorkspacePremium size={18}/>, color: "#A855F7", bg: "rgba(168,85,247,0.06)" },
+            { label: "Gold", value: loyaltyCounts.Gold, icon: <MdEmojiEvents size={18}/>, color: "#FBBF24", bg: "rgba(251,191,36,0.06)" },
+            { label: "Silver", value: loyaltyCounts.Silver, icon: <MdMilitaryTech size={18}/>, color: "#94A3B8", bg: "rgba(148,163,184,0.06)" },
+            { label: "Bronze", value: loyaltyCounts.Bronze, icon: <MdVerified size={18}/>, color: "#F97316", bg: "rgba(249,115,22,0.06)" },
             { 
               label: "Rata-rata Poin", 
               value: globalAvgPoints > 0 ? Math.round(globalAvgPoints) : "—", 
               icon: <MdStar size={18}/>, 
-              color: "#FBBF24"
+              color: "#FBBF24", 
+              bg: "rgba(251,191,36,0.05)" 
             },
           ].map((s) => (
             <motion.div
               key={s.label}
               whileHover={{ scale: 1.02 }}
-              className="relative rounded-2xl px-4 py-3 transition-all duration-500 hover:shadow-lg overflow-hidden group"
-              style={{
-                background: 'linear-gradient(145deg, rgba(10, 26, 18, 0.9), rgba(4, 16, 11, 0.95))',
-                border: `1px solid ${s.color}20`,
-              }}
+              className="rounded-2xl px-4 py-3 transition-all"
+              style={{ background: s.bg, border: `1px solid ${s.color}15` }}
             >
-              <div className="absolute -top-6 -right-6 w-16 h-16 rounded-full opacity-10 group-hover:opacity-20 transition-all duration-700"
-                style={{ background: `radial-gradient(circle, ${s.color} 0%, transparent 70%)` }} />
-              <div className="flex items-center justify-between relative z-10">
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">{s.label}</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-gray-500">{s.label}</p>
                 <span style={{ color: s.color, opacity: 0.6 }}>{s.icon}</span>
               </div>
-              <p className="text-2xl font-black mt-1 relative z-10" style={{ color: s.color }}>{s.value}</p>
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-500 group-hover:h-1"
-                style={{ background: `linear-gradient(90deg, transparent, ${s.color}, transparent)` }} />
+              <p className="text-2xl font-black mt-1" style={{ color: s.color }}>{s.value}</p>
             </motion.div>
           ))}
         </div>
@@ -916,18 +910,18 @@ export default function Customers() {
         {/* Main Container */}
         <div
           className="rounded-2xl overflow-hidden"
-          style={{ background: "rgba(6,28,20,0.7)", border: "1px solid rgba(34,197,94,0.1)", backdropFilter: "blur(8px)" }}
+          style={{ background: "rgba(6,28,20,0.7)", border: "1px solid rgba(59,130,246,0.1)", backdropFilter: "blur(8px)" }}
         >
           {/* Toolbar */}
-          <div className="flex flex-col sm:flex-row gap-3 p-4" style={{ borderBottom: "1px solid rgba(34,197,94,0.08)" }}>
+          <div className="flex flex-col sm:flex-row gap-3 p-4" style={{ borderBottom: "1px solid rgba(59,130,246,0.08)" }}>
             <div className="relative flex-1">
               <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" size={16} />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Cari nama, email, telepon..."
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all focus:ring-2 focus:ring-green-500/20"
-                style={{ background: "rgba(11,59,46,0.4)", border: "1px solid rgba(34,197,94,0.12)" }}
+                className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-gray-300 outline-none transition-all focus:ring-2 focus:ring-blue-500/20"
+                style={{ background: "rgba(15,23,42,0.4)", border: "1px solid rgba(59,130,246,0.12)" }}
               />
             </div>
             <div className="flex gap-2">
@@ -937,13 +931,13 @@ export default function Customers() {
                   className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm transition-all"
                   style={
                     activeFilters > 0
-                      ? { background: "rgba(34,197,94,0.15)", color: "#22C55E", border: "1px solid rgba(34,197,94,0.3)" }
-                      : { background: "rgba(11,59,46,0.4)", color: "#6B7280", border: "1px solid rgba(34,197,94,0.1)" }
+                      ? { background: "rgba(59,130,246,0.15)", color: "#3B82F6", border: "1px solid rgba(59,130,246,0.3)" }
+                      : { background: "rgba(15,23,42,0.4)", color: "#6B7280", border: "1px solid rgba(59,130,246,0.1)" }
                   }
                 >
                   <MdFilterList size={16} />
                   {activeFilters > 0 && (
-                    <span className="w-4 h-4 rounded-full text-xs font-bold text-black flex items-center justify-center" style={{ background: "#22C55E" }}>
+                    <span className="w-4 h-4 rounded-full text-xs font-bold text-black flex items-center justify-center" style={{ background: "#3B82F6" }}>
                       {activeFilters}
                     </span>
                   )}
@@ -953,14 +947,14 @@ export default function Customers() {
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="absolute right-0 top-full mt-2 w-64 rounded-2xl p-4 z-30"
-                    style={{ background: "#051A0E", border: "1px solid rgba(34,197,94,0.2)", boxShadow: "0 20px 40px rgba(0,0,0,0.4)" }}
+                    style={{ background: "#0a1222", border: "1px solid rgba(59,130,246,0.2)", boxShadow: "0 20px 40px rgba(0,0,0,0.4)" }}
                   >
                     <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-3">Filter Level</p>
                     <select
                       value={filterLoyalty}
                       onChange={(e) => setFilterLoyalty(e.target.value)}
                       className="w-full px-3 py-2 rounded-xl text-sm text-white outline-none mb-3"
-                      style={{ background: "rgba(11,59,46,0.5)", border: "1px solid rgba(34,197,94,0.15)" }}
+                      style={{ background: "rgba(15,23,42,0.5)", border: "1px solid rgba(59,130,246,0.15)" }}
                     >
                       <option value="">Semua Level</option>
                       {["Platinum", "Gold", "Silver", "Bronze"].map((l) => <option key={l}>{l}</option>)}
@@ -976,7 +970,7 @@ export default function Customers() {
                 )}
               </div>
 
-              <div className="flex rounded-xl overflow-hidden" style={{ border: "1px solid rgba(34,197,94,0.12)" }}>
+              <div className="flex rounded-xl overflow-hidden" style={{ border: "1px solid rgba(59,130,246,0.12)" }}>
                 {[
                   { id: "table", icon: <MdTableRows size={16} /> },
                   { id: "grid", icon: <MdGridView size={16} /> },
@@ -985,7 +979,7 @@ export default function Customers() {
                     key={v.id}
                     onClick={() => setViewMode(v.id)}
                     className="w-9 h-9 flex items-center justify-center transition-all"
-                    style={viewMode === v.id ? { background: "rgba(34,197,94,0.2)", color: "#22C55E" } : { background: "rgba(11,59,46,0.4)", color: "#4B5563" }}
+                    style={viewMode === v.id ? { background: "rgba(59,130,246,0.2)", color: "#3B82F6" } : { background: "rgba(15,23,42,0.4)", color: "#4B5563" }}
                   >
                     {v.icon}
                   </button>
@@ -999,7 +993,7 @@ export default function Customers() {
             <div className="overflow-x-auto">
               <table className="w-full" style={{ minWidth: 960 }}>
                 <thead>
-                  <tr style={{ borderBottom: "1px solid rgba(34,197,94,0.08)" }}>
+                  <tr style={{ borderBottom: "1px solid rgba(59,130,246,0.08)" }}>
                     {[
                       { key: "id", label: "ID" },
                       { key: "photo", label: "Foto", noSort: true },
@@ -1030,17 +1024,17 @@ export default function Customers() {
                         key={customer.id}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        onClick={() => { setDetailTarget(customer); refreshOrders(); }}
-                        className="cursor-pointer transition-colors hover:bg-green-500/[0.04]"
-                        style={{ borderBottom: "1px solid rgba(34,197,94,0.05)" }}
+                        onClick={() => setDetailTarget(customer)}
+                        className="cursor-pointer transition-colors hover:bg-blue-500/[0.04]"
+                        style={{ borderBottom: "1px solid rgba(59,130,246,0.05)" }}
                       >
-                        <td className="py-3 px-3 text-xs text-green-400 font-mono whitespace-nowrap">{customer.id}</td>
+                        <td className="py-3 px-3 text-xs text-blue-400 font-mono whitespace-nowrap">{customer.id}</td>
                         <td className="py-3 px-3">
                           <Avatar customer={customer} size={34} />
                         </td>
                         <td className="py-3 px-3 text-sm text-white font-medium whitespace-nowrap flex items-center gap-1.5">
                           {customer.name}
-                          {isNew && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">New</span>}
+                          {isNew && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">New</span>}
                         </td>
                         <td className="py-3 px-3 text-sm text-gray-400">{customer.email}</td>
                         <td className="py-3 px-3 text-sm text-gray-400 whitespace-nowrap">{customer.phone}</td>
@@ -1053,26 +1047,26 @@ export default function Customers() {
                             <DropdownMenuTrigger asChild>
                               <button
                                 className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:bg-white/10"
-                                style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.15)", color: "#6B7280" }}
+                                style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.15)", color: "#6B7280" }}
                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                   <circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" />
                                 </svg>
                               </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-44" style={{ background: "#061a14", border: "1px solid rgba(34,197,94,0.2)" }}>
+                            <DropdownMenuContent align="end" className="w-44" style={{ background: "#0a1222", border: "1px solid rgba(59,130,246,0.2)" }}>
                               <DropdownMenuLabel className="text-gray-400 text-xs">Aksi Pelanggan</DropdownMenuLabel>
-                              <DropdownMenuSeparator style={{ background: "rgba(34,197,94,0.1)" }} />
-                              <DropdownMenuItem onClick={() => { setDetailTarget(customer); refreshOrders(); }} className="cursor-pointer text-gray-300 hover:text-white focus:text-white focus:bg-green-500/10">
+                              <DropdownMenuSeparator style={{ background: "rgba(59,130,246,0.1)" }} />
+                              <DropdownMenuItem onClick={() => setDetailTarget(customer)} className="cursor-pointer text-gray-300 hover:text-white focus:text-white focus:bg-blue-500/10">
                                 <MdPerson size={14} className="mr-2 text-blue-400" /> Lihat Detail
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => setProfileTarget(customer)} className="cursor-pointer text-gray-300 hover:text-white focus:text-white focus:bg-blue-500/10">
-                                <MdOpenInNew size={14} className="mr-2 text-green-400" /> Profil Lengkap
+                                <MdOpenInNew size={14} className="mr-2 text-blue-400" /> Profil Lengkap
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleEdit(customer)} className="cursor-pointer text-gray-300 hover:text-white focus:text-white focus:bg-yellow-500/10">
                                 <MdEdit size={14} className="mr-2 text-yellow-400" /> Edit Pelanggan
                               </DropdownMenuItem>
-                              <DropdownMenuSeparator style={{ background: "rgba(34,197,94,0.1)" }} />
+                              <DropdownMenuSeparator style={{ background: "rgba(59,130,246,0.1)" }} />
                               <DropdownMenuItem onClick={() => setDeleteTarget(customer)} className="cursor-pointer text-red-400 hover:text-red-300 focus:text-red-300 focus:bg-red-500/10">
                                 <MdDelete size={14} className="mr-2" /> Hapus Pelanggan
                               </DropdownMenuItem>
@@ -1088,7 +1082,7 @@ export default function Customers() {
                 <div className="text-center py-16 flex flex-col items-center gap-3">
                   <MdPerson size={48} className="text-gray-700" />
                   <p className="text-gray-600 text-sm">Tidak ada pelanggan ditemukan</p>
-                  <button onClick={resetFilters} className="text-green-500 text-xs hover:underline flex items-center gap-1">
+                  <button onClick={resetFilters} className="text-blue-500 text-xs hover:underline flex items-center gap-1">
                     <MdRefresh size={13} /> Reset filter
                   </button>
                 </div>
@@ -1103,8 +1097,7 @@ export default function Customers() {
                 <CustomerCard
                   key={customer.id}
                   customer={customer}
-                  allOrders={allOrders}
-                  onDetail={(c) => { setDetailTarget(c); refreshOrders(); }}
+                  onDetail={(c) => setDetailTarget(c)}
                   onProfile={(c) => setProfileTarget(c)}
                   onEdit={handleEdit}
                   onDelete={setDeleteTarget}
@@ -1120,14 +1113,14 @@ export default function Customers() {
           )}
 
           {/* Pagination */}
-          <div className="px-5 py-4 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: "1px solid rgba(34,197,94,0.06)" }}>
+          <div className="px-5 py-4 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: "1px solid rgba(59,130,246,0.06)" }}>
             <p className="text-xs text-gray-600">
               Menampilkan{" "}
               <span className="text-gray-300 font-semibold">{filtered.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}</span>
               {" "}–{" "}
               <span className="text-gray-300 font-semibold">{Math.min(currentPage * itemsPerPage, filtered.length)}</span>
               {" "}dari{" "}
-              <span className="text-green-500 font-semibold">{filtered.length}</span> pelanggan
+              <span className="text-blue-500 font-semibold">{filtered.length}</span> pelanggan
               {activeFilters > 0 && " (disaring)"}
             </p>
             {filtered.length > 0 && totalPages > 1 && (
@@ -1146,7 +1139,7 @@ export default function Customers() {
         >
           <div
             className="h-full w-full max-w-2xl overflow-y-auto"
-            style={{ background: '#041C15', borderLeft: '1px solid rgba(34,197,94,0.15)' }}
+            style={{ background: '#0a1222', borderLeft: '1px solid rgba(59,130,246,0.15)' }}
           >
             <CustomerDetail
               customerId={profileTarget.id}
@@ -1161,7 +1154,7 @@ export default function Customers() {
         <CustomerDetailDialog
           customer={detailTarget}
           isOpen={!!detailTarget}
-          onClose={() => { setDetailTarget(null); refreshOrders(); }}
+          onClose={() => setDetailTarget(null)}
           onEdit={(c) => { setDetailTarget(null); handleEdit(c); }}
           onDelete={(c) => { setDetailTarget(null); setDeleteTarget(c); }}
         />
