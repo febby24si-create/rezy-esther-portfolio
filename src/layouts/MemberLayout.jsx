@@ -95,7 +95,7 @@ function MemberNavbar({ sidebarOpen, setSidebarOpen }) {
         )}
 
         {/* Lihat Website */}
-        <Link to="/guest"
+        <Link to="/"
           className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-gray-400 hover:text-white hover:bg-white/8 transition-all border border-white/8 hover:border-white/15"
           title="Lihat Website">
           <MdOpenInNew size={14} />
@@ -175,7 +175,7 @@ function MemberSidebar({ open, onClose }) {
 
         {/* Footer */}
         <div className="p-3 border-t border-white/5 space-y-1">
-          <Link to="/guest"
+          <Link to="/"
             className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-all border border-transparent hover:border-white/10">
             <MdDirectionsCar size={15} />
             <span>Lihat Website Guest</span>
