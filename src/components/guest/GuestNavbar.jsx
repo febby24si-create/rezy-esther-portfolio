@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react'
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   MdMenu, MdClose, MdDirectionsCar, MdDashboard, MdBuild,
   MdCardGiftcard, MdHistory, MdStars, MdGpsFixed,
   MdNotifications, MdPerson, MdLogout, MdLogin, MdLeaderboard,
   MdCardMembership, MdOpenInNew, MdChevronRight,
 } from 'react-icons/md'
-import { useCustomerAuth, calcTier, TIER_CONFIG } from '../../context/CustomerAuthContext'
+import { useCustomerAuth } from '../../context/CustomerAuthContext'
+import { calcTier, TIER_CONFIG } from '../../lib/loyaltyConstants'
 import NotificationBell from '../NotificationBell'
 import { getCustomerAvatar } from '../../utils/randomAvatar'
 
@@ -50,9 +51,13 @@ export default function GuestNavbar() {
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
+  const prevPathRef = useRef(location.pathname)
   useEffect(() => {
-    setMenuOpen(false)
-    setDropdownOpen(false)
+    if (prevPathRef.current !== location.pathname) {
+      setMenuOpen(false)
+      setDropdownOpen(false)
+      prevPathRef.current = location.pathname
+    }
   }, [location.pathname])
 
   const handleLogout = () => {

@@ -22,7 +22,7 @@ import {
   calcTier,
   calcLoyaltyProgress,
   TIER_CONFIG,
-} from '../context/CustomerAuthContext'
+} from '../lib/loyaltyConstants'
 
 // ─── Palette ─────────────────────────────────────────────────
 const TIER_COLORS = {
@@ -269,9 +269,9 @@ export default function MembershipAdmin() {
   // Monthly member growth (simulated from joinDate)
   const growthData = useMemo(() => {
     const months = {}
-    customers.filter(c => c.memberSince).forEach(c => {
-      const m = c.memberSince.slice(0, 7)
-      months[m] = (months[m] || 0) + 1
+    customers.filter(c => c.memberSince || c.member_since).forEach(c => {
+      const m = (c.memberSince || c.member_since || '').slice(0, 7)
+      if (m) months[m] = (months[m] || 0) + 1
     })
     return Object.entries(months).sort(([a], [b]) => a.localeCompare(b))
       .slice(-6).map(([month, count]) => ({
@@ -440,10 +440,10 @@ export default function MembershipAdmin() {
 
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Pie Chart Tier */}
-            <div className="rounded-2xl p-5"
+            <div className="rounded-2xl p-5 min-w-0"
               style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <h3 className="text-white font-bold text-sm mb-4">Distribusi Tier</h3>
-              <div className="h-48">
+              <div className="h-48 min-w-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie data={tierPieData} cx="50%" cy="50%" innerRadius={50} outerRadius={80}
@@ -470,10 +470,10 @@ export default function MembershipAdmin() {
             </div>
 
             {/* Growth Chart */}
-            <div className="rounded-2xl p-5"
+            <div className="rounded-2xl p-5 min-w-0"
               style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <h3 className="text-white font-bold text-sm mb-4">Pertumbuhan Member</h3>
-              <div className="h-48">
+              <div className="h-48 min-w-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={growthData}>
                     <defs>

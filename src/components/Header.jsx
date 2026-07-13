@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAdminNotifications } from "../hooks/useNotifications";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { orderAPI } from "../services/orderAPI";
 import { customerAPI } from "../services/customerAPI";
 import {

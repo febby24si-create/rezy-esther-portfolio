@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { MdDirectionsCar, MdPhone, MdEmail, MdLocationOn, MdAccessTime, MdArrowForward } from 'react-icons/md'
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp } from 'react-icons/fa'
 

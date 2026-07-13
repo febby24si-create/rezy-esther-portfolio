@@ -14,7 +14,7 @@ function Countdown({ validUntil }) {
   const [timeLeft, setTimeLeft] = useState('')
 
   useEffect(() => {
-    if (!validUntil || isNaN(Date.parse(validUntil))) { setTimeLeft(''); return }
+    if (!validUntil || isNaN(Date.parse(validUntil))) return
     const tick = () => {
       const diff = new Date(validUntil) - Date.now()
       if (diff <= 0) { setTimeLeft('Berakhir'); return }
@@ -39,7 +39,7 @@ function Countdown({ validUntil }) {
 
 export default function PromoCard({ promo, showCode = false }) {
   const [copied, setCopied] = useState(false)
-  const { title, type, badge, badgeColor, desc, diskon, validUntil, terms, id } = promo
+  const { title, badge, badgeColor, desc, diskon, validUntil, terms, id } = promo
 
   const handleCopy = () => {
     navigator.clipboard.writeText(id)

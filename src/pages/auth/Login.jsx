@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { MdEmail, MdLock, MdVisibility, MdVisibilityOff, MdPerson, MdAdminPanelSettings } from 'react-icons/md';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { authAPI } from '../../services/authAPI';
 import { motion, AnimatePresence } from 'framer-motion';

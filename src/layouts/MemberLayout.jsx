@@ -3,17 +3,20 @@
 // Layout khusus halaman Member yang sudah login.
 // Terpisah dari GuestLayout — memiliki navbar dan sidebar sendiri.
 // ============================================================
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Outlet, useLocation, Link, useNavigate, NavLink } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   MdDashboard, MdDirectionsCar, MdHistory, MdStars, MdCardGiftcard,
   MdPerson, MdLogout, MdBuild, MdGpsFixed, MdMenu, MdClose,
   MdLeaderboard, MdCreditCard, MdNotifications, MdChevronRight, MdOpenInNew,
+  MdShoppingBag,
 } from 'react-icons/md'
-import { useCustomerAuth, calcTier, TIER_CONFIG } from '../context/CustomerAuthContext'
+import { useCustomerAuth } from '../context/CustomerAuthContext'
+import { calcTier, TIER_CONFIG } from '../lib/loyaltyConstants'
 import { createContext, useContext } from 'react'
-import { ToastContainer, useToast } from '../components/guest/Toast'
+import { ToastContainer } from '../components/guest/Toast'
+import { useToast } from '../hooks/useToast'
 
 const ToastCtx = createContext(null)
 export const useMemberToast = () => useContext(ToastCtx)
@@ -26,6 +29,7 @@ const NAV_ITEMS = [
   { path: '/member/loyalty',   label: 'Poin Loyalty',  icon: MdStars        },
   { path: '/member/voucher',   label: 'Voucher',       icon: MdCardGiftcard },
   { path: '/member/riwayat',   label: 'Riwayat',       icon: MdHistory      },
+  { path: '/member/pembelian', label: 'Riwayat Pembelian', icon: MdShoppingBag },
   { path: '/member/profil',    label: 'Profil',        icon: MdPerson       },
   { path: '/member/leaderboard', label: 'Leaderboard', icon: MdLeaderboard  },
 ]
@@ -190,10 +194,14 @@ export default function MemberLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
   const { toasts, addToast, removeToast } = useToast()
+  const prevPathRef = useRef(location.pathname)
 
-  // Close sidebar on route change
+  // Close sidebar on route change (guard against initial mount)
   useEffect(() => {
-    setSidebarOpen(false)
+    if (prevPathRef.current !== location.pathname) {
+      setSidebarOpen(false)
+      prevPathRef.current = location.pathname
+    }
   }, [location.pathname])
 
   return (

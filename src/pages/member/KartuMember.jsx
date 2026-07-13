@@ -5,11 +5,11 @@
 // ============================================================
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useCustomerAuth, calcTier, calcLoyaltyProgress } from '../../context/CustomerAuthContext'
+import { useCustomerAuth } from '../../context/CustomerAuthContext'
+import { calcTier, calcLoyaltyProgress } from '../../lib/loyaltyConstants'
 import { MdVerified, MdCreditCard, MdFlip, MdCheck, MdSecurity, MdShare, MdPerson, MdLock } from 'react-icons/md'
-import {
-  CARD_THEME, TIER_ORDER, CardFront, CardPattern,
-} from '../../components/member/MemberCardComponents'
+import { CARD_THEME, TIER_ORDER } from '../../lib/memberCardTheme'
+import { CardFront, CardPattern } from '../../components/member/MemberCardComponents'
 
 // ─── Card Back ───────────────────────────────────────────────
 function CardBack({ customer, theme, membershipId, memberSince }) {

@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageSkeleton from '../../components/ui/PageSkeleton';
-import { CARD_THEME, CardPattern, ChipIcon } from '../../components/member/MemberCardComponents';
+import { CARD_THEME } from '../../lib/memberCardTheme';
+import { CardPattern, ChipIcon } from '../../components/member/MemberCardComponents';
 import { publicAPI } from '../../services/publicAPI';
 import {
   MdWhatsapp,
@@ -21,6 +22,7 @@ import {
   MdArrowForward,
 } from 'react-icons/md';
 import HeroSection from '../../components/guest/HeroSection';
+import ScrollSpyNav from '../../components/guest/ScrollSpyNav';
 
 // ─── GAMBAR BENGKEL REALISTIS (Unsplash stable) ──────────────
 const IMAGES = {
@@ -540,7 +542,6 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [seconds, setSeconds] = useState(137);
 
-  const [activeSection, setActiveSection] = useState('home');
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [testimonials, setTestimonials] = useState([]);
   const [stats, setStats] = useState({ pelanggan: 5000, mekanik: 10, tahun: 8, kepuasan: 98 });
@@ -578,23 +579,23 @@ export default function LandingPage() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // ─── Active section detection ───
-  useEffect(() => {
-    const sections = ['home', 'tentang', 'layanan', 'galeri', 'tim', 'faq', 'kontak'];
-    const observers = sections.map((id) => {
-      const el = document.getElementById(id);
-      if (!el) return null;
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setActiveSection(id);
-        },
-        { threshold: 0.3 }
-      );
-      observer.observe(el);
-      return observer;
-    });
-    return () => observers.forEach((obs) => obs?.disconnect());
-  }, []);
+  // ─── Scroll Spy — deteksi section aktif untuk ScrollSpyNav ───
+  // Sebelumnya ada implementasi manual di sini (7 IntersectionObserver
+  // terpisah) yang hasilnya (`activeSection`) tidak pernah dipakai di
+  // render mana pun — orphaned. Diganti dengan hook `useScrollSpy`
+  // (1 observer bersama) + daftar section yang benar-benar lengkap.
+  const LANDING_SECTIONS = [
+    { id: 'home',       label: 'Beranda' },
+    { id: 'tentang',    label: 'Tentang' },
+    { id: 'timeline',   label: 'Sejarah' },
+    { id: 'layanan',    label: 'Layanan' },
+    { id: 'membership', label: 'Membership' },
+    { id: 'galeri',     label: 'Galeri' },
+    { id: 'tim',        label: 'Tim' },
+    { id: 'faq',        label: 'FAQ' },
+    { id: 'lokasi',     label: 'Lokasi' },
+    { id: 'kontak',     label: 'Kontak' },
+  ]
 
   const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
   const secs = String(seconds % 60).padStart(2, '0');
@@ -624,8 +625,13 @@ export default function LandingPage() {
       {/* ─── NAVBAR ─── */}
       {/* ─── PARTICLES ─── */}
 
+      {/* ─── SCROLL SPY NAV ─── */}
+      <ScrollSpyNav sections={LANDING_SECTIONS} />
+
       {/* ─── PREMIUM HERO ─── */}
-      <HeroSection poster={IMAGES.hero} stats={stats} navigate={navigate} />
+      <div id="home">
+        <HeroSection poster={IMAGES.hero} stats={stats} navigate={navigate} />
+      </div>
 
       {/* ─── TENTANG ─── */}
       <section id="tentang" className="py-24 px-6 sm:px-10 lg:px-16 bg-garage-950 relative overflow-hidden">

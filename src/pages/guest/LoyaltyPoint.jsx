@@ -5,10 +5,12 @@ import {
   MdCardGiftcard, MdShield, MdLocalOffer, MdAutorenew,
   MdArrowForward, MdLock,
 } from 'react-icons/md'
-import { useCustomerAuth, calcLoyaltyProgress, TIER_CONFIG } from '../../context/CustomerAuthContext'
+import { useCustomerAuth } from '../../context/CustomerAuthContext'
+import { calcLoyaltyProgress, TIER_CONFIG } from '../../lib/loyaltyConstants'
+import { fadeUp } from '../../lib/animationVariants'
 import {
   AnimatedPage, ScrollReveal, StaggerReveal, StaggerItem,
-  AnimatedProgress, fadeUp
+  AnimatedProgress
 } from '../../components/AnimatedPage'
 import PageSkeleton from '../../components/ui/PageSkeleton'
 

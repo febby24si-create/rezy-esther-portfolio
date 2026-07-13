@@ -10,7 +10,8 @@ import {
   MdCardMembership, MdStars, MdEmojiEvents, MdHistory,
   MdArrowBack, MdCopyAll, MdCheck, MdLogout, MdDownload,
 } from 'react-icons/md'
-import { useCustomerAuth, calcLoyaltyProgress, TIER_CONFIG, TIER_BENEFITS, calcAchievements } from '../../context/CustomerAuthContext'
+import { useCustomerAuth } from '../../context/CustomerAuthContext'
+import { calcLoyaltyProgress, TIER_CONFIG, TIER_BENEFITS, calcAchievements } from '../../lib/loyaltyConstants'
 import { AnimatedPage, ScrollReveal, AnimatedProgress } from '../../components/AnimatedPage'
 import { getCustomerAvatar } from '../../utils/randomAvatar'
 

@@ -11,7 +11,7 @@ export default function NotificationBell({ customerId }) {
   const navigate                                      = useNavigate()
   const [open, setOpen]                               = useState(false)
   const ref                                           = useRef(null)
-  const { notifs, unreadCount, notifLoading, markRead, markAllRead, dismiss } =
+  const { notifs, unreadCount, markRead, markAllRead, dismiss } =
     useCustomerNotifications(customerId)
 
   useEffect(() => {

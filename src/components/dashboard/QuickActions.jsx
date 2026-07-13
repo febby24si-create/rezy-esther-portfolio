@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { MdDirectionsCar, MdCardGiftcard, MdHistory, MdStars, MdCardMembership } from 'react-icons/md'
 
 const actions = [

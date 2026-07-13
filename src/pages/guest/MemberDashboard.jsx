@@ -5,14 +5,14 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
+import { useCustomerAuth } from "../../context/CustomerAuthContext";
 import {
-  useCustomerAuth,
   calcLoyaltyProgress,
   calcTier,
   TIER_CONFIG,
   TIER_BENEFITS,
   calcAchievements,
-} from "../../context/CustomerAuthContext";
+} from "../../lib/loyaltyConstants";
 import ordersDataJson from "../../data/ordersData.json";
 import { layanan } from "../../data/guestData";
 import {
@@ -44,7 +44,8 @@ import {
 } from "react-icons/md";
 
 // ─── Import komponen kartu member ─────────────────────────────
-import { CardFront, CARD_THEME } from "../../components/member/MemberCardComponents";
+import { CARD_THEME } from "../../lib/memberCardTheme";
+import { CardFront } from "../../components/member/MemberCardComponents";
 
 // ─── Tier styling ─────────────────────────────────────────────
 const TIER_GRADIENT = {

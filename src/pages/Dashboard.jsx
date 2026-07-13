@@ -87,7 +87,7 @@ function ChartTooltip({ active, payload, label }) {
 
 // ─── KPI Card ───────────────────────────────────────────────
 function KpiCard({ data, index }) {
-  const { label, value, icon, trend, positive, color, format, suffix } = data
+  const { label, value, icon, trend, positive, color, format, suffix, note } = data
 
   return (
     <motion.div
@@ -122,7 +122,15 @@ function KpiCard({ data, index }) {
           <span className="text-lg">{icon}</span>
         </div>
       </div>
-      {trend !== undefined && (
+      {/* Kalau ada `note` (data belum cukup untuk dibandingkan — mis. bulan
+          baru mulai / belum ada review), tampilkan itu saja alih-alih badge
+          trend yang bisa menyesatkan (mis. "-100%" untuk bulan yang baru
+          berjalan beberapa hari). */}
+      {note ? (
+        <div className="mt-2 relative z-10">
+          <span className="text-gray-500 text-[10px] italic">{note}</span>
+        </div>
+      ) : trend !== undefined && (
         <div className="flex items-center gap-2 mt-2 relative z-10">
           <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full ${
             positive ? "text-emerald-400 bg-emerald-500/10" : "text-red-400 bg-red-500/10"

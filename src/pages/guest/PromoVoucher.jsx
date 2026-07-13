@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { promos } from '../../data/guestData'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
+import ScrollSpyNav from '../../components/guest/ScrollSpyNav'
 import {
   MdSearch, MdArrowForward, MdWhatsapp,
   MdDiscount, MdCardGiftcard, MdStars,
@@ -246,6 +247,18 @@ function PromoCard({ promo, showCode, onClaim }) {
 }
 
 // ─── MAIN ──────────────────────────────────────────────────────
+const PROMO_SECTIONS = [
+  { id: 'hero',            label: 'Beranda' },
+  { id: 'statistik',       label: 'Statistik' },
+  { id: 'promo-unggulan',  label: 'Promo Unggulan' },
+  { id: 'promo-list',      label: 'Semua Promo' },
+  { id: 'cara-dapat',      label: 'Cara Dapat' },
+  { id: 'ulang-tahun',     label: 'Ultah' },
+  { id: 'loyalitas',       label: 'Loyalitas' },
+  { id: 'faq',             label: 'FAQ' },
+  { id: 'cta',             label: 'Kontak' },
+]
+
 export default function PromoVoucher() {
   const { isLoggedIn, claimPromo } = useCustomerAuth()
   const navigate = useNavigate()
@@ -327,9 +340,10 @@ export default function PromoVoucher() {
 
   return (
     <div className="pt-16 min-h-screen overflow-x-hidden" style={{ background: '#0F172A' }}>
+      <ScrollSpyNav sections={PROMO_SECTIONS} />
 
       {/* ─── HERO BANNER ────────────────────────────────────────── */}
-      <section className="relative h-[400px] md:h-[480px] flex items-center overflow-hidden">
+      <section id="hero" className="relative h-[400px] md:h-[480px] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1607881471759-54a341d16091?w=1600&q=80&auto=format&fit=crop"
@@ -386,7 +400,7 @@ export default function PromoVoucher() {
       </section>
 
       {/* ─── STATISTIK ──────────────────────────────────────────── */}
-      <section className="py-16 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-y border-white/5">
+      <section id="statistik" className="py-16 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-y border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-1">
@@ -407,7 +421,7 @@ export default function PromoVoucher() {
 
       {/* ─── FEATURED PROMO ─────────────────────────────────────── */}
       {featured && (
-        <section className="px-6 sm:px-10 lg:px-16 py-12 bg-[#0F172A]">
+        <section id="promo-unggulan" className="px-6 sm:px-10 lg:px-16 py-12 bg-[#0F172A]">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-8">
               <div>
@@ -571,7 +585,7 @@ export default function PromoVoucher() {
       </section>
 
       {/* ─── CARA MENDAPATKAN VOUCHER ──────────────────────────── */}
-      <section className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
+      <section id="cara-dapat" className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-brand text-sm font-semibold uppercase tracking-widest">Cara Mendapatkan</span>
@@ -609,7 +623,7 @@ export default function PromoVoucher() {
       </section>
 
       {/* ─── VOUCHER ULANG TAHUN PREMIUM ───────────────────────── */}
-      <section className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
+      <section id="ulang-tahun" className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -653,7 +667,7 @@ export default function PromoVoucher() {
       </section>
 
       {/* ─── PROGRAM LOYALITAS ──────────────────────────────────── */}
-      <section className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
+      <section id="loyalitas" className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-brand text-sm font-semibold uppercase tracking-widest">Loyalitas</span>
@@ -688,7 +702,7 @@ export default function PromoVoucher() {
       </section>
 
       {/* ─── FAQ PROMO ──────────────────────────────────────────── */}
-      <section className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
+      <section id="faq" className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-brand text-sm font-semibold uppercase tracking-widest">FAQ</span>
@@ -720,7 +734,7 @@ export default function PromoVoucher() {
       </section>
 
       {/* ─── CTA MEMBER ──────────────────────────────────────────── */}
-      <section className="relative py-20 px-6 sm:px-10 lg:px-16 overflow-hidden">
+      <section id="cta" className="relative py-20 px-6 sm:px-10 lg:px-16 overflow-hidden">
         <div className="absolute inset-0">
             <img
               src="https://images.pexels.com/photos/3807329/pexels-photo-3807329.jpeg?auto=compress&cs=tinysrgb&w=1600"

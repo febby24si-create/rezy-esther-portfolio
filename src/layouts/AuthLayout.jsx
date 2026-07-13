@@ -1,5 +1,5 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { MdVerified, MdBuild, MdStar } from 'react-icons/md';
 import logo from '../assets/logo2.png';
 import VideoBackground from '../components/VideoBackground';

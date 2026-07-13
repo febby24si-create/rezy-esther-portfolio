@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { layanan } from '../../data/guestData'
+import ScrollSpyNav from '../../components/guest/ScrollSpyNav'
 import {
   MdSearch, MdVerified, MdBuild, MdCardGiftcard,
   MdCalendarToday, MdGpsFixed, MdSupportAgent,
@@ -289,6 +290,16 @@ function ScrollToTop() {
   )
 }
 
+const LAYANAN_SECTIONS = [
+  { id: 'hero',       label: 'Beranda' },
+  { id: 'statistik',  label: 'Statistik' },
+  { id: 'keunggulan', label: 'Keunggulan' },
+  { id: 'promo',      label: 'Promo' },
+  { id: 'layanan',    label: 'Layanan' },
+  { id: 'faq',        label: 'FAQ' },
+  { id: 'cta',        label: 'Kontak' },
+]
+
 export default function Layanan() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
@@ -331,9 +342,10 @@ export default function Layanan() {
 
   return (
     <div className="pt-16 min-h-screen overflow-x-hidden" style={{ background: '#0F172A' }}>
+      <ScrollSpyNav sections={LAYANAN_SECTIONS} />
 
       {/* ─── HERO BANNER ─── */}
-      <section className="relative h-[400px] md:h-[450px] flex items-center overflow-hidden">
+      <section id="hero" className="relative h-[400px] md:h-[450px] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1600&q=80&auto=format&fit=crop"
@@ -370,7 +382,7 @@ export default function Layanan() {
       </section>
 
       {/* ─── STATISTIK ─── */}
-      <section className="py-16 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-b border-white/5">
+      <section id="statistik" className="py-16 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-b border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <StatsCounter target={5000} suffix="+" label="Pelanggan" />
@@ -382,7 +394,7 @@ export default function Layanan() {
       </section>
 
       {/* ─── KEUNGGULAN ─── */}
-      <section className="py-16 px-6 sm:px-10 lg:px-16 bg-[#0F172A]">
+      <section id="keunggulan" className="py-16 px-6 sm:px-10 lg:px-16 bg-[#0F172A]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-orange-400 text-sm font-semibold uppercase tracking-widest">Keunggulan</span>
@@ -444,7 +456,7 @@ export default function Layanan() {
       </section>
 
       {/* ─── BANNER PROMO ─── */}
-      <section className="px-6 sm:px-10 lg:px-16 py-6 bg-[#0F172A]">
+      <section id="promo" className="px-6 sm:px-10 lg:px-16 py-6 bg-[#0F172A]">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -476,7 +488,7 @@ export default function Layanan() {
       </section>
 
       {/* ─── SERVICE GRID ─── */}
-      <section className="px-6 sm:px-10 lg:px-16 py-10 bg-[#0F172A]">
+      <section id="layanan" className="px-6 sm:px-10 lg:px-16 py-10 bg-[#0F172A]">
         <div className="max-w-7xl mx-auto">
           <AnimatePresence mode="wait">
             {filtered.length === 0 ? (
@@ -502,7 +514,7 @@ export default function Layanan() {
       </section>
 
       {/* ─── FAQ LAYANAN ─── */}
-      <section className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
+      <section id="faq" className="px-6 sm:px-10 lg:px-16 py-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-brand text-sm font-semibold uppercase tracking-widest">FAQ</span>
@@ -513,7 +525,7 @@ export default function Layanan() {
       </section>
 
       {/* ─── CTA BESAR ─── */}
-      <section className="relative py-20 px-6 sm:px-10 lg:px-16 overflow-hidden">
+      <section id="cta" className="relative py-20 px-6 sm:px-10 lg:px-16 overflow-hidden">
         <div className="absolute inset-0">
           <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1600&q=80&auto=format&fit=crop" alt="Mobil" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-[#0F172A]/80" />

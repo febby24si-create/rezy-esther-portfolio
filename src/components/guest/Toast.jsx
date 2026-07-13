@@ -41,13 +41,3 @@ export function ToastContainer({ toasts, removeToast }) {
     </div>
   )
 }
-
-// Hook
-export function useToast() {
-  const [toasts, setToasts] = useState([])
-  const addToast = (message, type = 'success') =>
-    setToasts((prev) => [...prev, { id: Date.now(), message, type }])
-  const removeToast = (id) =>
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  return { toasts, addToast, removeToast }
-}

@@ -11,14 +11,15 @@ export default function LoginCustomer() {
   const location = useLocation()
   const { login, isLoggedIn } = useCustomerAuth()
 
-  // Jika sudah login, arahkan ke member dashboard
-  if (isLoggedIn) return <Navigate to="/member/dashboard" replace />
-  const redirectTo = location.state?.from || '/member/dashboard'
-
+  // Hooks BEFORE early return — react-hooks/rules-of-hooks
   const [form, setForm]       = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
   const [showPass, setShowPass] = useState(false)
+
+  // Jika sudah login, arahkan ke member dashboard
+  if (isLoggedIn) return <Navigate to="/member/dashboard" replace />
+  const redirectTo = location.state?.from || '/member/dashboard'
 
   const handleSubmit = async (e) => {
     e.preventDefault()

@@ -3,7 +3,7 @@ import {
   calcTier,
   TIER_CONFIG,
   calcLoyaltyProgress,
-} from "../context/CustomerAuthContext";
+} from "../lib/loyaltyConstants";
 // Customer data sekarang dari Supabase via customerAPI + orderAPI (lihat useAllCustomers)
 import {
   MdSend,

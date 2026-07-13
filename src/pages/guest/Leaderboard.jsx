@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { getAllCustomers, calcTier, TIER_CONFIG } from '../../context/CustomerAuthContext'
+import { getAllCustomers, calcTier, TIER_CONFIG } from '../../lib/loyaltyConstants'
 import { MdEmojiEvents, MdLeaderboard } from 'react-icons/md'
 import { getCustomerAvatar } from '../../utils/randomAvatar'
 

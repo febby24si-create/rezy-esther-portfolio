@@ -2,11 +2,14 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import GuestNavbar from '../components/guest/GuestNavbar'
 import GuestFooter from '../components/guest/GuestFooter'
-import { ToastContainer, useToast } from '../components/guest/Toast'
+import { ToastContainer } from '../components/guest/Toast'
+import { useToast } from '../hooks/useToast'
 import { createContext, useContext } from 'react'
 
 const ToastCtx = createContext(null)
-export const useGuestToast = () => useContext(ToastCtx)
+export function useGuestToast() {
+  return useContext(ToastCtx)
+}
 
 // GuestLayout — halaman publik, dapat diakses siapa saja (login maupun tidak).
 // Redirect ke member dashboard setelah login ditangani oleh LoginCustomer.jsx,

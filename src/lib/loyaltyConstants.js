@@ -68,3 +68,22 @@ export function calcAchievements(customerData) {
     unlocked: def.check(customerData),
   }))
 }
+
+// ─── Benefit descriptions per tier ───────────────────────────
+export const TIER_BENEFITS = {
+  Bronze:   ['Promo umum & diskon seasonal', 'Voucher setelah setiap servis', 'Booking online 24/7'],
+  Silver:   ['Semua benefit Bronze', 'Diskon 5% untuk setiap servis', 'Voucher bulanan eksklusif', 'Prioritas antrian'],
+  Gold:     ['Semua benefit Silver', 'Diskon 10% untuk setiap servis', 'Prioritas booking jadwal', 'Early access promo spesial'],
+  Platinum: ['Semua benefit Gold', 'Diskon 15% untuk setiap servis', 'Layanan antar-jemput kendaraan', 'Voucher eksklusif Platinum', 'Dedicated service advisor'],
+}
+
+// ─── Public API helpers ───────────────────────────────────────
+export async function getAllCustomers() {
+  const { customerAPI } = await import('../services/customerAPI')
+  return await customerAPI.fetchAll()
+}
+
+export async function getCustomerById(id) {
+  const { customerAPI } = await import('../services/customerAPI')
+  return await customerAPI.fetchById(id)
+}

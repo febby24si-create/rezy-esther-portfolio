@@ -39,8 +39,10 @@ const TypewriterText = ({ texts, delay = 3000 }) => {
           setDisplayText(currentText.slice(0, displayText.length - 1));
         }, 30);
       } else {
-        setIsDeleting(false);
-        setIndex((prev) => (prev + 1) % texts.length);
+        // Schedule next text cycle via setTimeout, not directly in effect body
+        timeout = setTimeout(() => {
+          setIndex((prev) => (prev + 1) % texts.length);
+        }, 0);
       }
     }
     return () => clearTimeout(timeout);

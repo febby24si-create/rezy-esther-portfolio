@@ -53,7 +53,7 @@ export function registerOrderSubscribers() {
   // ── ORDER_CREATED ────────────────────────────────────────
   // Rule 1: BookingService hanya boleh membuat Order. Tidak ada
   // side effect ke Loyalty/Voucher/Inventory/Mechanic di sini.
-  subscribe(ORDER_EVENTS.ORDER_CREATED, ({ order }) => {
+  subscribe(ORDER_EVENTS.ORDER_CREATED, () => {
     // Intentionally no-op. Order sudah ditulis oleh caller
     // (BookingService atau Orders.jsx) sebelum emit ini.
     // Placeholder untuk audit log / notifikasi admin di masa depan.
@@ -73,7 +73,7 @@ export function registerOrderSubscribers() {
   // ── ORDER_STARTED ────────────────────────────────────────
   // Placeholder untuk SLA tracking di masa depan. Tidak ada
   // side effect wajib saat ini.
-  subscribe(ORDER_EVENTS.ORDER_STARTED, ({ order }) => {
+  subscribe(ORDER_EVENTS.ORDER_STARTED, () => {
     // no-op for now
   })
 

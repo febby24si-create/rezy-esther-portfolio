@@ -5,6 +5,7 @@
 // Used by Dashboard.jsx and Reports.jsx
 // ============================================================
 import { useState, useEffect, useMemo } from "react"
+import { calcTier } from "../lib/loyaltyConstants"
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
@@ -14,14 +15,16 @@ function getMonth(isoStr) {
   return new Date(isoStr).getMonth()
 }
 
-function getMonthLabel(isoStr) {
-  return MONTHS[getMonth(isoStr)]
+
+function monthKey(date) {
+  return `${date.getFullYear()}-${date.getMonth()}`
 }
 
-function monthDiff(a, b) {
-  const mA = new Date(a).getMonth() + new Date(a).getFullYear() * 12
-  const mB = new Date(b).getMonth() + new Date(b).getFullYear() * 12
-  return mA - mB
+// Persentase perubahan yang aman terhadap pembagian oleh nol —
+// dipakai supaya kita berhenti pakai angka trend hardcode/acak.
+function safePctChange(current, previous) {
+  if (!previous) return current > 0 ? 100 : 0
+  return Math.round(((current - previous) / previous) * 1000) / 10
 }
 
 function groupByMonth(items, dateKey) {
@@ -51,25 +54,28 @@ export default function useDashboardData() {
   const [bookings, setBookings] = useState([])
   const [mechanics, setMechanics] = useState([])
   const [notifications, setNotifications] = useState([])
+  const [reviews, setReviews] = useState([])
 
   useEffect(() => {
     let cancelled = false
     async function fetchAll() {
       try {
-        const [orderAPI, customerAPI, bookingAPI, mechanicAPI, notifAPI] = await Promise.all([
+        const [orderAPI, customerAPI, bookingAPI, mechanicAPI, notifAPI, crmAPI] = await Promise.all([
           import("../services/orderAPI").then(m => m.orderAPI),
           import("../services/customerAPI").then(m => m.customerAPI),
           import("../services/bookingAPI").then(m => m.bookingAPI),
           import("../services/mechanicAPI").then(m => m.mechanicAPI),
           import("../services/notificationAPI").then(m => m.notificationAPI),
+          import("../services/crmAPI").then(m => m.crmAPI),
         ])
 
-        const [o, c, b, m, n] = await Promise.all([
+        const [o, c, b, m, n, r] = await Promise.all([
           orderAPI.fetchAll().catch(() => []),
           customerAPI.fetchAll().catch(() => []),
           bookingAPI.fetchAll().catch(() => []),
           mechanicAPI.fetchAll().catch(() => []),
           notifAPI.fetchForAdmin(50).catch(() => []),
+          crmAPI.fetchReviews().catch(() => []),
         ])
 
         if (!cancelled) {
@@ -78,6 +84,7 @@ export default function useDashboardData() {
           setBookings(b || [])
           setMechanics(m || [])
           setNotifications(n || [])
+          setReviews(r || [])
         }
       } catch (err) {
         if (!cancelled) setError(err.message)
@@ -94,7 +101,8 @@ export default function useDashboardData() {
     const buckets = groupByMonth(orders, "order_date")
     const sorted = Object.entries(buckets)
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([_, v]) => ({
+      .map(([key, v]) => ({
+        key,
         month: v.month,
         revenue: v.total,
         bookings: v.count,
@@ -173,32 +181,58 @@ export default function useDashboardData() {
 
   // ─── Top Services ───────────────────────────────────────
   const topServices = useMemo(() => {
+    const now = new Date()
+    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    const curKey  = monthKey(now)
+    const prevKey = monthKey(prevMonthDate)
+
     const totals = {}
+    const curCounts = {}
+    const prevCounts = {}
     for (const o of orders) {
       const svc = o.service || "Others"
       if (!totals[svc]) totals[svc] = { count: 0, revenue: 0 }
       totals[svc].count += 1
       totals[svc].revenue += Number(o.total || 0)
+
+      if (!o.order_date) continue
+      const k = monthKey(new Date(o.order_date))
+      if (k === curKey)  curCounts[svc]  = (curCounts[svc]  || 0) + 1
+      if (k === prevKey) prevCounts[svc] = (prevCounts[svc] || 0) + 1
     }
     return Object.entries(totals)
       .sort((a, b) => b[1].count - a[1].count)
       .slice(0, 5)
-      .map(([name, data], i) => ({
+      .map(([name, data]) => ({
         name,
         count: data.count,
         revenue: data.revenue,
-        growth: [12, 8, -2, 15, 5][i] || 0,
+        // Growth REAL: bandingkan jumlah order servis ini bulan ini vs
+        // bulan lalu — sebelumnya array hardcode [12, 8, -2, 15, 5].
+        growth: safePctChange(curCounts[name] || 0, prevCounts[name] || 0),
       }))
   }, [orders])
 
   // ─── Mechanic Performance ───────────────────────────────
   const mechanicPerformance = useMemo(() => {
+    const now = new Date()
+    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    const curKey  = monthKey(now)
+    const prevKey = monthKey(prevMonthDate)
+
     const mechMap = {}
+    const curJobs = {}
+    const prevJobs = {}
     for (const o of orders) {
       const name = o.mechanic_name || o.mechanic || "Unassigned"
       if (!mechMap[name]) mechMap[name] = { jobs: 0, revenue: 0 }
       mechMap[name].jobs += 1
       mechMap[name].revenue += Number(o.total || 0)
+
+      if (!o.order_date) continue
+      const k = monthKey(new Date(o.order_date))
+      if (k === curKey)  curJobs[name]  = (curJobs[name]  || 0) + 1
+      if (k === prevKey) prevJobs[name] = (prevJobs[name] || 0) + 1
     }
     const mechRatings = {}
     for (const m of mechanics) {
@@ -210,7 +244,9 @@ export default function useDashboardData() {
         jobs: data.jobs,
         revenue: data.revenue,
         rating: mechRatings[name] || 4.5,
-        jobsChange: Math.round((Math.random() - 0.3) * 10),
+        // Perubahan jobs REAL bulan ini vs bulan lalu — sebelumnya
+        // Math.random() (angka acak tiap render).
+        jobsChange: (curJobs[name] || 0) - (prevJobs[name] || 0),
       }))
       .sort((a, b) => b.jobs - a.jobs)
   }, [orders, mechanics])
@@ -266,7 +302,7 @@ export default function useDashboardData() {
         name: c.name,
         spent: c.total_spent || 0,
         orders: c.total_orders || 0,
-        tier: c.loyalty || "Bronze",
+        tier: calcTier(c.points || 0),
         ltv: (c.total_spent || 0) * 1.5,
         since: c.member_since?.slice(0, 7) || c.created_at?.slice(0, 7) || "—",
       }))
@@ -274,35 +310,65 @@ export default function useDashboardData() {
 
   // ─── KPI Data ───────────────────────────────────────────
   const kpiData = useMemo(() => {
-    const totalRevenue = monthlyRevenue.reduce((s, m) => s + m.revenue, 0)
-    const totalBookings = monthlyRevenue.reduce((s, m) => s + m.bookings, 0)
-    const completedOrders = orders.filter(o => o.status === "Selesai").length
+    const now = new Date()
+    const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    const curKey  = monthKey(now)
+    const prevKey = monthKey(prevMonthDate)
+
+    const curBucket  = monthlyRevenue.find(m => m.key === curKey)
+    const prevBucket = monthlyRevenue.find(m => m.key === prevKey)
+
+    const curRevenue  = curBucket?.revenue  ?? 0
+    const prevRevenue = prevBucket?.revenue ?? 0
+    const curBookingsCount  = curBucket?.bookings  ?? 0
+    const prevBookingsCount = prevBucket?.bookings ?? 0
+
     const activeMembers = customers.filter(c => c.is_active !== false).length
-    const pendingBookings = bookings.filter(b => b.status === "Menunggu Konfirmasi" || b.status === "Pending").length
-    const satisfaction = 94 + Math.floor(Math.random() * 4) // approximate from reviews
-    const vehiclesCount = customers.reduce((s, c) => s + (c.total_orders || 0), 0)
+
+    // Kepuasan pelanggan REAL dari rata-rata rating crm_reviews —
+    // sebelumnya ini Math.random() (angka acak tiap render).
+    const avgRating = reviews.length > 0
+      ? reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length
+      : null
+    const satisfaction = avgRating != null ? Math.round((avgRating / 5) * 100) : null
+
+    // Berapa hari bulan ini sudah berjalan — dipakai untuk memberi
+    // konteks kalau revenue bulan ini masih kecil karena baru mulai,
+    // bukan supaya angkanya sendiri di-dramatisir dengan trend -100%.
+    const daysElapsedThisMonth = now.getDate()
 
     return [
       {
-        id: "monthly_revenue", label: "Monthly Revenue", value: monthlyRevenue.length > 0 ? monthlyRevenue[monthlyRevenue.length - 1].revenue : 0,
-        icon: "💰", trend: 9.2, positive: true, color: "#3B82F6", bg: "rgba(59,130,246,0.12)",
+        id: "monthly_revenue", label: "Monthly Revenue", value: curRevenue,
+        icon: "💰",
+        trend: safePctChange(curRevenue, prevRevenue),
+        positive: curRevenue >= prevRevenue,
+        color: "#3B82F6", bg: "rgba(59,130,246,0.12)",
         prefix: "Rp", format: (v) => `Rp ${(v / 1000000).toFixed(1)}jt`,
+        note: curBookingsCount === 0
+          ? `Belum ada order bulan ini (hari ke-${daysElapsedThisMonth})`
+          : null,
       },
       {
-        id: "total_bookings", label: "Total Bookings", value: totalBookings,
-        icon: "📅", trend: -3.1, positive: false, color: "#F59E0B", bg: "rgba(245,158,11,0.12)",
+        id: "total_bookings", label: "Total Bookings", value: curBookingsCount,
+        icon: "📅",
+        trend: safePctChange(curBookingsCount, prevBookingsCount),
+        positive: curBookingsCount >= prevBookingsCount,
+        color: "#F59E0B", bg: "rgba(245,158,11,0.12)",
       },
       {
         id: "active_members", label: "Active Members", value: activeMembers,
         icon: "✅", trend: 8.3, positive: true, color: "#10B981", bg: "rgba(16,185,129,0.12)",
       },
       {
-        id: "satisfaction", label: "Satisfaction", value: satisfaction,
+        id: "satisfaction", label: "Satisfaction", value: satisfaction ?? 0,
         icon: "😊", trend: 2.1, positive: true, color: "#14B8A6", bg: "rgba(20,184,166,0.12)",
         suffix: "%",
+        format: satisfaction == null ? () => "—" : undefined,
+        note: satisfaction == null ? "Belum ada review masuk" : null,
       },
     ]
-  }, [monthlyRevenue, orders, customers, bookings])
+  }, [monthlyRevenue, orders, customers, bookings, reviews])
 
   // ─── Mechanic Status ────────────────────────────────────
   const mechanicStatus = useMemo(() => {
@@ -323,6 +389,9 @@ export default function useDashboardData() {
     const completedOrders = orders.filter(o => o.status === "Selesai").length
     const totalCustomers = customers.length
     const returningCustomers = customers.filter(c => (c.total_orders || 0) > 1).length
+    const avgRating = reviews.length > 0
+      ? reviews.reduce((s, r) => s + (r.rating || 0), 0) / reviews.length
+      : null
 
     return {
       revenueToday: monthlyRevenue.length > 0 ? Math.round(monthlyRevenue[monthlyRevenue.length - 1].revenue / 30) : 0,
@@ -335,9 +404,9 @@ export default function useDashboardData() {
       repeatCustomerRate: totalCustomers > 0 ? Math.round((returningCustomers / totalCustomers) * 100) : 62,
       cancellationRate: orders.filter(o => o.status === "Dibatalkan" || o.status === "Cancelled").length > 0
         ? Math.round((orders.filter(o => o.status === "Dibatalkan").length / totalOrders) * 100) : 4,
-      customerSatisfaction: 94 + Math.floor(Math.random() * 4),
+      customerSatisfaction: avgRating != null ? Math.round((avgRating / 5) * 100) : null,
     }
-  }, [monthlyRevenue, orders, customers])
+  }, [monthlyRevenue, orders, customers, reviews])
 
   return {
     loading,

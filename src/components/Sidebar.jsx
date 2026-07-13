@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import logo from "../assets/logo2.png";
 import {
   MdDashboard,
@@ -21,6 +21,7 @@ import {
   MdLogin,
   MdManageAccounts,
   MdChevronLeft,
+  MdShoppingBag,
 } from "react-icons/md";
 import { bookingAPI } from "../services/bookingAPI";
 import { BOOKING_STATUS } from "../constants/statusConstants";
@@ -36,6 +37,7 @@ const navItems = [
   { path: "/schedule",  icon: MdCalendarMonth,label: "Jadwal Mekanik" },
   { path: "/reports",   icon: MdBarChart,     label: "Laporan" },
   { path: "/inventory", icon: MdInventory2,   label: "Stok Barang" },
+  { path: "/pesanan-produk", icon: MdShoppingBag, label: "Pesanan Produk", badge: "NEW" },
 ];
 
 const crmItems = [

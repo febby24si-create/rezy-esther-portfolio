@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CustomerAuthProvider } from "./context/CustomerAuthContext";
+import { CartProvider } from "./context/CartContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
@@ -22,6 +23,7 @@ const Reports        = React.lazy(() => import("./pages/Reports"));
 const Settings       = React.lazy(() => import("./pages/Settings"));
 const Components     = React.lazy(() => import("./pages/Components"));
 const Inventory      = React.lazy(() => import("./pages/Inventory"));
+const PesananProduk  = React.lazy(() => import("./pages/PesananProduk"));
 const MechanicSchedule = React.lazy(() => import("./pages/MechanicSchedule"));
 const CRMAutomation  = React.lazy(() => import("./pages/CRMAutomation"));
 const CustomerDetail = React.lazy(() => import("./pages/CustomerDetail"));
@@ -56,12 +58,19 @@ const VoucherSaya      = React.lazy(() => import("./pages/guest/VoucherSaya"));
 const RiwayatService   = React.lazy(() => import("./pages/guest/RiwayatService"));
 const ProfilCustomer   = React.lazy(() => import("./pages/guest/ProfilCustomer"));
 const Leaderboard      = React.lazy(() => import("./pages/guest/Leaderboard"));
+const ProdukKatalog    = React.lazy(() => import("./pages/guest/ProdukKatalog"));
+const ProdukDetail     = React.lazy(() => import("./pages/guest/ProdukDetail"));
+const Keranjang        = React.lazy(() => import("./pages/guest/Keranjang"));
+const Checkout         = React.lazy(() => import("./pages/guest/Checkout"));
+const RiwayatPembelian = React.lazy(() => import("./pages/guest/RiwayatPembelian"));
+const InvoicePembelian = React.lazy(() => import("./pages/guest/InvoicePembelian"));
 const KartuMember      = React.lazy(() => import("./pages/member/KartuMember"));
 
 export default function App() {
   return (
     <AuthProvider>
       <CustomerAuthProvider>
+        <CartProvider>
         <Suspense fallback={<Loading />}>
           <Routes>
             {/* ── Admin Auth Routes ──────────────────────── */}
@@ -86,6 +95,7 @@ export default function App() {
                 <Route path="/reports"         element={<Reports />}           />
                 <Route path="/settings"        element={<Settings />}          />
                 <Route path="/inventory"       element={<Inventory />}         />
+                <Route path="/pesanan-produk"  element={<PesananProduk />}     />
                 <Route path="/components"      element={<Components />}        />
                 <Route path="/crm"             element={<CRMAutomation />}     />
                 <Route path="/customers/:id"   element={<CustomerDetail />}    />
@@ -105,6 +115,9 @@ export default function App() {
               <Route path="/guest/tentang"   element={<TentangKami />}      />
               <Route path="/guest/layanan"   element={<Layanan />}          />
               <Route path="/guest/promo"     element={<PromoVoucher />}     />
+              <Route path="/guest/produk"      element={<ProdukKatalog />} />
+              <Route path="/guest/produk/:id"  element={<ProdukDetail />}  />
+              <Route path="/guest/keranjang"   element={<Keranjang />}     />
               <Route path="/guest/login"     element={<LoginCustomer />}    />
               <Route path="/guest/register"  element={<RegisterCustomer />} />
 
@@ -132,11 +145,15 @@ export default function App() {
               <Route path="/member/riwayat"     element={<RiwayatService />}  />
               <Route path="/member/profil"      element={<ProfilCustomer />}  />
               <Route path="/member/leaderboard" element={<Leaderboard />}     />
+              <Route path="/member/checkout"    element={<Checkout />}       />
+              <Route path="/member/pembelian"     element={<RiwayatPembelian />} />
+              <Route path="/member/pembelian/:id" element={<InvoicePembelian />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        </CartProvider>
       </CustomerAuthProvider>
     </AuthProvider>
   );

@@ -2,8 +2,8 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { MdArrowForward, MdRefresh } from 'react-icons/md'
 import { getCustomerAvatar } from '../../utils/randomAvatar'
-import { calcLoyaltyProgress, TIER_CONFIG } from '../../context/CustomerAuthContext'
-import { AnimatedNumber, AnimatedProgress } from '../AnimatedPage'
+import { calcLoyaltyProgress, TIER_CONFIG } from '../../lib/loyaltyConstants'
+import { AnimatedProgress } from '../AnimatedPage'
 
 const TIER_GRADIENT = {
   Bronze: 'linear-gradient(135deg, #431407 0%, #7C2D12 50%, #431407 100%)',

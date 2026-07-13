@@ -1,4 +1,3 @@
-import React from 'react';
 import { MdInbox } from 'react-icons/md';
 
 export default function EmptyState({ 

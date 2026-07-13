@@ -104,7 +104,6 @@ export const QC_CHECKLIST = [
 ]
 
 // ─── HELPERS ─────────────────────────────────────────────────
-function ok(order)  { return { success: true,  order, error: null } }
 function fail(msg)  { return { success: false, order: null, error: msg } }
 function now()      { return new Date().toISOString() }
 

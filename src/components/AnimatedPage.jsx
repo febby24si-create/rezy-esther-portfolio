@@ -4,44 +4,9 @@
 // Semua berbasis Framer Motion yang sudah terinstall.
 // ─────────────────────────────────────────────────────────────
 
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { motion, useInView } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
-
-// ── Variants dasar ────────────────────────────────────────────
-export const fadeUp = {
-  hidden:  { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0,  transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
-}
-
-export const fadeIn = {
-  hidden:  { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.4 } },
-}
-
-export const slideLeft = {
-  hidden:  { opacity: 0, x: -32 },
-  visible: { opacity: 1, x: 0,   transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
-}
-
-export const slideRight = {
-  hidden:  { opacity: 0, x: 32 },
-  visible: { opacity: 1, x: 0,   transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
-}
-
-export const scaleIn = {
-  hidden:  { opacity: 0, scale: 0.88 },
-  visible: { opacity: 1, scale: 1,    transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
-}
-
-export const staggerContainer = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
-}
-
-export const staggerContainerSlow = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
-}
+import { fadeUp, staggerContainer, staggerContainerSlow } from '../lib/animationVariants'
 
 // ── Page transition wrapper ────────────────────────────────────
 export function AnimatedPage({ children, className = '' }) {
@@ -242,5 +207,3 @@ export function AnimatedNumber({ value, format = (v) => v.toLocaleString('id-ID'
   return <span>{format(value)}</span>
 }
 
-// Re-export AnimatePresence for convenience
-export { AnimatePresence, motion }

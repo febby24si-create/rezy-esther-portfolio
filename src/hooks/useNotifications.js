@@ -42,7 +42,7 @@ export function useAdminNotifications() {
 
   const markAllRead = useCallback(async () => {
     setNotifs(prev => prev.map(n => ({ ...n, read: true })))
-    try { await notificationAPI.markAllRead('admin') } catch {}
+    try { await notificationAPI.markAllRead('admin') } catch (e) { console.warn('markAllRead error:', e) }
   }, [])
 
   const dismiss = useCallback(async (id) => {
@@ -93,7 +93,7 @@ export function useCustomerNotifications(customerId) {
 
   const markAllRead = useCallback(async () => {
     setNotifs(prev => prev.map(n => ({ ...n, read: true })))
-    try { await notificationAPI.markAllRead('customer', customerId) } catch {}
+    try { await notificationAPI.markAllRead('customer', customerId) } catch (e) { console.warn('markAllRead error:', e) }
   }, [customerId])
 
   const dismiss = useCallback(async (id) => {

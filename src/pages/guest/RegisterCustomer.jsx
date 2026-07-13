@@ -10,12 +10,13 @@ export default function RegisterCustomer() {
   const navigate = useNavigate()
   const { register, isLoggedIn } = useCustomerAuth()
 
-  if (isLoggedIn) return <Navigate to="/member/dashboard" replace />
-
+  // Hooks BEFORE early return — react-hooks/rules-of-hooks
   const [form, setForm] = useState({ name: '', email: '', phone: '', birthDate: '', password: '', confirm: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
   const [showPass, setShowPass] = useState(false)
+
+  if (isLoggedIn) return <Navigate to="/member/dashboard" replace />
 
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value })
 

@@ -8,6 +8,7 @@ import {
   MdCalendarToday, MdSchool, MdTrendingUp
 } from 'react-icons/md'
 import { getMechanicAvatar } from '../../utils/randomAvatar'
+import ScrollSpyNav from '../../components/guest/ScrollSpyNav'
 
 // ─── COMPONENT: Animated Counter ──────────────────────────────
 function AnimatedCounter({ target, suffix = '', label, icon }) {
@@ -116,6 +117,19 @@ function FaqItem({ question, answer }) {
 }
 
 // ─── MAIN ──────────────────────────────────────────────────────
+const TENTANG_SECTIONS = [
+  { id: 'hero',         label: 'Beranda' },
+  { id: 'statistik',    label: 'Statistik' },
+  { id: 'profil',       label: 'Profil' },
+  { id: 'visi-misi',    label: 'Visi & Misi' },
+  { id: 'timeline',     label: 'Perjalanan' },
+  { id: 'team',         label: 'Tim' },
+  { id: 'sertifikasi',  label: 'Sertifikasi' },
+  { id: 'keunggulan',   label: 'Keunggulan' },
+  { id: 'faq',          label: 'FAQ' },
+  { id: 'cta',          label: 'Kontak' },
+]
+
 export default function TentangKami() {
   const [scrollY, setScrollY] = useState(0)
 
@@ -127,9 +141,10 @@ export default function TentangKami() {
 
   return (
     <div className="pt-16 min-h-screen overflow-x-hidden" style={{ background: '#0F172A' }}>
+      <ScrollSpyNav sections={TENTANG_SECTIONS} />
 
       {/* ─── HERO BANNER ────────────────────────────────────────── */}
-      <section className="relative h-[400px] md:h-[480px] flex items-center overflow-hidden">
+      <section id="hero" className="relative h-[400px] md:h-[480px] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1600&q=80&auto=format&fit=crop"
@@ -185,7 +200,7 @@ export default function TentangKami() {
       </section>
 
       {/* ─── STATISTIK ──────────────────────────────────────────── */}
-      <section className="py-16 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-y border-white/5">
+      <section id="statistik" className="py-16 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-y border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="glass-card rounded-2xl p-5 text-center bg-[#1E293B]/40 border border-white/5 hover:border-brand transition-all hover:-translate-y-1">
@@ -205,7 +220,7 @@ export default function TentangKami() {
       </section>
 
       {/* ─── TENTANG KAMI ───────────────────────────────────────── */}
-      <section className="py-20 px-6 sm:px-10 lg:px-16 bg-[#0F172A]">
+      <section id="profil" className="py-20 px-6 sm:px-10 lg:px-16 bg-[#0F172A]">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <Reveal>
@@ -279,7 +294,7 @@ export default function TentangKami() {
       </section>
 
       {/* ─── VISI MISI ──────────────────────────────────────────── */}
-      <section className="py-20 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-t border-white/5">
+      <section id="visi-misi" className="py-20 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <Reveal>
@@ -324,7 +339,7 @@ export default function TentangKami() {
       </section>
 
       {/* ─── TIMELINE / MILESTONE ───────────────────────────────── */}
-      <section className="py-20 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-t border-white/5">
+      <section id="timeline" className="py-20 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <Reveal>
@@ -422,7 +437,7 @@ export default function TentangKami() {
       </section>
 
       {/* ─── SERTIFIKASI ────────────────────────────────────────── */}
-      <section className="py-20 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-t border-white/5">
+      <section id="sertifikasi" className="py-20 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <Reveal>
@@ -446,7 +461,7 @@ export default function TentangKami() {
       </section>
 
       {/* ─── MENGAPA MEMILIH KAMI ──────────────────────────────── */}
-      <section className="py-20 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-t border-white/5">
+      <section id="keunggulan" className="py-20 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <Reveal>
@@ -480,7 +495,7 @@ export default function TentangKami() {
       </section>
 
       {/* ─── FAQ ─────────────────────────────────────────────────── */}
-      <section className="py-20 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-t border-white/5">
+      <section id="faq" className="py-20 px-6 sm:px-10 lg:px-16 bg-[#0F172A] border-t border-white/5">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <Reveal>
@@ -519,7 +534,7 @@ export default function TentangKami() {
       </section>
 
       {/* ─── CTA ─────────────────────────────────────────────────── */}
-      <section className="relative py-20 px-6 sm:px-10 lg:px-16 overflow-hidden">
+      <section id="cta" className="relative py-20 px-6 sm:px-10 lg:px-16 overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1600&q=80&auto=format&fit=crop"

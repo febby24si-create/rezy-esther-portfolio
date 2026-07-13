@@ -1,16 +1,9 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { MdNotifications, MdShare, MdCopyAll } from 'react-icons/md'
 
 function buildNotifications(customer) {
-  const notifs = []
-  const today = new Date()
-  // ... (sama seperti di kode lama, tidak diubah)
-  // Untuk singkatnya, saya salin dari kode sebelumnya
-  // (Pastikan logika notifikasi tetap sama)
-  // ... 
-  // (Saya akan menggunakan notifikasi dummy sebagai contoh)
   return [
     { id: '1', icon: '🔔', title: 'Reminder Service', desc: 'Toyota Avanza perlu servis dalam 14 hari.', action: 'Booking', actionPath: '/member/booking', priority: 'high' },
     { id: '2', icon: '🎁', title: 'Voucher Ulang Tahun', desc: 'Diskon 20% untuk semua layanan.', action: 'Klaim', actionPath: '/member/voucher', priority: 'high' },
