@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { MdVerified, MdBuild, MdStar } from 'react-icons/md';
+import { MdVerified, MdBuild, MdStar, MdDarkMode, MdLightMode } from 'react-icons/md';
+import { useTheme } from '../context/ThemeContext';
 import logo from '../assets/logo2.png';
 import VideoBackground from '../components/VideoBackground';
 
@@ -32,6 +33,7 @@ const statCards = [
 ];
 
 export default function AuthLayout() {
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const currentPath = location.pathname;
   const config = routeConfigs[currentPath] || routeConfigs['/login'];
@@ -39,7 +41,7 @@ export default function AuthLayout() {
   return (
     <div className="min-h-screen w-full flex relative overflow-hidden bg-garage-950 text-white font-body">
       {/* LEFT SIDE: BRANDING (hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-[48%] relative min-h-screen flex-col overflow-hidden">
+      <div data-branding="true" className="hidden lg:flex lg:w-[45%] xl:w-[48%] relative min-h-screen flex-col overflow-hidden">
         <VideoBackground
           poster="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?q=80&w=1920&auto=format&fit=crop"
           className="z-0"
@@ -98,6 +100,28 @@ export default function AuthLayout() {
           </motion.p>
         </div>
       </div>
+
+      {/* Theme Toggle — top right corner */}
+      <motion.button
+        whileTap={{ scale: 0.9 }}
+        onClick={toggleTheme}
+        className="fixed top-4 right-4 z-50 p-2.5 rounded-xl transition-all hover:bg-blue-500/10"
+        style={{ background: 'rgba(2,15,9,0.6)', border: '1px solid rgba(37,99,235,0.15)', backdropFilter: 'blur(8px)' }}
+        title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+      >
+        <motion.div
+          key={theme}
+          initial={{ rotate: -90, opacity: 0 }}
+          animate={{ rotate: 0, opacity: 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          {theme === 'dark' ? (
+            <MdLightMode size={20} className="text-yellow-400" />
+          ) : (
+            <MdDarkMode size={20} className="text-blue-400" />
+          )}
+        </motion.div>
+      </motion.button>
 
       {/* RIGHT SIDE: FORM PANEL */}
       <div className="w-full lg:w-[55%] xl:w-[52%] min-h-screen flex items-center justify-center relative overflow-y-auto">

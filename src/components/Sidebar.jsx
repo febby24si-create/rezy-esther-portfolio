@@ -25,6 +25,10 @@ import {
   MdSearch,
   MdStar,
   MdMoreHoriz,
+  MdInsights,
+  MdCampaign,
+  MdCardGiftcard,
+  MdStars,
 } from "react-icons/md";
 import { bookingAPI } from "../services/bookingAPI";
 import { BOOKING_STATUS } from "../constants/statusConstants";
@@ -69,13 +73,24 @@ const SECTIONS = [
     ],
   },
   {
+    id: "crm",
+    icon: "\ud83e\udd16",
+    label: "CRM",
+    items: [
+      { path: "/crm/dashboard", icon: MdInsights,      label: "CRM Dashboard" },
+      { path: "/crm",           icon: MdAutoAwesome,   label: "Automation",    badge: "NEW" },
+      { path: "/crm/campaign",  icon: MdCampaign,      label: "Campaign" },
+      { path: "/crm/rewards",   icon: MdCardGiftcard,  label: "Reward Center" },
+    ],
+  },
+  {
     id: "business",
     icon: "\ud83d\udcc8",
     label: "Bisnis",
     items: [
       { path: "/reports",    icon: MdBarChart,      label: "Laporan" },
-      { path: "/crm",        icon: MdAutoAwesome,   label: "CRM Automation", badge: "NEW" },
-      { path: "/membership", icon: MdCardMembership,label: "Membership",     badge: "NEW" },
+      { path: "/loyalty",    icon: MdStars,         label: "Loyalty Management", badge: "NEW" },
+      { path: "/membership", icon: MdCardMembership,label: "Membership" },
     ],
   },
   {

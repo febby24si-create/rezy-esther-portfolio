@@ -50,7 +50,7 @@ const getAvatar = (id) => `https://i.pravatar.cc/150?img=${id}`;
 
 // ─── MEMBERSHIP — data & komponen kartu untuk Landing Page ───
 // Reuse CARD_THEME dari MemberCardComponents, urutan tertinggi → terendah
-const MEMBERSHIP_TIERS = ['Platinum', 'Gold', 'Silver', 'Bronze'];
+const MEMBERSHIP_TIERS = ['VIP Mahkota', 'Platinum', 'Gold', 'Silver', 'Bronze'];
 
 // Alias lokal agar tidak bentrok dengan nama lain di file ini
 const CARD_THEME_LANDING = CARD_THEME;
@@ -853,7 +853,7 @@ export default function LandingPage() {
           </div>
 
           {/* Cards — preview kartu digital, urutan tier tertinggi ke terendah */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {MEMBERSHIP_TIERS.map((tierKey, idx) => {
               const theme = CARD_THEME_LANDING[tierKey]
               return (

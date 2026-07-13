@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
 import { useAdminNotifications } from "../hooks/useNotifications";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
@@ -19,7 +20,10 @@ import {
   MdDeleteOutline,
   MdReceiptLong,
   MdDirectionsCar,
+  MdDarkMode,
+  MdLightMode,
 } from "react-icons/md";
+import { useTheme } from "../context/ThemeContext";
 
 function getInitials(name) {
   return name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
@@ -42,6 +46,8 @@ export default function Header({ onToggleSidebar }) {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchCache, setSearchCache] = useState(null);
   const [searchResults, setSearchResults] = useState({ orders: [], customers: [] });
+
+  const { theme, toggleTheme } = useTheme();
 
   const [user, setUser] = useState(() => {
     const saved = sessionStorage.getItem("user_profile");
@@ -213,6 +219,28 @@ export default function Header({ onToggleSidebar }) {
 
       {/* Right Actions */}
       <div className="flex items-center gap-2 flex-shrink-0">
+        {/* Theme Toggle */}
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={toggleTheme}
+          className="p-2 rounded-xl transition-all hover:bg-blue-500/10"
+          style={{ border: "1px solid rgba(96,165,250,0.1)" }}
+          title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+        >
+          <motion.div
+            key={theme}
+            initial={{ rotate: -90, opacity: 0 }}
+            animate={{ rotate: 0, opacity: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            {theme === 'dark' ? (
+              <MdLightMode size={18} className="text-yellow-400" />
+            ) : (
+              <MdDarkMode size={18} className="text-blue-400" />
+            )}
+          </motion.div>
+        </motion.button>
+
         {/* Date */}
         <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl"
           style={{ background: "rgba(15,23,42,0.3)", border: "1px solid rgba(96,165,250,0.06)" }}>

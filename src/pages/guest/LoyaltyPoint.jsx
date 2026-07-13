@@ -30,6 +30,7 @@ const TIER_BENEFITS = {
   Silver:   ['Semua benefit Bronze', 'Diskon 5% setiap servis', 'Voucher berkala bulanan', 'Promo member eksklusif'],
   Gold:     ['Semua benefit Silver', 'Diskon 10% setiap servis', 'Voucher premium', 'Prioritas booking', 'Early access promo'],
   Platinum: ['Semua benefit Gold', 'Diskon 15% setiap servis', 'Voucher eksklusif', 'Prioritas booking tertinggi', 'Reward loyal customer', 'Antar-jemput kendaraan'],
+  'VIP Mahkota': ['Semua benefit Platinum', 'Diskon 20% setiap servis', 'Voucher VIP eksklusif', 'Prioritas booking #1', 'Dedicated service advisor', 'Antar-jemput gratis', 'Undangan event eksklusif', 'Reward ulang tahun VIP'],
 }
 
 const TIER_META = {
@@ -37,9 +38,10 @@ const TIER_META = {
   Silver:   { gradient: 'linear-gradient(135deg,#0F172A 0%,#1E293B 50%,#0F172A 100%)', glow: 'rgba(148,163,184,0.35)', accent: '#94A3B8', shimmer: 'rgba(148,163,184,0.12)' },
   Gold:     { gradient: 'linear-gradient(135deg,#451A03 0%,#78350F 50%,#451A03 100%)', glow: 'rgba(251,191,36,0.45)',  accent: '#FBBF24', shimmer: 'rgba(251,191,36,0.18)' },
   Platinum: { gradient: 'linear-gradient(135deg,#2E1065 0%,#4C1D95 50%,#2E1065 100%)', glow: 'rgba(168,85,247,0.45)',  accent: '#A855F7', shimmer: 'rgba(168,85,247,0.15)' },
+  'VIP Mahkota': { gradient: 'linear-gradient(135deg,#4C0519 0%,#831843 50%,#4C0519 100%)', glow: 'rgba(236,72,153,0.45)', accent: '#EC4899', shimmer: 'rgba(236,72,153,0.15)' },
 }
 
-const TIER_ORDER = ['Bronze', 'Silver', 'Gold', 'Platinum']
+const TIER_ORDER = ['Bronze', 'Silver', 'Gold', 'Platinum', 'VIP Mahkota']
 
 // ─── Mini progress ring ────────────────────────────────────────────────
 function ProgressRing({ pct, size = 80, stroke = 7, color = '#22C55E' }) {

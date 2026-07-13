@@ -89,11 +89,19 @@ export async function applyOrderCompletedLoyalty(customerId, finalTotal, orderId
   try {
     if (oldTier !== newTier) {
       tierUp = { from: oldTier, to: newTier }
+      const tierDiscount = {
+        'Silver': 10,
+        'Gold': 15,
+        'Platinum': 20,
+        'VIP Mahkota': 25,
+      }
       await voucherAPI.create({
         customer_id:  customerId,
-        code:         newTier.toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase(),
+        code:         newTier === 'VIP Mahkota'
+          ? 'VIP-' + Math.random().toString(36).slice(2, 8).toUpperCase()
+          : newTier.toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase(),
         title:        `Selamat! Naik ke ${newTier} Member`,
-        discount_pct: newTier === 'Silver' ? 10 : newTier === 'Gold' ? 15 : 20,
+        discount_pct: tierDiscount[newTier] || 10,
         status:       'active',
         type:         'loyalty',
         valid_until:  new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10),

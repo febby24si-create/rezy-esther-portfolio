@@ -29,6 +29,7 @@ import {
   MdMessage,
   MdOpenInNew,
   MdPeople,
+  MdStars,
   MdWorkspacePremium,
   MdEmojiEvents,
   MdMilitaryTech,
@@ -80,6 +81,14 @@ const getLoyaltyFromPoints = calcTier;
 
 const getLoyaltyConfig = (loyalty) => {
   const configs = {
+    'VIP Mahkota': {
+      color: "#EC4899",
+      bg: "rgba(236,72,153,0.12)",
+      border: "rgba(236,72,153,0.25)",
+      dot: "#EC4899",
+      icon: "👑",
+      gradient: "linear-gradient(135deg, #EC4899, #DB2777)"
+    },
     Platinum: {
       color: "#A855F7",
       bg: "rgba(168,85,247,0.12)",
@@ -378,9 +387,7 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
                 <p className="text-base font-black text-green-400">{formatCurrency(totalSpent)}</p>
                 <p className="text-xs text-gray-500 mt-1">Total Belanja</p>
               </div>
-            </div>
-
-            <div className="rounded-xl p-4 text-center" style={{ background: "rgba(168,85,247,0.06)", border: "1px solid rgba(168,85,247,0.15)" }}>
+            </div>              <div className="rounded-xl p-4 text-center" style={{ background: "rgba(168,85,247,0.06)", border: "1px solid rgba(168,85,247,0.15)" }}>
               <div className="flex items-center justify-center gap-3">
                 <span className="text-2xl">{cfg.icon}</span>
                 <div>
@@ -392,16 +399,17 @@ function CustomerDetailDialog({ customer, isOpen, onClose, onEdit, onDelete }) {
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{
-                    width: `${Math.min((points / 100) * 100, 100)}%`,
+                    width: `${Math.min((points / 5000) * 100, 100)}%`,
                     background: cfg.gradient,
                   }}
                 />
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                {points < 25 ? "25 poin untuk Silver" :
-                 points < 50 ? "50 poin untuk Gold" :
-                 points < 80 ? "80 poin untuk Platinum" :
-                 "Level tertinggi! 🎉"}
+                {points >= 5000 ? "👑 VIP Mahkota — Tier tertinggi!" :
+                 points >= 3000 ? `${5000 - points} poin menuju VIP Mahkota` :
+                 points >= 1500 ? `${3000 - points} poin menuju Platinum` :
+                 points >= 500 ? `${1500 - points} poin menuju Gold` :
+                 `${500 - points} poin menuju Silver`}
               </p>
             </div>
 
@@ -764,7 +772,7 @@ export default function Customers() {
           bv = customerPoints[b.id]?.points || 0;
         }
         if (sortColumn === "loyalty") {
-          const order = { Platinum: 4, Gold: 3, Silver: 2, Bronze: 1 };
+          const order = { 'VIP Mahkota': 5, Platinum: 4, Gold: 3, Silver: 2, Bronze: 1 };
           av = order[customerPoints[a.id]?.loyalty || "Bronze"];
           bv = order[customerPoints[b.id]?.loyalty || "Bronze"];
         }
@@ -831,6 +839,7 @@ export default function Customers() {
 
   const totalCustomers = customers.length;
   const loyaltyCounts = {
+    'VIP Mahkota': customers.filter(c => customerPoints[c.id]?.loyalty === "VIP Mahkota").length,
     Platinum: customers.filter(c => customerPoints[c.id]?.loyalty === "Platinum").length,
     Gold: customers.filter(c => customerPoints[c.id]?.loyalty === "Gold").length,
     Silver: customers.filter(c => customerPoints[c.id]?.loyalty === "Silver").length,
@@ -855,7 +864,7 @@ export default function Customers() {
             </h1>
             <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
               <MdPeople size={14} className="text-green-600" />
-              {loyaltyCounts.Platinum} Platinum · {loyaltyCounts.Gold} Gold · {loyaltyCounts.Silver} Silver · {loyaltyCounts.Bronze} Bronze
+              {loyaltyCounts['VIP Mahkota']} VIP · {loyaltyCounts.Platinum} Platinum · {loyaltyCounts.Gold} Gold · {loyaltyCounts.Silver} Silver · {loyaltyCounts.Bronze} Bronze
             </p>
           </div>
           <div className="flex gap-2">
@@ -877,10 +886,11 @@ export default function Customers() {
         </div>
 
         {/* Stats Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-7 gap-3 mb-8">
           {[
             { label: "Total", value: totalCustomers, icon: <MdPeople size={18}/>, color: "#94A3B8", bg: "rgba(148,163,184,0.06)" },
-            { label: "Platinum", value: loyaltyCounts.Platinum, icon: <MdWorkspacePremium size={18}/>, color: "#A855F7", bg: "rgba(168,85,247,0.06)" },
+            { label: "VIP", value: loyaltyCounts['VIP Mahkota'], icon: <MdWorkspacePremium size={18}/>, color: "#EC4899", bg: "rgba(236,72,153,0.06)" },
+            { label: "Platinum", value: loyaltyCounts.Platinum, icon: <MdStars size={18}/>, color: "#A855F7", bg: "rgba(168,85,247,0.06)" },
             { label: "Gold", value: loyaltyCounts.Gold, icon: <MdEmojiEvents size={18}/>, color: "#FBBF24", bg: "rgba(251,191,36,0.06)" },
             { label: "Silver", value: loyaltyCounts.Silver, icon: <MdMilitaryTech size={18}/>, color: "#94A3B8", bg: "rgba(148,163,184,0.06)" },
             { label: "Bronze", value: loyaltyCounts.Bronze, icon: <MdVerified size={18}/>, color: "#F97316", bg: "rgba(249,115,22,0.06)" },
@@ -957,7 +967,7 @@ export default function Customers() {
                       style={{ background: "rgba(11,59,46,0.5)", border: "1px solid rgba(34,197,94,0.15)" }}
                     >
                       <option value="">Semua Level</option>
-                      {["Platinum", "Gold", "Silver", "Bronze"].map((l) => <option key={l}>{l}</option>)}
+                      {["VIP Mahkota", "Platinum", "Gold", "Silver", "Bronze"].map((l) => <option key={l}>{l}</option>)}
                     </select>
                     <button
                       onClick={resetFilters}

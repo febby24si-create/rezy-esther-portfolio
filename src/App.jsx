@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CustomerAuthProvider } from "./context/CustomerAuthContext";
 import { CartProvider } from "./context/CartContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
@@ -25,10 +26,16 @@ const Components     = React.lazy(() => import("./pages/Components"));
 const Inventory      = React.lazy(() => import("./pages/Inventory"));
 const PesananProduk  = React.lazy(() => import("./pages/PesananProduk"));
 const MechanicSchedule = React.lazy(() => import("./pages/MechanicSchedule"));
-const CRMAutomation  = React.lazy(() => import("./pages/CRMAutomation"));
-const CustomerDetail = React.lazy(() => import("./pages/CustomerDetail"));
-const MembershipAdmin = React.lazy(() => import("./pages/MembershipAdmin"));
-const UserPage        = React.lazy(() => import("./pages/User"));
+const CRMAutomation    = React.lazy(() => import("./pages/CRMAutomation"));
+const CustomerDetail   = React.lazy(() => import("./pages/CustomerDetail"));const MembershipAdmin = React.lazy(() => import("./pages/MembershipAdmin"));
+const LoyaltyAdmin    = React.lazy(() => import("./pages/LoyaltyAdmin"));
+const UserPage         = React.lazy(() => import("./pages/User"));
+
+// ─── CRM Pages ────────────────────────────────────────────────
+const CrmDashboard    = React.lazy(() => import("./pages/crm/CrmDashboard"));
+const Customer360     = React.lazy(() => import("./pages/crm/Customer360"));
+const CrmCampaign     = React.lazy(() => import("./pages/crm/CrmCampaign"));
+const RewardCenter    = React.lazy(() => import("./pages/crm/RewardCenter"));
 
 // ─── Admin Auth Pages ─────────────────────────────────────────
 const Login    = React.lazy(() => import("./pages/auth/Login"));
@@ -68,6 +75,7 @@ const KartuMember      = React.lazy(() => import("./pages/member/KartuMember"));
 
 export default function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <CustomerAuthProvider>
         <CartProvider>
@@ -98,8 +106,13 @@ export default function App() {
                 <Route path="/pesanan-produk"  element={<PesananProduk />}     />
                 <Route path="/components"      element={<Components />}        />
                 <Route path="/crm"             element={<CRMAutomation />}     />
+                <Route path="/crm/dashboard"   element={<CrmDashboard />}       />
+                <Route path="/crm/customer/:id" element={<Customer360 />}       />
+                <Route path="/crm/campaign"    element={<CrmCampaign />}        />
+                <Route path="/crm/rewards"     element={<RewardCenter />}       />
                 <Route path="/customers/:id"   element={<CustomerDetail />}    />
                 <Route path="/membership"      element={<MembershipAdmin />}   />
+                <Route path="/loyalty"         element={<LoyaltyAdmin />}        />
                 <Route path="/users"          element={<UserPage />}          />
                 <Route path="/error-400" element={<ErrorPage code="400" message="Bad Request"   description="Permintaan tidak valid atau tidak dapat diproses." />} />
                 <Route path="/error-401" element={<ErrorPage code="401" message="Unauthorized"  description="Anda tidak memiliki izin untuk mengakses halaman ini." />} />
@@ -156,5 +169,6 @@ export default function App() {
         </CartProvider>
       </CustomerAuthProvider>
     </AuthProvider>
+    </ThemeProvider>
   );
 }

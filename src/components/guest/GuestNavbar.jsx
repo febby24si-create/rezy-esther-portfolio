@@ -6,7 +6,9 @@ import {
   MdCardGiftcard, MdHistory, MdStars, MdGpsFixed,
   MdNotifications, MdPerson, MdLogout, MdLogin, MdLeaderboard,
   MdCardMembership, MdOpenInNew, MdChevronRight,
+  MdDarkMode, MdLightMode,
 } from 'react-icons/md'
+import { useTheme } from '../../context/ThemeContext'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { calcTier, TIER_CONFIG } from '../../lib/loyaltyConstants'
 import NotificationBell from '../NotificationBell'
@@ -41,6 +43,7 @@ export default function GuestNavbar() {
   const navigate  = useNavigate()
   const isLanding = location.pathname === '/'
 
+  const { theme, toggleTheme } = useTheme()
   const { customer, isLoggedIn, logout } = useCustomerAuth()
   const tier    = isLoggedIn ? calcTier(customer?.points || 0) : null
   const tierCfg = tier ? TIER_CONFIG[tier] : null
@@ -150,6 +153,28 @@ export default function GuestNavbar() {
 
             {/* ── Desktop Right Section ── */}
             <div className="hidden md:flex items-center gap-2">
+
+              {/* Theme Toggle */}
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={toggleTheme}
+                className="p-2 rounded-xl transition-all"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)' }}
+                title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+              >
+                <motion.div
+                  key={theme}
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {theme === 'dark' ? (
+                    <MdLightMode size={18} className="text-yellow-400" />
+                  ) : (
+                    <MdDarkMode size={18} className="text-blue-400" />
+                  )}
+                </motion.div>
+              </motion.button>
 
               {isLoggedIn ? (
                 <>

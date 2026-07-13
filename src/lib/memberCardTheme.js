@@ -6,6 +6,27 @@
 // ============================================================
 
 export const CARD_THEME = {
+  'VIP Mahkota': {
+    label: 'VIP Mahkota',
+    sublabel: 'VIP Mahkota Card',
+    tierLabel: 'VIP Mahkota',
+    icon: '👑',
+    gradient: 'linear-gradient(145deg, #1a0028 0%, #2d0047 40%, #3d0066 70%, #1a0028 100%)',
+    accent: '#EC4899',
+    accentLight: '#F472B6',
+    accentGlow: 'rgba(236,72,153,0.25)',
+    textColor: '#F9A8D4',
+    border: '1px solid rgba(236,72,153,0.55)',
+    badgeBg: 'rgba(236,72,153,0.10)',
+    chipColor: '#EC4899',
+    pattern: 'vip',
+    symbol: 'diamond',
+    stripColor: '#EC4899',
+    benefits: ['Diskon 20% setiap servis', 'Layanan antar-jemput kendaraan gratis', 'Voucher VIP eksklusif setiap bulan', 'Dedicated service advisor prioritas', 'Prioritas booking tertinggi', 'Undangan event eksklusif Esther Garage', 'Reward ulang tahun spesial VIP'],
+    desc: 'Tier tertinggi Esther Garage — nikmati semua keistimewaan premium eksklusif.',
+    minPoin: '≥ 5.000 poin',
+    shadow: '0 20px 60px rgba(236,72,153,0.25), 0 4px 24px rgba(0,0,0,0.70)',
+  },
   Platinum: {
     label: 'Platinum',
     sublabel: 'Platinum Card',
@@ -92,4 +113,4 @@ export const CARD_THEME = {
   },
 }
 
-export const TIER_ORDER = ['Platinum', 'Gold', 'Silver', 'Bronze']
+export const TIER_ORDER = ['VIP Mahkota', 'Platinum', 'Gold', 'Silver', 'Bronze']

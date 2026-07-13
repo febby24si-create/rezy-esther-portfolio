@@ -241,6 +241,7 @@
 }
 
 /* ── Root Variables & Dark Mode ───────────────────────────── */
+/* ── Root Variables & Dark Mode ───────────────────────────── */
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -274,9 +275,38 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* ── Esther Garage Theme Tokens ── */
+  --eg-bg-page: #ffffff;
+  --eg-bg-surface: #f8fafc;
+  --eg-bg-card: #ffffff;
+  --eg-bg-elevated: #f1f5f9;
+  --eg-bg-hover: rgba(0,0,0,0.03);
+  --eg-bg-glass: rgba(255,255,255,0.7);
+  --eg-bg-overlay: rgba(0,0,0,0.5);
+  --eg-text-primary: #0f172a;
+  --eg-text-secondary: #64748b;
+  --eg-text-tertiary: #94a3b8;
+  --eg-text-muted: #cbd5e1;
+  --eg-text-white: #ffffff;
+  --eg-border: #e2e8f0;
+  --eg-border-light: #f1f5f9;
+  --eg-border-glass: rgba(0,0,0,0.06);
+  --eg-accent: #22C55E;
+  --eg-accent-bg: rgba(34,197,94,0.08);
+  --eg-accent-border: rgba(34,197,94,0.2);
+  --eg-shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --eg-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  --eg-shadow-lg: 0 10px 40px rgba(0,0,0,0.08);
+  --eg-sidebar-bg: #0f172a;
+  --eg-sidebar-text: #94a3b8;
+  --eg-sidebar-hover: rgba(59,130,246,0.08);
+  --eg-sidebar-active: rgba(59,130,246,0.12);
+  --eg-header-bg: rgba(255,255,255,0.95);
+  --eg-header-border: rgba(0,0,0,0.06);
 }
 
-.dark {
+[data-theme="dark"] {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -308,6 +338,35 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* ── Esther Garage Dark Theme Tokens ── */
+  --eg-bg-page: #020f09;
+  --eg-bg-surface: #041C15;
+  --eg-bg-card: rgba(4,28,21,0.7);
+  --eg-bg-elevated: #06281F;
+  --eg-bg-hover: rgba(255,255,255,0.04);
+  --eg-bg-glass: rgba(4,28,21,0.6);
+  --eg-bg-overlay: rgba(0,0,0,0.75);
+  --eg-text-primary: #f1f5f9;
+  --eg-text-secondary: #94a3b8;
+  --eg-text-tertiary: #6b7280;
+  --eg-text-muted: #4b5563;
+  --eg-text-white: #ffffff;
+  --eg-border: rgba(34,197,94,0.12);
+  --eg-border-light: rgba(34,197,94,0.08);
+  --eg-border-glass: rgba(255,255,255,0.06);
+  --eg-accent: #22C55E;
+  --eg-accent-bg: rgba(34,197,94,0.08);
+  --eg-accent-border: rgba(34,197,94,0.2);
+  --eg-shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --eg-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  --eg-shadow-lg: 0 10px 40px rgba(0,0,0,0.5);
+  --eg-sidebar-bg: linear-gradient(180deg, #0a1222 0%, #0f172a 100%);
+  --eg-sidebar-text: #6b7280;
+  --eg-sidebar-hover: rgba(59,130,246,0.08);
+  --eg-sidebar-active: rgba(59,130,246,0.12);
+  --eg-header-bg: rgba(15,23,42,0.95);
+  --eg-header-border: rgba(96,165,250,0.06);
 }
 
 /* ── DaisyUI Plugin ───────────────────────────────────────── */
@@ -404,4 +463,81 @@
 }
 .guest-theme .text-brand {
   color: var(--color-garage-500);
+}
+
+/* ── Global Light Mode Color Overrides ─────────────────── */
+/* These affect ALL pages (admin, auth, member) when light mode is active */
+/* Guest pages use .guest-theme nested overrides below which take precedence */
+[data-theme="light"] {
+  --color-garage-950: #f8fafc;
+  --color-garage-900: #ffffff;
+  --color-garage-800: #f1f5f9;
+  --color-garage-700: #e2e8f0;
+  --color-garage-600: #cbd5e1;
+  --color-garage-500: #16A34A;
+  --color-garage-400: #22C55E;
+  --color-garage-300: #4ade80;
+  --color-garage-200: #86efac;
+
+  --color-auto-950: #f1f5f9;
+  --color-auto-900: #ffffff;
+  --color-auto-800: #f8fafc;
+  --color-auto-700: #f1f5f9;
+  --color-auto-600: #e2e8f0;
+  --color-auto-500: #cbd5e1;
+  --color-auto-400: #94a3b8;
+  --color-auto-300: #64748b;
+  --color-auto-200: #475569;
+  --color-auto-100: #1e293b;
+}
+
+/* ── Guest Theme Light Mode ──────────────────────────────── */
+[data-theme="light"] .guest-theme {
+  --color-garage-950: #f8fafc;  /* Light page bg */
+  --color-garage-900: #ffffff;  /* Surface white */
+  --color-garage-800: #f1f5f9;  /* Elevated */
+  --color-garage-700: #e2e8f0;  /* Card border */
+  --color-garage-600: #cbd5e1;  /* Muted border */
+  --color-garage-500: #2563eb;  /* Blue primary — tetap */
+  --color-garage-400: #06b6d4;  /* Cyan accent — tetap */
+  --color-garage-300: #0e9bb3;  /* Slightly darker cyan for readability */
+  --color-garage-200: #93c5fd;  /* Light blue — tetap konsisten: 200 = shade terang */
+}
+
+[data-theme="light"] .guest-theme .glass-card {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(0,0,0,0.06) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important;
+}
+[data-theme="light"] .guest-theme .glass-card:hover {
+  background: #ffffff !important;
+  border-color: rgba(37,99,235,0.2) !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.1) !important;
+}
+
+[data-theme="light"] .guest-theme .glass-dark {
+  background: rgba(255,255,255,0.9) !important;
+  border-color: rgba(0,0,0,0.06) !important;
+}
+
+[data-theme="light"] .guest-theme .btn-primary {
+  box-shadow: 0 4px 15px rgba(37,99,235,0.25);
+}
+[data-theme="light"] .guest-theme .btn-primary:hover {
+  box-shadow: 0 6px 25px rgba(37,99,235,0.35);
+}
+
+[data-theme="light"] .guest-theme .btn-ghost {
+  color: #64748b;
+  border-color: rgba(0,0,0,0.1);
+}
+[data-theme="light"] .guest-theme .btn-ghost:hover {
+  color: #2563eb;
+  border-color: rgba(37,99,235,0.4);
+  background: rgba(37,99,235,0.05);
+}
+
+[data-theme="light"] .guest-theme .skeleton {
+  background: linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.04) 75%);
+  background-size: 200% 100%;
 }

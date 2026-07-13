@@ -21,13 +21,15 @@
 // ============================================================
 
 export const TIER_CONFIG = {
-  Bronze:   { min: 0,    max: 499,  next: 'Silver',   color: '#F97316', bg: 'rgba(249,115,22,0.12)',  border: 'rgba(249,115,22,0.25)',  icon: '🥉' },
-  Silver:   { min: 500,  max: 1499, next: 'Gold',     color: '#94A3B8', bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.25)', icon: '🥈' },
-  Gold:     { min: 1500, max: 2999, next: 'Platinum', color: '#FBBF24', bg: 'rgba(251,191,36,0.12)',  border: 'rgba(251,191,36,0.25)',  icon: '🥇' },
-  Platinum: { min: 3000, max: Infinity, next: null,   color: '#A855F7', bg: 'rgba(168,85,247,0.12)',  border: 'rgba(168,85,247,0.25)',  icon: '💎' },
+  Bronze:   { min: 0,    max: 499,  next: 'Silver',     color: '#F97316', bg: 'rgba(249,115,22,0.12)',  border: 'rgba(249,115,22,0.25)',  icon: '🥉' },
+  Silver:   { min: 500,  max: 1499, next: 'Gold',       color: '#94A3B8', bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.25)', icon: '🥈' },
+  Gold:     { min: 1500, max: 2999, next: 'Platinum',   color: '#FBBF24', bg: 'rgba(251,191,36,0.12)',  border: 'rgba(251,191,36,0.25)',  icon: '🥇' },
+  Platinum: { min: 3000, max: 4999, next: 'VIP Mahkota', color: '#A855F7', bg: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.25)', icon: '💎' },
+  'VIP Mahkota': { min: 5000, max: Infinity, next: null, color: '#EC4899', bg: 'rgba(236,72,153,0.12)', border: 'rgba(236,72,153,0.25)', icon: '👑' },
 }
 
 export function calcTier(points) {
+  if (points >= 5000) return 'VIP Mahkota'
   if (points >= 3000) return 'Platinum'
   if (points >= 1500) return 'Gold'
   if (points >= 500)  return 'Silver'
@@ -58,6 +60,7 @@ const ACHIEVEMENT_DEFS = [
   { id: 'silver_member',   label: 'Silver Member',    icon: '🥈', desc: 'Mencapai tier Silver',                   check: (c) => ['Silver','Gold','Platinum'].includes(calcTier(c.points)) },
   { id: 'gold_member',     label: 'Gold Member',      icon: '🥇', desc: 'Mencapai tier Gold',                     check: (c) => ['Gold','Platinum'].includes(calcTier(c.points))          },
   { id: 'platinum_member', label: 'Platinum Member',  icon: '💎', desc: 'Mencapai tier Platinum',                 check: (c) => calcTier(c.points) === 'Platinum'                         },
+  { id: 'vip_member',      label: 'VIP Mahkota',      icon: '👑', desc: 'Mencapai tier VIP Mahkota',               check: (c) => calcTier(c.points) === 'VIP Mahkota'                      },
   { id: 'top_reviewer',    label: 'Top Reviewer',     icon: '📝', desc: 'Memberikan 3 review atau lebih',         check: (c) => (c.reviewCount || 0) >= 3                                 },
   { id: 'big_spender',     label: 'Big Spender',      icon: '💰', desc: 'Total pengeluaran di atas Rp 2.000.000', check: (c) => (c.totalSpent || 0) >= 2000000                            },
 ]
@@ -75,7 +78,29 @@ export const TIER_BENEFITS = {
   Silver:   ['Semua benefit Bronze', 'Diskon 5% untuk setiap servis', 'Voucher bulanan eksklusif', 'Prioritas antrian'],
   Gold:     ['Semua benefit Silver', 'Diskon 10% untuk setiap servis', 'Prioritas booking jadwal', 'Early access promo spesial'],
   Platinum: ['Semua benefit Gold', 'Diskon 15% untuk setiap servis', 'Layanan antar-jemput kendaraan', 'Voucher eksklusif Platinum', 'Dedicated service advisor'],
+  'VIP Mahkota': ['Semua benefit Platinum', 'Diskon 20% untuk setiap servis', 'Layanan antar-jemput kendaraan gratis', 'Voucher VIP eksklusif setiap bulan', 'Dedicated service advisor prioritas', 'Prioritas booking tertinggi', 'Undangan event eksklusif Esther Garage', 'Reward ulang tahun spesial VIP'],
 }
+
+// ─── Tier discount percentages ───────────────────────────────
+export const TIER_DISCOUNT = {
+  Bronze: 0,
+  Silver: 5,
+  Gold: 10,
+  Platinum: 15,
+  'VIP Mahkota': 20,
+}
+
+// ─── Bonus points per tier (on registration/achievement) ────
+export const TIER_BONUS_POINTS = {
+  Bronze: 50,
+  Silver: 200,
+  Gold: 500,
+  Platinum: 1000,
+  'VIP Mahkota': 2000,
+}
+
+// ─── Tier order (highest to lowest) ─────────────────────────
+export const TIER_ORDER_DESC = ['VIP Mahkota', 'Platinum', 'Gold', 'Silver', 'Bronze']
 
 // ─── Public API helpers ───────────────────────────────────────
 export async function getAllCustomers() {

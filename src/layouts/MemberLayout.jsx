@@ -10,8 +10,9 @@ import {
   MdDashboard, MdDirectionsCar, MdHistory, MdStars, MdCardGiftcard,
   MdPerson, MdLogout, MdBuild, MdGpsFixed, MdMenu, MdClose,
   MdLeaderboard, MdCreditCard, MdNotifications, MdChevronRight, MdOpenInNew,
-  MdShoppingBag,
+  MdShoppingBag, MdDarkMode, MdLightMode,
 } from 'react-icons/md'
+import { useTheme } from '../context/ThemeContext'
 import { useCustomerAuth } from '../context/CustomerAuthContext'
 import { calcTier, TIER_CONFIG } from '../lib/loyaltyConstants'
 import { createContext, useContext } from 'react'
@@ -35,6 +36,7 @@ const NAV_ITEMS = [
 ]
 
 function MemberNavbar({ sidebarOpen, setSidebarOpen }) {
+  const { theme, toggleTheme } = useTheme()
   const { customer, logout } = useCustomerAuth()
   const navigate = useNavigate()
   const tier = customer ? calcTier(customer.points || 0) : 'Bronze'
@@ -80,6 +82,27 @@ function MemberNavbar({ sidebarOpen, setSidebarOpen }) {
 
       {/* Right section */}
       <div className="flex items-center gap-2">
+        {/* Theme Toggle */}
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={toggleTheme}
+          className="p-2 rounded-xl transition-all hover:bg-white/10"
+          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}
+          title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+        >
+          <motion.div
+            key={theme}
+            initial={{ rotate: -90, opacity: 0 }}
+            animate={{ rotate: 0, opacity: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            {theme === 'dark' ? (
+              <MdLightMode size={18} className="text-yellow-400" />
+            ) : (
+              <MdDarkMode size={18} className="text-blue-400" />
+            )}
+          </motion.div>
+        </motion.button>
         {/* Tier badge */}
         {customer && (
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl"

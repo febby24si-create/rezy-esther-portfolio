@@ -26,7 +26,7 @@ import {
 
 // ─── Palette ─────────────────────────────────────────────────
 const TIER_COLORS = {
-  Bronze: '#F97316', Silver: '#94A3B8', Gold: '#FBBF24', Platinum: '#A855F7',
+  Bronze: '#F97316', Silver: '#94A3B8', Gold: '#FBBF24', Platinum: '#A855F7', 'VIP Mahkota': '#EC4899',
 }
 
 const REWARD_CATALOG = [
@@ -254,7 +254,7 @@ export default function MembershipAdmin() {
   // ── Stats ──────────────────────────────────────────────────
   const stats = useMemo(() => {
     const active   = customers.filter(c => (c.membership_status || c.membershipStatus) === 'active')
-    const byTier   = { Bronze: 0, Silver: 0, Gold: 0, Platinum: 0 }
+    const byTier   = { Bronze: 0, Silver: 0, Gold: 0, Platinum: 0, 'VIP Mahkota': 0 }
     active.forEach(c => { byTier[calcTier(c.points || 0)]++ })
     const totalPts = active.reduce((s, c) => s + (c.points || 0), 0)
     const topCustomer = [...active].sort((a, b) => (b.points || 0) - (a.points || 0))[0]
@@ -543,7 +543,7 @@ export default function MembershipAdmin() {
                 style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }} />
             </div>
             <div className="flex gap-2">
-              {['all','Bronze','Silver','Gold','Platinum'].map(t => (
+              {['all','Bronze','Silver','Gold','Platinum','VIP Mahkota'].map(t => (
                 <button key={t} onClick={() => setTierFilter(t)}
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all"
                   style={tierFilter === t

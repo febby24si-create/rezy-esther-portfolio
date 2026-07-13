@@ -21,10 +21,12 @@ const TIER_GRADIENT = {
   Silver:   'linear-gradient(135deg, #1E293B 0%, #334155 50%, #1E293B 100%)',
   Gold:     'linear-gradient(135deg, #78350F 0%, #B45309 50%, #78350F 100%)',
   Platinum: 'linear-gradient(135deg, #3B0764 0%, #581C87 50%, #3B0764 100%)',
+  'VIP Mahkota': 'linear-gradient(135deg, #4C0519 0%, #831843 50%, #4C0519 100%)',
 }
 const TIER_GLOW = {
   Bronze: 'rgba(249,115,22,0.4)', Silver: 'rgba(148,163,184,0.3)',
   Gold: 'rgba(251,191,36,0.4)', Platinum: 'rgba(168,85,247,0.4)',
+  'VIP Mahkota': 'rgba(236,72,153,0.4)',
 }
 
 function MembershipCard({ customer, tier, tierCfg }) {

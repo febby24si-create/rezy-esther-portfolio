@@ -53,18 +53,21 @@ const TIER_GRADIENT = {
   Silver: "from-slate-800/60 to-slate-700/40",
   Gold: "from-yellow-900/60 to-yellow-800/40",
   Platinum: "from-purple-900/60 to-purple-800/40",
+  'VIP Mahkota': "from-pink-900/60 to-pink-800/40",
 };
 const TIER_GLOW = {
   Bronze: "shadow-orange-500/20",
   Silver: "shadow-slate-400/20",
   Gold: "shadow-yellow-500/20",
   Platinum: "shadow-purple-500/20",
+  'VIP Mahkota': "shadow-pink-500/20",
 };
 const TIER_BORDER = {
   Bronze: "border-orange-500/30",
   Silver: "border-slate-400/30",
   Gold: "border-yellow-500/30",
   Platinum: "border-purple-500/30",
+  'VIP Mahkota': "border-pink-500/30",
 };
 
 // ─── Status badge ─────────────────────────────────────────────
@@ -125,7 +128,7 @@ function SectionTitle({ children, sub }) {
 // ─── Overview Tab ─────────────────────────────────────────────
 function OverviewTab({ customer, orders, loyalty, tierCfg }) {
   const navigate = useNavigate();
-  const disc = { Bronze: 0, Silver: 5, Gold: 10, Platinum: 15 };
+  const disc = { Bronze: 0, Silver: 5, Gold: 10, Platinum: 15, 'VIP Mahkota': 20 };
 
   return (
     <div className="space-y-8">
@@ -352,7 +355,7 @@ function RiwayatTab({ orders }) {
 
 // ─── Loyalty Tab ──────────────────────────────────────────────
 function LoyaltyTab({ customer, loyalty, tierCfg }) {
-  const allTiers = ["Bronze", "Silver", "Gold", "Platinum"];
+  const allTiers = ["Bronze", "Silver", "Gold", "Platinum", "VIP Mahkota"];
   const history = customer.pointHistory || [];
 
   return (
@@ -418,8 +421,8 @@ function LoyaltyTab({ customer, loyalty, tierCfg }) {
           {allTiers.map((t) => {
             const cfg = TIER_CONFIG[t];
             const unlocked =
-              ["Bronze", "Silver", "Gold", "Platinum"].indexOf(t) <=
-              ["Bronze", "Silver", "Gold", "Platinum"].indexOf(loyalty.tier);
+              allTiers.indexOf(t) <=
+              allTiers.indexOf(loyalty.tier);
             return (
               <div
                 key={t}
@@ -808,7 +811,7 @@ export default function MemberDashboard() {
             className="mb-6 text-center text-sm font-semibold"
             style={{ color: tierCfg.color }}
           >
-            🏆 Platinum — Tier Tertinggi! Nikmati semua benefit eksklusif.
+            🏆 VIP Mahkota — Tier Tertinggi! Nikmati semua benefit eksklusif.
           </div>
         )}
 

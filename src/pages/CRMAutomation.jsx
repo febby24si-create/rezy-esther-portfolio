@@ -982,7 +982,7 @@ function PanduanCRM() {
       id: "loyalty",
       title: "🏆 Sistem Poin & Tier Loyalitas",
       content:
-        "Pelanggan mendapat poin setiap kali servis. Bronze (0–499 poin), Silver (500–1499 poin), Gold (1500–2999 poin), Platinum (3000+ poin). Tier lebih tinggi mendapat diskon dan benefit eksklusif yang otomatis diterapkan saat booking.",
+        "Pelanggan mendapat poin setiap kali servis. Bronze (0–499 poin), Silver (500–1.499 poin), Gold (1.500–2.999 poin), Platinum (3.000–4.999 poin), dan VIP Mahkota (5.000+ poin). Tier lebih tinggi mendapat diskon dan benefit eksklusif yang otomatis diterapkan saat booking.",
     },
     {
       id: "cotm",

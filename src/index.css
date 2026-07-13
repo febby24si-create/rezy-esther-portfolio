@@ -111,3 +111,135 @@ code {
 } */
 /* Semua styles ada di src/assets/tailwind.css */
 @import "./assets/tailwind.css";
+
+/* ── Theme Transition ────────────────────────────────────────── */
+/* Smooth transition for theme switching */
+[data-theme] {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+/* Key layout elements get scoped transitions for performance */
+[data-theme] .theme-transition,
+[data-theme] header,
+[data-theme] aside,
+[data-theme] main,
+[data-theme] section,
+[data-theme] nav,
+[data-theme] footer,
+[data-theme] div[class*="rounded-"],
+[data-theme] button,
+[data-theme] input,
+[data-theme] select,
+[data-theme] textarea {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* ── Light Theme Overrides ───────────────────────────────────── */
+/* These override the hardcoded dark inline styles in components */
+/* Only activates when data-theme="light" is present */
+[data-theme="light"] body {
+  background: var(--eg-bg-page);
+  color: var(--eg-text-primary);
+}
+
+/* Override common dark background patterns used in inline styles */
+[data-theme="light"] [class*="bg-"][style*="#020f09"],
+[data-theme="light"] [style*="background"][style*="#020f09"],
+[data-theme="light"] [style*="background"][style*="#041C15"],
+[data-theme="light"] [style*="background"][style*="#06281F"],
+[data-theme="light"] [style*="background"][style*="#0a1222"],
+[data-theme="light"] [style*="background"][style*="#040E09"],
+[data-theme="light"] [style*="background"][style*="#020b18"],
+[data-theme="light"] [style*="background"][style*="#04132c"],
+[data-theme="light"] [style*="background"][style*="#080C14"],
+[data-theme="light"] [style*="background"][style*="#0B1120"],
+[data-theme="light"] [style*="rgba(2,15,9"] {
+  background: var(--eg-bg-surface) !important;
+}
+
+[data-theme="light"] [style*="background"][style*="rgb(4,28,21)"] {
+  background: var(--eg-bg-card) !important;
+}
+
+[data-theme="light"] [style*="color"][style*="#6B7280"] {
+  color: var(--eg-text-secondary) !important;
+}
+
+[data-theme="light"] [style*="color"][style*="#9CA3AF"] {
+  color: var(--eg-text-tertiary) !important;
+}
+
+[data-theme="light"] [style*="color"][style*="#F1F5F9"] {
+  color: var(--eg-text-primary) !important;
+}
+
+[data-theme="light"] [style*="color"][style*="white"] {
+  color: var(--eg-text-primary) !important;
+}
+
+[data-theme="light"] [style*="border-color"][style*="rgba"] {
+  border-color: var(--eg-border) !important;
+}
+
+[data-theme="light"] .glass,
+[data-theme="light"] .glass-light,
+[data-theme="light"] .glass-card {
+  background: var(--eg-bg-glass) !important;
+  border-color: var(--eg-border-glass) !important;
+}
+
+/* Rechart overrides for light mode */
+[data-theme="light"] .recharts-text {
+  fill: var(--eg-text-secondary) !important;
+}
+[data-theme="light"] .recharts-cartesian-grid line {
+  stroke: var(--eg-border) !important;
+}
+[data-theme="light"] .recharts-default-tooltip {
+  background: var(--eg-bg-card) !important;
+  border-color: var(--eg-border) !important;
+}
+[data-theme="light"] .recharts-tooltip-label {
+  color: var(--eg-text-primary) !important;
+}
+
+/* Keep white text on gradient/primary buttons in light mode */
+[data-theme="light"] [class*="bg-gradient"].text-white {
+  color: #fff !important;
+}
+[data-theme="light"] [class*="btn-primary"].text-white {
+  color: #fff !important;
+}
+
+/* Override text-white on non-gradient elements in light mode */
+[data-theme="light"] .text-white {
+  color: var(--eg-text-primary) !important;
+}
+
+/* Auth page: role toggle container backgrounds */
+[data-theme="light"] [style*="rgba(255,255,255,0.04)"] {
+  background: var(--eg-bg-surface) !important;
+}
+[data-theme="light"] [style*="rgba(255,255,255,0.06)"] {
+  border-color: var(--eg-border) !important;
+}
+[data-theme="light"] [style*="rgba(255,255,255,0.08)"] {
+  border-color: var(--eg-border) !important;
+}
+
+/* Auth page: left branding panel — keep text white on video overlay */
+[data-theme="light"] [data-branding="true"] .text-white {
+  color: #fff !important;
+}
+[data-theme="light"] [data-branding="true"] .text-gray-400 {
+  color: #94a3b8 !important;
+}
+[data-theme="light"] [data-branding="true"] .text-gray-500 {
+  color: #6b7280 !important;
+}
+
+/* Select options in light mode */
+[data-theme="light"] select option {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}

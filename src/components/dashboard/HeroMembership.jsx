@@ -10,10 +10,12 @@ const TIER_GRADIENT = {
   Silver: 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)',
   Gold:   'linear-gradient(135deg, #451A03 0%, #78350F 50%, #451A03 100%)',
   Platinum: 'linear-gradient(135deg, #2E1065 0%, #3B0764 50%, #2E1065 100%)',
+  'VIP Mahkota': 'linear-gradient(135deg, #4C0519 0%, #831843 50%, #4C0519 100%)',
 }
 const TIER_GLOW = {
   Bronze: 'rgba(249,115,22,0.28)',  Silver: 'rgba(148,163,184,0.25)',
   Gold:   'rgba(251,191,36,0.32)',  Platinum: 'rgba(168,85,247,0.32)',
+  'VIP Mahkota': 'rgba(236,72,153,0.32)',
 }
 
 function getInitials(name) {
