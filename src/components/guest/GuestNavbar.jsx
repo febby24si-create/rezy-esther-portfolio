@@ -18,6 +18,7 @@ import { getCustomerAvatar } from '../../utils/randomAvatar'
 const GUEST_NAV = [
   { path: '/',               label: 'Beranda', exact: true },
   { path: '/guest/layanan', label: 'Layanan'              },
+  { path: '/guest/produk',  label: 'Produk'               },
   { path: '/guest/promo',   label: 'Promo'                },
   { path: '/guest/tentang', label: 'Tentang'              },
 ]

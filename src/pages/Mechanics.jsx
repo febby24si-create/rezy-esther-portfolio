@@ -8,6 +8,7 @@ import {
 } from 'react-icons/md'
 import { motion, AnimatePresence } from 'framer-motion'
 import { mechanicAPI } from '../services/mechanicAPI'
+import { compressImage } from '../lib/imageCompress'
 
 // ─── Rating otomatis ──────────────────────────────────────────────────
 function computeRating(jobsDone) {
@@ -300,9 +301,9 @@ function MechanicModal({ isOpen, onClose, onSubmit, form, setForm, editId, savin
   const fileRef = useRef()
   const handlePhoto = (e) => {
     const file = e.target.files[0]; if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => setForm(f => ({ ...f, photo: ev.target.result }))
-    reader.readAsDataURL(file)
+    compressImage(file)
+      .then((dataUrl) => setForm(f => ({ ...f, photo: dataUrl })))
+      .catch((err) => alert('Gagal memproses gambar: ' + err.message))
   }
 
   if (!isOpen) return null

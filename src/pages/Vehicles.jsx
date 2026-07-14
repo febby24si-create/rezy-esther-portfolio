@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Pagination from '../components/Pagination'
 import { vehicleAPI } from '../services/vehicleAPI'
 import { customerAPI } from '../services/customerAPI'
+import { compressImage } from '../lib/imageCompress'
 
 // ============================================================
 // MIGRASI: file ini sebelumnya membaca/menulis sessionStorage
@@ -298,9 +299,9 @@ function VehicleModal({ isOpen, onClose, onSubmit, form, setForm, editId, custom
   const handlePhoto = (e) => {
     const file = e.target.files[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = ev => setForm(f => ({ ...f, photo: ev.target.result }))
-    reader.readAsDataURL(file)
+    compressImage(file)
+      .then((dataUrl) => setForm(f => ({ ...f, photo: dataUrl })))
+      .catch((err) => alert('Gagal memproses gambar: ' + err.message))
   }
 
   const handleOwnerSelect = (e) => {

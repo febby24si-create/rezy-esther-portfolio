@@ -8,7 +8,7 @@ import {
   MdMoreVert, MdBuild, MdCamera, MdCloudUpload
 } from 'react-icons/md'
 import { motion, AnimatePresence } from 'framer-motion'
-import inventoryData from '../data/inventoryData.json'
+import { compressImage } from '../lib/imageCompress'
 
 const fmt = (n) => 'Rp ' + Number(n).toLocaleString('id-ID')
 
@@ -30,6 +30,7 @@ const categoryIcons = {
   'Sensor Kendaraan': <MdBuild size={20} />,
   'Sparepart Fast Moving': <MdCarRepair size={20} />,
   'Tools & Consumables': <MdBuild size={20} />,
+  'Jasa': <MdBuild size={20} />,
   'Lainnya': <MdMoreVert size={20} />,
 }
 
@@ -50,6 +51,7 @@ const categoryColors = {
   'Sensor Kendaraan': '#8B5CF6',
   'Sparepart Fast Moving': '#EC4899',
   'Tools & Consumables': '#F97316',
+  'Jasa': '#10B981',
   'Lainnya': '#9CA3AF',
 }
 
@@ -66,29 +68,13 @@ const CATEGORIES = [
   'Semua', 'Oli Mesin', 'Oli Transmisi', 'Filter Oli', 'Filter Udara',
   'Busi', 'Kampas Rem', 'Aki', 'Ban', 'Cairan Radiator', 'Lampu Kendaraan',
   'Bearing', 'Belt', 'Fuse', 'Sensor Kendaraan', 'Sparepart Fast Moving',
-  'Tools & Consumables', 'Lainnya'
+  'Tools & Consumables', 'Jasa', 'Lainnya'
 ]
 
 const initialForm = { code: '', name: '', category: 'Oli Mesin', stock: '', unit: 'pcs', minStock: '5', buyPrice: '', sellPrice: '', photo: '' }
 
 const inputCls = 'w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all focus:ring-2 focus:ring-blue-500/20'
 const inputStyle = { background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(59,130,246,0.15)' }
-
-// ─── Load data dengan merge ──────────────────────────────────────────
-function loadInventory() {
-  let stored = []
-  try {
-    const raw = sessionStorage.getItem('garage_inventory')
-    stored = raw ? JSON.parse(raw) : []
-  } catch { stored = [] }
-
-  if (stored.length === 0) return inventoryData
-
-  const storedIds = new Set(stored.map(i => i.id))
-  const storedCodes = new Set(stored.map(i => i.code))
-  const newOnes = inventoryData.filter(i => !storedIds.has(i.id) && !storedCodes.has(i.code))
-  return [...stored, ...newOnes]
-}
 
 // ─── Restock Modal ────────────────────────────────────────────────────
 function RestockModal({ item, onClose, onConfirm }) {
@@ -367,9 +353,9 @@ function BulkPhotoModal({ isOpen, onClose, category, setCategory, photo, setPhot
     const file = e.target.files[0]
     if (!file) return
     if (!file.type.startsWith('image/')) { alert('Mohon upload file gambar'); return }
-    const reader = new FileReader()
-    reader.onload = (ev) => setPhoto(ev.target.result)
-    reader.readAsDataURL(file)
+    compressImage(file)
+      .then(setPhoto)
+      .catch((err) => alert('Gagal memproses gambar: ' + err.message))
   }
 
   if (!isOpen) return null
@@ -463,9 +449,9 @@ function ItemModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
     const file = e.target.files[0]
     if (!file) return
     if (!file.type.startsWith('image/')) { alert('Mohon upload file gambar'); return }
-    const reader = new FileReader()
-    reader.onload = (ev) => setForm(f => ({ ...f, photo: ev.target.result }))
-    reader.readAsDataURL(file)
+    compressImage(file)
+      .then((dataUrl) => setForm(f => ({ ...f, photo: dataUrl })))
+      .catch((err) => alert('Gagal memproses gambar: ' + err.message))
   }
 
   if (!isOpen) return null
@@ -669,16 +655,31 @@ export default function Inventory() {
 
   const handleSubmit = async (ev) => {
     ev.preventDefault()
-    const parsed = { ...form, stock: parseInt(form.stock)||0, min_stock: parseInt(form.minStock)||5, buy_price: parseInt(form.buyPrice)||0, sell_price: parseInt(form.sellPrice)||0, photo_url: form.photo || null }
-    const { productAPI } = await import('../services/productAPI')
-    if (editId) {
-      const updated = await productAPI.update(editId, parsed)
-      if (updated) setItems(prev => prev.map(it => it.id === editId ? { ...it, ...updated } : it))
-    } else {
-      const created = await productAPI.create({ ...parsed, is_active: true })
-      if (created) setItems(prev => [created, ...prev])
+    const parsed = {
+      code: form.code,
+      name: form.name,
+      category: form.category,
+      unit: form.unit,
+      stock: parseInt(form.stock) || 0,
+      min_stock: parseInt(form.minStock) || 5,
+      buy_price: parseInt(form.buyPrice) || 0,
+      sell_price: parseInt(form.sellPrice) || 0,
+      photo_url: form.photo || null,
     }
-    setShowModal(false)
+    try {
+      const { productAPI } = await import('../services/productAPI')
+      if (editId) {
+        const updated = await productAPI.update(editId, parsed)
+        if (updated) setItems(prev => prev.map(it => it.id === editId ? { ...it, ...updated } : it))
+      } else {
+        const created = await productAPI.create({ ...parsed, is_active: true })
+        if (created) setItems(prev => [created, ...prev])
+      }
+      setShowModal(false)
+    } catch (err) {
+      console.error('Gagal menyimpan produk:', err)
+      alert('Gagal menyimpan produk. Coba lagi.\n' + (err?.response?.data?.message || err.message))
+    }
   }
 
   const handleRestock = async (itemId, delta, note) => {
@@ -686,19 +687,29 @@ export default function Inventory() {
     if (!item) return
     const before = item.stock
     const after  = Math.max(0, before + delta)
-    const entry  = { itemId, delta, before, after, note, date: new Date().toISOString().slice(0,10) + ' ' + new Date().toTimeString().slice(0,5) }
-    setHistory(h => [entry, ...h])
-    const { productAPI } = await import('../services/productAPI')
-    await productAPI.update(itemId, { stock: after })
-    setItems(prev => prev.map(it => it.id === itemId ? { ...it, stock: after } : it))
-    setRestockTarget(null)
+    try {
+      const { productAPI } = await import('../services/productAPI')
+      await productAPI.update(itemId, { stock: after })
+      const entry = { itemId, delta, before, after, note, date: new Date().toISOString().slice(0,10) + ' ' + new Date().toTimeString().slice(0,5) }
+      setHistory(h => [entry, ...h])
+      setItems(prev => prev.map(it => it.id === itemId ? { ...it, stock: after } : it))
+      setRestockTarget(null)
+    } catch (err) {
+      console.error('Gagal update stok:', err)
+      alert('Gagal update stok. Coba lagi.')
+    }
   }
 
   const handleDelete = async () => {
-    const { productAPI } = await import('../services/productAPI')
-    await productAPI.delete(deleteTarget.id)
-    setItems(prev => prev.filter(it => it.id !== deleteTarget.id))
-    setDeleteTarget(null)
+    try {
+      const { productAPI } = await import('../services/productAPI')
+      await productAPI.delete(deleteTarget.id)
+      setItems(prev => prev.filter(it => it.id !== deleteTarget.id))
+      setDeleteTarget(null)
+    } catch (err) {
+      console.error('Gagal menghapus produk:', err)
+      alert('Gagal menghapus produk. Coba lagi.')
+    }
   }
 
   const handleAddToOrder = (item) => {
