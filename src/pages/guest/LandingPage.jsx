@@ -4,6 +4,8 @@ import PageSkeleton from '../../components/ui/PageSkeleton';
 import { CARD_THEME } from '../../lib/memberCardTheme';
 import { CardPattern, ChipIcon } from '../../components/member/MemberCardComponents';
 import { publicAPI } from '../../services/publicAPI';
+import { productAPI } from '../../services/productAPI';
+import GuestProductCard from '../../components/guest/ProductCard';
 import {
   MdWhatsapp,
   MdArrowUpward,
@@ -546,6 +548,8 @@ export default function LandingPage() {
   const [testimonials, setTestimonials] = useState([]);
   const [stats, setStats] = useState({ pelanggan: 5000, mekanik: 10, tahun: 8, kepuasan: 98 });
   const [loadingData, setLoadingData] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   useEffect(() => {
     Promise.all([
@@ -557,6 +561,15 @@ export default function LandingPage() {
     }).finally(() => {
       setLoadingData(false);
     });
+  }, []);
+
+  // Produk asli dari Supabase (bukan data dummy) — cukup tampilkan
+  // beberapa produk unggulan yang statusnya aktif.
+  useEffect(() => {
+    productAPI.fetchActive()
+      .then((data) => setProducts((data || []).slice(0, 4)))
+      .catch(() => setProducts([]))
+      .finally(() => setLoadingProducts(false));
   }, []);
 
   // ─── Countdown ───
@@ -765,6 +778,46 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* ─── PRODUK UNGGULAN (data asli dari Supabase) ─── */}
+      {(loadingProducts || products.length > 0) && (
+        <section id="produk" className="py-24 px-6 sm:px-10 lg:px-16 bg-garage-950 border-b border-white/5">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-14">
+              <Reveal>
+                <span className="text-brand text-xs font-semibold tracking-widest uppercase">Toko Sparepart</span>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-2">Produk Unggulan Kami</h2>
+                <p className="text-gray-400 text-sm max-w-lg mx-auto mt-2">Sparepart original langsung dari stok bengkel, siap dibeli online.</p>
+              </Reveal>
+            </div>
+
+            {loadingProducts ? (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+                <PageSkeleton variant="card" count={4} />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+                {products.map((product, idx) => (
+                  <Reveal key={product.id} delay={idx * 100} direction="up" distance={20}>
+                    <GuestProductCard product={product} />
+                  </Reveal>
+                ))}
+              </div>
+            )}
+
+            <div className="text-center mt-10">
+              <Reveal delay={200}>
+                <button
+                  onClick={() => navigate('/guest/produk')}
+                  className="inline-flex items-center gap-2 text-brand hover:text-blue-300 font-semibold text-sm border-brand hover:border-brand px-6 py-2.5 rounded-xl transition-all bg-blue-500/10 hover:bg-blue-500/20"
+                >
+                  Lihat Semua Produk <MdArrowForward />
+                </button>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ─── LAYANAN ─── */}
       <section id="layanan" className="py-24 px-6 sm:px-10 lg:px-16 bg-garage-950">

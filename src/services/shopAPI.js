@@ -43,6 +43,13 @@ export const shopAPI = {
     return response.data[0] || null
   },
 
+  // ── Semua item pesanan sekaligus (untuk statistik Dashboard —
+  //    "Produk Terlaris" butuh agregat lintas semua pesanan) ──
+  async fetchAllOrderItems() {
+    const response = await axios.get(`${API_URL}/product_order_items`, { headers })
+    return response.data
+  },
+
   // ── Item dari satu pesanan (untuk detail/invoice) ──
   async fetchItemsByOrder(productOrderId) {
     const response = await axios.get(`${API_URL}/product_order_items`, {

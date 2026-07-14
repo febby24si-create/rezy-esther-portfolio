@@ -769,7 +769,7 @@ export default function Dashboard() {
   const {
     loading, error, kpiData, monthlyRevenue, serviceCategories,
     customerGrowth, revenueByService, todaySchedule, activityFeed,
-    topCustomers, mechanicPerformance,
+    topCustomers, mechanicPerformance, productSalesStats,
   } = useDashboardData()
 
   const loggedInUser = useMemo(() => {
@@ -834,6 +834,32 @@ export default function Dashboard() {
         {/* 4 KPI Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {fourKpis.map((kpi, i) => <KpiCard key={kpi.id} data={kpi} index={i} />)}
+        </div>
+
+        {/* Statistik Penjualan Produk (fitur toko sparepart) */}
+        <div>
+          <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wider mb-3">Statistik Penjualan Produk</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <KpiCard index={0} data={{
+              label: "Pendapatan Produk", value: productSalesStats.totalRevenue, icon: "💵",
+              color: "#22C55E", format: fmt,
+              note: productSalesStats.totalRevenue === 0 ? "Belum ada pesanan selesai" : null,
+            }} />
+            <KpiCard index={1} data={{
+              label: "Jumlah Pesanan", value: productSalesStats.totalOrdersCount, icon: "🧾",
+              color: "#3B82F6",
+            }} />
+            <KpiCard index={2} data={{
+              label: "Total Penjualan", value: productSalesStats.totalUnitsSold, icon: "📦",
+              color: "#F59E0B", suffix: " unit",
+            }} />
+            <KpiCard index={3} data={{
+              label: "Produk Terlaris", value: productSalesStats.bestSellerQty, icon: "🏆",
+              color: "#A855F7",
+              format: productSalesStats.bestSellerName ? () => productSalesStats.bestSellerName : () => "—",
+              note: productSalesStats.bestSellerName ? `${productSalesStats.bestSellerQty} unit terjual` : "Belum ada data",
+            }} />
+          </div>
         </div>
 
         {/* Charts Row 1: Revenue + Booking */}

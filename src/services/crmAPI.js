@@ -16,6 +16,79 @@ const headers = {
 
 export const crmAPI = {
 
+  // ── CAMPAIGNS ──────────────────────────────────────────────
+
+  async fetchCampaigns() {
+    const response = await axios.get(`${API_URL}/crm_campaigns`, {
+      headers,
+      params: { order: 'created_at.desc' }
+    })
+    return response.data
+  },
+
+  async createCampaign(data) {
+    const response = await axios.post(`${API_URL}/crm_campaigns`, {
+      name:            data.name,
+      type:            data.type,
+      description:     data.description,
+      discount_pct:    data.discountPct,
+      target_segment:  data.targetSegment,
+      voucher_quota:   data.voucherQuota,
+      voucher_used:    0,
+      starts_at:       data.startsAt || new Date().toISOString(),
+      ends_at:         data.endsAt || null,
+      status:          data.status || 'draft',
+    }, { headers })
+    return response.data[0] || null
+  },
+
+  async updateCampaign(id, data) {
+    const response = await axios.patch(`${API_URL}/crm_campaigns?id=eq.${id}`, data, { headers })
+    return response.data[0] || null
+  },
+
+  async deleteCampaign(id) {
+    await axios.delete(`${API_URL}/crm_campaigns?id=eq.${id}`, { headers })
+  },
+
+  // ── REWARDS ────────────────────────────────────────────────
+
+  async fetchRewards() {
+    const response = await axios.get(`${API_URL}/crm_rewards`, {
+      headers,
+      params: { order: 'created_at.desc' }
+    })
+    return response.data
+  },
+
+  async createReward(data) {
+    const response = await axios.post(`${API_URL}/crm_rewards`, {
+      name:         data.name,
+      description:  data.description,
+      points_cost:  data.pointsCost,
+      icon:         data.icon || '🎁',
+      stock:        data.stock ?? 0,
+      redeemed:     0,
+      is_active:    true,
+    }, { headers })
+    return response.data[0] || null
+  },
+
+  // ── POINT LOG (pakai tabel point_history yang sudah ada) ────
+  // Sengaja dibuat terpisah dari pointAPI.addPoint karena dipanggil
+  // dari alur reward-redemption (bukan alur order/registrasi).
+  async logPointChange(data) {
+    const signedPoints = data.type === 'out' ? -Math.abs(data.points) : Math.abs(data.points)
+    const response = await axios.post(`${API_URL}/point_history`, {
+      customer_id:  data.customerId,
+      type:         data.type,
+      points:       signedPoints,
+      description:  data.description,
+      created_by:   data.createdBy || 'Admin',
+    }, { headers })
+    return response.data[0] || null
+  },
+
   // ── REMINDERS ──────────────────────────────────────────────
 
   async fetchReminders() {

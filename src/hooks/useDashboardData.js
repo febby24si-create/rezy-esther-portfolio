@@ -15,6 +15,15 @@ function getMonth(isoStr) {
   return new Date(isoStr).getMonth()
 }
 
+function getMonthLabel(isoStr) {
+  return MONTHS[getMonth(isoStr)]
+}
+
+function monthDiff(a, b) {
+  const mA = new Date(a).getMonth() + new Date(a).getFullYear() * 12
+  const mB = new Date(b).getMonth() + new Date(b).getFullYear() * 12
+  return mA - mB
+}
 
 function monthKey(date) {
   return `${date.getFullYear()}-${date.getMonth()}`
@@ -55,27 +64,32 @@ export default function useDashboardData() {
   const [mechanics, setMechanics] = useState([])
   const [notifications, setNotifications] = useState([])
   const [reviews, setReviews] = useState([])
+  const [productOrders, setProductOrders] = useState([])
+  const [productOrderItems, setProductOrderItems] = useState([])
 
   useEffect(() => {
     let cancelled = false
     async function fetchAll() {
       try {
-        const [orderAPI, customerAPI, bookingAPI, mechanicAPI, notifAPI, crmAPI] = await Promise.all([
+        const [orderAPI, customerAPI, bookingAPI, mechanicAPI, notifAPI, crmAPI, shopAPI] = await Promise.all([
           import("../services/orderAPI").then(m => m.orderAPI),
           import("../services/customerAPI").then(m => m.customerAPI),
           import("../services/bookingAPI").then(m => m.bookingAPI),
           import("../services/mechanicAPI").then(m => m.mechanicAPI),
           import("../services/notificationAPI").then(m => m.notificationAPI),
           import("../services/crmAPI").then(m => m.crmAPI),
+          import("../services/shopAPI").then(m => m.shopAPI),
         ])
 
-        const [o, c, b, m, n, r] = await Promise.all([
+        const [o, c, b, m, n, r, po, poi] = await Promise.all([
           orderAPI.fetchAll().catch(() => []),
           customerAPI.fetchAll().catch(() => []),
           bookingAPI.fetchAll().catch(() => []),
           mechanicAPI.fetchAll().catch(() => []),
           notifAPI.fetchForAdmin(50).catch(() => []),
           crmAPI.fetchReviews().catch(() => []),
+          shopAPI.fetchAllOrders().catch(() => []),
+          shopAPI.fetchAllOrderItems().catch(() => []),
         ])
 
         if (!cancelled) {
@@ -85,6 +99,8 @@ export default function useDashboardData() {
           setMechanics(m || [])
           setNotifications(n || [])
           setReviews(r || [])
+          setProductOrders(po || [])
+          setProductOrderItems(poi || [])
         }
       } catch (err) {
         if (!cancelled) setError(err.message)
@@ -408,6 +424,35 @@ export default function useDashboardData() {
     }
   }, [monthlyRevenue, orders, customers, reviews])
 
+  // ─── Statistik Penjualan Produk (fitur baru: toko sparepart) ────
+  // Dihitung dari product_orders/product_order_items — hanya order
+  // berstatus 'Selesai' yang dihitung sebagai penjualan/pendapatan
+  // REAL (yang masih 'Menunggu Konfirmasi' dsb belum tentu jadi).
+  const productSalesStats = useMemo(() => {
+    const completedOrders = productOrders.filter(o => o.status === "Selesai")
+    const completedOrderIds = new Set(completedOrders.map(o => o.id))
+    const completedItems = productOrderItems.filter(it => completedOrderIds.has(it.product_order_id))
+
+    const totalUnitsSold = completedItems.reduce((sum, it) => sum + (it.qty || 0), 0)
+    const totalRevenue = completedOrders.reduce((sum, o) => sum + Number(o.total || 0), 0)
+    const totalOrdersCount = productOrders.length
+
+    // Produk terlaris — agregat qty per nama produk dari order yang selesai.
+    const salesByProduct = {}
+    for (const it of completedItems) {
+      salesByProduct[it.product_name] = (salesByProduct[it.product_name] || 0) + it.qty
+    }
+    const bestSeller = Object.entries(salesByProduct).sort((a, b) => b[1] - a[1])[0]
+
+    return {
+      totalUnitsSold,
+      totalOrdersCount,
+      totalRevenue,
+      bestSellerName: bestSeller ? bestSeller[0] : null,
+      bestSellerQty: bestSeller ? bestSeller[1] : 0,
+    }
+  }, [productOrders, productOrderItems])
+
   return {
     loading,
     error,
@@ -423,6 +468,7 @@ export default function useDashboardData() {
     topCustomers,
     mechanicStatus,
     businessPerformance,
+    productSalesStats,
   }
 }
 

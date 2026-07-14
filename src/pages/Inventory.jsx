@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   MdAdd, MdSearch, MdClose, MdEdit, MdDelete, MdInventory2,
   MdWarning, MdAddCircle, MdRemoveCircle, MdHistory, MdArrowBack,
   MdCheck, MdTrendingUp, MdTrendingDown, MdShoppingCart,
   MdOilBarrel, MdFilterAlt, MdCarRepair, MdSettings,
   MdLocalGasStation, MdFlashOn, MdLightbulb, MdCircle,
-  MdMoreVert, MdBuild
+  MdMoreVert, MdBuild, MdCamera, MdCloudUpload
 } from 'react-icons/md'
 import { motion, AnimatePresence } from 'framer-motion'
 import inventoryData from '../data/inventoryData.json'
@@ -69,7 +69,7 @@ const CATEGORIES = [
   'Tools & Consumables', 'Lainnya'
 ]
 
-const initialForm = { code: '', name: '', category: 'Oli Mesin', stock: '', unit: 'pcs', minStock: '5', buyPrice: '', sellPrice: '' }
+const initialForm = { code: '', name: '', category: 'Oli Mesin', stock: '', unit: 'pcs', minStock: '5', buyPrice: '', sellPrice: '', photo: '' }
 
 const inputCls = 'w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none transition-all focus:ring-2 focus:ring-blue-500/20'
 const inputStyle = { background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(59,130,246,0.15)' }
@@ -264,7 +264,7 @@ function HistoryDrawer({ item, history, onClose }) {
 // ─── Detail Drawer ────────────────────────────────────────────────────
 function DetailDrawer({ item, onClose, onEdit, onRestock, onAddToOrder }) {
   if (!item) return null
-  const st = getStockStatus(item.stock, item.minStock)
+  const st = getStockStatus(item.stock, item.min_stock)
   const color = getCategoryColor(item.category)
   const Icon = getCategoryIcon(item.category)
 
@@ -321,9 +321,9 @@ function DetailDrawer({ item, onClose, onEdit, onRestock, onAddToOrder }) {
           <div className="grid grid-cols-2 gap-3 mx-5 mb-5">
             {[
               { label: 'Stok', value: `${item.stock} ${item.unit}`, color: '#3B82F6' },
-              { label: 'Min. Stok', value: `${item.minStock} ${item.unit}`, color: '#FBBF24' },
-              { label: 'Harga Beli', value: fmt(item.buyPrice), color: '#60A5FA' },
-              { label: 'Harga Jual', value: fmt(item.sellPrice), color: '#A78BFA' },
+              { label: 'Min. Stok', value: `${item.min_stock} ${item.unit}`, color: '#FBBF24' },
+              { label: 'Harga Beli', value: fmt(item.buy_price), color: '#60A5FA' },
+              { label: 'Harga Jual', value: fmt(item.sell_price), color: '#A78BFA' },
             ].map(s => (
               <div key={s.label} className="rounded-xl p-3 text-center"
                 style={{ background: 'rgba(15,23,42,0.3)', border: '1px solid rgba(59,130,246,0.08)' }}>
@@ -360,8 +360,114 @@ function DetailDrawer({ item, onClose, onEdit, onRestock, onAddToOrder }) {
   )
 }
 
+// ─── Modal Foto Massal per Kategori ────────────────────────────────────
+function BulkPhotoModal({ isOpen, onClose, category, setCategory, photo, setPhoto, overwrite, setOverwrite, targetCount, onApply, applying }) {
+  const fileRef = useRef(null)
+  const handlePhoto = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) { alert('Mohon upload file gambar'); return }
+    const reader = new FileReader()
+    reader.onload = (ev) => setPhoto(ev.target.result)
+    reader.readAsDataURL(file)
+  }
+
+  if (!isOpen) return null
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+          className="w-full max-w-md rounded-2xl overflow-hidden"
+          style={{ background: 'linear-gradient(160deg,#0a1222,#0f172a)', border: '1px solid rgba(59,130,246,0.2)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(59,130,246,0.08)' }}>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(59,130,246,0.12)' }}>
+                <MdCamera size={15} className="text-blue-400" />
+              </div>
+              <h3 className="text-white font-bold">Foto Massal per Kategori</h3>
+            </div>
+            <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5 transition-all">
+              <MdClose size={18} />
+            </button>
+          </div>
+
+          <div className="px-5 py-4 space-y-4">
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Upload 1 foto, otomatis dipasang ke semua produk di kategori yang dipilih —
+              nggak perlu buka satu-satu.
+            </p>
+
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5">Kategori</label>
+              <select value={category} onChange={e => setCategory(e.target.value)}
+                className={inputCls} style={inputStyle}>
+                {CATEGORIES.filter(c => c !== 'Semua').map(c => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5">Foto</label>
+              <div className="relative rounded-2xl overflow-hidden cursor-pointer flex items-center justify-center transition-all hover:opacity-80"
+                style={{ height: 120, background: 'rgba(59,130,246,0.06)', border: '2px dashed rgba(59,130,246,0.25)' }}
+                onClick={() => fileRef.current?.click()}>
+                {photo
+                  ? <img src={photo} alt="preview" className="w-full h-full object-cover" />
+                  : <div className="flex flex-col items-center gap-2 text-gray-500">
+                      <MdCamera size={28} className="text-blue-400" />
+                      <span className="text-xs">Klik untuk upload foto</span>
+                    </div>
+                }
+              </div>
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
+            </div>
+
+            <label className="flex items-center gap-2 text-xs text-gray-400 cursor-pointer select-none">
+              <input type="checkbox" checked={overwrite} onChange={e => setOverwrite(e.target.checked)} className="accent-blue-500" />
+              Timpa juga produk yang sudah punya foto
+            </label>
+
+            <div className="rounded-xl px-4 py-3 text-xs" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)' }}>
+              <span className="text-blue-300 font-semibold">{targetCount}</span>
+              <span className="text-gray-400"> produk di kategori "{category}" akan kena foto ini.</span>
+            </div>
+          </div>
+
+          <div className="flex gap-3 px-5 py-4" style={{ borderTop: '1px solid rgba(59,130,246,0.08)' }}>
+            <button type="button" onClick={onClose}
+              className="flex-1 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white transition-all"
+              style={{ border: '1px solid rgba(59,130,246,0.12)' }}>Batal</button>
+            <button type="button" onClick={onApply} disabled={!photo || targetCount === 0 || applying}
+              className="flex-1 py-2.5 rounded-xl text-sm font-bold text-black transition-all hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: 'linear-gradient(135deg,#3B82F6,#2563eb)' }}>
+              {applying ? 'Menerapkan...' : `Terapkan ke ${targetCount} Produk`}
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
 // ─── Form Modal ───────────────────────────────────────────────────────
 function ItemModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
+  const fileRef = useRef(null)
+  const handlePhoto = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) { alert('Mohon upload file gambar'); return }
+    const reader = new FileReader()
+    reader.onload = (ev) => setForm(f => ({ ...f, photo: ev.target.result }))
+    reader.readAsDataURL(file)
+  }
+
   if (!isOpen) return null
   return (
     <AnimatePresence>
@@ -390,6 +496,27 @@ function ItemModal({ isOpen, onClose, onSubmit, form, setForm, editId }) {
           </div>
 
           <form onSubmit={onSubmit} className="px-5 py-4 space-y-4 max-h-[65vh] overflow-y-auto">
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5">Foto Produk</label>
+              <div className="relative rounded-2xl overflow-hidden cursor-pointer flex items-center justify-center transition-all hover:opacity-80"
+                style={{ height: 120, background: 'rgba(59,130,246,0.06)', border: '2px dashed rgba(59,130,246,0.25)' }}
+                onClick={() => fileRef.current?.click()}>
+                {form.photo
+                  ? <img src={form.photo} alt="preview" className="w-full h-full object-cover" />
+                  : <div className="flex flex-col items-center gap-2 text-gray-500">
+                      <MdCamera size={28} className="text-blue-400" />
+                      <span className="text-xs">Klik untuk upload foto produk</span>
+                    </div>
+                }
+                {form.photo && (
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"
+                    style={{ background: 'rgba(0,0,0,0.5)' }}>
+                    <span className="text-xs text-white flex items-center gap-1.5"><MdCloudUpload size={16}/> Ganti foto</span>
+                  </div>
+                )}
+              </div>
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-gray-400 mb-1.5">Kode Barang</label>
@@ -503,19 +630,46 @@ export default function Inventory() {
   })
 
   const totalSKU   = items.length
-  const totalValue = items.reduce((s, it) => s + it.stock * it.buyPrice, 0)
-  const lowStock   = items.filter(it => it.stock > 0 && it.stock <= it.minStock).length
+  const totalValue = items.reduce((s, it) => s + it.stock * it.buy_price, 0)
+  const lowStock   = items.filter(it => it.stock > 0 && it.stock <= it.min_stock).length
   const outOfStock = items.filter(it => it.stock === 0).length
+
+  const [showBulkPhoto, setShowBulkPhoto]   = useState(false)
+  const [bulkCategory, setBulkCategory]     = useState('Oli Mesin')
+  const [bulkPhoto, setBulkPhoto]           = useState('')
+  const [bulkOverwrite, setBulkOverwrite]   = useState(false)
+  const [bulkApplying, setBulkApplying]     = useState(false)
+
+  const bulkTargets = items.filter(it => it.category === bulkCategory && (bulkOverwrite || !it.photo_url))
+
+  const handleBulkApply = async () => {
+    if (!bulkPhoto || bulkTargets.length === 0) return
+    setBulkApplying(true)
+    try {
+      const { productAPI } = await import('../services/productAPI')
+      const results = await Promise.all(
+        bulkTargets.map(it => productAPI.update(it.id, { photo_url: bulkPhoto }).catch(() => null))
+      )
+      setItems(prev => prev.map(it => {
+        const idx = bulkTargets.findIndex(t => t.id === it.id)
+        return idx !== -1 && results[idx] ? { ...it, photo_url: bulkPhoto } : it
+      }))
+      setShowBulkPhoto(false)
+      setBulkPhoto('')
+    } finally {
+      setBulkApplying(false)
+    }
+  }
 
   const openAdd  = () => { setForm(initialForm); setEditId(null); setShowModal(true) }
   const openEdit = (it) => {
-    setForm({ code: it.code, name: it.name, category: it.category, stock: String(it.stock), unit: it.unit, minStock: String(it.minStock), buyPrice: String(it.buyPrice), sellPrice: String(it.sellPrice) })
+    setForm({ code: it.code, name: it.name, category: it.category, stock: String(it.stock), unit: it.unit, minStock: String(it.min_stock), buyPrice: String(it.buy_price), sellPrice: String(it.sell_price), photo: it.photo_url || '' })
     setEditId(it.id); setShowModal(true)
   }
 
   const handleSubmit = async (ev) => {
     ev.preventDefault()
-    const parsed = { ...form, stock: parseInt(form.stock)||0, min_stock: parseInt(form.minStock)||5, buy_price: parseInt(form.buyPrice)||0, sell_price: parseInt(form.sellPrice)||0 }
+    const parsed = { ...form, stock: parseInt(form.stock)||0, min_stock: parseInt(form.minStock)||5, buy_price: parseInt(form.buyPrice)||0, sell_price: parseInt(form.sellPrice)||0, photo_url: form.photo || null }
     const { productAPI } = await import('../services/productAPI')
     if (editId) {
       const updated = await productAPI.update(editId, parsed)
@@ -570,11 +724,18 @@ export default function Inventory() {
               Nilai stok: <span className="text-white font-medium">{fmt(totalValue)}</span>
             </p>
           </div>
-          <button onClick={openAdd}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-black transition-all hover:scale-105 active:scale-95"
-            style={{ background: 'linear-gradient(135deg, #3B82F6, #2563eb)', boxShadow: '0 8px 24px rgba(59,130,246,0.35)' }}>
-            <MdAdd size={18} /> Tambah Barang
-          </button>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setShowBulkPhoto(true)}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-blue-300 transition-all hover:scale-105 active:scale-95"
+              style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)' }}>
+              <MdCamera size={18} /> Foto Massal per Kategori
+            </button>
+            <button onClick={openAdd}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-black transition-all hover:scale-105 active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #3B82F6, #2563eb)', boxShadow: '0 8px 24px rgba(59,130,246,0.35)' }}>
+              <MdAdd size={18} /> Tambah Barang
+            </button>
+          </div>
         </div>
 
         {/* Stat cards */}
@@ -638,10 +799,10 @@ export default function Inventory() {
         <AnimatePresence>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {filtered.map((it) => {
-              const st = getStockStatus(it.stock, it.minStock)
+              const st = getStockStatus(it.stock, it.min_stock)
               const color = getCategoryColor(it.category)
               const Icon = getCategoryIcon(it.category)
-              const pct = it.minStock > 0 ? Math.min(100, (it.stock / (it.minStock * 3)) * 100) : 100
+              const pct = it.min_stock > 0 ? Math.min(100, (it.stock / (it.min_stock * 3)) * 100) : 100
 
               return (
                 <motion.div
@@ -682,20 +843,20 @@ export default function Inventory() {
                     <div className="grid grid-cols-2 gap-2 mb-3">
                       <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(15,23,42,0.3)' }}>
                         <p className="text-[10px] text-gray-500">Stok</p>
-                        <p className={`text-lg font-black ${it.stock === 0 ? 'text-red-400' : it.stock <= it.minStock ? 'text-yellow-400' : 'text-white'}`}>
+                        <p className={`text-lg font-black ${it.stock === 0 ? 'text-red-400' : it.stock <= it.min_stock ? 'text-yellow-400' : 'text-white'}`}>
                           {it.stock}
                           <span className="text-xs text-gray-500 font-normal ml-1">{it.unit}</span>
                         </p>
                       </div>
                       <div className="rounded-xl p-2 text-center" style={{ background: 'rgba(15,23,42,0.3)' }}>
                         <p className="text-[10px] text-gray-500">Harga Jual</p>
-                        <p className="text-sm font-black text-blue-400">{fmt(it.sellPrice)}</p>
+                        <p className="text-sm font-black text-blue-400">{fmt(it.sell_price)}</p>
                       </div>
                     </div>
 
                     <div className="h-1 rounded-full overflow-hidden mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
                       <div className="h-full rounded-full transition-all"
-                        style={{ width: `${pct}%`, background: it.stock === 0 ? '#EF4444' : it.stock <= it.minStock ? '#FBBF24' : '#3B82F6' }} />
+                        style={{ width: `${pct}%`, background: it.stock === 0 ? '#EF4444' : it.stock <= it.min_stock ? '#FBBF24' : '#3B82F6' }} />
                     </div>
 
                     <div className="flex items-center justify-between gap-1">
@@ -751,6 +912,17 @@ export default function Inventory() {
         editId={editId}
       />
       {showModal && <form id="form-item" onSubmit={handleSubmit} className="hidden" />}
+
+      <BulkPhotoModal
+        isOpen={showBulkPhoto}
+        onClose={() => { setShowBulkPhoto(false); setBulkPhoto('') }}
+        category={bulkCategory} setCategory={setBulkCategory}
+        photo={bulkPhoto} setPhoto={setBulkPhoto}
+        overwrite={bulkOverwrite} setOverwrite={setBulkOverwrite}
+        targetCount={bulkTargets.length}
+        onApply={handleBulkApply}
+        applying={bulkApplying}
+      />
 
       {restockTarget && (
         <RestockModal item={restockTarget} onClose={() => setRestockTarget(null)} onConfirm={handleRestock} />
