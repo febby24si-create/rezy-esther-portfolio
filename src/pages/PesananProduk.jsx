@@ -5,7 +5,7 @@ import {
   MdCheckCircle, MdReceiptLong,
 } from 'react-icons/md'
 import { shopAPI } from '../services/shopAPI'
-import { formatRupiah } from '../components/guest/ProductCard'
+import { formatRupiah } from '../lib/formatRupiah'
 
 const STATUS_LIST = ['Menunggu Konfirmasi', 'Diproses', 'Siap Diambil', 'Selesai', 'Dibatalkan']
 
