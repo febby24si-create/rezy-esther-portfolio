@@ -3,7 +3,6 @@ import { MdDirectionsCar, MdBuild, MdPerson, MdCalendarToday, MdStar, MdExpandMo
 import PageSkeleton from '../../components/ui/PageSkeleton'
 import EmptyState from '../../components/EmptyState'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
-import { serviceHistory as staticHistory } from '../../data/guestData'
 
 const fmt = (n) => 'Rp ' + Number(n).toLocaleString('id-ID')
 
@@ -130,15 +129,19 @@ function ReviewModal({ order, onClose, onSubmit }) {
 function RiwayatCard({ order, onReview }) {
   const [open, setOpen]       = useState(false)
   const [showModal, setShowModal] = useState(false)
-  const { addReview, customer } = useCustomerAuth()
+  const { customer } = useCustomerAuth()
 
-  const alreadyReviewed = (customer?.reviews || []).some(r => r.orderId === order.id)
+  // Simpan review di localStorage (sederhana, tanpa butuh addReview di context)
+  const storageKey = `review_${customer?.id}_${order.id}`
+  const savedReview = (() => { try { return JSON.parse(localStorage.getItem(storageKey)) } catch { return null } })()
+  const alreadyReviewed = !!savedReview
   const isSelesai       = order.status === 'Selesai'
 
   const handleSubmitReview = (formData) => {
-    addReview(order.id, { ...formData, mechanic: order.mechanic })
+    const review = { ...formData, orderId: order.id, mechanic: order.mechanic, date: new Date().toISOString() }
+    localStorage.setItem(storageKey, JSON.stringify(review))
     setShowModal(false)
-    onReview && onReview()
+    onReview?.()
   }
 
   return (
@@ -205,33 +208,26 @@ function RiwayatCard({ order, onReview }) {
         {/* Detail */}
         {open && (
           <div className="px-5 pb-5 border-t border-white/5 pt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {order.parts && order.parts.length > 0 && (
-                <div>
-                  <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3">Sparepart</p>
-                  <div className="space-y-2">
-                    {order.parts.map((p, i) => (
-                      <div key={i} className="flex items-center justify-between text-sm">
-                        <span className="text-gray-300">{p.name} <span className="text-gray-600">×{p.qty}</span></span>
-                        <span className="text-white font-medium">{fmt(p.price * p.qty)}</span>
-                      </div>
-                    ))}
-                  </div>
+            <div>
+            {order.items && order.items.length > 0 && (
+              <div>
+                <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3">Rincian Pekerjaan</p>
+                <div className="space-y-2">
+                  {order.items.map((it, i) => (
+                    <div key={i} className="flex items-center justify-between text-sm">
+                      <span className="text-gray-300">{it.description} <span className="text-gray-600">×{it.qty} {it.unit}</span></span>
+                      <span className="text-white font-medium">{fmt((it.unitPrice || 0) * (it.qty || 1))}</span>
+                    </div>
+                  ))}
+                  {order.laborCost > 0 && (
+                    <div className="flex items-center justify-between text-sm pt-2 border-t border-white/5">
+                      <span className="text-gray-300">Jasa Servis</span>
+                      <span className="text-white font-medium">{fmt(order.laborCost)}</span>
+                    </div>
+                  )}
                 </div>
-              )}
-              {order.jasa && order.jasa.length > 0 && (
-                <div>
-                  <p className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3">Jasa</p>
-                  <div className="space-y-2">
-                    {order.jasa.map((j, i) => (
-                      <div key={i} className="flex items-center justify-between text-sm">
-                        <span className="text-gray-300">{j.name}</span>
-                        <span className="text-white font-medium">{fmt(j.price)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              </div>
+            )}
             </div>
 
             {order.notes && (
@@ -257,23 +253,20 @@ function RiwayatCard({ order, onReview }) {
             )}
 
             {/* Show existing review */}
-            {alreadyReviewed && (() => {
-              const rev = (customer?.reviews || []).find(r => r.orderId === order.id)
-              return rev ? (
-                <div className="mt-4 p-4 rounded-xl" style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.15)' }}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-yellow-400 font-bold text-sm">Review Anda</span>
-                    <div className="flex">
-                      {[1,2,3,4,5].map(s => (
-                        <span key={s} className={`text-sm ${s <= rev.rating ? 'text-yellow-400' : 'text-gray-600'}`}>★</span>
-                      ))}
-                    </div>
+            {alreadyReviewed && savedReview && (
+              <div className="mt-4 p-4 rounded-xl" style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.15)' }}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-yellow-400 font-bold text-sm">Review Anda</span>
+                  <div className="flex">
+                    {[1,2,3,4,5].map(s => (
+                      <span key={s} className={`text-sm ${s <= savedReview.rating ? 'text-yellow-400' : 'text-gray-600'}`}>★</span>
+                    ))}
                   </div>
-                  {rev.reviewText && <p className="text-gray-300 text-sm">{rev.reviewText}</p>}
-                  <p className="text-gray-500 text-xs mt-2">Dikirim {new Date(rev.date).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}</p>
                 </div>
-              ) : null
-            })()}
+                {savedReview.reviewText && <p className="text-gray-300 text-sm">{savedReview.reviewText}</p>}
+                <p className="text-gray-500 text-xs mt-2">Dikirim {new Date(savedReview.date).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}</p>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -307,10 +300,10 @@ export default function RiwayatService() {
             service:      o.service,
             status:       o.status,
             total:        o.total,
-            duration:     '—',
-            parts:        [],
-            jasa:         [],
-            notes:        o.notes || '',
+            duration:     o.duration || '—',
+            items:        o.estimasi?.items || [],
+            laborCost:    o.estimasi?.laborCost || 0,
+            notes:        o.notes || o.estimasi?.notes || '',
             pointsEarned: Math.floor((o.total || 0) / 1000),
           }))
           .sort((a, b) => new Date(b.date) - new Date(a.date))

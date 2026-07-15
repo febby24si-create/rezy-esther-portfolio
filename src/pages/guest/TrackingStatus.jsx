@@ -4,7 +4,7 @@ import { MdSearch, MdDirectionsCar, MdBuild, MdPerson, MdAccessTime, MdCheckCirc
 import { Link } from 'react-router-dom'
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { AnimatedPage, ScrollReveal, GlowDot } from '../../components/AnimatedPage'
-import { getBookingsByCustomer, BOOKING_STATUS, BOOKING_STATUS_CONFIG } from '../../lib/bookingEngine'
+import { BOOKING_STATUS_CONFIG } from '../../lib/bookingEngine'
 import PageSkeleton from '../../components/ui/PageSkeleton'
 import EmptyState from '../../components/EmptyState'
 

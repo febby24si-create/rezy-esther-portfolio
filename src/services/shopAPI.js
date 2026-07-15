@@ -43,8 +43,7 @@ export const shopAPI = {
     return response.data[0] || null
   },
 
-  // ── Semua item pesanan sekaligus (untuk statistik Dashboard —
-  //    "Produk Terlaris" butuh agregat lintas semua pesanan) ──
+  // ── Semua item pesanan sekaligus (untuk statistik Dashboard) ──
   async fetchAllOrderItems() {
     const response = await axios.get(`${API_URL}/product_order_items`, { headers })
     return response.data
@@ -61,53 +60,130 @@ export const shopAPI = {
 
   // ── Buat pesanan baru (checkout) ──
   // items: [{ product_id, product_name, qty, price }]
-  async createOrder({ customerId, recipientName, phone, address, notes, paymentMethod, items }) {
-    const total = items.reduce((sum, it) => sum + it.qty * it.price, 0)
-    const orderNumber = 'PRD-' + Date.now().toString().slice(-8)
+// ── Buat pesanan baru (checkout) ──
+async createOrder({
+  customerId,
+  recipientName,
+  phone,
+  address,
+  notes,
+  paymentMethod,
+  deliveryMethod,
+  deliveryFee = 0,
+  latitude,
+  longitude,
+  distanceKm,
+  items,
+}) {
+  try {
+    const subtotal = items.reduce((sum, it) => sum + (Number(it.qty) * Number(it.price)), 0)
+    const total = subtotal + Number(deliveryFee || 0)
 
-    const orderRes = await axios.post(`${API_URL}/product_orders`, {
+    const orderNumber = `PRD-${Date.now()}`
+    const invoiceNumber = `INV-${orderNumber}`
+
+    const isQRIS = (paymentMethod || "").toLowerCase().includes("qris")
+    const initialStatus = isQRIS
+      ? "Menunggu Pembayaran"
+      : "Menunggu Konfirmasi"
+
+    const payload = {
       order_number: orderNumber,
-      customer_id: customerId,
+      invoice_number: invoiceNumber,
+
+      customer_id: Number(customerId),
+
       recipient_name: recipientName,
       phone,
       address,
       notes: notes || null,
-      payment_method: paymentMethod,
-      status: 'Menunggu Konfirmasi',
+
+      payment_method: paymentMethod || "Cash",
+      payment_status: isQRIS
+        ? "Menunggu Pembayaran"
+        : "Dibayar Nanti",
+
+      delivery_method: deliveryMethod || null,
+      delivery_fee: Number(deliveryFee || 0),
+
+      latitude: latitude ?? null,
+      longitude: longitude ?? null,
+      distance_km: distanceKm ?? null,
+
+      status: initialStatus,
+      tracking_step: 1,
+
+      subtotal,
       total,
-    }, { headers })
+    }
+
+    console.log("Payload Order:", payload)
+
+    const orderRes = await axios.post(
+      `${API_URL}/product_orders`,
+      payload,
+      { headers }
+    )
 
     const order = orderRes.data[0]
-    if (!order) throw new Error('Gagal membuat pesanan produk.')
 
-    const itemsPayload = items.map(it => ({
+    if (!order) {
+      throw new Error("Order gagal dibuat.")
+    }
+
+    const itemsPayload = items.map((it) => ({
       product_order_id: order.id,
-      product_id: it.product_id,
+      product_id: Number(it.product_id),
       product_name: it.product_name,
-      qty: it.qty,
-      price: it.price,
-      subtotal: it.qty * it.price,
+      qty: Number(it.qty),
+      price: Number(it.price),
+      subtotal: Number(it.qty) * Number(it.price),
     }))
-    await axios.post(`${API_URL}/product_order_items`, itemsPayload, { headers })
+
+    console.log("Payload Items:", itemsPayload)
+
+    await axios.post(
+      `${API_URL}/product_order_items`,
+      itemsPayload,
+      { headers }
+    )
 
     return order
-  },
+  } catch (err) {
+  console.error("STATUS:", err.response?.status);
 
-  // ── Update status pesanan (admin) ──
-  async updateOrderStatus(id, status) {
+  console.error(
+    "SUPABASE:",
+    JSON.stringify(err.response?.data, null, 2)
+  );
+
+  console.error("PAYLOAD:", JSON.stringify(payload, null, 2));
+
+  throw err;
+}
+},
+
+  // ── Update status pesanan ──
+  async updateOrderStatus(id, status, extra = {}) {
     const response = await axios.patch(`${API_URL}/product_orders?id=eq.${id}`, {
       status,
+      updated_at: new Date().toISOString(),
+      ...extra,
+    }, { headers })
+    return response.data[0] || null
+  },
+
+  // ── Update payment status ──
+  async updatePaymentStatus(id, paymentStatus) {
+    const response = await axios.patch(`${API_URL}/product_orders?id=eq.${id}`, {
+      payment_status: paymentStatus,
+      status: paymentStatus === 'Lunas' ? 'Diproses' : undefined,
       updated_at: new Date().toISOString(),
     }, { headers })
     return response.data[0] || null
   },
 
   // ── Kurangi stok produk saat pesanan SELESAI ──
-  // Dipanggil HANYA saat status berubah -> 'Selesai' (bukan setiap
-  // update status apa pun), dan HANYA sekali per pesanan — caller
-  // (PesananProduk.jsx) bertanggung jawab memastikan status
-  // sebelumnya BUKAN 'Selesai' supaya stok tidak terpotong dua kali.
-  // Stok tidak boleh negatif (di-clamp ke 0).
   async deductStockOnComplete(productOrderId) {
     const items = await this.fetchItemsByOrder(productOrderId)
     const { productAPI } = await import('./productAPI')
@@ -126,5 +202,31 @@ export const shopAPI = {
       }
     }
     return results
+  },
+
+  // ── Review produk ──────────────────────────────────────────
+  async fetchReviews(productId) {
+    try {
+      const res = await axios.get(`${API_URL}/product_reviews`, {
+        headers,
+        params: { product_id: `eq.${productId}`, order: 'created_at.desc' }
+      })
+      return res.data
+    } catch {
+      return []
+    }
+  },
+
+  async createReview(data) {
+    try {
+      const res = await axios.post(`${API_URL}/product_reviews`, data, { headers })
+      return res.data[0]
+    } catch (err) {
+      console.error('Gagal kirim review:', err)
+      // Simpan di localStorage jika tabel belum ada
+      const key = `review_${data.product_id}_${data.customer_id}`
+      localStorage.setItem(key, JSON.stringify({ ...data, id: Date.now(), created_at: new Date().toISOString() }))
+      return data
+    }
   },
 }

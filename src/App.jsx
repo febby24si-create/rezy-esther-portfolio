@@ -70,8 +70,12 @@ const ProdukDetail     = React.lazy(() => import("./pages/guest/ProdukDetail"));
 const Keranjang        = React.lazy(() => import("./pages/guest/Keranjang"));
 const Checkout         = React.lazy(() => import("./pages/guest/Checkout"));
 const RiwayatPembelian = React.lazy(() => import("./pages/guest/RiwayatPembelian"));
+const BukuServis        = React.lazy(() => import("./pages/guest/BukuServis"));
 const InvoicePembelian = React.lazy(() => import("./pages/guest/InvoicePembelian"));
+const DetailPembelian  = React.lazy(() => import("./pages/guest/DetailPembelian"));
+const KendaraanSaya    = React.lazy(() => import("./pages/guest/KendaraanSaya"));
 const KartuMember      = React.lazy(() => import("./pages/member/KartuMember"));
+
 
 export default function App() {
   return (
@@ -104,6 +108,7 @@ export default function App() {
                 <Route path="/settings"        element={<Settings />}          />
                 <Route path="/inventory"       element={<Inventory />}         />
                 <Route path="/pesanan-produk"  element={<PesananProduk />}     />
+                <Route path="/buku-service/:id"    element={<BukuServis />}        />
                 <Route path="/components"      element={<Components />}        />
                 <Route path="/crm"             element={<CRMAutomation />}     />
                 <Route path="/crm/dashboard"   element={<CrmDashboard />}       />
@@ -159,8 +164,11 @@ export default function App() {
               <Route path="/member/profil"      element={<ProfilCustomer />}  />
               <Route path="/member/leaderboard" element={<Leaderboard />}     />
               <Route path="/member/checkout"    element={<Checkout />}       />
-              <Route path="/member/pembelian"     element={<RiwayatPembelian />} />
-              <Route path="/member/pembelian/:id" element={<InvoicePembelian />} />
+              <Route path="/member/pembelian"          element={<RiwayatPembelian />}  />
+              <Route path="/member/pembelian/:id"        element={<DetailPembelian />}   />
+              <Route path="/member/pembelian/:id/invoice" element={<InvoicePembelian />} />
+              <Route path="/member/kendaraan"            element={<KendaraanSaya />}     />
+              <Route path="/member/buku-servis/:id"      element={<BukuServis />}        />
             </Route>
 
             <Route path="*" element={<NotFound />} />

@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   MdAdd, MdSearch, MdDirectionsCar, MdTwoWheeler,
   MdEdit, MdDelete, MdPerson, MdBuild, MdClose,
   MdCloudUpload, MdCalendarToday, MdSpeed, MdStar,
   MdArrowBack, MdCamera, MdInfo, MdRefresh,
-  MdVerified, MdOpenInNew, MdSort, MdPalette,
+  MdVerified, MdOpenInNew, MdSort, MdPalette, MdMenuBook,
 } from 'react-icons/md'
 import { motion, AnimatePresence } from 'framer-motion'
 import Pagination from '../components/Pagination'
 import { vehicleAPI } from '../services/vehicleAPI'
 import { customerAPI } from '../services/customerAPI'
-import { compressImage } from '../lib/imageCompress'
 
 // ============================================================
 // MIGRASI: file ini sebelumnya membaca/menulis sessionStorage
@@ -166,6 +166,7 @@ function VehicleCard({ vehicle, customerName, onEdit, onDelete, onDetail }) {
 
 // ─── Detail Drawer ──────────────────────────────────────────────────
 function DetailDrawer({ vehicle, customerData, onClose, onEdit, onViewCustomer }) {
+  const navigate = useNavigate()
   if (!vehicle) return null
   const st = getServiceStatus(vehicle.nextService)
   const rows = [
@@ -279,11 +280,18 @@ function DetailDrawer({ vehicle, customerData, onClose, onEdit, onViewCustomer }
               ))}
             </div>
 
-            <button onClick={() => { onClose(); onEdit(vehicle) }}
-              className="w-full py-3 rounded-xl text-sm font-semibold text-black transition-all hover:opacity-90"
-              style={{ background: 'linear-gradient(90deg, #22C55E, #16a34a)' }}>
-              Edit Kendaraan
-            </button>
+            <div className="flex gap-2">
+              <button onClick={() => navigate(`/buku-servis/${vehicle.id}`)}
+                className="flex-1 py-3 rounded-xl text-sm font-semibold text-green-400 transition-all hover:bg-green-500/10 flex items-center justify-center gap-1.5"
+                style={{ border: '1px solid rgba(34,197,94,0.3)' }}>
+                <MdMenuBook size={16} /> Buku Servis
+              </button>
+              <button onClick={() => { onClose(); onEdit(vehicle) }}
+                className="flex-1 py-3 rounded-xl text-sm font-semibold text-black transition-all hover:opacity-90"
+                style={{ background: 'linear-gradient(90deg, #22C55E, #16a34a)' }}>
+                Edit Kendaraan
+              </button>
+            </div>
           </div>
         </motion.div>
       </motion.div>
@@ -299,9 +307,9 @@ function VehicleModal({ isOpen, onClose, onSubmit, form, setForm, editId, custom
   const handlePhoto = (e) => {
     const file = e.target.files[0]
     if (!file) return
-    compressImage(file)
-      .then((dataUrl) => setForm(f => ({ ...f, photo: dataUrl })))
-      .catch((err) => alert('Gagal memproses gambar: ' + err.message))
+    const reader = new FileReader()
+    reader.onload = ev => setForm(f => ({ ...f, photo: ev.target.result }))
+    reader.readAsDataURL(file)
   }
 
   const handleOwnerSelect = (e) => {

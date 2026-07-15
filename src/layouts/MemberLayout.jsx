@@ -3,40 +3,39 @@
 // Layout khusus halaman Member yang sudah login.
 // Terpisah dari GuestLayout — memiliki navbar dan sidebar sendiri.
 // ============================================================
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, useLocation, Link, useNavigate, NavLink } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   MdDashboard, MdDirectionsCar, MdHistory, MdStars, MdCardGiftcard,
   MdPerson, MdLogout, MdBuild, MdGpsFixed, MdMenu, MdClose,
-  MdLeaderboard, MdCreditCard, MdNotifications, MdChevronRight, MdOpenInNew,
-  MdShoppingBag, MdDarkMode, MdLightMode,
+  MdLeaderboard, MdCreditCard, MdChevronRight, MdOpenInNew,
+  MdShoppingBag, MdStorefront,
 } from 'react-icons/md'
-import { useTheme } from '../context/ThemeContext'
 import { useCustomerAuth } from '../context/CustomerAuthContext'
 import { calcTier, TIER_CONFIG } from '../lib/loyaltyConstants'
 import { createContext, useContext } from 'react'
-import { ToastContainer } from '../components/guest/Toast'
-import { useToast } from '../hooks/useToast'
+import { ToastContainer, useToast } from '../components/guest/Toast'
 
 const ToastCtx = createContext(null)
 export const useMemberToast = () => useContext(ToastCtx)
 
 const NAV_ITEMS = [
-  { path: '/member/dashboard', label: 'Dashboard',     icon: MdDashboard    },
-  { path: '/member/kartu',     label: 'Kartu Member',  icon: MdCreditCard   },
-  { path: '/member/booking',   label: 'Booking',       icon: MdBuild        },
-  { path: '/member/tracking',  label: 'Tracking',      icon: MdGpsFixed     },
-  { path: '/member/loyalty',   label: 'Poin Loyalty',  icon: MdStars        },
-  { path: '/member/voucher',   label: 'Voucher',       icon: MdCardGiftcard },
-  { path: '/member/riwayat',   label: 'Riwayat',       icon: MdHistory      },
-  { path: '/member/pembelian', label: 'Riwayat Pembelian', icon: MdShoppingBag },
-  { path: '/member/profil',    label: 'Profil',        icon: MdPerson       },
-  { path: '/member/leaderboard', label: 'Leaderboard', icon: MdLeaderboard  },
+  { path: '/member/dashboard', label: 'Dashboard',        icon: MdDashboard    },
+  { path: '/member/kendaraan', label: 'Kendaraan Saya',   icon: MdDirectionsCar },
+  { path: '/member/kartu',     label: 'Kartu Member',     icon: MdCreditCard   },
+  { path: '/member/booking',   label: 'Booking',          icon: MdBuild        },
+  { path: '/member/tracking',  label: 'Tracking',         icon: MdGpsFixed     },
+  { path: '/guest/produk',     label: 'Produk / Sparepart', icon: MdStorefront, external: true },
+  { path: '/member/loyalty',   label: 'Poin Loyalty',     icon: MdStars        },
+  { path: '/member/voucher',   label: 'Voucher',          icon: MdCardGiftcard },
+  { path: '/member/riwayat',   label: 'Riwayat Servis',   icon: MdHistory      },
+  { path: '/member/pembelian', label: 'Riwayat Pembelian',icon: MdShoppingBag  },
+  { path: '/member/profil',    label: 'Profil',           icon: MdPerson       },
+  { path: '/member/leaderboard', label: 'Leaderboard',    icon: MdLeaderboard  },
 ]
 
 function MemberNavbar({ sidebarOpen, setSidebarOpen }) {
-  const { theme, toggleTheme } = useTheme()
   const { customer, logout } = useCustomerAuth()
   const navigate = useNavigate()
   const tier = customer ? calcTier(customer.points || 0) : 'Bronze'
@@ -82,27 +81,6 @@ function MemberNavbar({ sidebarOpen, setSidebarOpen }) {
 
       {/* Right section */}
       <div className="flex items-center gap-2">
-        {/* Theme Toggle */}
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={toggleTheme}
-          className="p-2 rounded-xl transition-all hover:bg-white/10"
-          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}
-          title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
-        >
-          <motion.div
-            key={theme}
-            initial={{ rotate: -90, opacity: 0 }}
-            animate={{ rotate: 0, opacity: 1 }}
-            transition={{ duration: 0.2 }}
-          >
-            {theme === 'dark' ? (
-              <MdLightMode size={18} className="text-yellow-400" />
-            ) : (
-              <MdDarkMode size={18} className="text-blue-400" />
-            )}
-          </motion.div>
-        </motion.button>
         {/* Tier badge */}
         {customer && (
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl"
@@ -183,15 +161,23 @@ function MemberSidebar({ open, onClose }) {
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
-          {NAV_ITEMS.map(({ path, label, icon: Icon }) => {
-            const active = location.pathname === path
-            return (
-              <NavLink key={path} to={path} onClick={onClose}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
-                  active
-                    ? 'bg-green-500/15 text-green-400 border border-green-500/25'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
-                }`}>
+          {NAV_ITEMS.map(({ path, label, icon: Icon, external }) => {
+            const active = location.pathname.startsWith(path) && !external
+            const cls = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
+              active
+                ? 'bg-green-500/15 text-green-400 border border-green-500/25'
+                : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
+            }`
+            return external ? (
+              <Link key={path} to={path} onClick={onClose} className={cls}>
+                <Icon size={18} className="text-amber-500 group-hover:text-amber-400" />
+                <span>{label}</span>
+                <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/20">
+                  BARU
+                </span>
+              </Link>
+            ) : (
+              <NavLink key={path} to={path} onClick={onClose} className={cls}>
                 <Icon size={18} className={active ? 'text-green-400' : 'text-gray-500 group-hover:text-gray-300'} />
                 <span>{label}</span>
                 {active && <MdChevronRight size={14} className="ml-auto text-green-400/60" />}
@@ -217,14 +203,10 @@ export default function MemberLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
   const { toasts, addToast, removeToast } = useToast()
-  const prevPathRef = useRef(location.pathname)
 
-  // Close sidebar on route change (guard against initial mount)
+  // Close sidebar on route change
   useEffect(() => {
-    if (prevPathRef.current !== location.pathname) {
-      setSidebarOpen(false)
-      prevPathRef.current = location.pathname
-    }
+    setSidebarOpen(false)
   }, [location.pathname])
 
   return (

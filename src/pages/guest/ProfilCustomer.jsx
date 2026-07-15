@@ -13,7 +13,6 @@ import {
 import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { calcLoyaltyProgress, TIER_CONFIG, TIER_BENEFITS, calcAchievements } from '../../lib/loyaltyConstants'
 import { AnimatedPage, ScrollReveal, AnimatedProgress } from '../../components/AnimatedPage'
-import { getCustomerAvatar } from '../../utils/randomAvatar'
 
 // ─── Tier Card Visual ────────────────────────────────────────
 const TIER_GRADIENT = {
@@ -203,7 +202,7 @@ function EditProfileModal({ customer, onSave, onClose }) {
 
 // ─── MAIN ────────────────────────────────────────────────────
 export default function ProfilCustomer() {
-  const { customer, updateCustomer, activateMembership, logout } = useCustomerAuth()
+  const { customer, updateCustomer, logout } = useCustomerAuth()
   const navigate = useNavigate()
   const [showEdit, setShowEdit] = useState(false)
   const [showAllHistory, setShowAllHistory] = useState(false)
@@ -232,8 +231,8 @@ export default function ProfilCustomer() {
     setTimeout(() => setToast(null), 3000)
   }
 
-  const handleActivateMembership = () => {
-    activateMembership(customer.id)
+  const handleActivateMembership = async () => {
+    await updateCustomer({ membership_status: 'active' })
     setToast({ message: '🎉 Membership berhasil diaktifkan!', type: 'success' })
     setTimeout(() => setToast(null), 3000)
   }
@@ -278,11 +277,9 @@ export default function ProfilCustomer() {
             {/* Avatar + Name */}
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="w-20 h-20 rounded-2xl overflow-hidden"
-                  style={{ boxShadow: `0 8px 32px ${TIER_GLOW[loyalty.tier]}` }}>
-                  <img src={getCustomerAvatar(customer.name, 160)} alt={customer.name}
-                    className="w-full h-full object-cover"
-                    onError={e => { e.target.style.display = 'none' }} />
+                <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-extrabold text-white"
+                  style={{ background: `${tierCfg.color}25`, border: `2px solid ${tierCfg.color}40`, boxShadow: `0 8px 32px ${TIER_GLOW[loyalty.tier]}` }}>
+                  {customer.name?.charAt(0)?.toUpperCase() || '?'}
                 </div>
                 <div className="absolute -bottom-1 -right-1 text-lg">{tierCfg.icon}</div>
               </div>

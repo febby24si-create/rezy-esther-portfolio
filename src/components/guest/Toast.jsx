@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { MdCheckCircle, MdError, MdInfo, MdWarning, MdClose } from 'react-icons/md'
 
 const typeStyles = {
@@ -41,3 +41,16 @@ export function ToastContainer({ toasts, removeToast }) {
     </div>
   )
 }
+
+// Hook to manage toast state — import this in layout components
+export function useToast() {
+  const [toasts, setToasts] = useState([])
+  const addToast = useCallback((message, type = 'success') => {
+    const id = Date.now() + Math.random()
+    setToasts((prev) => [...prev, { id, message, type }])
+  }, [])
+  const removeToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }, [])
+  return { toasts, addToast, removeToast }
+}
