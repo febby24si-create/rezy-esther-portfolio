@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { MdDirectionsCar, MdPhone, MdEmail, MdLocationOn, MdAccessTime, MdArrowForward } from 'react-icons/md'
+import { MdPhone, MdEmail, MdLocationOn, MdAccessTime, MdArrowForward } from 'react-icons/md'
 import { FaInstagram, FaFacebookF, FaYoutube, FaWhatsapp } from 'react-icons/fa'
+import logo from '../../assets/logo2.png'
 
 const footerLinks = {
   layanan: ['Service Berkala', 'Tune Up', 'Ganti Oli', 'Spooring & Balancing', 'Service AC', 'Service Kelistrikan'],
@@ -38,10 +39,9 @@ export default function GuestFooter() {
               <motion.div
                 whileHover={{ rotate: [0, -8, 8, 0], scale: 1.08 }}
                 transition={{ duration: 0.4 }}
-                className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg"
-                style={{ background: 'linear-gradient(135deg,#1d60d1,#3b82f6)', boxShadow: '0 4px 12px rgba(59,130,246,0.3)' }}
+                className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center shadow-lg bg-white"
               >
-                <MdDirectionsCar className="text-white text-2xl" />
+                <img src={logo} alt="Esther Garage" className="w-full h-full object-contain" />
               </motion.div>
               <div>
                 <span className="font-extrabold text-white text-xl tracking-tight leading-none">

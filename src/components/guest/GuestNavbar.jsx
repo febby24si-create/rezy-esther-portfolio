@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
-  MdMenu, MdClose, MdDirectionsCar, MdDashboard, MdBuild,
+  MdMenu, MdClose, MdDashboard, MdBuild,
   MdCardGiftcard, MdHistory, MdStars, MdGpsFixed,
   MdNotifications, MdPerson, MdLogout, MdLogin, MdLeaderboard,
   MdCardMembership, MdOpenInNew, MdChevronRight,
@@ -13,6 +13,7 @@ import { useCustomerAuth } from '../../context/CustomerAuthContext'
 import { calcTier, TIER_CONFIG } from '../../lib/loyaltyConstants'
 import NotificationBell from '../NotificationBell'
 import { getCustomerAvatar } from '../../utils/randomAvatar'
+import logo from '../../assets/logo2.png'
 
 // ─── Nav links (halaman Guest yang boleh diakses siapa saja) ──
 const GUEST_NAV = [
@@ -95,10 +96,9 @@ export default function GuestNavbar() {
               <motion.div
                 whileHover={{ rotate: [0, -8, 8, 0], scale: 1.08 }}
                 transition={{ duration: 0.4 }}
-                className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg"
-                style={{ background: 'linear-gradient(135deg,#2563eb,#06b6d4)', boxShadow: '0 4px 12px rgba(6,182,212,0.3)' }}
+                className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shadow-lg bg-white"
               >
-                <MdDirectionsCar className="text-white text-lg" />
+                <img src={logo} alt="Esther Garage" className="w-full h-full object-contain" />
               </motion.div>
               <div>
                 <span className="font-extrabold text-white text-base tracking-tight leading-none">
