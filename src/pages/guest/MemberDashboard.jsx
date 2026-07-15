@@ -41,6 +41,7 @@ import {
   MdCreditCard,
   MdBarChart,
   MdChevronRight,
+  MdShoppingBag,
 } from "react-icons/md";
 
 // ─── Import komponen kartu member ─────────────────────────────
@@ -126,19 +127,32 @@ function SectionTitle({ children, sub }) {
 }
 
 // ─── Overview Tab ─────────────────────────────────────────────
-function OverviewTab({ customer, orders, loyalty, tierCfg }) {
+function OverviewTab({ customer, orders, productOrders, loyalty, tierCfg }) {
   const navigate = useNavigate();
   const disc = { Bronze: 0, Silver: 5, Gold: 10, Platinum: 15, 'VIP Mahkota': 20 };
+
+  const totalServis = orders.filter((o) => o.status === "Selesai").length;
+  const totalPembelianProduk = (productOrders || []).filter(
+    (o) => o.status === "Selesai"
+  ).length;
 
   return (
     <div className="space-y-8">
       {/* Stat grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <StatCard
           icon={MdHistory}
           label="Total Servis"
-value={customer.total_orders ?? customer.totalOrders ?? 0}          color="#60A5FA"
+          value={totalServis}
+          color="#60A5FA"
           delay={0}
+        />
+        <StatCard
+          icon={MdShoppingBag}
+          label="Total Pembelian Produk"
+          value={totalPembelianProduk}
+          color="#22D3EE"
+          delay={0.03}
         />
         <StatCard
           icon={MdStars}
@@ -637,6 +651,7 @@ export default function MemberDashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [toast, setToast] = useState(null);
   const [orders, setOrders] = useState([]);
+  const [productOrders, setProductOrders] = useState([]);
 
   // Load orders dari Supabase by customer_id
   useEffect(() => {
@@ -649,6 +664,17 @@ export default function MemberDashboard() {
           vehicle:  o.vehicle_display,
           date:     o.order_date,
         })).sort((a, b) => new Date(b.date) - new Date(a.date)));
+      }).catch(() => {});
+    });
+  }, [customer?.id]);
+
+  // Load pesanan PRODUK (beda tabel dari order servis) dari Supabase
+  // by customer_id — dipakai untuk card "Total Pembelian Produk".
+  useEffect(() => {
+    if (!customer?.id) return;
+    import('../../services/shopAPI').then(({ shopAPI }) => {
+      shopAPI.fetchOrdersByCustomer(customer.id).then(data => {
+        setProductOrders(data || []);
       }).catch(() => {});
     });
   }, [customer?.id]);
@@ -673,6 +699,10 @@ export default function MemberDashboard() {
       const { orderAPI } = await import('../../services/orderAPI');
       const data = await orderAPI.fetchByCustomer(customer.id);
       setOrders(data.map(o => ({ ...o, customer: o.customer_name, vehicle: o.vehicle_display, date: o.order_date })));
+
+      const { shopAPI } = await import('../../services/shopAPI');
+      const productData = await shopAPI.fetchOrdersByCustomer(customer.id);
+      setProductOrders(productData || []);
     }
     setIsRefreshing(false);
     setToast({ msg: "Data diperbarui!", type: "success" });
@@ -846,6 +876,7 @@ export default function MemberDashboard() {
               <OverviewTab
                 customer={customer}
                 orders={orders}
+                productOrders={productOrders}
                 loyalty={loyalty}
                 tierCfg={tierCfg}
               />

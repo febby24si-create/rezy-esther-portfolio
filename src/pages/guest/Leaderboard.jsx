@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { getAllCustomers, calcTier, TIER_CONFIG } from '../../lib/loyaltyConstants'
 import { MdEmojiEvents, MdLeaderboard } from 'react-icons/md'
 import { getCustomerAvatar } from '../../utils/randomAvatar'
@@ -37,13 +37,27 @@ function AvatarImg({ name, size = 'w-12 h-12', rounded = 'rounded-2xl', borderCo
 const RANK_ICONS = ['🥇', '🥈', '🥉']
 
 export default function Leaderboard() {
-  const customers = useMemo(() => {
-    const all = getAllCustomers()
-    return all
-      .filter(c => (c.points || 0) > 0 || (c.totalOrders || 0) > 0)
-      .sort((a, b) => (b.points || 0) - (a.points || 0))
-      .slice(0, 20)
-  }, [])
+const [customers, setCustomers] = useState([])
+
+useEffect(() => {
+  const loadCustomers = async () => {
+    try {
+      const all = await getAllCustomers()
+
+      setCustomers(
+        all
+          .filter(c => (c.points || 0) > 0 || (c.totalOrders || 0) > 0)
+          .sort((a, b) => (b.points || 0) - (a.points || 0))
+          .slice(0, 20)
+      )
+    } catch (err) {
+      console.error("Gagal mengambil customer:", err)
+      setCustomers([])
+    }
+  }
+
+  loadCustomers()
+}, [])
 
   const top3 = customers.slice(0, 3)
   const rest = customers.slice(3)

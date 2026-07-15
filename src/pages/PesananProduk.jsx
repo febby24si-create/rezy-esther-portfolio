@@ -6,6 +6,7 @@ import {
 } from 'react-icons/md'
 import { shopAPI } from '../services/shopAPI'
 import { formatRupiah } from '../lib/formatRupiah'
+import { applyOrderCompletedLoyalty } from '../lib/loyaltyEngine'
 
 const STATUS_LIST = ['Menunggu Konfirmasi', 'Diproses', 'Siap Diambil', 'Selesai', 'Dibatalkan']
 
@@ -33,6 +34,7 @@ export default function PesananProduk() {
   const [detailOrder, setDetailOrder] = useState(null)
   const [detailItems, setDetailItems] = useState([])
   const [updating, setUpdating] = useState(false)
+  const [pointToast, setPointToast] = useState(null)
 
   const loadOrders = async () => {
     setLoading(true)
@@ -69,17 +71,44 @@ export default function PesananProduk() {
   }
 
   // Ubah status pesanan. Kalau berubah MENJADI 'Selesai' (dan sebelumnya
-  // BUKAN 'Selesai' — guard idempoten supaya stok tidak terpotong dua
-  // kali), otomatis kurangi stok produk terkait via shopAPI.
+  // BUKAN 'Selesai' — guard idempoten supaya stok/poin tidak double),
+  // otomatis (1) kurangi stok produk terkait via shopAPI, dan
+  // (2) beri poin loyalty + tambah total_spent/total_orders customer
+  // (sebelumnya cuma stok yang kepotong, poin & pengeluaran member
+  // tidak pernah ke-update — makanya dashboard member ngga nambah).
   const handleStatusChange = async (order, newStatus) => {
     if (newStatus === order.status) return
     setUpdating(true)
     try {
       const wasCompleted = order.status === 'Selesai'
-      const updated = await shopAPI.updateOrderStatus(order.id, newStatus)
+      await shopAPI.updateOrderStatus(order.id, newStatus)
 
       if (newStatus === 'Selesai' && !wasCompleted) {
         await shopAPI.deductStockOnComplete(order.id)
+
+        if (order.customer_id && order.total) {
+          try {
+            const result = await applyOrderCompletedLoyalty(
+              order.customer_id,
+              order.total,
+              order.order_number,
+              'Pembelian Produk'
+            )
+            if (result.success) {
+              setPointToast({ orderNumber: order.order_number, earned: result.pointsEarned, tierUp: result.tierUp })
+              setTimeout(() => setPointToast(null), 4000)
+
+              try {
+                const { notificationAPI } = await import('../services/notificationAPI')
+                await notificationAPI.notifyPointsEarned(order.customer_id, result.pointsEarned, order.order_number)
+              } catch { /* notifikasi opsional, tidak gagalkan alur utama */ }
+            } else {
+              console.warn('Poin tidak diberikan:', result.message)
+            }
+          } catch (err) {
+            console.error('Gagal memberi poin loyalty untuk pesanan produk:', err)
+          }
+        }
       }
 
       setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: newStatus } : o))
@@ -109,6 +138,27 @@ export default function PesananProduk() {
           <MdRefresh size={16} className={loading ? 'animate-spin' : ''} /> Refresh
         </button>
       </div>
+
+      {/* Toast poin loyalty */}
+      <AnimatePresence>
+        {pointToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}
+            className="fixed top-6 right-6 z-[60] rounded-xl px-4 py-3 shadow-xl"
+            style={{ background: 'rgba(11,59,46,0.95)', border: '1px solid rgba(34,197,94,0.35)' }}
+          >
+            <p className="text-white text-sm font-semibold flex items-center gap-1.5">
+              <MdCheckCircle className="text-green-400" size={16} /> +{pointToast.earned} poin diberikan
+            </p>
+            <p className="text-gray-400 text-xs mt-0.5">Pesanan {pointToast.orderNumber} selesai</p>
+            {pointToast.tierUp && (
+              <p className="text-amber-400 text-xs mt-1 font-semibold">
+                🎉 Naik tier: {pointToast.tierUp.from} → {pointToast.tierUp.to}
+              </p>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Filter tab */}
       <div className="flex gap-2 overflow-x-auto pb-1 mb-6">
@@ -235,7 +285,7 @@ export default function PesananProduk() {
               </select>
               {detailOrder.status === 'Selesai' && (
                 <p className="text-green-400 text-xs mt-2 flex items-center gap-1.5">
-                  <MdCheckCircle size={14} /> Stok produk sudah otomatis dikurangi
+                  <MdCheckCircle size={14} /> Stok dikurangi & poin loyalty customer sudah ditambahkan
                 </p>
               )}
             </motion.div>
